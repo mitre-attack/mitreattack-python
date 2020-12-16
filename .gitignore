@@ -1,0 +1,7 @@
+__pycache__/
+build/
+dist/
+mitreattack_python.egg-info/
+.idea/
+*.zip
+*.tar.gz
