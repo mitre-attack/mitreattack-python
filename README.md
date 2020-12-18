@@ -1,19 +1,53 @@
-# attack-scripts
+# mitreattack
 
 This repository contains various tools and utilities for working with ATT&CK content.
-- the [navlayers](navlayers/README.md) module contains a collection of objects and scripts for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- the [navlayers](mitreattack/navlayers/) module contains a collection of objects and scripts for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- more coming soon!
 
 ## Requirements
 - [python3](https://www.python.org/)
 
 ## Installation
-1. Create virtual environment:
-    - macOS and Linux: `python3 -m venv env`
-    - Windows: `py -m venv env`
-2. Activate the virtual environment:
-    - macOS and Linux: `source env/bin/activate`
-    - Windows: `env/Scripts/activate.bat`
-3. Install the mitreattack-python library: `pip3 install mitreattack-python`
+To use this package, simply install the mitreattack-python library: 
+```python
+pip install mitreattack-python
+``` 
+
+## Usage
+Some simple examples are provided here to get you started on using this library. More detailed information about the specific usage of the modules in this package, with examples, can be found in the individual README files for each module.
+
+| module name | description | documentation |
+|:------------|:------------|:--------------|
+| navlayers | Provides a means by which to import, export, and manipulate ATT&CK Layer files. These layer files can be read in from files or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](mitreattack/navlayers/README.md).|
+#### Usage Examples
+#### navlayers
+```python
+from mitreattack.navlayers import Layer
+
+example_layer4_dict = {
+    "name": "layer v4.1 example",
+    "versions" : {
+        "attack": "8",
+        "layer" : "4.1",
+        "navigator": "4.1"
+    },
+    "domain": "enterprise-attack"
+}
+
+layerA = Layer()                                  # Create a new layer object
+layerA.from_dict(example_layer4_dict)             # Load layer data into existing layer object
+print(layerA.to_dict())                           # Retrieve the loaded layer's data as a dictionary, and print it
+```
+
+```python
+from mitreattack.navlayers import Layer, ToSvg
+
+lay = Layer()
+lay.from_file("path/to/layer/file.json")
+
+t = ToSvg(domain=lay.layer.domain, source='taxii') # Use taxii server for template
+t.to_svg(layer=lay, filepath="demo.svg")           # Export 'file.json' ATT&CK layer to demo.svg SVG
+```
 
 ## Related MITRE Work
 #### CTI

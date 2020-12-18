@@ -1,4 +1,4 @@
-# layers
+# navlayers
 
 This folder contains modules and scripts for working with ATT&CK Navigator layers. ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix. For more about ATT&CK Navigator layers, visit the ATT&CK Navigator repository. The core module allows users to load, validate, manipulate, and save ATT&CK layers. A brief overview of the components can be found below. All scripts adhere to the MITRE ATT&CK Navigator Layer file format, [version 4.1](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md), but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md) layers, upgrading them to version 4.1.
 
@@ -69,14 +69,14 @@ example_layer4_dict = {
 example_layer_location = "/path/to/layer/file.json"
 example_layer_out_location = "/path/to/new/layer/file.json"
 
-from navlayers.core import Layer
+from mitreattack.navlayers.core import Layer
 
-layer1 = Layer(example_layer3_dict)              # Create a new layer and load existing data
-layer1.to_file(example_layer_out_location)  # Write out the loaded layer to the specified file
+layer1 = Layer(example_layer3_dict)             # Create a new layer and load existing data
+layer1.to_file(example_layer_out_location)      # Write out the loaded layer to the specified file
 
 layer2 = Layer()                                # Create a new layer object
 layer2.from_dict(example_layer4_dict)           # Load layer data into existing layer object
-print(layer2.to_dict())                        # Retrieve the loaded layer's data as a dictionary, and print it
+print(layer2.to_dict())                         # Retrieve the loaded layer's data as a dictionary, and print it
 
 layer3 = Layer()                                # Create a new layer object
 layer3.from_file(example_layer_location)        # Load layer data from a file into existing layer object
@@ -101,8 +101,8 @@ The process method applies the lambda functions stored during initialization to 
 
 #### Example Usage
 ```python
-from navlayers.manipulators.layerops import LayerOps
-from navlayers.core.layer import Layer
+from mitreattack.navlayers.manipulators.layerops import LayerOps
+from mitreattack.navlayers.core.layer import Layer
 
 demo = Layer()
 demo.from_file("C:\Users\attack\Downloads\layer.json")
@@ -168,8 +168,8 @@ The to_xlsx method exports the layer file referenced as `layer`, as an excel fil
 
 #### Example Usage
 ```python
-from navlayers import Layer
-from navlayers import ToExcel
+from mitreattack.navlayers import Layer
+from mitreattack.navlayers import ToExcel
 
 lay = Layer()
 lay.from_file("path/to/layer/file.json")
@@ -230,8 +230,8 @@ The to_svg method exports the layer file referenced as `layer`, as an excel file
 
 #### Example Usage
 ```python
-from navlayers import Layer
-from navlayers import ToSvg, SVGConfig
+from mitreattack.navlayers import Layer
+from mitreattack.navlayers import ToSvg, SVGConfig
 
 lay = Layer()
 lay.from_file("path/to/layer/file.json")
