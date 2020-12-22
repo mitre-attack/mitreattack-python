@@ -2,6 +2,8 @@
 
 This repository contains various tools and utilities for working with ATT&CK content.
 - the [navlayers](mitreattack/navlayers/) module contains a collection of objects and scripts for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- the [attackToExcel](mitreattack/attackToExcel/) module contains a means to convert [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides a [Pandas](https://pandas.pydata.org/) DataFrames method for
+ analyzing and working with ATT&CK data.
 - more coming soon!
 
 ## Requirements
@@ -19,7 +21,8 @@ Some simple examples are provided here to get you started on using this library.
 | module name | description | documentation |
 |:------------|:------------|:--------------|
 | navlayers | Provides a means by which to import, export, and manipulate ATT&CK Layer files. These layer files can be read in from files or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](mitreattack/navlayers/README.md).|
-#### Usage Examples
+| attackToExcel | Provides a means by which to convert the ATT&CK STIX data into Excel Spreadsheets. It also provides a means by data analysis can be performed on the data using Pandas dataframes. | Further documentation for the attackToExcel module can be found [here](mitreattack/attackToExcel/README.md).|
+### Usage Examples
 #### navlayers
 ```python
 from mitreattack.navlayers import Layer
@@ -48,7 +51,25 @@ lay.from_file("path/to/layer/file.json")
 t = ToSvg(domain=lay.layer.domain, source='taxii') # Use taxii server for template
 t.to_svg(layer=lay, filepath="demo.svg")           # Export 'file.json' ATT&CK layer to demo.svg SVG
 ```
+#### attackToExcel
+```python
+from mitreattack.attackToExcel import export_to_excel
 
+export_to_excel("enterprise-attack", "v8.1", "/path/to/export/folder")
+```
+
+```python
+import mitreattack.attackToExcel.attackToExcel as attackToExcel
+import mitreattack.attackToExcel.stixToDf as stixToDf
+
+# download and parse ATT&CK STIX data
+attackdata = attackToExcel.get_data_from_version("enterprise-attack")
+techniques_data = stixToDf.techniquesToDf(attackdata, "enterprise-attack")
+
+# show T1102 and sub-techniques of T1102
+techniques_df = techniques_data["techniques"]
+print(techniques_df[techniques_df["ID"].str.contains("T1102")]["name"])
+```
 ## Related MITRE Work
 #### CTI
 [Cyber Threat Intelligence repository](https://github.com/mitre/cti) of the ATT&CK catalog expressed in STIX 2.0 JSON. This repository also contains [our USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md) which includes additional examples of accessing and parsing our dataset in Python.

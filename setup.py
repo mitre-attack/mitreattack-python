@@ -29,7 +29,11 @@ setuptools.setup(
         'taxii2-client>=2.2.1'
         'numpy>=1.16.0',
         'drawSvg>=1.6.0',
-        'Pillow>=7.1.2'
+        'Pillow>=7.1.2',
+        'pandas>=1.1.5',
+        'tqdm>=4.31.1',
+        'requests>=2.21.0',
+        'xlsxwriter>=1.3.7'
     ]
 )
 
