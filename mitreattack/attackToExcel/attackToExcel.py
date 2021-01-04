@@ -152,7 +152,7 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
     return written_files
 
 
-def export_to_excel(domain="enterprise-attack", version=None, outputDir="."):
+def export(domain="enterprise-attack", version=None, outputDir="."):
     """
     Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
     :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
@@ -187,4 +187,4 @@ if __name__ == '__main__':
                         )
     args = parser.parse_args()
 
-    export_to_excel(args.domain, args.version, args.output)
+    export(args.domain, args.version, args.output)

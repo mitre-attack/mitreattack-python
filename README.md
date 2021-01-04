@@ -53,9 +53,9 @@ t.to_svg(layer=lay, filepath="demo.svg")           # Export 'file.json' ATT&CK l
 ```
 #### attackToExcel
 ```python
-from mitreattack.attackToExcel import export_to_excel
+from mitreattack import attackToExcel
 
-export_to_excel("enterprise-attack", "v8.1", "/path/to/export/folder")
+attackToExcel.export("enterprise-attack", "v8.1", "/path/to/export/folder")
 ```
 
 ```python
