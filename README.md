@@ -1,10 +1,8 @@
-# mitreattack
+# mitreattack-python
 
-This repository contains various tools and utilities for working with ATT&CK content.
-- the [navlayers](mitreattack/navlayers/) module contains a collection of objects and scripts for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
-- the [attackToExcel](mitreattack/attackToExcel/) module contains a means to convert [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides a [Pandas](https://pandas.pydata.org/) DataFrames method for
- analyzing and working with ATT&CK data.
-- more coming soon!
+This repository contains a library of Python-based tools and utilities for working with ATT&CK content.
+- the [navlayers](mitreattack/navlayers/) module contains a collection of utilites for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- the [attackToExcel](mitreattack/attackToExcel/) module provides utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
 
 ## Requirements
 - [python3](https://www.python.org/)
@@ -102,7 +100,7 @@ https://github.com/mitre-attack/attack-scripts
 
 ## Notice
 
-Copyright 2020 The MITRE Corporation
+Copyright 2021 The MITRE Corporation
 
 Approved for Public Release; Distribution Unlimited. Case Number 19-0486.
 
