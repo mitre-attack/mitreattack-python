@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license="Apache 2.0",
     url="https://github.com/mitreattack-python/",
+    entry_points={'console_scripts':['layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main','attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main']},
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

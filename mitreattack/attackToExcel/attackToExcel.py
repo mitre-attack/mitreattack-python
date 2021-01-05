@@ -165,7 +165,7 @@ def export(domain="enterprise-attack", version=None, outputDir="."):
     write_excel(dataframes, domain, version, outputDir)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(
         description="Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets"
     )
@@ -188,3 +188,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     export(args.domain, args.version, args.output)
+
+if __name__ == '__main__':
+    main()
