@@ -10,9 +10,9 @@ except ModuleNotFoundError:
     import mitreattack.attackToExcel.stixToDf as stixToDf
 
 
-def get_data_from_version(domain, version=None):
+def get_stix_data(domain, version=None):
     """
-    get the ATT&CK STIX data for the given version from MITRE/CTI.
+    download the ATT&CK STIX data for the given domain and version from MITRE/CTI.
     :param domain: the domain of ATT&CK to fetch data from, e.g "enterprise-attack"
     :param version: the version of attack to fetch data from, e.g "v8.1". If omitted, returns the latest version
     :returns: a MemoryStore containing the domain data
@@ -152,7 +152,7 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
     return written_files
 
 
-def export_to_excel(domain="enterprise-attack", version=None, outputDir="."):
+def export(domain="enterprise-attack", version=None, outputDir="."):
     """
     Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
     :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
@@ -161,7 +161,7 @@ def export_to_excel(domain="enterprise-attack", version=None, outputDir="."):
                       subfolder of the current directory depending on specified domain and version
     """
     # build dataframes
-    dataframes = build_dataframes(get_data_from_version(domain, version), domain)
+    dataframes = build_dataframes(get_stix_data(domain, version), domain)
     write_excel(dataframes, domain, version, outputDir)
 
 
@@ -187,4 +187,4 @@ if __name__ == '__main__':
                         )
     args = parser.parse_args()
 
-    export_to_excel(args.domain, args.version, args.output)
+    export(args.domain, args.version, args.output)
