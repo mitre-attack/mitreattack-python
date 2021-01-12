@@ -9,7 +9,7 @@ This repository contains a library of Python-based tools and utilities for worki
 
 ## Installation
 To use this package, simply install the mitreattack-python library: 
-```python
+```
 pip install mitreattack-python
 ``` 
 
@@ -77,13 +77,13 @@ Further documentation for the attackToExcel module can be found [here](mitreatta
 
 #### Command Line Tools
 
-Two command line tools have been included in this package as part of the `navlayrs` and `attackToExcel` modules. This
- can be run immediately after installing the package, using the syntax described below.
+Two command line tools have been included in this package as part of the `navlayers` and `attackToExcel` modules. This can be run immediately after installing the package, using the syntax described below.
  
 ##### layerExporter_cli
 This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
   layer file to either an svg image or excel file using the functionality provided by the navlayers module. 
-```bash
+ Details about the SVG configuration json mentioned below can be found in the [SVGConfig](mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
+```
 C:\Users\attack>layerExporter_cli -h
 usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local}]
                          [--local LOCAL] -o OUTPUT [OUTPUT ...]
@@ -110,12 +110,13 @@ optional arguments:
   -d WIDTH HEIGHT, --size WIDTH HEIGHT
                         [SVG Only] X and Y size values (in inches) for SVG
                         export (use -l for other settings)
+                        
+C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json       
 ```
 
 ##### attackToExcel_cli
-This command line tools allows users to download ATT&CK from MITRE's CTI resources and convert it to excel 
-spreadsheets using the funcitonality provided by the attackToExcel module.
-```bash
+This command line tool allows users to generate excel spreadsheets representing the ATT&CK dataset.
+```
 C:\Users\attack>attackToExcel_cli -h
 usage: attackToExcel_cli [-h]
                          [-domain {enterprise-attack,mobile-attack,ics-attack}]
@@ -132,6 +133,8 @@ optional arguments:
   -output OUTPUT        output directory. If omitted writes to a subfolder of
                         the current directory depending on the domain and
                         version
+                        
+C:\Users\attack>attackToExcel_cli -domain ics-attack -version v8.1 -output exported_data
 ```
 
 ## Related MITRE Work
