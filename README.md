@@ -9,7 +9,7 @@ This repository contains a library of Python-based tools and utilities for worki
 
 ## Installation
 To use this package, simply install the mitreattack-python library: 
-```python
+```
 pip install mitreattack-python
 ``` 
 
@@ -74,6 +74,68 @@ print(techniques_df[techniques_df["ID"].str.contains("T1102")]["name"])
 ```
 
 Further documentation for the attackToExcel module can be found [here](mitreattack/attackToExcel/README.md).
+
+#### Command Line Tools
+
+Two command line tools have been included in this package as part of the `navlayers` and `attackToExcel` modules. This can be run immediately after installing the package, using the syntax described below.
+ 
+##### layerExporter_cli
+This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
+  layer file to either an svg image or excel file using the functionality provided by the navlayers module. 
+ Details about the SVG configuration json mentioned below can be found in the [SVGConfig](mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
+```
+C:\Users\attack>layerExporter_cli -h
+usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local}]
+                         [--local LOCAL] -o OUTPUT [OUTPUT ...]
+                         [-l LOAD_SETTINGS] [-d WIDTH HEIGHT]
+                         input [input ...]
+
+Export an ATT&CK Navigator layer as a svg image or excel file
+
+positional arguments:
+  input                 Path(s) to the file to export
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m {svg,excel}, --mode {svg,excel}
+                        The form to export the layers in
+  -s {taxii,local}, --source {taxii,local}
+                        What source to utilize when building the matrix
+  --local LOCAL         Path to the local resource if --source=local
+  -o OUTPUT [OUTPUT ...], --output OUTPUT [OUTPUT ...]
+                        Path(s) to the exported svg/xlsx file
+  -l LOAD_SETTINGS, --load_settings LOAD_SETTINGS
+                        [SVG Only] Path to a SVG configuration json to use
+                        when rendering
+  -d WIDTH HEIGHT, --size WIDTH HEIGHT
+                        [SVG Only] X and Y size values (in inches) for SVG
+                        export (use -l for other settings)
+                        
+C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json       
+```
+
+##### attackToExcel_cli
+This command line tool allows users to generate excel spreadsheets representing the ATT&CK dataset.
+```
+C:\Users\attack>attackToExcel_cli -h
+usage: attackToExcel_cli [-h]
+                         [-domain {enterprise-attack,mobile-attack,ics-attack}]
+                         [-version VERSION] [-output OUTPUT]
+
+Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -domain {enterprise-attack,mobile-attack,ics-attack}
+                        which domain of ATT&CK to convert
+  -version VERSION      which version of ATT&CK to convert. If omitted, builds
+                        the latest version
+  -output OUTPUT        output directory. If omitted writes to a subfolder of
+                        the current directory depending on the domain and
+                        version
+                        
+C:\Users\attack>attackToExcel_cli -domain ics-attack -version v8.1 -output exported_data
+```
 
 ## Related MITRE Work
 #### CTI
