@@ -12,7 +12,7 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | [legenditem](core/legenditem.py) | Implements a basic [legenditem object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#legenditem-object-properties). |
 | [metadata](core/metadata.py) | Implements a basic [metadata object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#metadata-object-properties). |
 | [technique](core/technique.py) | Implements a basic [technique object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#technique-object-properties). |
-| [versions](core/versions.py) | Impelments a basic [versions object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties).|
+| [versions](core/versions.py) | Implements a basic [versions object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties).|
 #### Manipulator Scripts
 | script | description |
 |:-------|:------------|
@@ -122,7 +122,7 @@ visual_aid = out_layer2.to_dict()                           # Retrieve dictionar
 
 # Example 2) Build a LayerOps object that takes a dictionary and averages scores across the layers
 lo2 = LayerOps(score=lambda x: sum([x[y] for y in x]) / len([x[y] for y in x]),
-               color=lambda x: x['b'],
+               colors=lambda x: x['b'],
                desc=lambda x: "This is a dict example")      # Build LayerOps object, with lambda
 out_layer3 = lo2.process({'a': demo, 'b': demo2})            # Trigger processing on a dictionary of demo and demo2
 dict_layer = out_layer3.to_dict()                            # Retrieve dictionary representation of processed layer

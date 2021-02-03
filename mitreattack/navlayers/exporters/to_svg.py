@@ -431,7 +431,7 @@ class ToSvg:
         excluded = []
         if layer.layer.hideDisabled:
             for entry in layer.layer.techniques:
-                if entry.enabled == False:
+                if entry.enabled is False:
                     if entry.tactic:
                         excluded.append((entry.techniqueID, entry.tactic))
                     else:

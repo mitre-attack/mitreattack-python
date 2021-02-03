@@ -47,7 +47,7 @@ class ToExcel:
         excluded = []
         if layer.layer.hideDisabled:
             for entry in layer.layer.techniques:
-                if entry.enabled == False:
+                if entry.enabled is False:
                     if entry.tactic:
                         excluded.append((entry.techniqueID, entry.tactic))
                     else:
@@ -79,7 +79,7 @@ class ToExcel:
             coords = self.raw_handle.retrieve_coords(tech.techniqueID, p_tactic)
             if coords == [] or coords == 'HIDDEN':
                 tac = p_tactic
-                if tac == None:
+                if tac is None:
                     tac = "(none)"
                 if coords == []:
                     print('WARNING! Technique/Tactic ' + tech.techniqueID + '/' + tac +
@@ -100,7 +100,7 @@ class ToExcel:
                 if tech.comment:
                     cell.comment = Comment(tech.comment, 'ATT&CK Scripts Exporter')
 
-                if tech.enabled == False:
+                if tech.enabled is False:
                     if layer.layer.hideDisabled:
                         pass
                     else:

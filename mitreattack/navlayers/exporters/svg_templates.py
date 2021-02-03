@@ -244,7 +244,7 @@ class SvgTemplates:
             su = len(x.techniques)
             for enum in exclude:
                 if enum[0] in [y.id for y in x.techniques]:
-                    if self.h.convert(enum[1]) == x.tactic.name or enum[1] == False:
+                    if self.h.convert(enum[1]) == x.tactic.name or enum[1] is False:
                         su -= 1
             for y in x.subtechniques:
                 if y in [z[0] for z in subtechs]:

@@ -187,13 +187,13 @@ class MatrixGen:
                 for sub in colm.subtechniques[st]:
                     sub.score = 0
                     for entry in scores:
-                        if entry[0] == sub.id and (entry[1] == False or entry[1] == self.convert(colm.tactic.name)):
+                        if entry[0] == sub.id and (entry[1] is False or entry[1] == self.convert(colm.tactic.name)):
                             sub.score = entry[2]
                             break
             for tech in colm.techniques:
                 tech.score = 0
                 for entry in scores:
-                    if entry[0] == tech.id and (entry[1] == False or entry[1] == self.convert(colm.tactic.name)):
+                    if entry[0] == tech.id and (entry[1] is False or entry[1] == self.convert(colm.tactic.name)):
                         tech.score = entry[2]
                         break
         if mode == 2:
@@ -249,14 +249,14 @@ class MatrixGen:
                 tid = element.id
                 skip = False
                 for entry in range(0, len(et)):
-                    if et[entry] == tid and (e_tacs[entry] == False or self.convert(e_tacs[entry]) == c_name):
+                    if et[entry] == tid and (e_tacs[entry] is False or self.convert(e_tacs[entry]) == c_name):
                         skip = True
                         break
                 if not skip:
                     matrix_obj[(row, column)] = elname
                     sat = False
                     for entry in range(0, len(st)):
-                        if st[entry] == tid and (s_tacs[entry] == False or self.convert(s_tacs[entry]) == c_name):
+                        if st[entry] == tid and (s_tacs[entry] is False or self.convert(s_tacs[entry]) == c_name):
                             # this tech has enabled subtechs
                             to_add.append((row, tid))
                             row += len(stechs[tid])

@@ -52,12 +52,12 @@ processing. A brief overview of these methods follows.
 |softwareToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX software from the provided data and returns corresponding Pandas DataFrames.|
 |groupsToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX groups from the provided data and returns corresponding Pandas DataFrames.|
 |mitigationsToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX mitigations from the provided data and returns corresponding Pandas DataFrames.|
-|relationshipsToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX relationships from the provided data and returns corresponding Pandas datafDataFramesrames.|
+|relationshipsToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX relationships from the provided data and returns corresponding Pandas DataFrames.|
 |matricesToDF|`src`: MemoryStore or other stix2 DataSource object holding domain data<br> `domain`: domain of ATT&CK that `src` corresponds to | Parses STIX matrices from the provided data and returns a parsed matrix structure of the form `[{matrix, name, description, merge, border}, ...]`|
 
 ## Spreadsheet format
 
-The Excel representation of the ATT&CK dataset includes both master spreadsheets, containing all object types, and individual spreadsheets for each object type. The individual type spreadsheets break out relationships (e.g procedure examples connecting groups to techniques) into separate sheets by relationship type, while the master spreadsheet includes all relationship types in a single sheet. Otherwise the representation is identical.
+The Excel representation of the ATT&CK dataset includes both master spreadsheets, containing all object types, and individual spreadsheets for each object type. The individual type spreadsheets break out relationships (e.g procedure examples connecting groups to techniques) into separate sheets by relationship type, while the master spreadsheet includes all relationship types in a single sheet. Otherwise, the representation is identical.
 
 A citations sheet can be used to look up the in-text citations which appear in some fields. For domains that include multiple matrices, such as Mobile ATT&CK, each matrix gets its own named sheet. Unlike the STIX dataset, objects that have been revoked or deprecated are not included in the spreadsheets.
 

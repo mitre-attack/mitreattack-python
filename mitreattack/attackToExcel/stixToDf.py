@@ -23,7 +23,7 @@ def format_date(date):
     """ Given a date string, return it formatted as %d %B %Y """
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return ("{} {} {}").format(date.strftime("%d"), date.strftime("%B"), date.strftime("%Y"))
+    return "{} {} {}".format(date.strftime("%d"), date.strftime("%B"), date.strftime("%Y"))
 
 
 def get_citations(objects):
@@ -246,7 +246,7 @@ def groupsToDf(src, domain):
                 for ref in group["external_references"]:
                     if ref["source_name"] == alias:
                         associated_group_citations.append(ref["description"])
-                        break;
+                        break
                         # aliases.append(alias)
             row["associated groups"] = ", ".join(associated_groups)
             row["associated groups citations"] = ", ".join(associated_group_citations)
@@ -517,10 +517,10 @@ def relationshipsToDf(src, relatedType=None):
         if relatedType:
             related = False
             for stixTerm in attackToStixTerm[relatedType]:  # try all stix types for the ATT&CK type
-                if source["type"] == stixTerm or target[
-                    "type"] == stixTerm:  # if any stix type is part of the relationship
+                if (source["type"] == stixTerm or
+                        target["type"] == stixTerm):  # if any stix type is part of the relationship
                     related = True
-                    break;
+                    break
             if not related: continue  # skip this relationship if the types don't match
 
         # add mapping data
@@ -583,7 +583,7 @@ def relationshipsToDf(src, relatedType=None):
                 df = dataframes[dfname]
                 for description in filter(lambda x: x == x, df[
                     "mapping description"].tolist()):  # filter out missing descriptions which for whatever reason in pandas don't equal themselves
-                    [usedCitations.add(x) for x in re.findall("\(Citation: (.*?)\)", description)]
+                    [usedCitations.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
 
             citations = citations[citations.reference.isin(list(usedCitations))]  # filter to only used references
 
