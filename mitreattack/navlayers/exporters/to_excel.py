@@ -5,7 +5,7 @@ import colorsys
 try:
     from core import Layer
     from exporters import ExcelTemplates
-except ModuleNotFoundError:
+except ImportError:
     from ..core import Layer
     from ..exporters import ExcelTemplates
 

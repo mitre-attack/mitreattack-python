@@ -9,7 +9,7 @@ try:
         _getstringwidth
     from core.gradient import Gradient
     from core.filter import Filter
-except ModuleNotFoundError:
+except ImportError:
     from ..exporters.matrix_gen import MatrixGen
     from ..exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx, _optimalFontSize, \
         _getstringwidth

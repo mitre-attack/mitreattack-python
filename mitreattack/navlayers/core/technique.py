@@ -2,7 +2,7 @@ try:
     from ..core.exceptions import BadInput, handler, typeChecker, \
         UNSETVALUE, UnknownTechniqueProperty, BadType
     from ..core.metadata import Metadata, MetaDiv
-except ValueError:
+except ImportError:
     from core.exceptions import BadInput, handler, typeChecker, \
         UNSETVALUE, UnknownTechniqueProperty, BadType
     from core.metadata import Metadata, MetaDiv

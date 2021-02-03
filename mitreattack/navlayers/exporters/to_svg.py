@@ -3,7 +3,7 @@ import json
 try:
     from core import Layer
     from exporters.svg_templates import SvgTemplates
-except ModuleNotFoundError:
+except ImportError:
     from ..core import Layer
     from ..exporters.svg_templates import SvgTemplates
 

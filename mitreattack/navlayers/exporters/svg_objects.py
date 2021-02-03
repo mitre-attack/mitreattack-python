@@ -6,7 +6,7 @@ from PIL import ImageFont
 
 try:
     from core.gradient import Gradient
-except ModuleNotFoundError:
+except ImportError:
     from ..core.gradient import Gradient
 
 

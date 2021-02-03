@@ -6,7 +6,7 @@ import pandas as pd
 
 try:
     import stixToDf
-except ModuleNotFoundError:
+except ImportError:
     import mitreattack.attackToExcel.stixToDf as stixToDf
 
 

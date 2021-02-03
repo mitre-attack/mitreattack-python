@@ -22,7 +22,7 @@
 import copy
 try:
     from core import Layer
-except ModuleNotFoundError:
+except ImportError:
     from ..core import Layer
 
 

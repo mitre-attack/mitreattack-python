@@ -8,7 +8,7 @@ try:
     from ..core.versions import Versions
     from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
         categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-except ValueError:
+except ImportError:
     from core.filter import Filter
     from core.layout import Layout
     from core.technique import Technique

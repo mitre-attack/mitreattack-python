@@ -2,7 +2,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 try:
     from exporters.matrix_gen import MatrixGen
-except ModuleNotFoundError:
+except ImportError:
     from ..exporters.matrix_gen import MatrixGen
 
 
