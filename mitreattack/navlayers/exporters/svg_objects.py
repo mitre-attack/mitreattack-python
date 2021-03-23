@@ -30,6 +30,7 @@ def convertToPx(quantity, unit):
         return quantity * 1.33
     return -1
 
+
 def _getstringwidth(string, font, size):
     """
         INTERNAL: Calculate the width of a string (in pixels)
@@ -44,6 +45,7 @@ def _getstringwidth(string, font, size):
     length, _ = font.getsize(string)
     return length
 
+
 def _getstringheight(string, font, size):
     """
         INTERNAL: Calculate the width of a string (in pixels)
@@ -57,6 +59,7 @@ def _getstringheight(string, font, size):
                               int(size))
     _, height = font.getsize(string)
     return height
+
 
 def _findSpace(words, width, height, maxFontSize):
     """
@@ -155,13 +158,13 @@ def _optimalFontSize(st, width, height, maxFontSize=12):
         if size > bestSize:
             bestSize = size
             bestWordArrangement = wordSet
-        #if size == maxFontSize:
-        #    break
 
     return bestSize, bestWordArrangement
 
+
 class Cell(draw.DrawingParentElement):
     TAG_NAME = 'rect'
+
     def __init__(self, height, width, fill, tBC, ctype=None):
         # tBC = tableBorderColor, ctype='class' field on resulting svg object, fill=[R,G,B]
         super().__init__(height=height, width=width, style='fill: rgb({}, {}, {})'.format(fill[0], fill[1], fill[2]),
@@ -169,8 +172,10 @@ class Cell(draw.DrawingParentElement):
         if ctype:
             self.args['class'] = ctype
 
+
 class HeaderRect(draw.DrawingParentElement):
     TAG_NAME = 'rect'
+
     def __init__(self, width, height, ctype, x=None, y=None, outline=True):
         # ctype='class' field on resulting svg object, x=x coord, y=y coord
         super().__init__(width=width, height=height, fill='white', rx='5')
@@ -182,8 +187,10 @@ class HeaderRect(draw.DrawingParentElement):
         if outline:
             self.args['stroke'] = 'black'
 
+
 class G(draw.DrawingParentElement):
     TAG_NAME = 'g'
+
     def __init__(self, tx=None, ty=None, style=None, ctype=None):
         # tx=translate x, ty=translate y, ctype='class' field on resulting svg object
         super().__init__()
@@ -199,6 +206,7 @@ class G(draw.DrawingParentElement):
 
 class Line(draw.DrawingParentElement):
     TAG_NAME = 'line'
+
     def __init__(self, x1, x2, y1, y2, stroke):
         # x1=start x, x2=stop x, y1=start y, y2=stop y, stroke='stroke' field on resulting svg object
         super().__init__(x1=x1, x2=x2, y1=y1, y2=y2, stroke=stroke)
@@ -223,8 +231,10 @@ class Text(draw.Text):
         if fill:
             self.args['fill'] = fill
 
+
 class Swatch(draw.DrawingParentElement):
     TAG_NAME = 'rect'
+
     def __init__(self, height, width, fill):
         # fill= [R,G,B]
         super().__init__(height=height, width=width, style='fill: rgb({}, {}, {})'.format(fill[0], fill[1], fill[2]))
@@ -318,6 +328,7 @@ class SVG_HeaderBlock:
                     cell.append(label)
         return g
 
+
 class SVG_Technique:
     def __init__(self, gradient):
         self.grade = gradient
@@ -389,7 +400,7 @@ class SVG_Technique:
 
         y = height / 2
         if lines > 0:
-            y = (height - (lines * fs)) / 2 + height/10 #padding
+            y = (height - (lines * fs)) / 2 + height/10  # padding
         else:
             y = y + fs / 4
 

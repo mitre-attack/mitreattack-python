@@ -5,12 +5,14 @@ from taxii2client.v20 import Server, Collection
 class DomainNotLoadedError(Exception):
     pass
 
+
 class MatrixEntry:
     def __init__(self, id=None, name=None):
         if id is not None:
             self.id = id
         if name is not None:
             self.name = name
+        self.score = None
 
     @property
     def id(self):
@@ -38,6 +40,7 @@ class MatrixEntry:
     @score.setter
     def score(self, score):
         self.__score = score
+
 
 class Tactic:
     def __init__(self, tactic=None, techniques=None, subtechniques=None):
@@ -74,6 +77,7 @@ class Tactic:
     @subtechniques.setter
     def subtechniques(self, subtechniques):
         self.__subtechniques = subtechniques
+
 
 class MatrixGen:
     def __init__(self, source='taxii', local=None):

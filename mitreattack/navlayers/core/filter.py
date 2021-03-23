@@ -27,12 +27,7 @@ class Filter:
     def platforms(self, platforms):
         typeCheckerArray(type(self).__name__, platforms, str, "platforms")
         self.__platforms = []
-        valids = ["Windows", "Linux", "macOS", "AWS", "GCP", "Azure",
-                  "Azure AD", "Office 365", "SaaS"]
-        if self.domain == "mitre-mobile":
-            valids = ['Android', 'iOS']
         for entry in platforms:
-            categoryChecker(type(self).__name__, entry, valids, "platforms")
             self.__platforms.append(entry)
 
     def get_dict(self):

@@ -9,6 +9,7 @@ except ImportError:
     from ..core import Layer
     from ..exporters import ExcelTemplates
 
+
 class ToExcel:
     def __init__(self, domain='enterprise', source='taxii', local=None):
         """

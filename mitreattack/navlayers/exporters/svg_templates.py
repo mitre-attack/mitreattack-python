@@ -170,17 +170,12 @@ class SvgTemplates:
         """
         offset = 0
         column = G(ty=2)
+        for a in tactic.subtechniques:
+            self._copy_scores(tactic.subtechniques[a],scores,tactic.tactic.name, exclude)
         for x in tactic.techniques:
             if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in exclude):
                 continue
-            found = False
-            for y in scores:
-                if x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]):
-                    x.score = y[2]
-                    found = True
-                    continue
-            if not found:
-                x.score = None
+            self._copy_scores([x], scores, tactic.tactic.name, exclude)
             if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in subtechs):
                 a, offset = self.get_tech(offset, mode, x, tactic=self.h.convert(tactic.tactic.name),
                                           subtechniques=tactic.subtechniques.get(x.id, []), colors=colors,
@@ -287,3 +282,22 @@ class SvgTemplates:
         if overlay:
             d.append(overlay)
         return d
+
+    def _copy_scores(self, listing, scores, tactic_name, exclude):
+        """
+            INTERNAL: Move scores over from the input object (scores) to the one used to build the zvg (listing)
+
+            :param listing: List of objects to apply scores to
+            :param scores: List of scores for this tactic
+            :param exclude: List of excluded techniques
+            :return: None - operates on the raw object itself
+        """
+        for b in listing:
+            found = False
+            for y in scores:
+                if b.id == y[0] and (y[1] == self.h.convert(tactic_name) or not y[1]):
+                    b.score = y[2]
+                    found = True
+                    continue
+            if not found:
+                b.score = None

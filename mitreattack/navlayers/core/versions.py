@@ -1,7 +1,7 @@
 try:
-    from ..core.exceptions import typeChecker, categoryChecker, UNSETVALUE
+    from ..core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 except ImportError:
-    from core.exceptions import typeChecker, categoryChecker, UNSETVALUE
+    from core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
 
 class Versions:
@@ -36,7 +36,11 @@ class Versions:
     @navigator.setter
     def navigator(self, navigator):
         typeChecker(type(self).__name__, navigator, str, "navigator")
-        categoryChecker(type(self).__name__, navigator, ["4.0", "4.1"], "navigator version")
+        try:
+            categoryChecker(type(self).__name__, navigator, ["4.0", "4.1"], "navigator version")
+        except BadInput:
+            print(f'[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.1 schema, '
+                  f'this may result in unexpected behavior.')
         self.__navigator = navigator
 
     @property
@@ -46,9 +50,13 @@ class Versions:
     @layer.setter
     def layer(self, layer):
         typeChecker(type(self).__name__, layer, str, "layer")
-        categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1"], "layer version")
+        try:
+            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1"], "layer version")
+        except BadInput:
+            print(f'[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.1 schema, this may result in '
+                  f'unexpected behavior.')
         if layer == '3.0':
-            print('[NOTICE] - Forcibly upgrading version from {} to 4.1.'.format(layer))
+            print(f'[NOTICE] - Forcibly upgrading version from {layer} to 4.1.')
             layer = "4.1"
         self.__layer = layer
 

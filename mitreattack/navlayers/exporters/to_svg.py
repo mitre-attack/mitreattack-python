@@ -7,29 +7,30 @@ except ImportError:
     from ..core import Layer
     from ..exporters.svg_templates import SvgTemplates
 
+
 class NoLayer(Exception):
     pass
 
 
 class SVGConfig:
-    d_width=8.5
-    d_height=11
-    d_headerHeight=1
-    d_unit="in"
-    d_showSubtechniques="expanded"
-    d_font="sans-serif"
-    d_tableBorderColor="#6B7279"
-    d_showHeader=True
-    d_legendDocked=True
-    d_legendX=0
-    d_legendY=0
-    d_legendWidth=2
-    d_legendHeight=1
-    d_showLegend=True
-    d_showFilters=True
-    d_showAbout=True
-    d_showDomain=True
-    d_border=0.104
+    d_width = 8.5
+    d_height = 11
+    d_headerHeight = 1
+    d_unit = "in"
+    d_showSubtechniques = "expanded"
+    d_font = "sans-serif"
+    d_tableBorderColor = "#6B7279"
+    d_showHeader = True
+    d_legendDocked = True
+    d_legendX = 0
+    d_legendY = 0
+    d_legendWidth = 2
+    d_legendHeight = 1
+    d_showLegend = True
+    d_showFilters = True
+    d_showAbout = True
+    d_showDomain = True
+    d_border = 0.104
 
     def __init__(self, width=d_width, height=d_height, headerHeight=d_headerHeight, unit=d_unit,
                  showSubtechniques=d_showSubtechniques, font=d_font, tableBorderColor=d_tableBorderColor,
@@ -379,6 +380,7 @@ class SVGConfig:
             self.__border = border
         else:
             print('[Warning] - Unable to set border to {}: not a float'.format(border))
+
 
 class ToSvg:
     def __init__(self, domain='enterprise', source='taxii', local=None, config=None):

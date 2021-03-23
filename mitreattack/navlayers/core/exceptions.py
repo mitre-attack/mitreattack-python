@@ -95,7 +95,7 @@ def loadChecker(caller, testee, required, field):
         :param caller: the entity that called this function (used for error
             messages)
         :param testee: the element to test
-        :param requireds: a list of required values for the testee
+        :param required: a list of required values for the testee
         :param field: what the element is to be used as (used for error
             messages)
         :raises BadInput: error denoting the testee element is not one of
