@@ -6,11 +6,13 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="mitreattack-python",
     version="1.0.0",
-    author="The MITRE Corporation",
+    author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    maintainer="Caleb Little",
+    maintainer_email="clittle@mitre.org",
     license="Apache 2.0",
     url="https://github.com/mitreattack-python/",
     entry_points={

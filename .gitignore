@@ -6,3 +6,4 @@ mitreattack_python.egg-info/
 *.zip
 *.tar.gz
 venv/
+.pypirc
