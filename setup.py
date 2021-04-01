@@ -6,20 +6,27 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="mitreattack-python",
     version="1.0.0",
-    author="The MITRE Corporation",
+    author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    maintainer="Caleb Little",
+    maintainer_email="clittle@mitre.org",
     license="Apache 2.0",
     url="https://github.com/mitreattack-python/",
-    entry_points={'console_scripts':['layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main','attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main']},
+    entry_points={
+        'console_scripts': [
+            'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
+            'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main'
+        ]
+    },
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "Topic :: Security",
-        "Development Statu || 4 - Beta",
-        "License :: OSI Approved :: APACHE License",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: Apache License",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
@@ -34,7 +41,6 @@ setuptools.setup(
         'pandas>=1.1.5',
         'tqdm>=4.31.1',
         'requests>=2.21.0',
-        'xlsxwriter>=1.3.7'
+        'xlsxwriter>=1.3.7',
     ]
 )
-

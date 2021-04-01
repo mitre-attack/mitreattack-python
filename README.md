@@ -1,7 +1,7 @@
 # mitreattack-python
 
 This repository contains a library of Python-based tools and utilities for working with ATT&CK content.
-- the [navlayers](mitreattack/navlayers/) module contains a collection of utilites for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- the [navlayers](mitreattack/navlayers/) module contains a collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
 - the [attackToExcel](mitreattack/attackToExcel/) module provides utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
 
 ## Requirements
@@ -142,16 +142,16 @@ C:\Users\attack>attackToExcel_cli -domain ics-attack -version v8.1 -output expor
 [Cyber Threat Intelligence repository](https://github.com/mitre/cti) of the ATT&CK catalog expressed in STIX 2.0 JSON. This repository also contains [our USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md) which includes additional examples of accessing and parsing our dataset in Python.
 
 #### ATT&CK
-ATT&CK® is a curated knowledge base and model for cyber adversary behavior, reflecting the various phases of an adversary’s lifecycle and the platforms they are known to target. ATT&CK is useful for understanding security risk against known adversary behavior, for planning security improvements, and verifying defenses work as expected.
+ATT&CK® is a curated knowledge base and model for cyber adversary behavior, reflecting the various phases of an adversary’s lifecycle, and the platforms they are known to target. ATT&CK is useful for understanding security risk against known adversary behavior, for planning security improvements, and verifying defenses work as expected.
 
 https://attack.mitre.org
 
 #### STIX
 Structured Threat Information Expression (STIX<sup>™</sup>) is a language and serialization format used to exchange cyber threat intelligence (CTI).
 
-STIX enables organizations to share CTI with one another in a consistent and machine readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively.
+STIX enables organizations to share CTI with one another in a consistent and machine-readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively.
 
-STIX is designed to improve many different capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more.
+STIX is designed to improve many capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more.
 
 https://oasis-open.github.io/cti-documentation/
 

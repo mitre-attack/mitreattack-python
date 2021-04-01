@@ -2,7 +2,7 @@ import colour
 import math
 try:
     from ..core.exceptions import typeChecker, typeCheckerArray
-except ValueError:
+except ImportError:
     from core.exceptions import typeChecker, typeCheckerArray
 
 

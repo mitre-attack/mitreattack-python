@@ -4,12 +4,12 @@ try:
     from exporters.to_svg import ToSvg, SVGConfig
     from exporters.to_excel import ToExcel
     from core import Layer
-except ModuleNotFoundError:
+except ImportError:
     from mitreattack.navlayers.exporters.to_svg import ToSvg, SVGConfig
     from mitreattack.navlayers.exporters.to_excel import ToExcel
     from mitreattack.navlayers.core import Layer
 
-def main():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export an ATT&CK Navigator layer as a svg image or excel file')
     parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True, help='The form to export the layers in')
     parser.add_argument('input', nargs='+', help='Path(s) to the file to export')
@@ -53,6 +53,6 @@ def main():
             svy = ToSvg(domain=lay.layer.domain, source=args.source, local=args.local, config=conf)
             svy.to_svg(lay, filepath=args.output[i])
         print('{}/{} - Finished exporting {} to {}'.format(i + 1, len(args.input), entry, args.output[i]))
-
-if __name__ == '__main__':
-    main()
+else:
+    print('This script is intended as a commandline wrapper for exporting scripts in the library. '
+          'It will only work if run as the main script.')

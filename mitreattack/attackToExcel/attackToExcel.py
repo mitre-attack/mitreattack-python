@@ -6,7 +6,7 @@ import pandas as pd
 
 try:
     import stixToDf
-except ModuleNotFoundError:
+except ImportError:
     import mitreattack.attackToExcel.stixToDf as stixToDf
 
 
@@ -22,7 +22,7 @@ def get_stix_data(domain, version=None):
     else:
         url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url, verify=False).json()
+    stix_json = requests.get(url).json()
     return MemoryStore(stix_data=stix_json["objects"])
 
 
@@ -93,7 +93,7 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
             fp = os.path.join(outputDirectory, f"{domainVersionString}-{objType}.xlsx")
             matrix_writer = pd.ExcelWriter(fp, engine='xlsxwriter')
             for matrix in dataframes[objType]:  # some domains have multiple matrices
-                sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix[ "name"] + " matrix"  # name them accordingly if there are multiple
+                sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix["name"] + " matrix"  # name them accordingly if there are multiple
                 matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix data to master file
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,

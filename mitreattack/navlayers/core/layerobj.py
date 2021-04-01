@@ -8,7 +8,7 @@ try:
     from ..core.versions import Versions
     from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
         categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-except ValueError:
+except ImportError:
     from core.filter import Filter
     from core.layout import Layout
     from core.technique import Technique
@@ -97,7 +97,7 @@ class _LayerObj:
         if dom.startswith('mitre'):
             dom = dom.split('-')[-1] + '-attack'
         categoryChecker(type(self).__name__, dom, ["enterprise-attack",
-                                                      "mobile-attack"],
+                                                   "mobile-attack"],
                         "domain")
         self.__domain = domain
 
@@ -279,14 +279,15 @@ class _LayerObj:
         for entry in metadata:
             try:
                 if "divider" in entry:
-                        self.__metadata.append(MetaDiv(entry["divider"]))
+                    self.__metadata.append(MetaDiv(entry["divider"]))
                 else:
                     loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
                     self.__metadata.append(Metadata(entry['name'], entry['value']))
             except MissingParameters as e:
-                handler(type(self).__name__, 'Metadata {} is missing parameters: '
-                                         '{}. Skipping.'
-                    .format(entry, e))
+                handler(
+                    type(self).__name__,
+                    'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
+                )
 
     def _enumerate(self):
         """

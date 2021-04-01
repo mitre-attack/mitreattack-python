@@ -3,7 +3,7 @@ try:
     from ..core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
     from ..core.layerobj import _LayerObj
-except ValueError:
+except ImportError:
     from core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
     from core.layerobj import _LayerObj

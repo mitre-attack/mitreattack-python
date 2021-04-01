@@ -1,6 +1,6 @@
 try:
     from ..core.exceptions import typeChecker, categoryChecker, UNSETVALUE
-except ValueError:
+except ImportError:
     from core.exceptions import typeChecker, categoryChecker, UNSETVALUE
 
 
