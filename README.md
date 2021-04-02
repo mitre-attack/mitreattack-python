@@ -1,8 +1,8 @@
 # mitreattack-python
 
 This repository contains a library of Python-based tools and utilities for working with ATT&CK content.
-- the [navlayers](mitreattack/navlayers/) module contains a collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
-- the [attackToExcel](mitreattack/attackToExcel/) module provides utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
+- the [navlayers](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/navlayers) module contains a collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
+- the [attackToExcel](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/attackToExcel) module provides utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
 
 ## Requirements
 - [python3](https://www.python.org/)
@@ -18,8 +18,8 @@ Some simple examples are provided here to get you started on using this library.
 
 | module name | description | documentation |
 |:------------|:------------|:--------------|
-| navlayers | Provides a means by which to import, export, and manipulate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](mitreattack/navlayers/README.md).|
-| attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](mitreattack/attackToExcel/README.md).|
+| navlayers | Provides a means by which to import, export, and manipulate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/mitreattack/navlayers/README.md).|
+| attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/mitreattack/attackToExcel/README.md).|
 ### Usage Examples
 #### navlayers
 ```python
@@ -50,7 +50,7 @@ t = ToSvg(domain=lay.layer.domain, source='taxii')    # Use taxii server to get 
 t.to_svg(layer=lay, filepath="example.svg")           # render the layer to an SVG file
 ```
 
-Further documentation for the navlayers module can be found [here](mitreattack/navlayers/README.md).
+Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).
 
 #### attackToExcel
 ```python
@@ -73,7 +73,7 @@ techniques_df = techniques_data["techniques"]
 print(techniques_df[techniques_df["ID"].str.contains("T1102")]["name"])
 ```
 
-Further documentation for the attackToExcel module can be found [here](mitreattack/attackToExcel/README.md).
+Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md).
 
 #### Command Line Tools
 
@@ -82,7 +82,7 @@ Two command line tools have been included in this package as part of the `navlay
 ##### layerExporter_cli
 This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
   layer file to either an svg image or excel file using the functionality provided by the navlayers module. 
- Details about the SVG configuration json mentioned below can be found in the [SVGConfig](mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
+ Details about the SVG configuration json mentioned below can be found in the [SVGConfig](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
 ```
 C:\Users\attack>layerExporter_cli -h
 usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local}]

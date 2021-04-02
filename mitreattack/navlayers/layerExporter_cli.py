@@ -9,7 +9,8 @@ except ImportError:
     from mitreattack.navlayers.exporters.to_excel import ToExcel
     from mitreattack.navlayers.core import Layer
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description='Export an ATT&CK Navigator layer as a svg image or excel file')
     parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True, help='The form to export the layers in')
     parser.add_argument('input', nargs='+', help='Path(s) to the file to export')
@@ -53,6 +54,7 @@ if __name__ == '__main__':
             svy = ToSvg(domain=lay.layer.domain, source=args.source, local=args.local, config=conf)
             svy.to_svg(lay, filepath=args.output[i])
         print('{}/{} - Finished exporting {} to {}'.format(i + 1, len(args.input), entry, args.output[i]))
-else:
-    print('This script is intended as a commandline wrapper for exporting scripts in the library. '
-          'It will only work if run as the main script.')
+
+
+if __name__ == '__main__':
+    main()
