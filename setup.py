@@ -15,6 +15,7 @@ setuptools.setup(
     maintainer_email="clittle@mitre.org",
     license="Apache 2.0",
     url="https://github.com/mitreattack-python/",
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
@@ -26,7 +27,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Security",
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: Apache License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
@@ -34,7 +35,7 @@ setuptools.setup(
         'colour>=0.1.5',
         'openpyxl>=3.0.3',
         'stix2>=1.1.2',
-        'taxii2-client>=2.2.1'
+        'taxii2-client>=2.2.1',
         'numpy>=1.16.0',
         'drawSvg>=1.6.0',
         'Pillow>=7.1.2',
