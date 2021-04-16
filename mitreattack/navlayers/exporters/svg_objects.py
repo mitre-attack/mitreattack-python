@@ -270,8 +270,8 @@ class SVG_HeaderBlock:
             upper = G(tx=0, ty=2.1)
             internal.append(upper)
             if t1text is not None:
-                bu = t2text is not None and t2text is not ""
-                theight = (height-5)
+                bu = t2text is not None and t2text != ""
+                theight = (height-8)
                 if bu:
                     theight = theight / 2
                 fs, patch_text = _optimalFontSize(t1text, width, theight, maxFontSize=28)
@@ -289,7 +289,7 @@ class SVG_HeaderBlock:
                     lower_offset = (theight + 2.1)
                     lower = G(tx=0, ty= lower_offset)
                     fs, patch_text = _optimalFontSize(t2text, width, (height - (height/3 + upper_fs)), maxFontSize=28)
-                    y = theight / 2 + 2.1
+                    y = theight / 2 + 5.1
                     lines = len(patch_text)
                     adju = "\n".join(patch_text)
                     if lines > 1:
@@ -422,8 +422,15 @@ class SVG_Technique:
             :return: Hex color code
         """
         c = 'FFFFFF'
-        if technique.score:
-            c = self.grade.compute_color(technique.score)[1:]
+        tscore = None
+        if technique.score is not None:
+            tscore = technique.score
+        try:
+            tscore = technique.aggregateScore
+        except AttributeError:
+            pass
+        if tscore is not None:
+            c = self.grade.compute_color(tscore)[1:]
         else:
             for x in colors:
                 if x[0] == technique.id and (x[1] == tactic or not x[1]):

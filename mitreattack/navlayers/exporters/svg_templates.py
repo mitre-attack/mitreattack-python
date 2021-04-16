@@ -73,6 +73,7 @@ class SvgTemplates:
             header.append(b1)
 
             header_count = 0
+            showAgg = False
             if config.showAbout:
                 header_count += 1
             if config.showFilters:
@@ -81,6 +82,12 @@ class SvgTemplates:
                 header_count += 1
             if config.showLegend and gradient is not False and config.legendDocked:
                 header_count += 1
+            if self.lhandle.layout:
+                if self.lhandle.layout.showAggregateScores:
+                    showAgg = True
+                    header_count += 1
+                if config.showFilters:
+                    header_count -= 1
 
             operation_x = (max_x - border) - (1.5 * border * (header_count - 1)) - border
             if header_count > 0:
@@ -100,13 +107,22 @@ class SvgTemplates:
                     if domain.endswith('-attack'):
                         domain = domain[:-7].capitalize()
                     tag = domain + ' ATT&CK v' + version
-                    gD = SVG_HeaderBlock().build(height=header_height, width=header_width, label='domain',
-                                                t1text=tag, config=config)
+                    if config.showFilters and showAgg:
+                        fi = filters
+                        if fi is None:
+                            fi = Filter()
+                            fi.platforms = ["Windows", "Linux", "macOS"]
+                        gD = SVG_HeaderBlock().build(height=header_height, width=header_width,
+                                                     label='domain & platforms', t1text=tag,
+                                                     t2text=', '.join(fi.platforms), config=config)
+                    else:
+                        gD = SVG_HeaderBlock().build(height=header_height, width=header_width, label='domain',
+                                                     t1text=tag, config=config)
                     bD = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
                     header.append(bD)
                     bD.append(gD)
                     psych += 1
-                if config.showFilters:
+                if config.showFilters and not showAgg:
                     fi = filters
                     if fi is None:
                         fi = Filter()
@@ -116,6 +132,19 @@ class SvgTemplates:
                     b2 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
                     header.append(b2)
                     b2.append(g2)
+                    psych += 1
+                if showAgg:
+                    t1 = f"showing aggregate scores using the {self.lhandle.layout.aggregateFunction} " \
+                         f"aggregate function"
+                    stub = "does not include"
+                    if self.lhandle.layout.countUnscored:
+                        stub = "includes"
+                    t2 = f"{stub} unscored techniques as having a score of 0"
+                    gA = SVG_HeaderBlock().build(height=header_height, width=header_width, label='aggregate',
+                                                 t1text=t1, t2text=t2, config=config)
+                    bA = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
+                    header.append(bA)
+                    bA.append(gA)
                     psych += 1
                 if config.showLegend and gradient is not False:
                     gr = gradient
@@ -171,7 +200,7 @@ class SvgTemplates:
         offset = 0
         column = G(ty=2)
         for a in tactic.subtechniques:
-            self._copy_scores(tactic.subtechniques[a],scores,tactic.tactic.name, exclude)
+            self._copy_scores(tactic.subtechniques[a], scores, tactic.tactic.name, exclude)
         for x in tactic.techniques:
             if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in exclude):
                 continue
@@ -203,6 +232,11 @@ class SvgTemplates:
             :param colors: A list of all color overrides in the event of no score, which may apply
             :return: Tuple (SVG block, new offset)
         """
+        # Handle aggregate scoring (v4.2)
+        if self.lhandle.layout:
+            mod = self.lhandle.layout.compute_aggregate(technique, subtechniques)
+            if mod is not None:
+                technique.aggregateScore = mod
         a, b = SVG_Technique(self.lhandle.gradient).build(offset, technique, height,
                                                           width, subtechniques=subtechniques, mode=mode,
                                                           tactic=tactic, colors=colors, tBC=config.tableBorderColor)
@@ -226,11 +260,11 @@ class SvgTemplates:
         grad = False
         if len(scores):
             grad = lhandle.gradient
+        self.lhandle = lhandle
         d, presence, overlay = self._build_headers(lhandle.name, config, lhandle.domain,
                                                    lhandle.versions.attack, lhandle.description, lhandle.filters,
                                                    grad)
         self.codex = self.h._adjust_ordering(self.codex, sort, scores)
-        self.lhandle = lhandle
         index = 0
         lengths = []
         border = convertToPx(config.border, config.unit)
@@ -285,7 +319,7 @@ class SvgTemplates:
 
     def _copy_scores(self, listing, scores, tactic_name, exclude):
         """
-            INTERNAL: Move scores over from the input object (scores) to the one used to build the zvg (listing)
+            INTERNAL: Move scores over from the input object (scores) to the one used to build the svg (listing)
 
             :param listing: List of objects to apply scores to
             :param scores: List of scores for this tactic
@@ -293,6 +327,9 @@ class SvgTemplates:
             :return: None - operates on the raw object itself
         """
         for b in listing:
+            if b in exclude:
+                b.score = None
+                continue
             found = False
             for y in scores:
                 if b.id == y[0] and (y[1] == self.h.convert(tactic_name) or not y[1]):

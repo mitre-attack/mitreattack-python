@@ -19,6 +19,7 @@ except ImportError:
     from core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
         categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
 
+
 class _LayerObj:
     def __init__(self, name, domain):
         """
@@ -156,6 +157,12 @@ class _LayerObj:
             temp.showName = layout['showName']
         if "showID" in layout:
             temp.showID = layout['showID']
+        if "showAggregateScores" in layout:
+            temp.showAggregateScores = layout['showAggregateScores']
+        if "countUnscored" in layout:
+            temp.countUnscored = layout['countUnscored']
+        if 'aggregateFunction' in layout:
+            temp.aggregateFunction = layout['aggregateFunction']
         self.__layout = temp
 
     @property

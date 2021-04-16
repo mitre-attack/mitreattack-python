@@ -5,7 +5,7 @@ except ImportError:
 
 
 class Versions:
-    def __init__(self, layer="4.1", attack=UNSETVALUE, navigator="4.1"):
+    def __init__(self, layer="4.2", attack=UNSETVALUE, navigator="4.2"):
         """
             Initialization - Creates a v4 Versions object
 
@@ -37,9 +37,9 @@ class Versions:
     def navigator(self, navigator):
         typeChecker(type(self).__name__, navigator, str, "navigator")
         try:
-            categoryChecker(type(self).__name__, navigator, ["4.0", "4.1"], "navigator version")
+            categoryChecker(type(self).__name__, navigator, ["4.0", "4.1", "4.2"], "navigator version")
         except BadInput:
-            print(f'[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.1 schema, '
+            print(f'[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.2 schema, '
                   f'this may result in unexpected behavior.')
         self.__navigator = navigator
 
@@ -51,13 +51,13 @@ class Versions:
     def layer(self, layer):
         typeChecker(type(self).__name__, layer, str, "layer")
         try:
-            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1"], "layer version")
+            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2"], "layer version")
         except BadInput:
-            print(f'[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.1 schema, this may result in '
+            print(f'[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.2 schema, this may result in '
                   f'unexpected behavior.')
-        if layer == '3.0':
-            print(f'[NOTICE] - Forcibly upgrading version from {layer} to 4.1.')
-            layer = "4.1"
+        if layer in ["3.0", "4.0", "4.1"]:
+            print(f'[NOTICE] - Forcibly upgrading version from {layer} to 4.2.')
+            layer = "4.2"
         self.__layer = layer
 
     def get_dict(self):

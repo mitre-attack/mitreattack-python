@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 
 try:
     from core import Layer
@@ -398,20 +399,22 @@ class ToSvg:
         else:
             self.config = SVGConfig()
 
-    def to_svg(self, layer, filepath='example.svg'):
+    def to_svg(self, layerInit, filepath='example.svg'):
         """
             Generate a svg file based on the input layer
 
-            :param layer: Input attack layer object to transform
+            :param layerInit: Input attack layer object to transform
             :param filepath: Desired output svg location
             :return: (meta) svg file at the targeted output location
         """
-        if layer is not None:
-            if not isinstance(layer, Layer):
+        if layerInit is not None:
+            if not isinstance(layerInit, Layer):
                 raise TypeError
 
-        if layer is None:
+        if layerInit is None:
             raise NoLayer
+
+        layer = deepcopy(layerInit)
 
         included_subs = []
         if layer.layer.techniques:
@@ -427,7 +430,7 @@ class ToSvg:
                         included_subs.append((entry.techniqueID, entry.tactic))
                     else:
                         included_subs.append((entry.techniqueID, False))
-                else: # none displayed
+                else:  # none displayed
                     pass
 
         excluded = []
@@ -440,13 +443,20 @@ class ToSvg:
                         excluded.append((entry.techniqueID, False))
         scores = []
         colors = []
+        showAggs = False
+        if layer.layer.layout:
+            if layer.layer.layout.showAggregateScores:
+                showAggs = True
         if layer.layer.techniques:
             for entry in layer.layer.techniques:
-                if entry.score:
+                tscore = entry.score
+                if entry.aggregateScore and showAggs:
+                    tscore = entry.aggregateScore
+                if tscore is not None:
                     if entry.tactic:
-                        scores.append((entry.techniqueID, entry.tactic, entry.score))
+                        scores.append((entry.techniqueID, entry.tactic, tscore))
                     else:
-                        scores.append((entry.techniqueID, False, entry.score))
+                        scores.append((entry.techniqueID, False, tscore))
                 elif entry.color:
                     if entry.tactic:
                         colors.append((entry.techniqueID, entry.tactic, entry.color))

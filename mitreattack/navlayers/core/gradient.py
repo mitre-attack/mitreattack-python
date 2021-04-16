@@ -84,9 +84,8 @@ class Gradient:
         if score >= self.maxValue:
             return self.curve[-1].hex_l
 
-        target = self.curve[score - self.minValue]
+        target = self.curve[int(score - self.minValue)]
         return target.hex_l
-
 
     def get_dict(self):
         """

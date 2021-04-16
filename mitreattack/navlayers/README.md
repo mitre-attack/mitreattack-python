@@ -161,7 +161,7 @@ be either `enterprise` or `mobile`, and can be pulled directly from a layer file
 
 ##### .to_xlsx() Method
 ```python
-x.to_xlsx(layer=layer, filepath="layer.xlsx")
+x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
 ```
 The to_xlsx method exports the layer file referenced as `layer`, as an excel file to the
 `filepath` specified.
@@ -175,10 +175,10 @@ lay = Layer()
 lay.from_file("path/to/layer/file.json")
 # Using taxii server for template
 t = ToExcel(domain=lay.layer.domain, source='taxii')
-t.to_xlsx(layer=lay, filepath="demo.xlsx")
+t.to_xlsx(layerInit=lay, filepath="demo.xlsx")
 #Using local stix data for template
 t2 = ToExcel(domain='mobile', source='local', local='path/to/local/stix.json')
-t2.to_xlsx(layer=lay, filepath="demo2.xlsx")
+t2.to_xlsx(layerInit=lay, filepath="demo2.xlsx")
 ```
 
 ## to_svg.py
@@ -223,7 +223,7 @@ The SVGConfig object is used to configure how an SVG export behaves. The default
 
 ##### .to_svg() Method
 ```python
-x.to_svg(layer=layer, filepath="layer.svg")
+x.to_svg(layerInit=layer, filepath="layer.svg")
 ```
 The to_svg method exports the layer file referenced as `layer`, as an excel file to the
 `filepath` specified.
@@ -237,12 +237,12 @@ lay = Layer()
 lay.from_file("path/to/layer/file.json")
 # Using taxii server for template
 t = ToSvg(domain=lay.layer.domain, source='taxii')
-t.to_svg(layer=lay, filepath="demo.svg")
+t.to_svg(layerInit=lay, filepath="demo.svg")
 #Using local stix data for template
 
 conf = SVGConfig()
 conf.load_from_file(filename="path/to/poster/config.json")
 
 t2 = ToSvg(domain='mobile', source='local', local='path/to/local/stix.json', config=conf)
-t2.to_svg(layer=lay, filepath="demo2.svg")
+t2.to_svg(layerInit=lay, filepath="demo2.svg")
 ```

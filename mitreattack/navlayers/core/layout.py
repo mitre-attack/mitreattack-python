@@ -3,6 +3,15 @@ try:
 except ImportError:
     from core.exceptions import typeChecker, categoryChecker, UNSETVALUE
 
+from enum import Enum
+
+
+class Aggregates(Enum):
+    average = 1
+    min = 2
+    max = 3
+    sum = 4
+
 
 class Layout:
     def __init__(self):
@@ -12,6 +21,39 @@ class Layout:
         self.__layout = UNSETVALUE
         self.__showID = UNSETVALUE
         self.__showName = UNSETVALUE
+        self.__showAggregateScores = UNSETVALUE
+        self.__countUnscored = UNSETVALUE
+        self.__aggregateFunction = Aggregates.average
+
+    def compute_aggregate(self, technique, subtechniques):
+        scores = []
+        if self.showAggregateScores:
+            if technique.score is not None:
+                scores = [technique.score]
+            for x in subtechniques:
+                if x.score is not None:
+                    scores.append(x.score)
+                elif self.countUnscored:
+                    scores.append(0)
+            if all(x == 0 for x in scores):
+                return None
+            modified = self.aggFunction(scores)
+            return modified
+        else:
+            return None
+
+    def aggFunction(self, data_block):
+        if self.showAggregateScores:
+            data = data_block
+
+            if self.__aggregateFunction == Aggregates.average:
+                return sum(data)/len(data)
+            elif self.__aggregateFunction == Aggregates.min:
+                return min(data)
+            elif self.__aggregateFunction == Aggregates.max:
+                return max(data)
+            elif self.__aggregateFunction == Aggregates.sum:
+                return sum(data)
 
     @property
     def layout(self):
@@ -44,6 +86,44 @@ class Layout:
     def showName(self, showName):
         typeChecker(type(self).__name__, showName, bool, "showName")
         self.__showName = showName
+
+    @property
+    def showAggregateScores(self):
+        if self.__showAggregateScores != UNSETVALUE:
+            return self.__showAggregateScores
+
+    @showAggregateScores.setter
+    def showAggregateScores(self, showAggregateScores):
+        typeChecker(type(self).__name__, showAggregateScores, bool,
+                    "showAggregateScores")
+        self.__showAggregateScores = showAggregateScores
+
+    @property
+    def countUnscored(self):
+        if self.__countUnscored != UNSETVALUE:
+            return self.__countUnscored
+
+    @countUnscored.setter
+    def countUnscored(self, countUnscored):
+        typeChecker(type(self).__name__, countUnscored, bool, "countUnscored")
+        self.__countUnscored = countUnscored
+
+    @property
+    def aggregateFunction(self):
+        if self.__aggregateFunction == Aggregates.average:
+            return "average"
+        elif self.__aggregateFunction == Aggregates.min:
+            return "min"
+        elif self.__aggregateFunction == Aggregates.max:
+            return "max"
+        elif self.__aggregateFunction == Aggregates.sum:
+            return "sum"
+
+    @aggregateFunction.setter
+    def aggregateFunction(self, aggregateFunction):
+        categoryChecker(type(self).__name__, aggregateFunction.lower(),
+                        ["average", "min", "max", "sum"], "aggregateFunction")
+        self.__aggregateFunction = Aggregates[aggregateFunction.lower()]
 
     def get_dict(self):
         """

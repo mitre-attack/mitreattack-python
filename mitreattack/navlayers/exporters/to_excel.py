@@ -1,12 +1,13 @@
+from copy import deepcopy
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill, Font
 import colorsys
 
 try:
-    from core import Layer
+    from core import Layer, Gradient
     from exporters import ExcelTemplates
 except ImportError:
-    from ..core import Layer
+    from ..core import Layer, Gradient
     from ..exporters import ExcelTemplates
 
 
@@ -22,17 +23,19 @@ class ToExcel:
         self.domain = domain
         self.raw_handle = ExcelTemplates(domain=domain, source=source, local=local)
 
-    def to_xlsx(self, layer, filepath="layer.xlsx"):
+    def to_xlsx(self, layerInit, filepath="layer.xlsx"):
         """
             Exports a layer file to the excel format as the file specified
 
-            :param layer: A layer to initialize the instance with
+            :param layerInit: A layer to initialize the instance with
             :param filepath: The location to write the excel file to
         """
 
-        if not isinstance(layer, Layer):
+        if not isinstance(layerInit, Layer):
             raise TypeError
-            
+
+        layer = deepcopy(layerInit)
+
         if self.domain not in layer.layer.domain:
             raise ValueError(f"layer domain ({layer.layer.domain}) does not match exporter domain ({self.domain})")
 
@@ -56,7 +59,7 @@ class ToExcel:
         scores = []
         if layer.layer.techniques:
             for entry in layer.layer.techniques:
-                if entry.score:
+                if entry.score is not None:
                     if entry.tactic:
                         scores.append((entry.techniqueID, entry.tactic, entry.score))
                     else:
@@ -73,6 +76,35 @@ class ToExcel:
                                               subtechs=included_subs, exclude=excluded)
         sheet_obj = raw_template.active
         sheet_obj.title = layer.layer.name
+        # v4.2 - do aggregate adjustments
+        if layer.layer.layout:
+            if layer.layer.layout.showAggregateScores:
+                for tac_column in self.raw_handle.codex:
+                    short_hand = self.raw_handle.h.convert(tac_column.tactic.name)
+                    for x in tac_column.techniques:
+                        x_score = [y for y in scores if (y[0] == x.id and (y[1] == short_hand or y[1] is None))]
+                        if len(x_score):
+                            x.score = x_score[0][2]
+                        subs = tac_column.subtechniques.get(x.id, [])
+                        for sub_score in subs:
+                            subtech_score = [y for y in scores if (y[0] == x.id and
+                                                                   (y[1] == short_hand or y[1] is None))]
+                            if len(subtech_score):
+                                sub_score.score = subtech_score[0][2]
+                        mod = layer.layer.layout.compute_aggregate(x, subs)
+                        patch_target = [y for y in layer.layer.techniques if (y.techniqueID == x.id and
+                                                                              (y.tactic == short_hand or
+                                                                               y.tactic is None))]
+                        if len(patch_target):
+                            patch_target[0].aggregateScore = mod
+                        elif mod:
+                            print(f"[WARNING] - Aggregate calculated for a technique that doesn't seem to exist...")
+
+        # verify gradient information
+        safe_gradient = layer.layer.gradient
+        if not safe_gradient:
+            safe_gradient = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
+
         for tech in layer.layer.techniques:
             p_tactic = None
             if tech.tactic:
@@ -97,7 +129,7 @@ class ToExcel:
                               'Skipping...')
                     continue
             for location in coords:
-                cell = sheet_obj.cell(row=location[0],column=location[1])
+                cell = sheet_obj.cell(row=location[0], column=location[1])
                 if tech.comment:
                     cell.comment = Comment(tech.comment, 'ATT&CK Scripts Exporter')
 
@@ -112,14 +144,16 @@ class ToExcel:
                     c_color = PatternFill(fill_type='solid', start_color=tech.color.upper()[1:])
                     cell.fill = c_color
                     continue
-                if tech.score:
-                    if layer.layer.gradient:
-                        comp_color = layer.layer.gradient.compute_color(tech.score)
-                        c_color = PatternFill(fill_type='solid', start_color=comp_color.upper()[1:])
-                        cell.fill = c_color
-                        RGB = tuple(int(comp_color.upper()[1:][i:i+2], 16) for i in (0, 2, 4))
-                        hls = colorsys.rgb_to_hls(RGB[0], RGB[1], RGB[2])
-                        if hls[1] < 127.5:
-                            white = Font(color='FFFFFF')
-                            cell.font = white
+                if tech.score or tech.aggregateScore is not None:
+                    tscore = tech.score
+                    if tech.aggregateScore is not None:
+                        tscore = tech.aggregateScore
+                    comp_color = safe_gradient.compute_color(tscore)
+                    c_color = PatternFill(fill_type='solid', start_color=comp_color.upper()[1:])
+                    cell.fill = c_color
+                    RGB = tuple(int(comp_color.upper()[1:][i:i+2], 16) for i in (0, 2, 4))
+                    hls = colorsys.rgb_to_hls(RGB[0], RGB[1], RGB[2])
+                    if hls[1] < 127.5:
+                        white = Font(color='FFFFFF')
+                        cell.font = white
         raw_template.save(filepath)
