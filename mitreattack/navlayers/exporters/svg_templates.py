@@ -38,7 +38,6 @@ class SvgTemplates:
         if muse in ['enterprise', 'mobile']:
             self.mode = muse
             self.h = MatrixGen(source=source, local=local)
-            self.codex = self.h.get_matrix(muse)
             self.lhandle = None
         else:
             raise BadTemplateException
@@ -257,6 +256,7 @@ class SvgTemplates:
             :param exclude: List of excluded techniques
             :return:
         """
+        self.codex = self.h.get_matrix(self.mode, filters=lhandle.filters)
         grad = False
         if len(scores):
             grad = lhandle.gradient

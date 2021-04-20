@@ -7,11 +7,13 @@ class DomainNotLoadedError(Exception):
 
 
 class MatrixEntry:
-    def __init__(self, id=None, name=None):
+    def __init__(self, id=None, name=None, platforms=[]):
         if id is not None:
             self.id = id
         if name is not None:
             self.name = name
+        self.__platforms = []
+        self.platforms = platforms
         self.score = None
 
     @property
@@ -20,8 +22,8 @@ class MatrixEntry:
             return self.__id
 
     @id.setter
-    def id(self, id):
-        self.__id = id
+    def id(self, new_id):
+        self.__id = new_id
 
     @property
     def name(self):
@@ -31,6 +33,18 @@ class MatrixEntry:
     @name.setter
     def name(self, name):
         self.__name = name
+
+    @property
+    def platforms(self):
+        if self.__platforms is not None:
+            return self.__platforms
+
+    @platforms.setter
+    def platforms(self, platforms):
+        if isinstance(platforms, list):
+            self.__platforms.extend(platforms)
+        else:
+            self.__platforms.append(platforms)
 
     @property
     def score(self):
@@ -84,7 +98,7 @@ class MatrixGen:
         """
             Initialization - Creates a matrix generator object
 
-            :param server: Source to utilize (taxii or local)
+            :param source: Source to utilize (taxii or local)
             :param local: string path to local cache of stix data
         """
         self.convert_data = {}
@@ -155,19 +169,22 @@ class MatrixGen:
         """
         techniques = []
         subtechs = {}
-        techs = self._search(domain,[Filter('type', '=', 'attack-pattern'),
-                                     Filter('kill_chain_phases.phase_name', '=', tactic)])
+        techs = self._search(domain, [Filter('type', '=', 'attack-pattern'),
+                                      Filter('kill_chain_phases.phase_name', '=', tactic)])
         for entry in techs:
             if entry['kill_chain_phases'][0]['kill_chain_name'] == 'mitre-attack' or \
                             entry['kill_chain_phases'][0]['kill_chain_name'] == 'mitre-mobile-attack':
                 tid = [t['external_id'] for t in entry['external_references'] if 'attack' in t['source_name']]
+                platform_tags = []
+                if 'x_mitre_platforms' in entry:
+                    platform_tags = entry['x_mitre_platforms']
                 if '.' not in tid[0]:
-                    techniques.append(MatrixEntry(id=tid[0], name=entry['name']))
+                    techniques.append(MatrixEntry(id=tid[0], name=entry['name'], platforms=platform_tags))
                 else:
                     parent = tid[0].split('.')[0]
                     if parent not in subtechs:
                         subtechs[parent] = []
-                    subtechs[parent].append(MatrixEntry(id=tid[0], name=entry['name']))
+                    subtechs[parent].append(MatrixEntry(id=tid[0], name=entry['name'], platforms=platform_tags))
         return techniques, subtechs
 
     def _adjust_ordering(self, codex, mode, scores=[]):
@@ -345,12 +362,43 @@ class MatrixGen:
             colm = Tactic(tactic=tac, techniques=techs, subtechniques=stemp)
             self.matrix[domain].append(colm)
 
-    def get_matrix(self, domain='enterprise'):
+    def get_matrix(self, domain='enterprise', filters=None):
         """
             Retrieve an ATT&CK Domain object
 
             :param domain: The domain to build a matrix for
+            :param platforms: Any platform filters to apply to the matrix
         """
         if domain not in self.matrix:
             self._build_matrix(domain)
-        return self.matrix[domain]
+        return self._filter_matrix_platforms(self.matrix[domain], filters)
+
+    def _filter_matrix_platforms(self, matrix, filters):
+        """
+            INTERNAL - Filter a matrix according to its platforms
+            :param matrix: the matrix to refine
+            :param filters: a list of platforms to filter
+            :return: filtered matrix
+        """
+        if filters:
+            filter_platforms = filters.platforms
+            new_matrix = []
+            for tac in matrix:
+                ntech_list = []
+                nsubtech_list = {}
+                for tech in tac.techniques:
+                    if any(x in filter_platforms for x in tech.platforms):
+                        ntech_list.append(tech)
+                for tech_subs in tac.subtechniques:
+                    temp_list = []
+                    for subtech in tac.subtechniques[tech_subs]:
+                        if any(x in filter_platforms for x in subtech.platforms):
+                            temp_list.append(subtech)
+                    if temp_list:
+                        nsubtech_list[tech_subs] = temp_list
+                if ntech_list:
+                    ntac = Tactic(tactic=tac.tactic, techniques=ntech_list, subtechniques= nsubtech_list)
+                    new_matrix.append(ntac)
+            return new_matrix
+        else:
+            return matrix

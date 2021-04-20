@@ -27,7 +27,6 @@ class ExcelTemplates:
         if muse in ['enterprise', 'mobile']:
             self.mode = muse
             self.h = MatrixGen(source=source, local=local)
-            self.codex = self.h.get_matrix(muse)
         else:
             raise BadTemplateException
 
@@ -100,18 +99,20 @@ class ExcelTemplates:
 
         return wb
 
-    def export(self, showName, showID, sort=0, scores=[], subtechs=[], exclude=[]):
+    def export(self, showName, showID, filters=None, sort=0, scores=[], subtechs=[], exclude=[]):
         """
             Export a raw customized excel template
 
 
             :param showName: Whether or not to display names for each entry
             :param showID: Whether or not to display Technique IDs for each entry
+            :param filters: Filter/Platform object to use to filter the matrix
             :param sort: The sort mode to utilize
             :param subtechs: List of all visible subtechniques
             :param exclude: List of of techniques to exclude from the matrix
             return: a openpyxl workbook object containing the raw matrix
         """
+        self.codex = self.h.get_matrix(self.mode, filters=filters)
         return self._build_raw(showName, showID, sort, scores, subtechs, exclude)
 
     def retrieve_coords(self, techniqueID, tactic=None):

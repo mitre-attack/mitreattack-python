@@ -72,8 +72,8 @@ class ToExcel:
             sID = layer.layer.layout.showID
         if layer.layer.sorting:
             sort = layer.layer.sorting
-        raw_template = self.raw_handle.export(showName=sName, showID=sID, sort=sort, scores=scores,
-                                              subtechs=included_subs, exclude=excluded)
+        raw_template = self.raw_handle.export(showName=sName, showID=sID, filters=layer.layer.filters, sort=sort,
+                                              scores=scores, subtechs=included_subs, exclude=excluded)
         sheet_obj = raw_template.active
         sheet_obj.title = layer.layer.name
         # v4.2 - do aggregate adjustments
