@@ -381,24 +381,29 @@ class MatrixGen:
             :return: filtered matrix
         """
         if filters:
-            filter_platforms = filters.platforms
+            filter_platforms = [x.lower() for x in filters.platforms]
             new_matrix = []
             for tac in matrix:
                 ntech_list = []
                 nsubtech_list = {}
                 for tech in tac.techniques:
-                    if any(x in filter_platforms for x in tech.platforms):
+                    if any(x.lower() in filter_platforms for x in tech.platforms):
                         ntech_list.append(tech)
                 for tech_subs in tac.subtechniques:
                     temp_list = []
                     for subtech in tac.subtechniques[tech_subs]:
-                        if any(x in filter_platforms for x in subtech.platforms):
+                        if any(x.lower() in filter_platforms for x in subtech.platforms):
                             temp_list.append(subtech)
                     if temp_list:
                         nsubtech_list[tech_subs] = temp_list
                 if ntech_list:
                     ntac = Tactic(tactic=tac.tactic, techniques=ntech_list, subtechniques= nsubtech_list)
                     new_matrix.append(ntac)
-            return new_matrix
+            if new_matrix:
+                return new_matrix
+            else:
+                print(f"[WARNING] - Unable to produced filtered matrix... nothing would be left under these platform"
+                      f" restrictions.")
+                return matrix
         else:
             return matrix
