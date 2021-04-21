@@ -394,7 +394,7 @@ class ToSvg:
             :param config: Optional pre-existing SVGConfig object
         """
         self.raw_handle = SvgTemplates(domain=domain, source=source, local=local)
-        if config != None and isinstance(config, SVGConfig):
+        if config is not None and isinstance(config, SVGConfig):
             self.config = config
         else:
             self.config = SVGConfig()

@@ -5,7 +5,7 @@ with warnings.catch_warnings():
 
 try:
     from exporters.matrix_gen import MatrixGen
-    from exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx,_optimalFontSize, \
+    from exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx, _optimalFontSize, \
         _getstringwidth
     from core.gradient import Gradient
     from core.filter import Filter
@@ -127,7 +127,7 @@ class SvgTemplates:
                         fi = Filter()
                         fi.platforms = ["Windows", "Linux",	"macOS"]
                     g2 = SVG_HeaderBlock().build(height=header_height, width=header_width, label='filters',
-                                             t1text=', '.join(fi.platforms), config=config)
+                                                 t1text=', '.join(fi.platforms), config=config)
                     b2 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
                     header.append(b2)
                     b2.append(g2)
@@ -148,7 +148,7 @@ class SvgTemplates:
                 if config.showLegend and gradient is not False:
                     gr = gradient
                     if gr is None:
-                        gr = Gradient(colors=["#ff6666","#ffe766","#8ec843"], minValue=1, maxValue=100)
+                        gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
                     colors = []
                     div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
                     for i in range(0, len(gr.colors) * 2 - 1):
@@ -161,7 +161,7 @@ class SvgTemplates:
                                                      variant='graphic', colors=colors, config=config)
                         header.append(b3)
                         b3.append(g3)
-                        psych +=1
+                        psych += 1
                     else:
                         adjusted_height = convertToPx(config.legendHeight, config.unit)
                         adjusted_width = convertToPx(config.legendWidth, config.unit)
@@ -301,7 +301,7 @@ class SvgTemplates:
 
             fs, _ = _optimalFontSize(disp, tech_width, tech_height, maxFontSize=28)
             tx = Text(ctype='TacticName', font_size=fs, text=disp, position='middle')
-            gt = G(tx=(tech_width)/2, ty=(tech_height)/2)
+            gt = G(tx=tech_width/2, ty=tech_height/2)
             gt.append(tx)
             a = self.get_tactic(x, tech_height, tech_width, colors=colors, subtechs=subtechs, exclude=exclude,
                                 mode=(showName, showID), scores=scores, config=config)

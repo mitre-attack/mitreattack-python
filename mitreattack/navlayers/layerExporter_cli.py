@@ -12,11 +12,13 @@ except ImportError:
 
 def main():
     parser = argparse.ArgumentParser(description='Export an ATT&CK Navigator layer as a svg image or excel file')
-    parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True, help='The form to export the layers in')
+    parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True,
+                        help='The form to export the layers in')
     parser.add_argument('input', nargs='+', help='Path(s) to the file to export')
-    parser.add_argument('-s','--source', choices=['taxii', 'local'], default='taxii', help='What source to utilize when building the matrix')
+    parser.add_argument('-s', '--source', choices=['taxii', 'local'], default='taxii',
+                        help='What source to utilize when building the matrix')
     parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)
-    parser.add_argument('-o','--output', nargs='+', help='Path(s) to the exported svg/xlsx file', required=True)
+    parser.add_argument('-o', '--output', nargs='+', help='Path(s) to the exported svg/xlsx file', required=True)
     parser.add_argument('-l', '--load_settings', help='[SVG Only] Path to a SVG configuration json to use when '
                                                       'rendering', default=None)
     parser.add_argument('-d', '--size', nargs=2, help='[SVG Only] X and Y size values (in inches) for SVG export (use '
@@ -32,10 +34,10 @@ def main():
         lay = Layer()
         try:
             lay.from_file(entry)
-        except:
-            print('Unable to load {}. Skipping...'.format(entry))
+        except Exception as e:
+            print('Unable to load {} due to exception: {}. Skipping...'.format(entry, e))
             continue
-        if args.mode=='excel':
+        if args.mode == 'excel':
             if not args.output[i].endswith('.xlsx'):
                 print('[ERROR] Unable to export {} as type: excel to {}'.format(entry, args.output[i]))
                 continue

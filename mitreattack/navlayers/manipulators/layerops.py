@@ -221,7 +221,8 @@ class LayerOps:
                          else x for x in t2]
             return t2
 
-    def _template(self, data):
+    @staticmethod
+    def _template(data):
         """
             INTERNAL: creates a template technique entry for a given listing
                 of techniques
@@ -280,7 +281,8 @@ class LayerOps:
             return val[0]
         return {}
 
-    def _inDict(self, search, complete):
+    @staticmethod
+    def _inDict(search, complete):
         """
             INTERNAL: returns bool of whether or not the key searched
                 for can be found across the dataset corpus

@@ -114,7 +114,7 @@ class ToExcel:
                 tac = p_tactic
                 if tac is None:
                     tac = "(none)"
-                if coords == []:
+                if coords:
                     print('WARNING! Technique/Tactic ' + tech.techniqueID + '/' + tac +
                           ' does not appear to exist in the loaded matrix. Skipping...')
                 else:

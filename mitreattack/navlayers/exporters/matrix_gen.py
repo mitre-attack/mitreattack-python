@@ -153,7 +153,7 @@ class MatrixGen:
         for i in range(len(matrix)):
             tactics[matrix[i]['name']] = []
             for tactic_id in matrix[i]['tactic_refs']:
-                tactics[matrix[i]['name']].append(self._search(domain,([Filter('id', '=', tactic_id)]))[0])
+                tactics[matrix[i]['name']].append(self._search(domain, ([Filter('id', '=', tactic_id)]))[0])
         for entry in tactics[matrix[0]['name']]:
             self.convert_data[entry['x_mitre_shortname']] = entry['name']
             self.convert_data[entry['name']] = entry['x_mitre_shortname']
@@ -328,17 +328,17 @@ class MatrixGen:
                     return entry.name
         return ''
 
-    def convert(self, input):
+    def convert(self, input_str):
         """
             Convert tactic names to and from short names
 
-            :param input: A tactic normal or short name
+            :param input_str: A tactic normal or short name
             :return: The tactic's short or normal name
         """
         if self.convert_data == {}:
             return None
-        if input in self.convert_data:
-            return self.convert_data[input]
+        if input_str in self.convert_data:
+            return self.convert_data[input_str]
 
     def _build_matrix(self, domain='enterprise'):
         """
@@ -367,13 +367,14 @@ class MatrixGen:
             Retrieve an ATT&CK Domain object
 
             :param domain: The domain to build a matrix for
-            :param platforms: Any platform filters to apply to the matrix
+            :param filters: Any platform filters to apply to the matrix
         """
         if domain not in self.matrix:
             self._build_matrix(domain)
         return self._filter_matrix_platforms(self.matrix[domain], filters)
 
-    def _filter_matrix_platforms(self, matrix, filters):
+    @staticmethod
+    def _filter_matrix_platforms(matrix, filters):
         """
             INTERNAL - Filter a matrix according to its platforms
             :param matrix: the matrix to refine
@@ -397,7 +398,7 @@ class MatrixGen:
                     if temp_list:
                         nsubtech_list[tech_subs] = temp_list
                 if ntech_list:
-                    ntac = Tactic(tactic=tac.tactic, techniques=ntech_list, subtechniques= nsubtech_list)
+                    ntac = Tactic(tactic=tac.tactic, techniques=ntech_list, subtechniques=nsubtech_list)
                     new_matrix.append(ntac)
             if new_matrix:
                 return new_matrix

@@ -7,4 +7,3 @@ from .layout import Layout
 from .legenditem import LegendItem
 from .metadata import Metadata
 from .technique import Technique
-

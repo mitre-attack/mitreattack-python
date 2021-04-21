@@ -93,7 +93,8 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
             fp = os.path.join(outputDirectory, f"{domainVersionString}-{objType}.xlsx")
             matrix_writer = pd.ExcelWriter(fp, engine='xlsxwriter')
             for matrix in dataframes[objType]:  # some domains have multiple matrices
-                sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix["name"] + " matrix"  # name them accordingly if there are multiple
+                # name them accordingly if there are multiple
+                sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix["name"] + " matrix"
                 matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix data to master file
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,
@@ -116,8 +117,8 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
                             if mergeRange.format["name"] not in formats:  # add format to book if not defined
                                 formats[mergeRange.format["name"]] = writer.book.add_format(mergeRange.format["format"])
                             theformat = formats[mergeRange.format["name"]]  # get saved format if already added
-                            if mergeRange.format[
-                                "name"] == "tacticHeader":  # tactic header merge has additional behavior
+                            # tactic header merge has additional behavior
+                            if mergeRange.format["name"] == "tacticHeader":
                                 # also set border for entire column for grouping
                                 sheet.set_column(
                                     mergeRange.leftCol - 1,
@@ -156,7 +157,8 @@ def export(domain="enterprise-attack", version=None, outputDir="."):
     """
     Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
     :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
-    :param version: optional, the version of ATT&CK to download, e.g "v8.1". If omitted will build the current version of ATT&CK
+    :param version: optional, the version of ATT&CK to download, e.g "v8.1". If omitted will build the current version
+                    of ATT&CK
     :param outputDir: optional, the directory to write the excel files to. If omitted writes to a
                       subfolder of the current directory depending on specified domain and version
     """
@@ -188,6 +190,7 @@ def main():
     args = parser.parse_args()
 
     export(args.domain, args.version, args.output)
+
 
 if __name__ == '__main__':
     main()

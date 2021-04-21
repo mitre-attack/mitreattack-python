@@ -1,4 +1,4 @@
-import drawSvg as draw
+import drawSvg
 import colorsys
 import numpy as np
 import os
@@ -84,7 +84,7 @@ def _findSpace(words, width, height, maxFontSize):
         longestWordLength = max(longestWordLength, len(word))
     try:
         fitTextWidth = ((width - (2 * padding)) / longestWordLength * 1.45)
-    except:
+    except ZeroDivisionError:
         pass
     size = min(maxFontSize, fitTextHeight, fitTextWidth)
     return size
@@ -100,16 +100,17 @@ def _find_breaks(num_spaces, num_breaks=3):
     """
     breaks = set()
 
-    def recurse(breakset_inherit, depth, num_breaks):
+    def recurse(breakset_inherit, depth, break_count):
         """recursive combinatorics; breakset is binary array of break locations; depth is the depth of recursion,
-            num_breaks is how many breaks should be added"""
+            break_count is how many breaks should be added"""
         for i in range(len(breakset_inherit)):  # for each possible break
             # insert a break here
             breakset = np.copy(breakset_inherit)
             breakset[i] = 1
             breaks.add("".join(str(x) for x in breakset))
             # try inserting another depth of break
-            if depth < num_breaks - 1: recurse(breakset, depth + 1, num_breaks)
+            if depth < break_count - 1:
+                recurse(breakset, depth + 1, break_count)
 
     initial_breaks = [0] * num_spaces
     breaks.add("".join(str(x) for x in initial_breaks))
@@ -162,7 +163,7 @@ def _optimalFontSize(st, width, height, maxFontSize=12):
     return bestSize, bestWordArrangement
 
 
-class Cell(draw.DrawingParentElement):
+class Cell(drawSvg.DrawingParentElement):
     TAG_NAME = 'rect'
 
     def __init__(self, height, width, fill, tBC, ctype=None):
@@ -173,7 +174,7 @@ class Cell(draw.DrawingParentElement):
             self.args['class'] = ctype
 
 
-class HeaderRect(draw.DrawingParentElement):
+class HeaderRect(drawSvg.DrawingParentElement):
     TAG_NAME = 'rect'
 
     def __init__(self, width, height, ctype, x=None, y=None, outline=True):
@@ -188,7 +189,7 @@ class HeaderRect(draw.DrawingParentElement):
             self.args['stroke'] = 'black'
 
 
-class G(draw.DrawingParentElement):
+class G(drawSvg.DrawingParentElement):
     TAG_NAME = 'g'
 
     def __init__(self, tx=None, ty=None, style=None, ctype=None):
@@ -198,20 +199,22 @@ class G(draw.DrawingParentElement):
             tx = 0
         if ty is None:
             ty = 0
-        self.args['transform']='translate(' + str(tx) +',' + str(ty) +')'
+        self.args['transform'] = 'translate(' + str(tx) + ',' + str(ty) + ')'
         if style:
             self.args['style'] = style
         if ctype:
             self.args['class'] = ctype
 
-class Line(draw.DrawingParentElement):
+
+class Line(drawSvg.DrawingParentElement):
     TAG_NAME = 'line'
 
     def __init__(self, x1, x2, y1, y2, stroke):
         # x1=start x, x2=stop x, y1=start y, y2=stop y, stroke='stroke' field on resulting svg object
         super().__init__(x1=x1, x2=x2, y1=y1, y2=y2, stroke=stroke)
 
-class Text(draw.Text):
+
+class Text(drawSvg.Text):
     def __init__(self, text, font_size, ctype, position=None, tx=None, ty=None, x=None, y=None, fill=None):
         # ctype='class' object on resulting svg, position='text-anchor' field, tx/ty=translate x/y, x/y=x/y coord
         if x is None:
@@ -225,14 +228,14 @@ class Text(draw.Text):
         if ty is None:
             ty = 0
         if tx != 0 or ty != 0:
-            self.args['transform']='translate(' + str(tx) +',' + str(ty) +')'
+            self.args['transform'] = 'translate(' + str(tx) + ',' + str(ty) + ')'
         if position:
             self.args['style'] = 'text-anchor: {}'.format(position)
         if fill:
             self.args['fill'] = fill
 
 
-class Swatch(draw.DrawingParentElement):
+class Swatch(drawSvg.DrawingParentElement):
     TAG_NAME = 'rect'
 
     def __init__(self, height, width, fill):
@@ -287,7 +290,7 @@ class SVG_HeaderBlock:
                     upper.append(Line(0, width - 10, theight, theight, stroke='#dddddd'))
                     upper_fs = fs
                     lower_offset = (theight + 2.1)
-                    lower = G(tx=0, ty= lower_offset)
+                    lower = G(tx=0, ty=lower_offset)
                     fs, patch_text = _optimalFontSize(t2text, width, (height - (height/3 + upper_fs)), maxFontSize=28)
                     y = theight / 2 + 5.1
                     lines = len(patch_text)
@@ -320,7 +323,7 @@ class SVG_HeaderBlock:
                     cell.append(block)
                     cells.append(cell)
                     tblob = str(entry[1])
-                    off = (block_width-(5 * (1+ len(tblob))))/2
+                    off = (block_width-(5 * (1 + len(tblob))))/2
                     if off < 0:
                         off = 0
                     fs, _ = _optimalFontSize("0", width/len(colors), height)
@@ -332,7 +335,7 @@ class SVG_HeaderBlock:
 class SVG_Technique:
     def __init__(self, gradient):
         self.grade = gradient
-        if self.grade == None:
+        if self.grade is None:
             self.grade = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
 
     def build(self, offset, technique, height, width, tBC, subtechniques=[], mode=(True, False), tactic=None,
@@ -364,20 +367,20 @@ class SVG_Technique:
             g.append(gp)
             c = self._com_color(entry, tactic, colors)
             st = dict(name=self._disp(entry.name, entry.id, mode), id=entry.id,
-                     color=tuple(int(c[i:i + 2], 16) for i in (0, 2, 4)))
+                      color=tuple(int(c[i:i + 2], 16) for i in (0, 2, 4)))
             subtech, subtext = self._block(st, height, width - width/5, tBC=tBC)
             gp.append(subtech)
             gp.append(subtext)
             new_offset = new_offset + height
         if len(subtechniques):
-            g.append(draw.Lines(width/16, -height,
-                                width/8, -height * 2,
-                                width/8, -height * (len(subtechniques) + 1),
-                                width/5, -height * (len(subtechniques) + 1),
-                                width/5, -height,
-                       close=True,
-                       fill=tBC,
-                       stroke=tBC))
+            g.append(drawSvg.Lines(width/16, -height,
+                                   width/8, -height * 2,
+                                   width/8, -height * (len(subtechniques) + 1),
+                                   width/5, -height * (len(subtechniques) + 1),
+                                   width/5, -height,
+                                   close=True,
+                                   fill=tBC,
+                                   stroke=tBC))
         return g, offset + new_offset
 
     @staticmethod

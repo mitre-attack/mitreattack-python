@@ -47,6 +47,7 @@ class Filter:
         if len(temp) > 0:
             return temp
 
+
 class Filterv3(Filter):
     def __init__(self, domain="mitre-enterprise"):
         self.__stages = UNSETVALUE

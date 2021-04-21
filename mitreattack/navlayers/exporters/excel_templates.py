@@ -9,6 +9,7 @@ except ImportError:
 class BadTemplateException(Exception):
     pass
 
+
 class ExcelTemplates:
 
     def __init__(self, source='taxii', local=None, domain='enterprise'):
@@ -69,7 +70,7 @@ class ExcelTemplates:
                 c.border = header_template_b
                 c.fill = header_template_c
 
-        ## patch widths
+        # patch widths
         dims = {}
         sheet_handle = wb.active
         for row in sheet_handle:
@@ -108,6 +109,7 @@ class ExcelTemplates:
             :param showID: Whether or not to display Technique IDs for each entry
             :param filters: Filter/Platform object to use to filter the matrix
             :param sort: The sort mode to utilize
+            :param scores: List of scores to utilize (extracted previously from layer)
             :param subtechs: List of all visible subtechniques
             :param exclude: List of of techniques to exclude from the matrix
             return: a openpyxl workbook object containing the raw matrix
@@ -136,9 +138,9 @@ class ExcelTemplates:
                         if self.template[(1, entry[1] - 1)] != self.h.convert(tactic):
                             continue
                 listing.append(entry)
-        if listing == []:
+        if listing:
             if '.' in techniqueID:
                 parent = self.retrieve_coords(techniqueID.split('.')[0], tactic)
-                if parent != []:
+                if not parent:
                     return 'HIDDEN'
         return listing
