@@ -443,15 +443,9 @@ class ToSvg:
                         excluded.append((entry.techniqueID, False))
         scores = []
         colors = []
-        showAggs = False
-        if layer.layer.layout:
-            if layer.layer.layout.showAggregateScores:
-                showAggs = True
         if layer.layer.techniques:
             for entry in layer.layer.techniques:
                 tscore = entry.score
-                if entry.aggregateScore and showAggs:
-                    tscore = entry.aggregateScore
                 if tscore is not None:
                     if entry.tactic:
                         scores.append((entry.techniqueID, entry.tactic, tscore))

@@ -428,10 +428,8 @@ class SVG_Technique:
         tscore = None
         if technique.score is not None:
             tscore = technique.score
-        try:
+        if hasattr(technique, 'aggregateScore'):
             tscore = technique.aggregateScore
-        except AttributeError:
-            pass
         if tscore is not None:
             c = self.grade.compute_color(tscore)[1:]
         else:

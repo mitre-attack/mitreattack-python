@@ -20,7 +20,6 @@ class Technique:
         self.__comment = UNSETVALUE
         self.__enabled = UNSETVALUE
         self.__score = UNSETVALUE
-        self.__aggregateScore = UNSETVALUE
         self.__color = UNSETVALUE
         self.__metadata = UNSETVALUE
         self.__showSubtechniques = UNSETVALUE
@@ -82,20 +81,6 @@ class Technique:
         except BadType:
             typeChecker(type(self).__name__, score, float, "score")
             self.__score = int(score)
-
-    @property
-    def aggregateScore(self):
-        if self.__aggregateScore != UNSETVALUE:
-            return self.__aggregateScore
-
-    @aggregateScore.setter
-    def aggregateScore(self, aggregateScore):
-        if aggregateScore is None:
-            return
-        if isinstance(aggregateScore, int) or isinstance(aggregateScore, float):
-            self.__aggregateScore = aggregateScore
-        else:
-            handler(type(self).__name__, '{} [{}] is not a {}'.format(aggregateScore, "aggregateScore", "int or float"))
 
     @property
     def color(self):
@@ -164,8 +149,6 @@ class Technique:
                 self.metadata = data[entry]
             elif entry == 'showSubtechniques':
                 self.showSubtechniques = data[entry]
-            elif entry == 'aggregateScore':
-                self.aggregateScore = data[entry]
             else:
                 handler(type(self).__name__, "Unknown technique property: {}"
                         .format(entry))

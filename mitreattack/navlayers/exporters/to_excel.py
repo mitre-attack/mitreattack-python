@@ -87,7 +87,7 @@ class ToExcel:
                             x.score = x_score[0][2]
                         subs = tac_column.subtechniques.get(x.id, [])
                         for sub_score in subs:
-                            subtech_score = [y for y in scores if (y[0] == x.id and
+                            subtech_score = [y for y in scores if (y[0] == sub_score.id and
                                                                    (y[1] == short_hand or y[1] is None))]
                             if len(subtech_score):
                                 sub_score.score = subtech_score[0][2]
@@ -98,7 +98,7 @@ class ToExcel:
                         if len(patch_target):
                             patch_target[0].aggregateScore = mod
                         elif mod:
-                            print(f"[WARNING] - Aggregate calculated for a technique that doesn't seem to exist...")
+                            print("[WARNING] - Aggregate calculated for a technique that doesn't seem to exist...")
 
         # verify gradient information
         safe_gradient = layer.layer.gradient
@@ -144,10 +144,11 @@ class ToExcel:
                     c_color = PatternFill(fill_type='solid', start_color=tech.color.upper()[1:])
                     cell.fill = c_color
                     continue
-                if tech.score or tech.aggregateScore is not None:
+                if tech.score is not None:
                     tscore = tech.score
-                    if tech.aggregateScore is not None:
-                        tscore = tech.aggregateScore
+                    if hasattr(tech, 'aggregateScore'):
+                        if tech.aggregateScore is not None:
+                            tscore = tech.aggregateScore
                     comp_color = safe_gradient.compute_color(tscore)
                     c_color = PatternFill(fill_type='solid', start_color=comp_color.upper()[1:])
                     cell.fill = c_color

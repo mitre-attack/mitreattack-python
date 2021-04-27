@@ -403,8 +403,8 @@ class MatrixGen:
             if new_matrix:
                 return new_matrix
             else:
-                print(f"[WARNING] - Unable to produced filtered matrix... nothing would be left under these platform"
-                      f" restrictions.")
+                print("[WARNING] - Unable to produced filtered matrix... nothing would be left under these platform"
+                      " restrictions.")
                 return matrix
         else:
             return matrix
