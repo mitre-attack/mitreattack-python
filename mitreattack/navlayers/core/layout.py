@@ -35,13 +35,13 @@ class Layout:
         scores = []
         total = 0
         if self.showAggregateScores:
-            if technique.score:
+            if technique.score is not None:
                 scores = [technique.score]
                 total += 1
             elif self.countUnscored:
                 total += 1
             for x in subtechniques:
-                if x.score:
+                if x.score is not None:
                     scores.append(x.score)
                     total += 1
                 elif self.countUnscored:

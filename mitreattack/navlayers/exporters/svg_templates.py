@@ -205,16 +205,19 @@ class SvgTemplates:
             if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in subtechs):
                 a, offset = self.get_tech(offset, mode, x, tactic=self.h.convert(tactic.tactic.name),
                                           subtechniques=tactic.subtechniques.get(x.id, []), colors=colors,
-                                          config=config, height=height, width=width)
+                                          config=config, height=height, width=width,
+                                          subscores=tactic.subtechniques.get(x.id, []))
             else:
                 a, offset = self.get_tech(offset, mode, x, tactic=self.h.convert(tactic.tactic.name),
-                                          subtechniques=[], colors=colors, config=config, height=height, width=width)
+                                          subtechniques=[], colors=colors, config=config, height=height, width=width,
+                                          subscores=tactic.subtechniques.get(x.id, []))
             column.append(a)
         if len(column.children) == 0:
             return None
         return column
 
-    def get_tech(self, offset, mode, technique, tactic, config, height, width, subtechniques=[], colors=[]):
+    def get_tech(self, offset, mode, technique, tactic, config, height, width, subtechniques=[], colors=[],
+                 subscores=[]):
         """
             Retrieve a svg object for a single technique
 
@@ -227,11 +230,12 @@ class SvgTemplates:
             :param width: The allocated width of a technique block
             :param subtechniques: A list of all visible subtechniques, some of which may apply to this one
             :param colors: A list of all color overrides in the event of no score, which may apply
+            :param subscores: List of all subtechniques for the (visible or not) [includes scores]
             :return: Tuple (SVG block, new offset)
         """
         # Handle aggregate scoring (v4.2)
         if self.lhandle.layout:
-            mod = self.lhandle.layout.compute_aggregate(technique, subtechniques)
+            mod = self.lhandle.layout.compute_aggregate(technique, subscores)
             if mod is not None:
                 technique.aggregateScore = mod
         a, b = SVG_Technique(self.lhandle.gradient).build(offset, technique, height,

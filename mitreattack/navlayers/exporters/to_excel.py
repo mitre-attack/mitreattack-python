@@ -96,7 +96,7 @@ class ToExcel:
                                                                               (y.tactic == short_hand or
                                                                                y.tactic is None))]
                         if len(patch_target):
-                            patch_target[0].aggregateScore = mod
+                            patch_target[0].score = mod
                         elif mod:
                             print("[WARNING] - Aggregate calculated for a technique that doesn't seem to exist...")
 
@@ -146,9 +146,6 @@ class ToExcel:
                     continue
                 if tech.score is not None:
                     tscore = tech.score
-                    if hasattr(tech, 'aggregateScore'):
-                        if tech.aggregateScore is not None:
-                            tscore = tech.aggregateScore
                     comp_color = safe_gradient.compute_color(tscore)
                     c_color = PatternFill(fill_type='solid', start_color=comp_color.upper()[1:])
                     cell.fill = c_color
