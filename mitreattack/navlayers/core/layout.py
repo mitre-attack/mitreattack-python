@@ -154,8 +154,21 @@ class Layout:
         listing = vars(self)
         temp = dict()
         for entry in listing:
-            if listing[entry] != UNSETVALUE:
+            if entry.split(type(self).__name__ + '__')[-1] == 'aggregateFunction':
+                temp['aggregateFunction']\
+                    = self.__getAggstring()
+            elif listing[entry] != UNSETVALUE:
                 temp[entry.split(type(self).__name__ + '__')[-1]]\
                     = listing[entry]
         if len(temp) > 0:
             return temp
+
+    def __getAggstring(self):
+        if self.__aggregateFunction == 1:
+            return 'average'
+        if self.__aggregateFunction == 2:
+            return 'min'
+        if self.__aggregateFunction == 3:
+            return 'max'
+        if self.__aggregateFunction == 4:
+            return 'sum'

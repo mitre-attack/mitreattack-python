@@ -105,3 +105,21 @@ def loadChecker(caller, testee, required, field):
         if entry not in testee:
             handler(caller, '{} is not present in {} [{}]'.format(entry, field, testee))
             raise MissingParameters
+
+
+def handle_object_placement(handle_to_self_field, potential_object, objectType, list=False):
+    """
+        If the input element (potential_object) is an object of objectType, assign it to handle_to_self_field
+        :param handle_to_self_field: the field the object is to be assigned to
+        :param potential_object: the potential instance of an object
+        :param objectType: the type of object being looked for
+        :param list: whether or not handle_to_self_field should be a list
+        :return: bool on whether or not the object was assigned to handle_to_self_field
+    """
+    if isinstance(potential_object, objectType):
+        if list:
+            handle_to_self_field.append(potential_object)
+        else:
+            handle_to_self_field = potential_object
+        return handle_to_self_field
+    return False

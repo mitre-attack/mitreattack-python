@@ -7,7 +7,7 @@ try:
     from ..core.metadata import Metadata, MetaDiv
     from ..core.versions import Versions
     from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
+        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters, handle_object_placement
 except ImportError:
     from core.filter import Filter
     from core.layout import Layout
@@ -17,7 +17,7 @@ except ImportError:
     from core.metadata import Metadata, MetaDiv
     from core.versions import Versions
     from core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
+        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters, handle_object_placement
 
 
 class _LayerObj:
@@ -66,17 +66,21 @@ class _LayerObj:
 
     @versions.setter
     def versions(self, versions):
-        typeChecker(type(self).__name__, versions, dict, "version")
-        attack = UNSETVALUE
-        if 'attack' in versions:
-            attack = versions['attack']
-        try:
-            loadChecker(type(self).__name__, versions, ['layer', 'navigator'], "versions")
-            self.__versions = Versions(versions['layer'], attack, versions['navigator'])
-        except MissingParameters as e:
-            handler(type(self).__name__, 'versions {} is missing parameters: '
-                                         '{}. Skipping.'
-                    .format(versions, e))
+        ret = handle_object_placement(self.__versions, versions, Versions)
+        if ret:
+            self.__versions = ret
+        else:
+            typeChecker(type(self).__name__, versions, dict, "version")
+            attack = UNSETVALUE
+            if 'attack' in versions:
+                attack = versions['attack']
+            try:
+                loadChecker(type(self).__name__, versions, ['layer', 'navigator'], "versions")
+                self.__versions = Versions(versions['layer'], attack, versions['navigator'])
+            except MissingParameters as e:
+                handler(type(self).__name__, 'versions {} is missing parameters: '
+                                             '{}. Skipping.'
+                        .format(versions, e))
 
     @property
     def name(self):
@@ -119,18 +123,22 @@ class _LayerObj:
 
     @filters.setter
     def filters(self, filters):
-        temp = Filter(self.domain)
-        try:
-            loadChecker(type(self).__name__, filters, ['platforms'], "filters")
-            # force upgrade to v4
-            if 'stages' in filters:
-                print('[Filters] - V3 Field "stages" detected. Upgrading Filters object to V4.')
-            temp.platforms = filters['platforms']
-            self.__filters = temp
-        except MissingParameters as e:
-            handler(type(self).__name__, 'Filters {} is missing parameters: '
-                                         '{}. Skipping.'
-                    .format(filters, e))
+        ret = handle_object_placement(self.__filters, filters, Filter)
+        if ret:
+            self.__filters = ret
+        else:
+            temp = Filter(self.domain)
+            try:
+                loadChecker(type(self).__name__, filters, ['platforms'], "filters")
+                # force upgrade to v4
+                if 'stages' in filters:
+                    print('[Filters] - V3 Field "stages" detected. Upgrading Filters object to V4.')
+                temp.platforms = filters['platforms']
+                self.__filters = temp
+            except MissingParameters as e:
+                handler(type(self).__name__, 'Filters {} is missing parameters: '
+                                             '{}. Skipping.'
+                        .format(filters, e))
 
     @property
     def sorting(self):
@@ -150,20 +158,24 @@ class _LayerObj:
 
     @layout.setter
     def layout(self, layout):
-        temp = Layout()
-        if "layout" in layout:
-            temp.layout = layout['layout']
-        if "showName" in layout:
-            temp.showName = layout['showName']
-        if "showID" in layout:
-            temp.showID = layout['showID']
-        if "showAggregateScores" in layout:
-            temp.showAggregateScores = layout['showAggregateScores']
-        if "countUnscored" in layout:
-            temp.countUnscored = layout['countUnscored']
-        if 'aggregateFunction' in layout:
-            temp.aggregateFunction = layout['aggregateFunction']
-        self.__layout = temp
+        ret = handle_object_placement(self.__layout, layout, Layout)
+        if ret:
+            self.__layout = ret
+        else:
+            temp = Layout()
+            if "layout" in layout:
+                temp.layout = layout['layout']
+            if "showName" in layout:
+                temp.showName = layout['showName']
+            if "showID" in layout:
+                temp.showID = layout['showID']
+            if "showAggregateScores" in layout:
+                temp.showAggregateScores = layout['showAggregateScores']
+            if "countUnscored" in layout:
+                temp.countUnscored = layout['countUnscored']
+            if 'aggregateFunction' in layout:
+                temp.aggregateFunction = layout['aggregateFunction']
+            self.__layout = temp
 
     @property
     def hideDisabled(self):
@@ -186,15 +198,19 @@ class _LayerObj:
         self.__techniques = []
 
         for entry in techniques:
-            try:
-                loadChecker(type(self).__name__, entry, ['techniqueID'], "technique")
-                temp = Technique(entry['techniqueID'])
-                temp._loader(entry)
-                self.__techniques.append(temp)
-            except MissingParameters as e:
-                handler(type(self).__name__, 'Technique {} is missing parameters: '
-                                             '{}. Skipping.'
-                        .format(entry, e))
+            ret = handle_object_placement(self.__techniques, entry, Technique, list=True)
+            if ret:
+                self.__techniques = ret
+            else:
+                try:
+                    loadChecker(type(self).__name__, entry, ['techniqueID'], "technique")
+                    temp = Technique(entry['techniqueID'])
+                    temp._loader(entry)
+                    self.__techniques.append(temp)
+                except MissingParameters as e:
+                    handler(type(self).__name__, 'Technique {} is missing parameters: '
+                                                 '{}. Skipping.'
+                            .format(entry, e))
 
     @property
     def gradient(self):
@@ -203,13 +219,17 @@ class _LayerObj:
 
     @gradient.setter
     def gradient(self, gradient):
-        try:
-            loadChecker(type(self).__name__, gradient, ['colors', 'minValue', 'maxValue'], "gradient")
-            self.__gradient = Gradient(gradient['colors'], gradient['minValue'], gradient['maxValue'])
-        except MissingParameters as e:
-            handler(type(self).__name__, 'Gradient {} is missing parameters: '
-                                         '{}. Skipping.'
-                    .format(gradient, e))
+        ret = handle_object_placement(self.__gradient, gradient, Gradient)
+        if ret:
+            self.__gradient = ret
+        else:
+            try:
+                loadChecker(type(self).__name__, gradient, ['colors', 'minValue', 'maxValue'], "gradient")
+                self.__gradient = Gradient(gradient['colors'], gradient['minValue'], gradient['maxValue'])
+            except MissingParameters as e:
+                handler(type(self).__name__, 'Gradient {} is missing parameters: '
+                                             '{}. Skipping.'
+                        .format(gradient, e))
 
     @property
     def legendItems(self):
@@ -221,14 +241,18 @@ class _LayerObj:
         typeChecker(type(self).__name__, legendItems, list, "legendItems")
         self.__legendItems = []
         for entry in legendItems:
-            try:
-                loadChecker(type(self).__name__, entry, ['label', 'color'], "legendItem")
-                temp = LegendItem(entry['label'], entry['color'])
-                self.__legendItems.append(temp)
-            except MissingParameters as e:
-                handler(type(self).__name__, 'Legend Item {} is missing parameters: '
-                                             '{}. Skipping.'
-                        .format(entry, e))
+            ret = handle_object_placement(self.__legendItems, entry, LegendItem, list=True)
+            if ret:
+                self.__legendItems = ret
+            else:
+                try:
+                    loadChecker(type(self).__name__, entry, ['label', 'color'], "legendItem")
+                    temp = LegendItem(entry['label'], entry['color'])
+                    self.__legendItems.append(temp)
+                except MissingParameters as e:
+                    handler(type(self).__name__, 'Legend Item {} is missing parameters: '
+                                                 '{}. Skipping.'
+                            .format(entry, e))
 
     @property
     def showTacticRowBackground(self):
@@ -284,17 +308,21 @@ class _LayerObj:
         typeChecker(type(self).__name__, metadata, list, "metadata")
         self.__metadata = []
         for entry in metadata:
-            try:
-                if "divider" in entry:
-                    self.__metadata.append(MetaDiv(entry["divider"]))
-                else:
-                    loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
-                    self.__metadata.append(Metadata(entry['name'], entry['value']))
-            except MissingParameters as e:
-                handler(
-                    type(self).__name__,
-                    'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
-                )
+            ret = handle_object_placement(self.__metadata, entry, Metadata, list=True)
+            if ret:
+                self.__metadata = ret
+            else:
+                try:
+                    if "divider" in entry:
+                        self.__metadata.append(MetaDiv(entry["divider"]))
+                    else:
+                        loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
+                        self.__metadata.append(Metadata(entry['name'], entry['value']))
+                except MissingParameters as e:
+                    handler(
+                        type(self).__name__,
+                        'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
+                    )
 
     def _enumerate(self):
         """

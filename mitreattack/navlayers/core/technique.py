@@ -1,10 +1,10 @@
 try:
     from ..core.exceptions import BadInput, handler, typeChecker, \
-        UNSETVALUE, UnknownTechniqueProperty, BadType
+        UNSETVALUE, UnknownTechniqueProperty, BadType, handle_object_placement
     from ..core.metadata import Metadata, MetaDiv
 except ImportError:
     from core.exceptions import BadInput, handler, typeChecker, \
-        UNSETVALUE, UnknownTechniqueProperty, BadType
+        UNSETVALUE, UnknownTechniqueProperty, BadType, handle_object_placement
     from core.metadata import Metadata, MetaDiv
 
 
@@ -100,18 +100,19 @@ class Technique:
     @metadata.setter
     def metadata(self, metadata):
         typeChecker(type(self).__name__, metadata, list, "metadata")
-        self.__metadata = []
-        entry = ""
-        try:
-            for entry in metadata:
-                if "divider" in entry:
-                    self.__metadata.append(MetaDiv(entry["divider"]))
-                else:
-                    self.__metadata.append(Metadata(entry['name'], entry['value']))
-        except KeyError as e:
-            handler(type(self).__name__, 'Metadata {} is missing parameters: '
-                                         '{}. Unable to load.'
-                    .format(entry, e))
+        if not handle_object_placement(self.__metadata, metadata, Metadata):
+            self.__metadata = []
+            entry = ""
+            try:
+                for entry in metadata:
+                    if "divider" in entry:
+                        self.__metadata.append(MetaDiv(entry["divider"]))
+                    else:
+                        self.__metadata.append(Metadata(entry['name'], entry['value']))
+            except KeyError as e:
+                handler(type(self).__name__, 'Metadata {} is missing parameters: '
+                                             '{}. Unable to load.'
+                        .format(entry, e))
 
     @property
     def showSubtechniques(self):

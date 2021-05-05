@@ -29,6 +29,11 @@ class Layer:
             return self.__layer
         return "No Layer Loaded Yet!"
 
+    @layer.setter
+    def layer(self, layer):
+        if isinstance(layer, _LayerObj):
+            self.__layer = layer
+
     def from_str(self, init_str):
         """
             Loads a raw layer string into the object
