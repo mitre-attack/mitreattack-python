@@ -47,6 +47,9 @@ The Layer class provides format validation and read/write capabilities to aid in
 | x.to_dict() | Returns a representation of the current ATT&CK layer object as a dictionary. |
 | x.to_str() | Returns a representation of the current ATT&CK layer object as a string representation of a dictionary. |
 
+Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found 
+[here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md).
+
 #### Example Usage
 
 ```python
