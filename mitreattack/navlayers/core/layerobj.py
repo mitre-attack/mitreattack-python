@@ -7,7 +7,8 @@ try:
     from ..core.metadata import Metadata, MetaDiv
     from ..core.versions import Versions
     from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters, handle_object_placement
+        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
+    from ..core.helpers import handle_object_placement
 except ImportError:
     from core.filter import Filter
     from core.layout import Layout
@@ -17,7 +18,8 @@ except ImportError:
     from core.metadata import Metadata, MetaDiv
     from core.versions import Versions
     from core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters, handle_object_placement
+        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
+    from core.helpers import handle_object_placement
 
 
 class _LayerObj:

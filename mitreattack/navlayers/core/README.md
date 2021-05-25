@@ -34,8 +34,8 @@ layer_example.layer.versions = dict(layer="4.2", attack="9.1", navigator="4.2")
 layer_example.layer.description = "This is a demonstration of how to set up a layer piece by piece"
 
 # configure the "filters" object
-layer_example.layer.filters = dict(platforms=['example'])  # platforms can be provided during initialization
-layer_example.layer.filters.platforms = ['a', 'b', 'c']  # or separately
+layer_example.layer.filters = dict(platforms=['MacOS'])  # platforms can be provided during initialization
+layer_example.layer.filters.platforms = ['Windows']  # or separately
 
 # configure the 'sorting' setting
 layer_example.layer.sorting = 3  # 0: sort ascending alphabetically by technique name
@@ -72,8 +72,8 @@ produce equivalent internal layers once completed.
 ```python
 import mitreattack.navlayers as navlayers
 
-layer_example = navlayers.Layer()
-layer_build = navlayers.core._LayerObj(name="example", domain="enterprise-attack") # arguments required for every layer
+layer_example = navlayers.Layer(name="example", domain="enterprise-attack") # arguments required for every layer
+layer_build = layer_example.layer  # short handle to make the rest of this example easier to read
 
 # configure the versions object
 versions_obj = navlayers.Versions()
@@ -87,7 +87,7 @@ layer_build.description = "This is a demonstration of how to set up a layer piec
 
 # configure the "filters" object
 filter_obj = navlayers.core.Filter(domain="enterprise-attack")
-filter_obj.platforms = ['a', 'b', 'c']
+filter_obj.platforms = ['Windows']
 layer_build.filters = filter_obj
 
 # configure the 'sorting' setting
@@ -135,8 +135,6 @@ technique_obj_b.score = 1
 technique_obj_b.comment = "Demo"
 layer_build.techniques = [technique_obj_a, technique_obj_b]
 
-# link layerobj backend to layer instance for easy handling
-layer_example.layer = layer_build
 ```
 
 ### Object Documentation
@@ -202,7 +200,6 @@ for backwards compatibility reasons.
                                  # 1 - Average, 2 - min, 3 - max, 4 - sum
     Layout().get_dict()          # Export Layout data as a dictionary object
     Layout().compute_aggregate() # Compute the aggregate score for a technique and it's subtechniques
-    Layout().aggFunction()       # Wrapper handle to apply the selected aggregate function to data
 ```
 #### Technique Object
 ```python

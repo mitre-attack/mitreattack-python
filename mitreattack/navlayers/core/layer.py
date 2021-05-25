@@ -10,7 +10,7 @@ except ImportError:
 
 
 class Layer:
-    def __init__(self, init_data={}, strict=True):
+    def __init__(self, init_data={}, name=None, domain=None, strict=True):
         """
              Initialization - create a new Layer object
              :param init_data: Optionally provide base Layer json or string
@@ -18,7 +18,10 @@ class Layer:
          """
         self.__layer = None
         self.strict = strict
-        if isinstance(init_data, str):
+        if name and domain:
+            self.__data = dict(name=name, domain=domain)
+            self._build()
+        elif isinstance(init_data, str):
             self.from_str(init_data)
         else:
             self.from_dict(init_data)
