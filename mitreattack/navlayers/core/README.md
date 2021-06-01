@@ -34,7 +34,7 @@ layer_example.layer.versions = dict(layer="4.2", attack="9.1", navigator="4.2")
 layer_example.layer.description = "This is a demonstration of how to set up a layer piece by piece"
 
 # configure the "filters" object
-layer_example.layer.filters = dict(platforms=['MacOS'])  # platforms can be provided during initialization
+layer_example.layer.filters = dict(platforms=['macOS'])  # platforms can be provided during initialization
 layer_example.layer.filters.platforms = ['Windows']  # or separately
 
 # configure the 'sorting' setting

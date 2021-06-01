@@ -18,8 +18,8 @@ Some simple examples are provided here to get you started on using this library.
 
 | module name | description | documentation |
 |:------------|:------------|:--------------|
-| navlayers | Provides a means by which to import, export, and manipulate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/mitreattack/navlayers/README.md).|
-| attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/mitreattack/attackToExcel/README.md).|
+| navlayers | Provides a means by which to import, export, and manipulate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).|
+| attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md).|
 ### Usage Examples
 #### navlayers
 ```python
