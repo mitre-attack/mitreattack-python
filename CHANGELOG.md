@@ -1,3 +1,10 @@
+# v1.2.0 - 6 June 2021
+This update adds some convenience features to make it easier to create layers programmatically, as well
+as documentation on how to do so.
+## Improvements
+- Made it possible to directly initialize Layer objects in core 
+- Created README documenting how to create layers programmatically through various approaches
+
 # v1.1.0 - 29 April 2021
 With the release of the ATT&CK Navigator Layer version 4.2, this library now supports the new 
 aggregateScore functionality and associated format changes. 
