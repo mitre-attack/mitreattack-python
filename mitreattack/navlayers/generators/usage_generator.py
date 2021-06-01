@@ -1,9 +1,9 @@
 from stix2 import Filter
 from itertools import chain
 try:
-    from navlayers.exporters.matrix_gen import MatrixGen
-    from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
-    from navlayers.core.layer import Layer
+    from exporters.matrix_gen import MatrixGen
+    from core.exceptions import BadInput, typeChecker, categoryChecker
+    from core.layer import Layer
 except ImportError:
     from mitreattack_python.navlayers.exporters.matrix_gen import MatrixGen
     from mitreattack_python.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
@@ -193,8 +193,3 @@ class UsageGenerator:
         raw_layer['techniques'] = processed_listing
         output_layer = Layer(raw_layer)
         return output_layer
-
-
-gamma = UsageGenerator('taxii')
-generated = gamma.generate_layer('M1036', 'mitigation')
-generated.to_file('gen_test.json')

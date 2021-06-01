@@ -1,12 +1,12 @@
 import json
 try:
-    from ..core.exceptions import UninitializedLayer, BadType, BadInput, \
-        handler
-    from ..core.layerobj import _LayerObj
-except ImportError:
     from core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
     from core.layerobj import _LayerObj
+except ImportError:
+    from mitreattack_python.navlayers.core.exceptions import UninitializedLayer, BadType, BadInput, \
+        handler
+    from mitreattack_python.navlayers.core.layerobj import _LayerObj
 
 
 class Layer:

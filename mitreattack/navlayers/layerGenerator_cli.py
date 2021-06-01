@@ -26,12 +26,16 @@ def main():
     if args.mode == 'overview':
         og = OverviewGenerator(source=args.source, matrix=args.matrix, local=args.local)
         generated = og.generate_layer(obj_type=args.type)
+        print('Generating Layer File')
         generated.to_file(args.output)
+        print(f'Layer file generated as {args.output}.')
     elif args.mode == 'usage':
         if args.identity:
             ug = UsageGenerator(source=args.source, matrix=args.matrix, local=args.local)
             generated = ug.generate_layer(match=args.identity, obj_type=args.typ)
+            print('Generating Layer File')
             generated.to_file(args.output)
+            print(f'Layer file generated as {args.output}.')
         else:
             print('No identity provided (--identity). Without an identity, no "usage" type layer can be generated. '
                   'Aborting...')

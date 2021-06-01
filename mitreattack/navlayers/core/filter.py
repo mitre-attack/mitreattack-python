@@ -1,8 +1,8 @@
 try:
-    from ..core.exceptions import typeCheckerArray, categoryChecker, \
+    from core.exceptions import typeCheckerArray, categoryChecker, \
         UNSETVALUE
 except ImportError:
-    from core.exceptions import typeCheckerArray, categoryChecker, \
+    from mitreattack_python.navlayers.core.exceptions import typeCheckerArray, categoryChecker, \
         UNSETVALUE
 
 
