@@ -5,9 +5,9 @@ try:
     from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from navlayers.core.layer import Layer
 except ImportError:
-    from ..exporters.matrix_gen import MatrixGen
-    from ..core.exceptions import BadInput, typeChecker, categoryChecker
-    from ..core.layer import Layer
+    from mitreattack_python.navlayers.exporters.matrix_gen import MatrixGen
+    from mitreattack_python.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
+    from mitreattack_python.navlayers.core.layer import Layer
 
 
 class UnableToFindGroup(Exception):

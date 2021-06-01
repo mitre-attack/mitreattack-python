@@ -5,9 +5,9 @@ try:
     from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from navlayers.core.layer import Layer
 except ImportError:
-    from ..exporters.matrix_gen import MatrixGen
-    from ..core.exceptions import BadInput, typeChecker, categoryChecker
-    from ..core.layer import Layer
+    from mitreattack_python.navlayers.exporters.matrix_gen import MatrixGen
+    from mitreattack_python.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
+    from mitreattack_python.navlayers.core.layer import Layer
 
 
 class UnableToFindTechnique(Exception):
@@ -24,8 +24,31 @@ class OverviewGenerator:
         except KeyError:
             print(f"[UsageGenerator] - unable to load collection {matrix} (current source = {source}).")
             raise BadInput
-        self.tech_listing = self.source_handle.query([Filter('type', '=', 'attack-pattern')])
+        self.tech_listing = self.remove_revoked(self.source_handle.query([Filter('type', '=', 'attack-pattern')]))
         self.group_objects = self.source_handle.query([Filter('type', '=', 'course-of-action')])
+        complete_relationships = self.source_handle.query([Filter('type', '=', 'relationship'),
+                                                           Filter('relationship_type', '=', 'uses')])
+        complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
+                                                                Filter('relationship_type', '=', 'mitigates')]))
+        self.mitigation_relationships = {}
+        self.software_relationships = {}
+        self.group_relationships = {}
+
+        for entry in complete_relationships:
+            if entry['target_ref'].startswith('attack-pattern--'):
+                if entry['source_ref'].startswith('course-of-action--'):
+                    if entry['target_ref'] not in self.mitigation_relationships:
+                        self.mitigation_relationships[entry['target_ref']] = []
+                    self.mitigation_relationships[entry['target_ref']].append(entry)
+                elif entry['source_ref'].startswith('tool--') or entry['source_ref'].startswith('malware--'):
+                    if entry['target_ref'] not in self.software_relationships:
+                        self.software_relationships[entry['target_ref']] = []
+                    self.software_relationships[entry['target_ref']].append(entry)
+                elif entry['source_ref'].startswith('intrusion-set--'):
+                    if entry['target_ref'] not in self.group_relationships:
+                        self.group_relationships[entry['target_ref']] = []
+                    self.group_relationships[entry['target_ref']].append(entry)
+
 
     def remove_revoked(self, listing):
         """
@@ -64,47 +87,8 @@ class OverviewGenerator:
         return len(names), names
 
     def get_mitigations(self, relationships):
-        list_of_mits = []
-        for relationship in relationships:
-            if relationship.source_ref.startswith('course-of-action--'):
-                list_of_mits.append(relationship.source_ref)
-        names = [x.name for x in self.group_objects if x.id in list_of_mits]
+        names = [x.name for x in self.group_objects if x.id in relationships]
         return len(names), names
-
-    def generate_technique_data(self, raw_matches):
-        """
-        Generate technique list of dictionary objects (dictionary form of technique listing for a layer)
-        :param raw_matches: matching attack-pattern objects
-        :return: list of dictionary objects for every technique: score=0 if not in raw_matches, 1 otherwise,
-                    description in comments
-        """
-        shortlist = []
-        for match in raw_matches:
-            xid = ''
-            xphase = ''
-            for ref in match.external_references:
-                if ref.source_name == 'mitre-attack':
-                    xid = ref.external_id
-            for phase in match.kill_chain_phases:
-                if phase.kill_chain_name == 'mitre-attack':
-                    xphase = phase.phase_name
-            shortlist.append((xid, xphase, match.description))
-        full_matrix_listing = self.matrix_handle.get_matrix(self.domain)
-        construct = list()
-        for tactic in full_matrix_listing:
-            for tech in tactic.techniques:
-                construct.append(dict(techniqueID=tech.id, score=0,
-                                      tactic=self.matrix_handle.convert(tactic.tactic.name)))
-            for tech_key in tactic.subtechniques:
-                for subtech in tactic.subtechniques[tech_key]:
-                    construct.append(dict(techniqueID=subtech.id, score=0,
-                                          tactic=self.matrix_handle.convert(tactic.tactic.name)))
-        for entry in shortlist:
-            for tac in construct:
-                if entry[0] == tac['techniqueID'] and (entry[1] == '' or entry[1] == tac['tactic']):
-                    tac['score'] = 1
-                    tac['comment'] = entry[2]
-        return construct
 
     def get_matrix_template(self):
         construct = list()
@@ -120,7 +104,7 @@ class OverviewGenerator:
         return construct
 
     def get_technique_obj(self, techniqueID, tactic=''):
-        listing = self.remove_revoked(self.tech_listing)
+        listing = self.tech_listing
         try:
             for match in listing:
                 xid = False
@@ -140,17 +124,28 @@ class OverviewGenerator:
     def update_template(self, obj_type, complete_tech_listing):
         temp = complete_tech_listing
         for entry in temp:
-            print(entry)
+            print(entry['techniqueID'])
             tech = self.get_technique_obj(entry['techniqueID'], entry['tactic'])
-            related = self.source_handle.relationships(tech.id, 'uses', target_only=True)
             score = 0
             listing = []
             if obj_type == 'group':
-                score, listing = self.get_groups(related)
+                try:
+                    related = self.group_relationships[tech.id]
+                    score, listing = self.get_groups(related)
+                except KeyError:
+                    pass
             elif obj_type == 'software':
-                score, listing = self.get_softwares(related)
+                try:
+                    related = self.software_relationships[tech.id]
+                    score, listing = self.get_softwares(related)
+                except KeyError:
+                    pass
             elif obj_type == "mitigation":
-                score, listing = self.get_mitigations(related)
+                try:
+                    related = self.mitigation_relationships[tech.id]
+                    score, listing = self.get_mitigations(related)
+                except KeyError:
+                    pass # we don't have any matches for this one
             entry['score'] = score
             entry['comment'] = ', '.join(listing)
         return temp
@@ -176,4 +171,8 @@ class OverviewGenerator:
 
 gamma = OverviewGenerator('taxii')
 generated = gamma.generate_layer('mitigation')
-generated.to_file('gen_over_test.json')
+generated.to_file('gen_over_mitigation.json')
+generated = gamma.generate_layer('software')
+generated.to_file('gen_over_software.json')
+generated = gamma.generate_layer('group')
+generated.to_file('gen_over_group.json')
