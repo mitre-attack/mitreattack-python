@@ -1,4 +1,4 @@
-# v1.2.0 - 6 June 2021
+# v1.2.0 - 2 June 2021
 This update adds some convenience features to make it easier to create layers programmatically, as well
 as documentation on how to do so.
 ## Improvements
