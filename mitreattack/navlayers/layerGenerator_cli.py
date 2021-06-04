@@ -1,8 +1,8 @@
 import argparse
 
 try:
-    from generators.overview_generator import OverviewGenerator
-    from generators.usage_generator import UsageGenerator
+    from .generators.overview_generator import OverviewGenerator
+    from .generators.usage_generator import UsageGenerator
 except ImportError:
     from mitreattack.navlayers.generators.overview_generator import OverviewGenerator
     from mitreattack.navlayers.generators.usage_generator import UsageGenerator

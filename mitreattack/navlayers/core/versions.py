@@ -1,7 +1,9 @@
 try:
-    from core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
+    from ..core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
+except ValueError:
+    from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 except ImportError:
-    from mitreattack_python.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
+    from navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
 
 class Versions:

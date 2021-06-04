@@ -1,7 +1,9 @@
 try:
-    from core.exceptions import typeChecker
+    from ..core.exceptions import typeChecker
+except ValueError:
+    from mitreattack.navlayers.core.exceptions import typeChecker
 except ImportError:
-    from mitreattack_python.navlayers.core.exceptions import typeChecker
+    from navlayers.core.exceptions import typeChecker
 
 
 class Metadata:

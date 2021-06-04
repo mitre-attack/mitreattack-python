@@ -1,13 +1,17 @@
 from stix2 import Filter
 from itertools import chain
 try:
-    from exporters.matrix_gen import MatrixGen
-    from core.exceptions import BadInput, typeChecker, categoryChecker
-    from core.layer import Layer
+    from ..exporters.matrix_gen import MatrixGen
+    from ..core.exceptions import BadInput, typeChecker, categoryChecker
+    from ..core.layer import Layer
+except ValueError:
+    from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
+    from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
+    from mitreattack.navlayers.core.layer import Layer
 except ImportError:
-    from mitreattack_python.navlayers.exporters.matrix_gen import MatrixGen
-    from mitreattack_python.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
-    from mitreattack_python.navlayers.core.layer import Layer
+    from navlayers.exporters.matrix_gen import MatrixGen
+    from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
+    from navlayers.core.layer import Layer
 
 
 class UnableToFindGroup(Exception):
