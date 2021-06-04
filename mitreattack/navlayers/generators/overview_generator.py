@@ -68,6 +68,11 @@ class OverviewGenerator:
         return [a for a in listing if a not in removed]
 
     def get_groups(self, relationships):
+        """
+        Sort Groups out of relationships
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched groups, list of group names
+        """
         list_of_groups = []
         for relationship in relationships:
             if relationship.source_ref.startswith('intrusion-set--'):
@@ -78,6 +83,11 @@ class OverviewGenerator:
         return len(names), names
 
     def get_softwares(self, relationships):
+        """
+        Sort software out of relationships
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched software, list of software names
+        """
         list_of_softwares = []
         for relationship in relationships:
             if relationship.source_ref.startswith('malware--') or relationship.source_ref.startswith('tool--'):
@@ -91,10 +101,19 @@ class OverviewGenerator:
         return len(names), names
 
     def get_mitigations(self, relationships):
+        """
+        Sort mitigations out of relationships
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched mitigations, list of mitigation names
+        """
         names = [x.name for x in self.group_objects if x.id in relationships]
         return len(names), names
 
     def get_matrix_template(self):
+        """
+        Build the raw dictionary form matrix layer object
+        :return: dictionary representing all entries in the matrix layer
+        """
         construct = list()
         full_matrix_listing = self.matrix_handle.get_matrix(self.domain)
         for tactic in full_matrix_listing:
@@ -108,6 +127,12 @@ class OverviewGenerator:
         return construct
 
     def get_technique_obj(self, techniqueID, tactic=''):
+        """
+        Extract the matching technique object from the tech_listing
+        :param techniqueID: the technique object's id
+        :param tactic: optional tactic for the technique object
+        :return: the matching technique object (or a UnableToFindTechnique exception)
+        """
         listing = self.tech_listing
         for match in listing:
             xid = False
@@ -123,6 +148,12 @@ class OverviewGenerator:
         raise UnableToFindTechnique
 
     def update_template(self, obj_type, complete_tech_listing):
+        """
+        Update an existing dictionary of layer techniques with the appropriate matching objects
+        :param obj_type: the type of object to update the data with
+        :param complete_tech_listing: 'clean' technique dictionary template
+        :return: Updated technique dictionary
+        """
         temp = complete_tech_listing
         for entry in temp:
             tech = self.get_technique_obj(entry['techniqueID'], entry['tactic'])
