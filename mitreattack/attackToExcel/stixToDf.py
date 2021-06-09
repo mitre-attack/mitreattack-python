@@ -19,6 +19,20 @@ def remove_revoked_deprecated(stix_objects):
     )
 
 
+def filter_platforms(stix_objects, platforms):
+    """Filter out any objects that don't have a matching platform to one in 'platforms'"""
+    if not platforms:
+        return stix_objects
+
+    return list(
+        filter(
+            lambda x: any(platform.lower() in [y.lower() for y in x.get("x_mitre_platforms", [])]
+                          for platform in platforms),
+            stix_objects
+        )
+    )
+
+
 def format_date(date):
     """ Given a date string, return it formatted as %d %B %Y """
     if isinstance(date, str):
@@ -72,16 +86,18 @@ def parseBaseStix(sdo):
     return row
 
 
-def techniquesToDf(src, domain):
+def techniquesToDf(src, domain, platforms=None):
     """
     Parse STIX techniques from the given data and return corresponding pandas dataframes.
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
 
     techniques = src.query([Filter("type", "=", "attack-pattern")])
     techniques = remove_revoked_deprecated(techniques)
+    techniques = filter_platforms(techniques, platforms)
     technique_rows = []
 
     for technique in tqdm(techniques, desc="parsing techniques"):
@@ -139,9 +155,7 @@ def techniquesToDf(src, domain):
         technique_rows.append(row)
 
     citations = get_citations(techniques)
-    dataframes = {
-        "techniques": pd.DataFrame(technique_rows).sort_values("name"),
-    }
+    dataframes = _sort_wrapper("techniques", technique_rows)
     # add relationships
     dataframes.update(relationshipsToDf(src, relatedType="technique"))
     # add/merge citations
@@ -156,35 +170,36 @@ def techniquesToDf(src, domain):
     return dataframes
 
 
-def tacticsToDf(src, domain):
+def tacticsToDf(src, domain, platforms=None):
     """
     Parse STIX tactics from the given data and return corresponding pandas dataframes.
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
 
     tactics = src.query([Filter("type", "=", "x-mitre-tactic")])
     tactics = remove_revoked_deprecated(tactics)
+    tactics = filter_platforms(tactics, platforms)
 
     tactic_rows = []
     for tactic in tqdm(tactics, desc="parsing mitigations"):
         tactic_rows.append(parseBaseStix(tactic))
 
     citations = get_citations(tactics)
-    dataframes = {
-        "tactics": pd.DataFrame(tactic_rows).sort_values("name"),
-    }
+    dataframes = _sort_wrapper("tactics", tactic_rows)
     if not citations.empty: dataframes["citations"] = citations.sort_values("reference")
 
     return dataframes
 
 
-def softwareToDf(src, domain):
+def softwareToDf(src, domain, platforms=None):
     """
     Parse STIX software from the given data and return corresponding pandas dataframes.
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
 
@@ -192,6 +207,7 @@ def softwareToDf(src, domain):
         src.query(f) for f in [Filter("type", "=", "tool"), Filter("type", "=", "malware")]
     ))
     software = remove_revoked_deprecated(software)
+    software = filter_platforms(software, platforms)
     software_rows = []
     for soft in tqdm(software, desc="parsing software"):
         # add common STIx fields
@@ -206,9 +222,7 @@ def softwareToDf(src, domain):
         software_rows.append(row)
 
     citations = get_citations(software)
-    dataframes = {
-        "software": pd.DataFrame(software_rows).sort_values("name"),
-    }
+    dataframes = _sort_wrapper("software", software_rows)
     # add relationships
     dataframes.update(relationshipsToDf(src, relatedType="software"))
     # add/merge citations
@@ -223,16 +237,18 @@ def softwareToDf(src, domain):
     return dataframes
 
 
-def groupsToDf(src, domain):
+def groupsToDf(src, domain, platforms=None):
     """
     Parse STIX groups from the given data and return corresponding pandas dataframes.
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
 
     groups = src.query([Filter("type", "=", "intrusion-set")])
     groups = remove_revoked_deprecated(groups)
+    groups = filter_platforms(groups, platforms)
     group_rows = []
     for group in tqdm(groups, desc="parsing groups"):
         row = parseBaseStix(group)
@@ -254,9 +270,7 @@ def groupsToDf(src, domain):
         group_rows.append(row)
 
     citations = get_citations(groups)
-    dataframes = {
-        "groups": pd.DataFrame(group_rows).sort_values("name"),
-    }
+    dataframes = _sort_wrapper("groups", group_rows)
     # add relationships
     dataframes.update(relationshipsToDf(src, relatedType="group"))
     # add/merge citations
@@ -271,24 +285,24 @@ def groupsToDf(src, domain):
     return dataframes
 
 
-def mitigationsToDf(src, domain):
+def mitigationsToDf(src, domain, platforms=None):
     """
     Parse STIX mitigations from the given data and return corresponding pandas dataframes.
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
 
     mitigations = src.query([Filter("type", "=", "course-of-action")])
     mitigations = remove_revoked_deprecated(mitigations)
+    mitigations = filter_platforms(mitigations, platforms)
     mitigation_rows = []
     for mitigation in tqdm(mitigations, desc="parsing mitigations"):
         mitigation_rows.append(parseBaseStix(mitigation))
 
     citations = get_citations(mitigations)
-    dataframes = {
-        "mitigations": pd.DataFrame(mitigation_rows).sort_values("name"),
-    }
+    dataframes = _sort_wrapper("mitigations", mitigation_rows)
     # add relationships
     dataframes.update(relationshipsToDf(src, relatedType="mitigation"))
     # add/merge citations
@@ -333,11 +347,12 @@ class CellRange:
         return ''.join(result) + str(row)
 
 
-def matricesToDf(src, domain):
+def matricesToDf(src, domain, platforms=None):
     """
     Parse STIX matrices from the given data and return parsed matrix structures
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platforms: platforms of ATT&CK to filter by
     :returns: [{ matrix, name, description, merge, border }, ... ] where
         matrix is a pandas dataframe of the matrix
         name is the name of the matrix
@@ -349,6 +364,7 @@ def matricesToDf(src, domain):
     print("building matrices... ", end="", flush=True)
     matrices = src.query([Filter("type", "=", "x-mitre-matrix")])
     matrices = remove_revoked_deprecated(matrices)
+    matrices = filter_platforms(matrices, platforms)
     matrices_parsed = []
 
     for matrix in matrices:
@@ -374,6 +390,7 @@ def matricesToDf(src, domain):
                     Filter("kill_chain_phases.phase_name", "=", tactic["x_mitre_shortname"]),
                 ])))
             techniques = remove_revoked_deprecated(techniques)
+            techniques = filter_platforms(techniques, platforms)
             techniques = sorted(techniques, key=lambda x: x["name"])
             # add techniques
             for technique in techniques:
@@ -389,6 +406,7 @@ def matricesToDf(src, domain):
                     # get sub-techniques
                     subtechniques = [src.get(rel["source_ref"]) for rel in subtechnique_ofs]
                     subtechniques = remove_revoked_deprecated(subtechniques)
+                    subtechniques = filter_platforms(subtechniques, platforms)
                     subtechniques = sorted(subtechniques, key=lambda x: x["name"])
                     for i in range(len(subtechniques)):  # for each sub-technique
                         if i != 0: techniques_column.append(
@@ -590,3 +608,21 @@ def relationshipsToDf(src, relatedType=None):
             dataframes["citations"] = citations.sort_values("reference")
 
         return dataframes
+
+
+def _sort_wrapper(object_name, object_rows):
+    """
+    Internal tool to simplify creating DataFrames that are sorted by the name field safely
+    :param object_name: The name of the object type
+    :param object_rows: Existing list of objects to be cast into the DataFrame
+    :return: A dictionary containing a single entry - a sorted list of DataFrames addressable by 'object_name'
+    """
+    if object_rows:
+        dataframes = {
+            object_name: pd.DataFrame(object_rows).sort_values("name"),
+        }
+    else:
+        dataframes = {
+            object_name: pd.DataFrame(object_rows),
+        }
+    return dataframes

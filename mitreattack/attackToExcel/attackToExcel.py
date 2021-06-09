@@ -22,25 +22,26 @@ def get_stix_data(domain, version=None):
     else:
         url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url).json()
+    stix_json = requests.get(url, verify=False).json()
     return MemoryStore(stix_data=stix_json["objects"])
 
 
-def build_dataframes(src, domain):
+def build_dataframes(src, domain, platform):
     """
     build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe
     :param src: MemoryStore or other stix2 DataSource object
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :param platform: platform of ATT&CK to filter by
     :returns: a dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
     # get each ATT&CK type
     return {
-        "techniques": stixToDf.techniquesToDf(src, domain),
-        "tactics": stixToDf.tacticsToDf(src, domain),
-        "software": stixToDf.softwareToDf(src, domain),
-        "groups": stixToDf.groupsToDf(src, domain),
-        "mitigations": stixToDf.mitigationsToDf(src, domain),
-        "matrices": stixToDf.matricesToDf(src, domain),
+        "techniques": stixToDf.techniquesToDf(src, domain, platform),
+        "tactics": stixToDf.tacticsToDf(src, domain, platform),
+        "software": stixToDf.softwareToDf(src, domain, platform),
+        "groups": stixToDf.groupsToDf(src, domain, platform),
+        "mitigations": stixToDf.mitigationsToDf(src, domain, platform),
+        "matrices": stixToDf.matricesToDf(src, domain, platform),
         "relationships": stixToDf.relationshipsToDf(src)
     }
 
@@ -153,7 +154,7 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
     return written_files
 
 
-def export(domain="enterprise-attack", version=None, outputDir="."):
+def export(domain="enterprise-attack", version=None, outputDir=".", platforms=None):
     """
     Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
     :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
@@ -161,9 +162,10 @@ def export(domain="enterprise-attack", version=None, outputDir="."):
                     of ATT&CK
     :param outputDir: optional, the directory to write the excel files to. If omitted writes to a
                       subfolder of the current directory depending on specified domain and version
+    :param platforms: platform of ATT&CK to filter by
     """
     # build dataframes
-    dataframes = build_dataframes(get_stix_data(domain, version), domain)
+    dataframes = build_dataframes(get_stix_data(domain, version), domain, platforms)
     write_excel(dataframes, domain, version, outputDir)
 
 
@@ -187,9 +189,14 @@ def main():
                         help="output directory. If omitted writes to a subfolder of the current directory depending on "
                              "the domain and version"
                         )
+    parser.add_argument("-platforms",
+                        nargs='+',
+                        type=str,
+                        default=None,
+                        help="which platforms to restrict the results to")
     args = parser.parse_args()
 
-    export(args.domain, args.version, args.output)
+    export(args.domain, args.version, args.output, args.platforms)
 
 
 if __name__ == '__main__':
