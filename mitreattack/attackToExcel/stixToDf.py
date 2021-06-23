@@ -120,17 +120,24 @@ def techniquesToDf(src, domain):
                 row["name"] = f"{parent['name']}: {technique['name']}"
                 row["sub-technique of"] = parent["external_references"][0]["external_id"]
 
-            if "privilege-escalation" in tactic_shortnames and "x_mitre_permissions_required" in technique:
-                row["permissions required"] = ", ".join(sorted(technique["x_mitre_permissions_required"]))
+            if "x_mitre_system_requirements" in technique:
+                row["system requirements"] = ", ".join(sorted(technique["x_mitre_system_requirements"]))
+            if "privilege-escalation" in tactic_shortnames:
+                if "x_mitre_permissions_required" in technique:
+                    row["permissions required"] = ", ".join(sorted(technique["x_mitre_permissions_required"]))
+                if "x_mitre_effective_permissions" in technique:
+                    row["effective permissions"] = ", ".join(sorted(technique["x_mitre_effective_permissions"]))
             if "defense-evasion" in tactic_shortnames and "x_mitre_defense_bypassed" in technique:
                 row["defenses bypassed"] = ", ".join(sorted(technique["x_mitre_defense_bypassed"]))
             if "execution" in tactic_shortnames and "x_mitre_remote_support" in technique:
                 row["supports remote"] = technique["x_mitre_remote_support"]
+            if "impact" in tactic_shortnames and "x_mitre_impact_type" in technique:
+                row["impact type"] = ", ".join(sorted(technique["x_mitre_impact_type"]))
 
         # domain specific fields -- mobile
         elif domain == "mobile-attack":
-            if "x_mitre_tactic_types" in technique:
-                row["tactic type"] = technique["x_mitre_tactic_types"]
+            if "x_mitre_tactic_type" in technique:
+                row["tactic type"] = ", ".join(sorted(technique["x_mitre_tactic_type"]))
             mtc_refs = list(filter(lambda ref: ref["source_name"] == "NIST Mobile Threat Catalogue",
                                    technique["external_references"]))
             if mtc_refs:
