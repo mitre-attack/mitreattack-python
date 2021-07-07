@@ -1,3 +1,5 @@
+import copy
+
 import pandas as pd
 from stix2 import Filter
 from itertools import chain
@@ -7,6 +9,12 @@ import re
 import numpy as np
 
 
+Matrix_Platforms_Lookup = {"enterprise-attack": ['PRE', 'Windows', 'macOS', 'Linux', 'Cloud', 'Office 365', 'Azure AD',
+                                                 'Google Workspace', 'SaaS', 'IaaS', 'Network', 'Containers'],
+                           "mobile-attack": ['Android', 'iOS'],
+                           "Cloud": ['Office 365', 'Azure AD', 'Google Workspace', 'SaaS', 'IaaS']}
+
+
 def remove_revoked_deprecated(stix_objects):
     """Remove any revoked or deprecated objects from queries made to the data source"""
     # Note we use .get() because the property may not be present in the JSON data. The default is False
@@ -14,6 +22,20 @@ def remove_revoked_deprecated(stix_objects):
     return list(
         filter(
             lambda x: x.get("x_mitre_deprecated", False) is False and x.get("revoked", False) is False,
+            stix_objects
+        )
+    )
+
+
+def filter_platforms(stix_objects, platforms):
+    """Filter out any objects that don't have a matching platform to one in 'platforms'"""
+    if not platforms:
+        return stix_objects
+
+    return list(
+        filter(
+            lambda x: any(platform.lower() in [y.lower() for y in x.get("x_mitre_platforms", [])]
+                          for platform in platforms),
             stix_objects
         )
     )
@@ -340,6 +362,111 @@ class CellRange:
         return ''.join(result) + str(row)
 
 
+def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name):
+    """
+    Build technique and subtechnique columns for a given matrix and attach them to the appropriate object listings
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :param techniques: List of technique stix objects belong in this tactic column
+    :param columns: Existing columns in this matrix (used for placement)
+    :param merge_data_handle: Handle to the 'merge' data object for this matrix
+    :param matrix_grid_handle: Handle to the 2D grid array being constructed for the matrix (technique and subtechnique
+                                columns will be appended here)
+    :param tactic_name: The name of the corresponding tactic for this column
+    :return: Nothing (meta - modifies the passed in merge_data_handle and matrix_grid_handle objects)
+    """
+    techniques_column = []
+    subtechniques_column = []
+
+    for technique in techniques:
+        techniques_column.append(technique["name"])
+        # sub-technique relationships
+        subtechnique_ofs = src.query([
+            Filter("type", "=", "relationship"),
+            Filter("relationship_type", "=", "subtechnique-of"),
+            Filter("target_ref", "=", technique["id"])
+        ])
+        if len(subtechnique_ofs) > 0:  # if there are sub-techniques on the tactic
+            technique_top = len(techniques_column) + 1  # top of row range to merge
+            # get sub-techniques
+            subtechniques = [src.get(rel["source_ref"]) for rel in subtechnique_ofs]
+            subtechniques = remove_revoked_deprecated(subtechniques)
+            subtechniques = sorted(subtechniques, key=lambda x: x["name"])
+            for i in range(len(subtechniques)):  # for each sub-technique
+                if i != 0:
+                    techniques_column.append("")  # first sub-technique is parallel to the technique in the layout
+                subtechniques_column.append(subtechniques[i]["name"])
+            technique_bottom = len(techniques_column) + 1  # bottom of row range to merge
+            if technique_top != technique_bottom:  # more than 1 sub-technique
+                merge_data_handle.append(CellRange(  # merge technique portion of cell group
+                    len(columns),
+                    len(columns),
+                    technique_top,
+                    technique_bottom,
+                    data=technique["name"],
+                    format={  # format of the merged range
+                        "name": "supertechnique",
+                        "format": {
+                            'valign': 'vcenter',
+                            'text_wrap': 1,
+                            'shrink': 1
+                        }
+                    }
+                ))
+        else:  # no sub-techniques; add empty cell parallel to technique
+            subtechniques_column.append("")
+    # end adding techniques and sub-techniques to column
+
+    matrix_grid_handle.append(techniques_column)  # add technique column to grid
+
+    if len(list(filter(lambda x: x != "", subtechniques_column))) > 0:  # if there are sub-techniques for the tactic
+        matrix_grid_handle.append(subtechniques_column)  # add sub-technique sub-column
+        columns.append("")  # add empty tactic header for the sub-column
+        merge_data_handle.append(  # merge tactic column header with the sub-column header that was just appended
+            CellRange(len(columns) - 1,
+                      len(columns),
+                      1,
+                      1,
+                      data=tactic_name,
+                      format={  # tactic header formatting
+                          "name": "tacticHeader",
+                          "format": {
+                              "bold": 1,
+                              "border": 1,
+                              "font_size": 14,
+                              "align": "center",
+                              "shrink": 1
+                          }
+                      }
+                      ))
+
+
+def build_parsed_DF_matrix(matrix_grid, columns, merge, parsed_dict):
+    """
+    Build the DF matrix object
+    :param matrix_grid: 2D array of the matrix to build
+    :param columns: Column headers
+    :param merge: Any applicable cell merge ranges and styles
+    :param parsed_dict: Dictionary containing name and description for the matrix
+    :return: { matrix, name, description, merge, border } where
+        matrix is a pandas dataframe of the matrix
+        name is the name of the matrix
+        description is the description of the matrix
+        merge is a list of CellRange objects that need to be merged for formatting of the sub-techniques in the matrix
+        columns is the number of columns in the data
+    """
+    parsed = copy.deepcopy(parsed_dict)
+    # reshape array so that pandas consumes it properly
+    matrix_grid = np.flip(np.rot90(matrix_grid), 0)
+    # create dataframe for array
+    df = pd.DataFrame(matrix_grid, columns=columns)
+
+    # Set additional data for the matrix
+    parsed["matrix"] = df  # actual dataframe
+    parsed["merge"] = merge  # merge ranges and associated styles
+    parsed["columns"] = len(columns)  # number of columns with data
+    return parsed
+
+
 def matricesToDf(src, domain):
     """
     Parse STIX matrices from the given data and return parsed matrix structures
@@ -359,6 +486,14 @@ def matricesToDf(src, domain):
     matrices_parsed = []
 
     for matrix in matrices:
+        sub_matrices_grid = dict()
+        sub_matrices_merges = dict()
+        sub_matrices_columns = dict()
+        for entry in Matrix_Platforms_Lookup[domain]:
+            sub_matrices_grid[entry] = []
+            sub_matrices_merges[entry] = []
+            sub_matrices_columns[entry] = []
+
         parsed = {
             "name": matrix["name"],
             "description": matrix["description"]
@@ -373,8 +508,6 @@ def matricesToDf(src, domain):
             columns.append(tactic["name"])  # add tactic header
 
             # parse techniques in tactic
-            techniques_column = []
-            subtechniques_column = []
             techniques = list(
                 filter(lambda t: not ("x_mitre_is_subtechnique" in t and t["x_mitre_is_subtechnique"]), src.query([
                     Filter("type", "=", "attack-pattern"),
@@ -383,67 +516,19 @@ def matricesToDf(src, domain):
             techniques = remove_revoked_deprecated(techniques)
             techniques = sorted(techniques, key=lambda x: x["name"])
             # add techniques
-            for technique in techniques:
-                techniques_column.append(technique["name"])
-                # sub-technique relationships
-                subtechnique_ofs = src.query([
-                    Filter("type", "=", "relationship"),
-                    Filter("relationship_type", "=", "subtechnique-of"),
-                    Filter("target_ref", "=", technique["id"])
-                ])
-                if len(subtechnique_ofs) > 0:  # if there are sub-techniques on the tactic
-                    technique_top = len(techniques_column) + 1  # top of row range to merge
-                    # get sub-techniques
-                    subtechniques = [src.get(rel["source_ref"]) for rel in subtechnique_ofs]
-                    subtechniques = remove_revoked_deprecated(subtechniques)
-                    subtechniques = sorted(subtechniques, key=lambda x: x["name"])
-                    for i in range(len(subtechniques)):  # for each sub-technique
-                        if i != 0: techniques_column.append(
-                            "")  # first sub-technique is parallel to the technique in the layout
-                        subtechniques_column.append(subtechniques[i]["name"])
-                    technique_bottom = len(techniques_column) + 1  # bottom of row range to merge
-                    if technique_top != technique_bottom:  # more than 1 sub-technique
-                        merge.append(CellRange(  # merge technique portion of cell group
-                            len(columns),
-                            len(columns),
-                            technique_top,
-                            technique_bottom,
-                            data=technique["name"],
-                            format={  # format of the merged range
-                                "name": "supertechnique",
-                                "format": {
-                                    'valign': 'vcenter',
-                                    'text_wrap': 1,
-                                    'shrink': 1
-                                }
-                            }
-                        ))
-                else:  # no sub-techniques; add empty cell parallel to technique
-                    subtechniques_column.append("")
-            # end adding techniques and sub-techniques to column
+            build_technique_and_sub_columns(src, techniques, columns, merge, matrix_grid, tactic['name'])
 
-            matrix_grid.append(techniques_column)  # add technique column to grid
-            if len(list(filter(lambda x: x != "",
-                               subtechniques_column))) > 0:  # if there are sub-techniques for the tactic as well
-                matrix_grid.append(subtechniques_column)  # add sub-technique sub-column
-                columns.append("")  # add empty tactic header for the sub-column
-                merge.append(  # merge tactic column header with the sub-column header that was just appended
-                    CellRange(len(columns) - 1,
-                              len(columns),
-                              1,
-                              1,
-                              data=tactic["name"],
-                              format={  # tactic header formatting
-                                  "name": "tacticHeader",
-                                  "format": {
-                                      "bold": 1,
-                                      "border": 1,
-                                      "font_size": 14,
-                                      "align": "center",
-                                      "shrink": 1
-                                  }
-                              }
-                              ))
+            for platform in Matrix_Platforms_Lookup[domain]:
+                if platform.startswith('Google'):
+                    pass
+                a_techs = filter_platforms(techniques,
+                                           [platform] if platform not in Matrix_Platforms_Lookup
+                                           else Matrix_Platforms_Lookup[platform])
+                if a_techs:
+                    sub_matrices_columns[platform].append(tactic['name'])
+                    build_technique_and_sub_columns(src, a_techs, sub_matrices_columns[platform],
+                                                    sub_matrices_merges[platform], sub_matrices_grid[platform],
+                                                    tactic['name'])
 
         # square the grid because pandas doesn't like jagged columns
         longest_column = 0
@@ -452,19 +537,27 @@ def matricesToDf(src, domain):
         for column in matrix_grid:
             for i in range((longest_column - len(column))):
                 column.append("")
+
+        for submatrix in sub_matrices_grid:
+            mg = sub_matrices_grid[submatrix]
+            for column in mg:
+                longest_column = max(len(column), longest_column)
+            for column in mg:
+                for i in range((longest_column - len(column))):
+                    column.append("")
         # matrix is now squared
 
-        # reshape array so that pandas consumes it properly
-        matrix_grid = np.flip(np.rot90(matrix_grid), 0)
-        # create dataframe for array
-        df = pd.DataFrame(matrix_grid, columns=columns)
-
-        # Set additional data for the matrix
-        parsed["matrix"] = df  # actual dataframe
-        parsed["merge"] = merge  # merge ranges and associated styles
-        parsed["columns"] = len(columns)  # number of columns with data
-
+        parsed = build_parsed_DF_matrix(matrix_grid, columns, merge, parsed)
         matrices_parsed.append(parsed)
+
+        for submatrix in sub_matrices_grid:
+            if sub_matrices_grid[submatrix]: # make sure we found matches for something
+                local = copy.deepcopy(parsed)
+                local['name'] = f"{submatrix}"
+                local['description'] = local['description'].split(":")[0] + f": {submatrix}"
+                subparsed = build_parsed_DF_matrix(sub_matrices_grid[submatrix], sub_matrices_columns[submatrix],
+                                                   sub_matrices_merges[submatrix], local)
+                matrices_parsed.append(subparsed)
 
     # end adding of matrices
     print("done")
@@ -567,7 +660,8 @@ def relationshipsToDf(src, relatedType=None):
 
         # group:software / "associated {other type}"
         relatedGroupSoftware = relationships.query(
-            "`mapping type` == 'uses' and (`source type` == 'group' or `source type` == 'software') and (`target type` == 'group' or `target type` == 'software')")
+            "`mapping type` == 'uses' and (`source type` == 'group' or `source type` == 'software') and "
+            "(`target type` == 'group' or `target type` == 'software')")
         if not relatedGroupSoftware.empty:
             dataframes[f"associated {'software' if relatedType == 'group' else 'groups'}"] = relatedGroupSoftware
 
@@ -589,7 +683,8 @@ def relationshipsToDf(src, relatedType=None):
             for dfname in dataframes:
                 df = dataframes[dfname]
                 for description in filter(lambda x: x == x, df[
-                    "mapping description"].tolist()):  # filter out missing descriptions which for whatever reason in pandas don't equal themselves
+                    "mapping description"].tolist()):  # filter out missing descriptions which for whatever reason
+                    # in pandas don't equal themselves
                     [usedCitations.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
 
             citations = citations[citations.reference.isin(list(usedCitations))]  # filter to only used references

@@ -22,7 +22,7 @@ def get_stix_data(domain, version=None):
     else:
         url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url).json()
+    stix_json = requests.get(url, verify=False).json()
     return MemoryStore(stix_data=stix_json["objects"])
 
 
@@ -95,13 +95,17 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
             for matrix in dataframes[objType]:  # some domains have multiple matrices
                 # name them accordingly if there are multiple
                 sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix["name"] + " matrix"
-                matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
-                                          index=False)  # write unformatted matrix data to master file
+                listing = []
+                if 'ATT&CK' in matrix['name']:  # avoid printing subtype matrices to the master file
+                    matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
+                                              index=False)  # write unformatted matrix data to master file
+                    listing.append(master_writer)
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix to matrix file
+                listing.append(matrix_writer)
 
                 # for each writer, format the matrix for readability
-                for writer in [master_writer, matrix_writer]:
+                for writer in listing:
                     # define column border styles
                     borderleft = writer.book.add_format({"left": 1, "shrink": 1})
                     borderright = writer.book.add_format({"right": 1, "shrink": 1})
