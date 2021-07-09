@@ -6,30 +6,25 @@ try:
     from ..exporters.matrix_gen import MatrixGen
     from ..core.exceptions import BadInput, typeChecker, categoryChecker
     from ..core.layer import Layer
-    from ..generators.gen_helpers import remove_revoked, get_attack_id
+    from ..generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 except ValueError:
     from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
     from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from mitreattack.navlayers.core.layer import Layer
-    from mitreattack.navlayers.generators.gen_helpers import remove_revoked, get_attack_id
+    from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 except ImportError:
     from navlayers.exporters.matrix_gen import MatrixGen
     from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from navlayers.core.layer import Layer
-    from navlayers.generators.gen_helpers import remove_revoked, get_attack_id
+    from navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 
 
 class UnableToFindStixObject(Exception):
     pass
 
-class StixType(Enum):
-    GROUP = 1
-    SOFTWARE = 2
-    MITIGATION = 3
-
 
 class UsageGenerator:
-    """Generates a Usage file that provides an overview of all techniques utilized by an entity"""
+    """Generates a Layer that shows techniques mapped to an input group, software or mitigation"""
     def __init__(self, source, matrix='enterprise', local=None):
         """
         Initialize the Generator
@@ -58,42 +53,28 @@ class UsageGenerator:
             [Filter('external_references.external_id', '=', match)],
         ]
         data = list(chain.from_iterable(self.source_handle.query(f) for f in filts))
-        data = remove_revoked(data)
-        if len(data) == 1:
+        data = remove_revoked_depreciated(data)
+        if len(data):
+            if len(data) > 1:
+                print(f"[Usage Generator] - WARNING! Multiple matches found for {match}: [{data}]. Selecting the first "
+                      f"one as default.")
             return data[0]
         raise UnableToFindStixObject
 
     def get_matrix_data(self, match_pattern):
         """
-        Retrieve a list of matching attack-pattern (technique) objects for a match_pattern (group, software, mitigation)
-        :param match_pattern: the pattern to match
-        :return: list of associated attack-pattern objects
+        Retrieve a list of attack-pattern (technique) objects that map to a group, software or mitigation.
+        :param match_pattern: Name, associated group/software (alias), or ATT&CK ID.
+                              Techniques mapped to the object matching this pattern are returned.```
         """
-        out = []
         obj = self.get_stix_object(match_pattern)
-        if obj.type == 'group':
-            related = self.source_handle.relationships(obj, 'uses', source_only=True)
-            out = self.source_handle.query([Filter('type', '=', 'attack-pattern'),
-                                            Filter('id', 'in', [r.target_ref for r in related])])
-        elif obj.type == 'software' or obj.type == 'tool':
-            software_uses = self.source_handle.query([
-                Filter('type', '=', 'relationship'),
-                Filter('relationship_type', '=', 'uses'),
-                Filter('source_ref', '=', obj.id)
-            ])
-
-            # get the techniques themselves from the ids
-            out = self.source_handle.query([
-                Filter('type', '=', 'attack-pattern'),
-                Filter('id', 'in', [r.target_ref for r in software_uses])
-            ])
-        elif obj.type == "mitigation":
-            relations = self.source_handle.relationships(obj.id, 'mitigates', source_only=True)
-            out = self.source_handle.query([
-                Filter('type', '=', 'attack-pattern'),
-                Filter('id', 'in', [r.target_ref for r in relations])
-            ])
-        return remove_revoked(out), obj
+        verb = 'mitigates' if obj.type == 'course-of-action' else 'uses'
+        related = self.source_handle.relationships(obj.id, verb, source_only=True)
+        out = self.source_handle.query([
+            Filter('type', '=', 'attack-pattern'),
+            Filter('id', 'in', [r.target_ref for r in related])
+        ])
+        return remove_revoked_depreciated(out), obj
 
     def generate_technique_data(self, raw_matches):
         """

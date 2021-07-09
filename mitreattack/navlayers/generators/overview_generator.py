@@ -4,17 +4,20 @@ try:
     from ..exporters.matrix_gen import MatrixGen
     from ..core.exceptions import BadInput, typeChecker, categoryChecker
     from ..core.layer import Layer
-    from ..generators.gen_helpers import remove_revoked, construct_relationship_mapping
+    from ..generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
+        mitre_attack_type_strings
 except ValueError:
     from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
     from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from mitreattack.navlayers.core.layer import Layer
-    from mitreattack.navlayers.generators.gen_helpers import remove_revoked, construct_relationship_mapping
+    from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, \
+        construct_relationship_mapping, mitre_attack_type_strings
 except ImportError:
     from navlayers.exporters.matrix_gen import MatrixGen
     from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from navlayers.core.layer import Layer
-    from navlayers.generators.gen_helpers import remove_revoked, construct_relationship_mapping
+    from navlayers.generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
+        mitre_attack_type_strings
 
 
 class UnableToFindTechnique(Exception):
@@ -37,36 +40,38 @@ class OverviewGenerator:
         except KeyError:
             print(f"[UsageGenerator] - unable to load collection {matrix} (current source = {source}).")
             raise BadInput
-        tl = remove_revoked(self.source_handle.query([Filter('type', '=', 'attack-pattern')]))
+        tl = remove_revoked_depreciated(self.source_handle.query([Filter('type', '=', 'attack-pattern')]))
         self.mitigation_objects = self.source_handle.query([Filter('type', '=', 'course-of-action')])
         complete_relationships = self.source_handle.query([Filter('type', '=', 'relationship'),
                                                            Filter('relationship_type', '=', 'uses')])
         complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
                                                                 Filter('relationship_type', '=', 'mitigates')]))
         # Contains relationship mapping [stix id] -> [relationships associated with that stix id for each type]
-        self.mitigation_relationships = {}
-        self.software_relationships = {}
-        self.group_relationships = {}
-        simplifier = {"course-of-action": self.mitigation_relationships, "tool": self.software_relationships,
-                      "malware": self.software_relationships, "intrusion-set": self.group_relationships}
+        self.simplifier = {"course-of-action": dict(), "tool": dict(),
+                           "malware": dict(), "intrusion-set": dict()}
 
+        # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort
+        # these into the mapping dictionary by what kind of stix object they are (tool, course-of-action, etc.)
         for entry in complete_relationships:
             if entry['target_ref'].startswith('attack-pattern--'):
-                construct_relationship_mapping(simplifier[entry['source_ref'].split('--')[0]], entry)
+                construct_relationship_mapping(self.simplifier[entry['source_ref'].split('--')[0]], entry)
+        self.simplifier['software'] = self.simplifier['malware']
+        self.simplifier['software'].update(self.simplifier['tool'])  # get combination of malware/tool
 
         self.tech_listing = dict()
         self.tech_no_tactic_listing = dict()
         for entry in tl:
+            tacs = [None]
             xid = None
-            xphase = None
             for ref in entry.external_references:
-                if ref.source_name == 'mitre-attack':
+                if ref.source_name in mitre_attack_type_strings:
                     xid = ref.external_id
                     break
             for phase in entry.kill_chain_phases:
-                if phase.kill_chain_name == 'mitre-attack':
-                    xphase = phase.phase_name
-            self.tech_listing[(xid, xphase)] = entry
+                if phase.kill_chain_name in mitre_attack_type_strings:
+                    tacs.append(phase.phase_name)
+            for xphase in tacs:
+                self.tech_listing[(xid, xphase)] = entry
             self.tech_no_tactic_listing[xid] = entry
 
     def get_groups(self, relationships):
@@ -158,19 +163,19 @@ class OverviewGenerator:
             listing = []
             if obj_type == 'group':
                 try:
-                    related = self.group_relationships[tech.id]
+                    related = self.simplifier['intrusion-set'][tech.id]
                     score, listing = self.get_groups(related)
                 except KeyError:
                     pass
             elif obj_type == 'software':
                 try:
-                    related = self.software_relationships[tech.id]
+                    related = self.simplifier['software'][tech.id]
                     score, listing = self.get_software(related)
                 except KeyError:
                     pass
             elif obj_type == "mitigation":
                 try:
-                    related = self.mitigation_relationships[tech.id]
+                    related = self.simplifier['course-of-action'][tech.id]
                     score, listing = self.get_mitigations(related)
                 except KeyError:
                     pass # we don't have any matches for this one

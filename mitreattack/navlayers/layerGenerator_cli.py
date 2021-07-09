@@ -16,7 +16,8 @@ def main():
     group.add_argument('--mapped-to', help='Output techniques mapped to the given group, software, or mitigation. '
                                            'Argument can be name, associated group/software, or ATT&CK ID.')
     parser.add_argument('-o', '--output', help='Path to the output layer file', default='generated_layer.json')
-    parser.add_argument('--domain', help='Which domain to build off of', default='enterprise')
+    parser.add_argument('--domain', help='Which domain to build off of', choices=['enterprise', 'mobile', 'ics'],
+                        default='enterprise')
     parser.add_argument('--source', choices=['taxii', 'local'], default='taxii',
                         help='What source to utilize when building the matrix')
     parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)

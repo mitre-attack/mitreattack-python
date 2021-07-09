@@ -1,6 +1,9 @@
-def remove_revoked(listing):
+mitre_attack_type_strings = ['mitre-attack', 'mitre-mobile-attack', 'mitre-ics-attack']
+
+
+def remove_revoked_depreciated(listing):
     """
-    Remove revoked elements from the listing
+    Remove revoked and depreciated elements from the listing
     :param listing: input element list
     :return: input element list - revoked elements
     """
@@ -12,16 +15,17 @@ def remove_revoked(listing):
     )
 
 
-def construct_relationship_mapping(mapping_obj, entry):
+def construct_relationship_mapping(mapping_obj, rel):
     """
-    Helper to safely add an entry to a listing in the mapping_obj
-    :param mapping_obj: A dictionary containing mappings of references to entries
-    :param entry: The entry to add
+    Helper to safely add an relationship to a listing in the mapping_obj
+    :param mapping_obj: A dictionary containing mappings of attack object types (course-of-action,
+                        tool, malware, or intrusion-set) to relationships
+    :param rel: The relationship to add
     :return: Updated mapping_obj
     """
-    if entry['target_ref'] not in mapping_obj:
-        mapping_obj[entry['target_ref']] = []
-    mapping_obj[entry['target_ref']].append(entry)
+    if rel['target_ref'] not in mapping_obj:
+        mapping_obj[rel['target_ref']] = []
+    mapping_obj[rel['target_ref']].append(rel)
 
 
 def get_attack_id(obj):
@@ -31,6 +35,6 @@ def get_attack_id(obj):
     :return: The ATT&CK ID in string form
     """
     for entry in obj['external_references']:
-        if entry['source_name'] == 'mitre-attack':
+        if entry['source_name'] in mitre_attack_type_strings:
             return entry['external_id']
     return '-1'
