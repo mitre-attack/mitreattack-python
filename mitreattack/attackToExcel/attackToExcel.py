@@ -100,6 +100,10 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
                     matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
                                               index=False)  # write unformatted matrix data to master file
                     listing.append(master_writer)
+                sheetname = sheetname.replace('/', "_")
+                if len(sheetname) > 31:
+                    sheetname = sheetname[0:31]
+
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix to matrix file
                 listing.append(matrix_writer)

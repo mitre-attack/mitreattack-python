@@ -8,11 +8,16 @@ import datetime
 import re
 import numpy as np
 
-
-Matrix_Platforms_Lookup = {"enterprise-attack": ['PRE', 'Windows', 'macOS', 'Linux', 'Cloud', 'Office 365', 'Azure AD',
+# Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
+#   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
+#   of a platform at the top level of this lookup indicates the existence of subplatforms.
+MATRIX_PLATFORMS_LOOKUP = {"enterprise-attack": ['PRE', 'Windows', 'macOS', 'Linux', 'Cloud', 'Office 365', 'Azure AD',
                                                  'Google Workspace', 'SaaS', 'IaaS', 'Network', 'Containers'],
                            "mobile-attack": ['Android', 'iOS'],
-                           "Cloud": ['Office 365', 'Azure AD', 'Google Workspace', 'SaaS', 'IaaS']}
+                           "Cloud": ['Office 365', 'Azure AD', 'Google Workspace', 'SaaS', 'IaaS'],
+                           "ics-attack": ["Field Controller/RTU/PLC/IED", "Safety Instrumented System/Protection Relay",
+                                          "Control Server", "Input/Output Server", "Windows", "Human-Machine Interface",
+                                          "Engineering Workstation", "Data Historian"]}
 
 
 def remove_revoked_deprecated(stix_objects):
@@ -479,23 +484,21 @@ def matricesToDf(src, domain):
         merge is a list of CellRange objects that need to be merged for formatting of the sub-techniques in the matrix
         columns is the number of columns in the data
     """
-
-    print("building matrices... ", end="", flush=True)
     matrices = src.query([Filter("type", "=", "x-mitre-matrix")])
     matrices = remove_revoked_deprecated(matrices)
     matrices_parsed = []
 
-    for matrix in matrices:
+    for matrix in tqdm(matrices, desc="parsing matrices"):
         sub_matrices_grid = dict()
         sub_matrices_merges = dict()
         sub_matrices_columns = dict()
-        for entry in Matrix_Platforms_Lookup[domain]:
+        for entry in MATRIX_PLATFORMS_LOOKUP[domain]:
             sub_matrices_grid[entry] = []
             sub_matrices_merges[entry] = []
             sub_matrices_columns[entry] = []
 
         parsed = {
-            "name": matrix["name"],
+            "name": matrix["name"] if domain != 'mobile-attack' else F"Mobile {matrix['name']}",
             "description": matrix["description"]
         }
 
@@ -503,7 +506,7 @@ def matricesToDf(src, domain):
         merge = []  # list of CellRange objects to merge later
 
         columns = []  # column names
-        for tactic_ref in matrix["tactic_refs"]:
+        for tactic_ref in tqdm(matrix["tactic_refs"], desc="processing matrix tactics"):
             tactic = src.get(tactic_ref)
             columns.append(tactic["name"])  # add tactic header
 
@@ -518,12 +521,13 @@ def matricesToDf(src, domain):
             # add techniques
             build_technique_and_sub_columns(src, techniques, columns, merge, matrix_grid, tactic['name'])
 
-            for platform in Matrix_Platforms_Lookup[domain]:
-                if platform.startswith('Google'):
-                    pass
+            for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
+                # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
+                # If an second entry can be found, the results from that query will be used, otherwise, the singular
+                # platform will be.
                 a_techs = filter_platforms(techniques,
-                                           [platform] if platform not in Matrix_Platforms_Lookup
-                                           else Matrix_Platforms_Lookup[platform])
+                                           [platform] if platform not in MATRIX_PLATFORMS_LOOKUP
+                                           else MATRIX_PLATFORMS_LOOKUP[platform])
                 if a_techs:
                     sub_matrices_columns[platform].append(tactic['name'])
                     build_technique_and_sub_columns(src, a_techs, sub_matrices_columns[platform],
@@ -551,16 +555,18 @@ def matricesToDf(src, domain):
         matrices_parsed.append(parsed)
 
         for submatrix in sub_matrices_grid:
-            if sub_matrices_grid[submatrix]: # make sure we found matches for something
+            if sub_matrices_grid[submatrix]:  # make sure we found matches for something
                 local = copy.deepcopy(parsed)
-                local['name'] = f"{submatrix}"
+                if domain == "mobile-attack":
+                    local['name'] = f"{submatrix} {matrix['name']}"
+                else:
+                    local['name'] = f"{submatrix}"
                 local['description'] = local['description'].split(":")[0] + f": {submatrix}"
                 subparsed = build_parsed_DF_matrix(sub_matrices_grid[submatrix], sub_matrices_columns[submatrix],
                                                    sub_matrices_merges[submatrix], local)
                 matrices_parsed.append(subparsed)
 
     # end adding of matrices
-    print("done")
     return matrices_parsed
 
 
