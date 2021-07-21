@@ -102,6 +102,7 @@ class MatrixGen:
             :param local: string path to local cache of stix data
         """
         self.convert_data = {}
+        self.collections = dict()
         if source.lower() not in ['taxii', 'local']:
             print('[MatrixGen] - Unable to generate matrix, source {} is not one of "taxii" or "local"'.format(source))
             raise ValueError
@@ -109,7 +110,6 @@ class MatrixGen:
         if source.lower() == 'taxii':
             self.server = Server('https://cti-taxii.mitre.org/taxii')
             self.api_root = self.server.api_roots[0]
-            self.collections = dict()
             for collection in self.api_root.collections:
                 if collection.title != "PRE-ATT&CK":
                     tc = Collection('https://cti-taxii.mitre.org/stix/collections/' + collection.id)
@@ -117,10 +117,11 @@ class MatrixGen:
         elif source.lower() == 'local':
             if local is not None:
                 hd = MemoryStore()
+                hd.load_from_file(local)
                 if 'mobile' in local.lower():
-                    self.collections['mobile'] = hd.load_from_file(local)
+                    self.collections['mobile'] = hd
                 else:
-                    self.collections['enterprise'] = hd.load_from_file(local)
+                    self.collections['enterprise'] = hd
             else:
                 print('[MatrixGen] - "local" source specified, but path to local source not provided')
                 raise ValueError

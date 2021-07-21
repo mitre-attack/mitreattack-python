@@ -3,6 +3,11 @@
 - Added layer generation capabilities to the library
 - Added a cli integration for the layer generation capabilities
 
+# v1.2.1 - 16 June 2021
+This bug fix patches the ability to use the library with local data sources
+## Fixes
+- Addressed issue with matrixGen initialization failing for local data sources
+
 # v1.2.0 - 2 June 2021
 This update adds some convenience features to make it easier to create layers programmatically, as well
 as documentation on how to do so.
