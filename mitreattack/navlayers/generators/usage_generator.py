@@ -25,19 +25,19 @@ class UnableToFindStixObject(Exception):
 
 class UsageGenerator:
     """Generates a Layer that shows techniques mapped to an input group, software or mitigation"""
-    def __init__(self, source, matrix='enterprise', local=None):
+    def __init__(self, source, domain='enterprise', local=None):
         """
         Initialize the Generator
         :param source: Which source to use for data (local or taxii [server])
-        :param matrix: Which matrix to use during generation
+        :param domain: Which matrix to use during generation
         :param local: Optional path to local data
         """
         self.matrix_handle = MatrixGen(source, local)
-        self.domain = matrix
+        self.domain = domain
         try:
-            self.source_handle = self.matrix_handle.collections[matrix]
+            self.source_handle = self.matrix_handle.collections[domain]
         except KeyError:
-            print(f"[UsageGenerator] - unable to load collection {matrix} (current source = {source}).")
+            print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
             raise BadInput
 
     def get_stix_object(self, match):

@@ -1,4 +1,4 @@
-mitre_attack_type_strings = ['mitre-attack', 'mitre-mobile-attack', 'mitre-ics-attack']
+MITRE_ATTACK_DOMAIN_STRINGS = ['mitre-attack', 'mitre-mobile-attack', 'mitre-ics-attack']
 
 
 def remove_revoked_depreciated(listing):
@@ -35,6 +35,6 @@ def get_attack_id(obj):
     :return: The ATT&CK ID in string form
     """
     for entry in obj['external_references']:
-        if entry['source_name'] in mitre_attack_type_strings:
+        if entry['source_name'] in MITRE_ATTACK_DOMAIN_STRINGS:
             return entry['external_id']
     return '-1'

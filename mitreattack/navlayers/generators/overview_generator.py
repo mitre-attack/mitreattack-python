@@ -5,19 +5,19 @@ try:
     from ..core.exceptions import BadInput, typeChecker, categoryChecker
     from ..core.layer import Layer
     from ..generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-        mitre_attack_type_strings
+        MITRE_ATTACK_DOMAIN_STRINGS
 except ValueError:
     from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
     from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from mitreattack.navlayers.core.layer import Layer
     from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, \
-        construct_relationship_mapping, mitre_attack_type_strings
+        construct_relationship_mapping, MITRE_ATTACK_DOMAIN_STRINGS
 except ImportError:
     from navlayers.exporters.matrix_gen import MatrixGen
     from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
     from navlayers.core.layer import Layer
     from navlayers.generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-        mitre_attack_type_strings
+        MITRE_ATTACK_DOMAIN_STRINGS
 
 
 class UnableToFindTechnique(Exception):
@@ -26,19 +26,19 @@ class UnableToFindTechnique(Exception):
 
 class OverviewGenerator:
     """Generates a Layer file that provides an overview of entities related to each technique"""
-    def __init__(self, source, matrix='enterprise', local=None):
+    def __init__(self, source, domain='enterprise', local=None):
         """
         Initialize the Generator
         :param source: Which source to use for data (local or taxii [server])
-        :param matrix: Which matrix to use during generation
+        :param domain: Which domain to use during generation
         :param local: Optional path to local data
         """
         self.matrix_handle = MatrixGen(source, local)
-        self.domain = matrix
+        self.domain = domain
         try:
-            self.source_handle = self.matrix_handle.collections[matrix]
+            self.source_handle = self.matrix_handle.collections[domain]
         except KeyError:
-            print(f"[UsageGenerator] - unable to load collection {matrix} (current source = {source}).")
+            print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
             raise BadInput
         tl = remove_revoked_depreciated(self.source_handle.query([Filter('type', '=', 'attack-pattern')]))
         self.mitigation_objects = self.source_handle.query([Filter('type', '=', 'course-of-action')])
@@ -64,11 +64,11 @@ class OverviewGenerator:
             tacs = [None]
             xid = None
             for ref in entry.external_references:
-                if ref.source_name in mitre_attack_type_strings:
+                if ref.source_name in MITRE_ATTACK_DOMAIN_STRINGS:
                     xid = ref.external_id
                     break
             for phase in entry.kill_chain_phases:
-                if phase.kill_chain_name in mitre_attack_type_strings:
+                if phase.kill_chain_name in MITRE_ATTACK_DOMAIN_STRINGS:
                     tacs.append(phase.phase_name)
             for xphase in tacs:
                 self.tech_listing[(xid, xphase)] = entry

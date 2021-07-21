@@ -17,7 +17,6 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | script | description |
 |:-------|:------------|
 | [layerops](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py) | Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. |
-
 #### Exporter Scripts
 | script | description |
 |:-------|:------------|
@@ -30,7 +29,13 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server or from a local STIX Bundle. |
 | [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
 | [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
-##### Command Line Tools
+#### Generator Scripts
+| script | description |
+|:-------|:------------|
+| [overview_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py)| Provides a means by which to generate an ATT&CK layer that contains notations about all related Groups, Software, or Mitigations on a per technique basis. A further breakdwon can be found in the corresponding [section](#overview_generator.py)|
+| [usage_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py)| Provides a means by which to generate an ATT&CK layer that contains notations about related techniques to an input Group, Software, or Mitigation. A further breakdown can be found in the corresponding [section](#usage_generator.py) below.|
+| [gen_helpers](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/gen_helpers.py) | Provides helper methods for the generator scripts. |
+#### Command Line Tools
 | script | description |
 |:-------|:------------|
 | [layerExporter_cli.py](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py) | A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. |
@@ -248,4 +253,65 @@ conf.load_from_file(filename="path/to/poster/config.json")
 
 t2 = ToSvg(domain='mobile', source='local', local='path/to/local/stix.json', config=conf)
 t2.to_svg(layerInit=lay, filepath="demo2.svg")
+```
+
+## overview_generator.py
+overview_generator.py provides the OverviewGenerator class, which allows users to create either an Enterprise, Mobile, or ICS matrix containing techniques with notations indicating what Groups, Software, or Mitigations use them. 
+The form of this specific notation is that each technique has a score equal to the sum total of entities (Group, Software, or Mitigation) that use that technique, with the names of those relevant entities included in the technique's comment field.
+The module expects users to specify the domain and source during the initialization, and the type of entity whenever calling the generation method. 
+
+### OverviewGenerator()
+```python
+x = OverviewGenerator(source='taxii', domain='enterprise')
+```
+As stated above, the initialization for the generator expects the user to provide the domain and source. Valid options for domain include `enterprise`, `mobile`, and `ics`. 
+Valid options for source include `taxii`, and `local`, the latter of which requires the optional `local` parameter with a path to the local data store.
+
+### generate_layer()
+```python
+output_layer = x.generate_layer(obj_type='group')
+```
+This method creates and returns a ATT&CK Layer object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `obj_type` values include `group`, `software`, and `mititagtion`.
+#### Example Usage
+```python
+from mitreattack.navlayers import OverviewGenerator
+
+x = OverviewGenerator(source='taxii', domain='mobile')
+output_layer_software = x.generate_layer(obj_type='software')
+output_layer_mitigation = x.generate_layer(obj_type='mitigation')
+
+output_layer_software.to_file(filename='demo_software_layer.json')
+print(output_layer_mitigation.to_str())
+```
+
+## usage_generator.py
+usage_generator provides the UsageGenerator class, which allows users to create either an Enterprise, Mobile, or ICS matrix containing notations on techniques corresponding to a specific Group, Software, or Mitigation. 
+The form of this notation is that each utilized technique will have a score of 1, and where the comment provided is the description of the entity. 
+The module expects users to specify the domain and source during the initialization, and to provide the specific entity when calling the generation method.
+
+### UsageGenerator()
+```python
+y = UsageGenerator(source='taxii', domain='enterprise')
+```
+As stated above, the initialization for the generator expects the user to provide the domain and source. Valid options for domain include `enterprise`, `mobile`, and `ics`. 
+Valid options for source include `taxii`, and `local`, the latter of which requires the optional `local` parameter with a path to the local data store.
+
+### generate_layer()
+```python
+y.generate_layer(match='APT29')
+```
+This method creates and returns a ATT&CK Layer object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `match` values can be either a name, an alias/associated name, or ATT&CK ID.
+
+#### Example Usage
+```python
+from mitreattack.navlayers import UsageGenerator
+
+y = UsageGenerator(source='taxii', domain='enterprise')
+output_layer_apt1 = y.generate_layer(match='Comment Panda')
+output_layer_androrat = y.generate_layer(match='S0292')
+output_layer_data_backup = y.generate_layer(match='Data Backup')
+
+output_layer_androrat.to_file(filename='demo_AndroRat_layer.json')
+print(output_layer_apt1.to_str())
+print(output_layer_data_backup.to_dict())
 ```

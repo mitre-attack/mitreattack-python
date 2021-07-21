@@ -24,13 +24,13 @@ def main():
     args = parser.parse_args()
 
     if args.overview_type:
-        og = OverviewGenerator(source=args.source, matrix=args.domain, local=args.local)
+        og = OverviewGenerator(source=args.source, domain=args.domain, local=args.local)
         generated = og.generate_layer(obj_type=args.overview_type)
         print('Generating Layer File')
         generated.to_file(args.output)
         print(f'Layer file generated as {args.output}.')
     elif args.mapped_to:
-        ug = UsageGenerator(source=args.source, matrix=args.domain, local=args.local)
+        ug = UsageGenerator(source=args.source, domain=args.domain, local=args.local)
         generated = ug.generate_layer(match=args.mapped_to)
         print('Generating Layer File')
         generated.to_file(args.output)
