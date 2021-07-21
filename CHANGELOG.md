@@ -1,5 +1,9 @@
 # changes staged on develop
-## Improvements
+## Fixes
+- Added missing fields to attackToExcel technique output:
+    - Enterprise: _Impact Type_, _System Requirements_, _Effective Permissions_
+    - Mobile: _Tactic Type_
+## Improvements    
 - Added layer generation capabilities to the library
 - Added a cli integration for the layer generation capabilities
 
