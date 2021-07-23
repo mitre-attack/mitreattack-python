@@ -498,7 +498,7 @@ def matricesToDf(src, domain):
             sub_matrices_columns[entry] = []
 
         parsed = {
-            "name": matrix["name"] if domain != 'mobile-attack' else F"Mobile {matrix['name']}",
+            "name": matrix['name'] if len(matrices) == 1 else F"{domain.split('-')[0].capitalize()} {matrix['name']}",
             "description": matrix["description"]
         }
 
@@ -557,10 +557,7 @@ def matricesToDf(src, domain):
         for submatrix in sub_matrices_grid:
             if sub_matrices_grid[submatrix]:  # make sure we found matches for something
                 local = copy.deepcopy(parsed)
-                if domain == "mobile-attack":
-                    local['name'] = f"{submatrix} {matrix['name']}"
-                else:
-                    local['name'] = f"{submatrix}"
+                local['name'] = f"{submatrix}" if len(matrices) == 1 else f"{submatrix} {matrix['name']}"
                 local['description'] = local['description'].split(":")[0] + f": {submatrix}"
                 subparsed = build_parsed_DF_matrix(sub_matrices_grid[submatrix], sub_matrices_columns[submatrix],
                                                    sub_matrices_merges[submatrix], local)

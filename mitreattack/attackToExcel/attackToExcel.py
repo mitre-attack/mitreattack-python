@@ -10,6 +10,10 @@ except ImportError:
     import mitreattack.attackToExcel.stixToDf as stixToDf
 
 
+INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
+SUB_CHARACTERS = ["\\", "/"]
+
+
 def get_stix_data(domain, version=None):
     """
     download the ATT&CK STIX data for the given domain and version from MITRE/CTI.
@@ -22,7 +26,7 @@ def get_stix_data(domain, version=None):
     else:
         url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url).json()
+    stix_json = requests.get(url, verify=False).json()
     return MemoryStore(stix_data=stix_json["objects"])
 
 
@@ -100,9 +104,12 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
                     matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
                                               index=False)  # write unformatted matrix data to master file
                     listing.append(master_writer)
-                sheetname = sheetname.replace('/', "_")
+
+                for character in INVALID_CHARACTERS:
+                    sheetname = sheetname.replace(character, " or " if character in SUB_CHARACTERS else " ")
+
                 if len(sheetname) > 31:
-                    sheetname = sheetname[0:31]
+                    sheetname = sheetname[0:28] + "..."
 
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix to matrix file
