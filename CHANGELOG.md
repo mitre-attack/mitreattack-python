@@ -3,6 +3,9 @@
 - Added missing fields to attackToExcel technique output:
     - Enterprise: _Impact Type_, _System Requirements_, _Effective Permissions_
     - Mobile: _Tactic Type_
+## Improvements    
+- Added layer generation capabilities to the library
+- Added a cli integration for the layer generation capabilities
 
 # v1.2.1 - 16 June 2021
 This bug fix patches the ability to use the library with local data sources

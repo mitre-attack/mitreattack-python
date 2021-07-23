@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mitreattack-python",
-    version="1.2.1",
+    version="1.3.0",
     author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
@@ -19,7 +19,8 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
-            'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main'
+            'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main',
+            'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main',
         ]
     },
     packages=setuptools.find_packages(),
