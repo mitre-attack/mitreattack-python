@@ -1,11 +1,11 @@
 import argparse
 
 try:
-    from .generators.overview_generator import OverviewGenerator
-    from .generators.usage_generator import UsageGenerator
+    from .generators.overview_generator import OverviewLayerGenerator
+    from .generators.usage_generator import UsageLayerGenerator
 except ImportError:
-    from mitreattack.navlayers.generators.overview_generator import OverviewGenerator
-    from mitreattack.navlayers.generators.usage_generator import UsageGenerator
+    from mitreattack.navlayers.generators.overview_generator import OverviewLayerGenerator
+    from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 
 
 def main():
@@ -24,13 +24,13 @@ def main():
     args = parser.parse_args()
 
     if args.overview_type:
-        og = OverviewGenerator(source=args.source, domain=args.domain, local=args.local)
+        og = OverviewLayerGenerator(source=args.source, domain=args.domain, local=args.local)
         generated = og.generate_layer(obj_type=args.overview_type)
         print('Generating Layer File')
         generated.to_file(args.output)
         print(f'Layer file generated as {args.output}.')
     elif args.mapped_to:
-        ug = UsageGenerator(source=args.source, domain=args.domain, local=args.local)
+        ug = UsageLayerGenerator(source=args.source, domain=args.domain, local=args.local)
         generated = ug.generate_layer(match=args.mapped_to)
         print('Generating Layer File')
         generated.to_file(args.output)

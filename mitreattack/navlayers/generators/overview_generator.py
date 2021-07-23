@@ -24,7 +24,7 @@ class UnableToFindTechnique(Exception):
     pass
 
 
-class OverviewGenerator:
+class OverviewLayerGenerator:
     """Generates a Layer file that provides an overview of entities related to each technique"""
     def __init__(self, source, domain='enterprise', local=None):
         """

@@ -256,13 +256,13 @@ t2.to_svg(layerInit=lay, filepath="demo2.svg")
 ```
 
 ## overview_generator.py
-overview_generator.py provides the OverviewGenerator class, which allows users to create either an Enterprise, Mobile, or ICS matrix containing techniques with notations indicating what Groups, Software, or Mitigations use them. 
-The form of this specific notation is that each technique has a score equal to the sum total of entities (Group, Software, or Mitigation) that use that technique, with the names of those relevant entities included in the technique's comment field.
+overview_generator.py provides the OverviewGenerator class, which allows users to create either an Enterprise, Mobile, or ICS matrix containing techniques with annotations indicating what Groups, Software, or Mitigations use them. 
+The form of this specific notation is that each technique has a score equal to the count of entities (Group, Software, or Mitigation) that use that technique, with the names of those relevant entities included in the technique's comment field.
 The module expects users to specify the domain and source during the initialization, and the type of entity whenever calling the generation method. 
 
-### OverviewGenerator()
+### OverviewLayerGenerator()
 ```python
-x = OverviewGenerator(source='taxii', domain='enterprise')
+x = OverviewLayerGenerator(source='taxii', domain='enterprise')
 ```
 As stated above, the initialization for the generator expects the user to provide the domain and source. Valid options for domain include `enterprise`, `mobile`, and `ics`. 
 Valid options for source include `taxii`, and `local`, the latter of which requires the optional `local` parameter with a path to the local data store.
@@ -271,12 +271,12 @@ Valid options for source include `taxii`, and `local`, the latter of which requi
 ```python
 output_layer = x.generate_layer(obj_type='group')
 ```
-This method creates and returns a ATT&CK Layer object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `obj_type` values include `group`, `software`, and `mititagtion`.
+This method creates and returns an [ATT&CK Layer](#Layer) object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `obj_type` values include `group`, `software`, and `mitigation`.
 #### Example Usage
 ```python
-from mitreattack.navlayers import OverviewGenerator
+from mitreattack.navlayers import OverviewLayerGenerator
 
-x = OverviewGenerator(source='taxii', domain='mobile')
+x = OverviewLayerGenerator(source='taxii', domain='mobile')
 output_layer_software = x.generate_layer(obj_type='software')
 output_layer_mitigation = x.generate_layer(obj_type='mitigation')
 
@@ -285,13 +285,13 @@ print(output_layer_mitigation.to_str())
 ```
 
 ## usage_generator.py
-usage_generator provides the UsageGenerator class, which allows users to create either an Enterprise, Mobile, or ICS matrix containing notations on techniques corresponding to a specific Group, Software, or Mitigation. 
-The form of this notation is that each utilized technique will have a score of 1, and where the comment provided is the description of the entity. 
+usage_generator provides the UsageGenerator class, which allows users to create either an Enterprise, Mobile, or ICS layer containing annotations on techniques mapped to a specific Group, Software, or Mitigation. 
+The form of this annotation is that each utilized technique will have a score of 1, and where the comment provided is the description of the mapping to the given technique.
 The module expects users to specify the domain and source during the initialization, and to provide the specific entity when calling the generation method.
 
-### UsageGenerator()
+### UsageLayerGenerator()
 ```python
-y = UsageGenerator(source='taxii', domain='enterprise')
+y = UsageLayerGenerator(source='taxii', domain='enterprise')
 ```
 As stated above, the initialization for the generator expects the user to provide the domain and source. Valid options for domain include `enterprise`, `mobile`, and `ics`. 
 Valid options for source include `taxii`, and `local`, the latter of which requires the optional `local` parameter with a path to the local data store.
@@ -300,13 +300,13 @@ Valid options for source include `taxii`, and `local`, the latter of which requi
 ```python
 y.generate_layer(match='APT29')
 ```
-This method creates and returns a ATT&CK Layer object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `match` values can be either a name, an alias/associated name, or ATT&CK ID.
+This method creates and returns an [ATT&CK Layer](#Layer) object (as defined within mitreattack-python core), with the appropriate notations for the given parameters. Valid `match` values can be either a name, an associated name (also known as "alias"), or ATT&CK ID.
 
 #### Example Usage
 ```python
-from mitreattack.navlayers import UsageGenerator
+from mitreattack.navlayers import UsageLayerGenerator
 
-y = UsageGenerator(source='taxii', domain='enterprise')
+y = UsageLayerGenerator(source='taxii', domain='enterprise')
 output_layer_apt1 = y.generate_layer(match='Comment Panda')
 output_layer_androrat = y.generate_layer(match='S0292')
 output_layer_data_backup = y.generate_layer(match='Data Backup')

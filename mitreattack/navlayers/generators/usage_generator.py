@@ -23,7 +23,7 @@ class UnableToFindStixObject(Exception):
     pass
 
 
-class UsageGenerator:
+class UsageLayerGenerator:
     """Generates a Layer that shows techniques mapped to an input group, software or mitigation"""
     def __init__(self, source, domain='enterprise', local=None):
         """
