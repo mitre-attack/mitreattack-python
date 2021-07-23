@@ -13,10 +13,10 @@ except ValueError:
     from mitreattack.navlayers.core.layer import Layer
     from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 except ImportError:
-    from navlayers.exporters.matrix_gen import MatrixGen
-    from navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
-    from navlayers.core.layer import Layer
-    from navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
+    from exporters.matrix_gen import MatrixGen
+    from core.exceptions import BadInput, typeChecker, categoryChecker
+    from core.layer import Layer
+    from generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 
 
 class UnableToFindStixObject(Exception):
