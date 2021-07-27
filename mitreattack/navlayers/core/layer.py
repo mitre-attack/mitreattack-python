@@ -1,4 +1,5 @@
 import json
+import traceback
 try:
     from ..core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
@@ -101,9 +102,11 @@ class Layer:
                     self.__layer._linker(key, self._data[key])
                 except Exception as e:
                     if self.strict:
-                        handler(type(self).__name__, "{} error. "
+                        handler(type(self).__name__, "{} encountered [{}]. "
                                                      "Unable to load."
-                                .format(str(e.__class__.__name__)))
+                                .format(str(e.__class__.__name__), e))
+                        handler(type(self).__name__, "Full Traceback - {}"
+                                .format(traceback.format_exc()))
                         self.__layer = None
                         return
 
