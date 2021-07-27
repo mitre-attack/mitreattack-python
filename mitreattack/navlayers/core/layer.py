@@ -3,14 +3,11 @@ try:
     from ..core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
     from ..core.layerobj import _LayerObj
-except ValueError:
-    from mitreattack.navlayers.core.exceptions import UninitializedLayer, BadType, BadInput, \
-        handler
-    from mitreattack.navlayers.core.layerobj import _LayerObj
 except ImportError:
-    from navlayers.core.exceptions import UninitializedLayer, BadType, BadInput, \
+    from core.exceptions import UninitializedLayer, BadType, BadInput, \
         handler
-    from navlayers.core.layout import _LayerObj
+    from core.layerobj import _LayerObj
+
 
 class Layer:
     def __init__(self, init_data={}, name=None, domain=None, strict=True):
