@@ -1,9 +1,8 @@
 try:
     from ..core.exceptions import typeChecker, categoryChecker, UNSETVALUE, handler
-except ValueError:
-    from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, handler
 except ImportError:
-    from navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, handler
+    from core.exceptions import typeChecker, categoryChecker, UNSETVALUE, handler
+
 from enum import Enum
 
 

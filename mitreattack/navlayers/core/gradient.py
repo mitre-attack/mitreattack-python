@@ -2,10 +2,9 @@ import colour
 import math
 try:
     from ..core.exceptions import typeChecker, typeCheckerArray
-except ValueError:
-    from mitreattack.navlayers.core.exceptions import typeChecker, typeCheckerArray
 except ImportError:
-    from navlayers.core.exceptions import typeChecker, typeCheckerArray
+    from core.exceptions import typeChecker, typeCheckerArray
+
 
 class Gradient:
     def __init__(self, colors, minValue, maxValue):

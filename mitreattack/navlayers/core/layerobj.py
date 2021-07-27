@@ -9,28 +9,17 @@ try:
     from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
         categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
     from ..core.helpers import handle_object_placement
-except ValueError:
-    from mitreattack.navlayers.core.filter import Filter
-    from mitreattack.navlayers.core.layout import Layout
-    from mitreattack.navlayers.core.technique import Technique
-    from mitreattack.navlayers.core.gradient import Gradient
-    from mitreattack.navlayers.core.legenditem import LegendItem
-    from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
-    from mitreattack.navlayers.core.versions import Versions
-    from mitreattack.navlayers.core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-    from mitreattack.navlayers.core.helpers import handle_object_placement
 except ImportError:
-    from navlayers.core.filter import Filter
-    from navlayers.core.layout import Layout
-    from navlayers.core.technique import Technique
-    from navlayers.core.gradient import Gradient
-    from navlayers.core.legenditem import LegendItem
-    from navlayers.core.metadata import Metadata, MetaDiv
-    from navlayers.core.versions import Versions
-    from navlayers.core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
+    from core.filter import Filter
+    from core.layout import Layout
+    from core.technique import Technique
+    from core.gradient import Gradient
+    from core.legenditem import LegendItem
+    from core.metadata import Metadata, MetaDiv
+    from core.versions import Versions
+    from core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
         categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-    from navlayers.core.helpers import handle_object_placement
+    from core.helpers import handle_object_placement
 
 
 class _LayerObj:
