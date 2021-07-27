@@ -1,5 +1,6 @@
-# changes staged on develop
-## Fixes
+# v1.2.2 - 7/27/2021
+This bug fix patches a few outstanding issues with the library
+# Fixes
 - Added missing fields to attackToExcel technique output:
     - Enterprise: _Impact Type_, _System Requirements_, _Effective Permissions_
     - Mobile: _Tactic Type_
