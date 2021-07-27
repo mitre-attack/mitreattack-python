@@ -3,6 +3,9 @@
 - Added missing fields to attackToExcel technique output:
     - Enterprise: _Impact Type_, _System Requirements_, _Effective Permissions_
     - Mobile: _Tactic Type_
+- Fixed typing mismatch in layerobj that caused issues with manipulator scripting
+- Fixed potential loading issue with enumeration that could cause issues with manipulator scripting
+- Improved error message handling during layer initialization
 
 # v1.2.1 - 16 June 2021
 This bug fix patches the ability to use the library with local data sources

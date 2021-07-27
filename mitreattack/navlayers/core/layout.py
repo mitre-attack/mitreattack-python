@@ -164,11 +164,11 @@ class Layout:
             return temp
 
     def __getAggstring(self):
-        if self.__aggregateFunction == 1:
+        if self.__aggregateFunction == Aggregates.average:
             return 'average'
-        if self.__aggregateFunction == 2:
+        if self.__aggregateFunction == Aggregates.min:
             return 'min'
-        if self.__aggregateFunction == 3:
+        if self.__aggregateFunction == Aggregates.max:
             return 'max'
-        if self.__aggregateFunction == 4:
+        if self.__aggregateFunction == Aggregates.sum:
             return 'sum'

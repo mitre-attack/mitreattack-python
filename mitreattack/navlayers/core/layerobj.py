@@ -332,7 +332,7 @@ class _LayerObj:
                 object
             :returns: a list of all set fields within this Layer object
         """
-        temp = ['name', 'version', 'domain']
+        temp = ['name', 'versions', 'domain']
         if self.description:
             temp.append('description')
         if self.filters:
