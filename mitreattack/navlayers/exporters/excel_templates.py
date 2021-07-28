@@ -1,9 +1,7 @@
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-try:
-    from exporters.matrix_gen import MatrixGen
-except ImportError:
-    from ..exporters.matrix_gen import MatrixGen
+
+from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 
 
 class BadTemplateException(Exception):

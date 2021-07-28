@@ -3,12 +3,8 @@ from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill, Font
 import colorsys
 
-try:
-    from core import Layer, Gradient
-    from exporters import ExcelTemplates
-except ImportError:
-    from ..core import Layer, Gradient
-    from ..exporters import ExcelTemplates
+from mitreattack.navlayers.core import Layer, Gradient
+from mitreattack.navlayers.exporters import ExcelTemplates
 
 
 class ToExcel:

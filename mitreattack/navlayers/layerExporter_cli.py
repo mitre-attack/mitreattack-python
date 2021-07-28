@@ -1,13 +1,8 @@
 import argparse
 
-try:
-    from exporters.to_svg import ToSvg, SVGConfig
-    from exporters.to_excel import ToExcel
-    from core import Layer
-except ImportError:
-    from mitreattack.navlayers.exporters.to_svg import ToSvg, SVGConfig
-    from mitreattack.navlayers.exporters.to_excel import ToExcel
-    from mitreattack.navlayers.core import Layer
+from mitreattack.navlayers.exporters.to_svg import ToSvg, SVGConfig
+from mitreattack.navlayers.exporters.to_excel import ToExcel
+from mitreattack.navlayers.core import Layer
 
 
 def main():

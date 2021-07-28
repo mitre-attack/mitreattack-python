@@ -1,29 +1,17 @@
 from stix2 import Filter
 from itertools import chain
-from enum import Enum
 
-try:
-    from ..exporters.matrix_gen import MatrixGen
-    from ..core.exceptions import BadInput, typeChecker, categoryChecker
-    from ..core.layer import Layer
-    from ..generators.gen_helpers import remove_revoked_depreciated, get_attack_id
-except ValueError:
-    from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
-    from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
-    from mitreattack.navlayers.core.layer import Layer
-    from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
-except ImportError:
-    from exporters.matrix_gen import MatrixGen
-    from core.exceptions import BadInput, typeChecker, categoryChecker
-    from core.layer import Layer
-    from generators.gen_helpers import remove_revoked_depreciated, get_attack_id
+from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
+from mitreattack.navlayers.core.exceptions import BadInput, typeChecker
+from mitreattack.navlayers.core.layer import Layer
+from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 
 
 class UnableToFindStixObject(Exception):
     pass
 
 
-class StixObjectIsTechnique(Exception):
+class StixObjectIsNotValid(Exception):
     pass
 
 
@@ -123,10 +111,10 @@ class UsageLayerGenerator:
         """
         typeChecker(type(self).__name__, match, str, "match")
         raw_data, matched_obj = self.get_matrix_data(match)
-        if matched_obj.type == "attack-pattern":
+        if matched_obj.type not in ["course-of-action", 'tool', 'malware', 'intrusion-set']:
             print(f"Warning: The input match {match} corresponds with an ATT&CK Technique, which is not supported. "
                   f"Please provide a group, software, or mitigation instead.")
-            raise StixObjectIsTechnique
+            raise StixObjectIsNotValid
         a_id = get_attack_id(matched_obj)
         processed_listing = self.generate_technique_data(raw_data)
         raw_layer = dict(name=f"{matched_obj.name} ({matched_obj.id})", domain=self.domain + '-attack')

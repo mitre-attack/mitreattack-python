@@ -1,25 +1,13 @@
-try:
-    from ..core.filter import Filter
-    from ..core.layout import Layout
-    from ..core.technique import Technique
-    from ..core.gradient import Gradient
-    from ..core.legenditem import LegendItem
-    from ..core.metadata import Metadata, MetaDiv
-    from ..core.versions import Versions
-    from ..core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-    from ..core.helpers import handle_object_placement
-except ImportError:
-    from core.filter import Filter
-    from core.layout import Layout
-    from core.technique import Technique
-    from core.gradient import Gradient
-    from core.legenditem import LegendItem
-    from core.metadata import Metadata, MetaDiv
-    from core.versions import Versions
-    from core.exceptions import UNSETVALUE, typeChecker, BadInput, handler, \
-        categoryChecker, UnknownLayerProperty, loadChecker, MissingParameters
-    from core.helpers import handle_object_placement
+from mitreattack.navlayers.core.filter import Filter
+from mitreattack.navlayers.core.layout import Layout
+from mitreattack.navlayers.core.technique import Technique
+from mitreattack.navlayers.core.gradient import Gradient
+from mitreattack.navlayers.core.legenditem import LegendItem
+from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
+from mitreattack.navlayers.core.versions import Versions
+from mitreattack.navlayers.core.exceptions import UNSETVALUE, typeChecker, handler, categoryChecker, \
+     UnknownLayerProperty, loadChecker, MissingParameters
+from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
 class _LayerObj:

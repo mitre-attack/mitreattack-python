@@ -1,12 +1,8 @@
 import json
 from copy import deepcopy
 
-try:
-    from core import Layer
-    from exporters.svg_templates import SvgTemplates
-except ImportError:
-    from ..core import Layer
-    from ..exporters.svg_templates import SvgTemplates
+from mitreattack.navlayers.core import Layer
+from mitreattack.navlayers.exporters.svg_templates import SvgTemplates
 
 
 class NoLayer(Exception):

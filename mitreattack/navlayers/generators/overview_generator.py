@@ -1,23 +1,10 @@
 from stix2 import Filter
-from itertools import chain
-try:
-    from ..exporters.matrix_gen import MatrixGen
-    from ..core.exceptions import BadInput, typeChecker, categoryChecker
-    from ..core.layer import Layer
-    from ..generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-        MITRE_ATTACK_DOMAIN_STRINGS
-except ValueError:
-    from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
-    from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
-    from mitreattack.navlayers.core.layer import Layer
-    from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, \
-        construct_relationship_mapping, MITRE_ATTACK_DOMAIN_STRINGS
-except ImportError:
-    from exporters.matrix_gen import MatrixGen
-    from core.exceptions import BadInput, typeChecker, categoryChecker
-    from core.layer import Layer
-    from generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-        MITRE_ATTACK_DOMAIN_STRINGS
+
+from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
+from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
+from mitreattack.navlayers.core.layer import Layer
+from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
+     MITRE_ATTACK_DOMAIN_STRINGS
 
 
 class UnableToFindTechnique(Exception):

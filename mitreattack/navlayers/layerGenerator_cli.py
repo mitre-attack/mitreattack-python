@@ -1,11 +1,7 @@
 import argparse
 
-try:
-    from generators.overview_generator import OverviewLayerGenerator
-    from generators.usage_generator import UsageLayerGenerator
-except ImportError:
-    from mitreattack.navlayers.generators.overview_generator import OverviewLayerGenerator
-    from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
+from mitreattack.navlayers.generators.overview_generator import OverviewLayerGenerator
+from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 
 
 def main():
