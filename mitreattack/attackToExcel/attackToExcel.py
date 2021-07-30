@@ -4,10 +4,7 @@ import os
 import requests
 import pandas as pd
 
-try:
-    import stixToDf
-except ImportError:
-    import mitreattack.attackToExcel.stixToDf as stixToDf
+import mitreattack.attackToExcel.stixToDf as stixToDf
 
 
 INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
