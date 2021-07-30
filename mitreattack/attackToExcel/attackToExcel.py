@@ -23,7 +23,7 @@ def get_stix_data(domain, version=None):
     else:
         url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url, verify=False).json()
+    stix_json = requests.get(url).json()
     return MemoryStore(stix_data=stix_json["objects"])
 
 
