@@ -487,6 +487,7 @@ def matricesToDf(src, domain):
     matrices = src.query([Filter("type", "=", "x-mitre-matrix")])
     matrices = remove_revoked_deprecated(matrices)
     matrices_parsed = []
+    sub_matrices_parsed = []
 
     for matrix in tqdm(matrices, desc="parsing matrices"):
         sub_matrices_grid = dict()
@@ -561,10 +562,10 @@ def matricesToDf(src, domain):
                 local['description'] = local['description'].split(":")[0] + f": {submatrix}"
                 subparsed = build_parsed_DF_matrix(sub_matrices_grid[submatrix], sub_matrices_columns[submatrix],
                                                    sub_matrices_merges[submatrix], local)
-                matrices_parsed.append(subparsed)
+                sub_matrices_parsed.append(subparsed)
 
     # end adding of matrices
-    return matrices_parsed
+    return matrices_parsed, sub_matrices_parsed
 
 
 def relationshipsToDf(src, relatedType=None):
