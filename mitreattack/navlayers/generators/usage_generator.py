@@ -123,6 +123,8 @@ class UsageLayerGenerator:
         if self.domain == 'enterprise':
             output_layer.description = f"Enterprise techniques used by {matched_obj.name}, " \
                                        f"ATT&CK {matched_obj.type} {a_id}"
-        else:
+        elif self.domain == 'mobile':
             f"Mobile techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
+        else:
+            f"ICS techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
         return output_layer
