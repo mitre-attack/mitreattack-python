@@ -1,3 +1,7 @@
+# Staged in Develop
+# Improvements
+- Updated attackToExcel to include platform information when generating excel matrices
+
 # v1.2.2 - 7/27/2021
 This bug fix patches a few outstanding issues with the library
 # Fixes

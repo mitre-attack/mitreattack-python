@@ -4,10 +4,11 @@ import os
 import requests
 import pandas as pd
 
-try:
-    import stixToDf
-except ImportError:
-    import mitreattack.attackToExcel.stixToDf as stixToDf
+import mitreattack.attackToExcel.stixToDf as stixToDf
+
+
+INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
+SUB_CHARACTERS = ["\\", "/"]
 
 
 def get_stix_data(domain, version=None):
@@ -92,16 +93,27 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
         else:  # handle matrix special formatting
             fp = os.path.join(outputDirectory, f"{domainVersionString}-{objType}.xlsx")
             matrix_writer = pd.ExcelWriter(fp, engine='xlsxwriter')
-            for matrix in dataframes[objType]:  # some domains have multiple matrices
+            combined = dataframes[objType][0] + dataframes[objType][1]  # Combine both matrix types
+            for matrix in combined:  # some domains have multiple matrices
                 # name them accordingly if there are multiple
-                sheetname = "matrix" if len(dataframes[objType]) == 1 else matrix["name"] + " matrix"
-                matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
-                                          index=False)  # write unformatted matrix data to master file
+                sheetname = "matrix" if len(combined) == 1 else matrix["name"] + " matrix"
+                for character in INVALID_CHARACTERS:
+                    sheetname = sheetname.replace(character, " or " if character in SUB_CHARACTERS else " ")
+
+                if len(sheetname) > 31:
+                    sheetname = sheetname[0:28] + "..."
+                listing = []
+                if matrix in dataframes[objType][0]:  # avoid printing subtype matrices to the master file
+                    matrix["matrix"].to_excel(master_writer, sheet_name=sheetname,
+                                              index=False)  # write unformatted matrix data to master file
+                    listing.append(master_writer)
+
                 matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname,
                                           index=False)  # write unformatted matrix to matrix file
+                listing.append(matrix_writer)
 
                 # for each writer, format the matrix for readability
-                for writer in [master_writer, matrix_writer]:
+                for writer in listing:
                     # define column border styles
                     borderleft = writer.book.add_format({"left": 1, "shrink": 1})
                     borderright = writer.book.add_format({"right": 1, "shrink": 1})
