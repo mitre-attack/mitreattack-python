@@ -1,7 +1,8 @@
-# Staged to Develop
+# Staged in Develop
 ## Fixes
 - Addresses potential import issues for some operating systems
 ## Improvements
+- Updated attackToExcel to include platform information when generating excel matrices
 - Added layer generation capabilities to the library
 - Added a cli integration for the layer generation capabilities 
 
