@@ -120,11 +120,6 @@ class UsageLayerGenerator:
         raw_layer = dict(name=f"{matched_obj.name} ({matched_obj.id})", domain=self.domain + '-attack')
         raw_layer['techniques'] = processed_listing
         output_layer = Layer(raw_layer)
-        if self.domain == 'enterprise':
-            output_layer.description = f"Enterprise techniques used by {matched_obj.name}, " \
-                                       f"ATT&CK {matched_obj.type} {a_id}"
-        elif self.domain == 'mobile':
-            f"Mobile techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
-        else:
-            f"ICS techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
+        output_layer.description = f"{self.domain.capitalize() if len(self.domain) > 3 else self.domain.upper()} " \
+                                   f"techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
         return output_layer

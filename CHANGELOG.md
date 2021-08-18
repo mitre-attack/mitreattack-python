@@ -1,6 +1,6 @@
 # Staged to Develop
 ## Fixes
-- Addresses potential import shenanigans for some operating systems
+- Addresses potential import issues for some operating systems
 ## Improvements
 - Added layer generation capabilities to the library
 - Added a cli integration for the layer generation capabilities 

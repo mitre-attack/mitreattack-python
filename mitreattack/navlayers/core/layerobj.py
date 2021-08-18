@@ -92,7 +92,8 @@ class _LayerObj:
         if dom.startswith('mitre'):
             dom = dom.split('-')[-1] + '-attack'
         categoryChecker(type(self).__name__, dom, ["enterprise-attack",
-                                                   "mobile-attack"],
+                                                   "mobile-attack",
+                                                   "ics-attack"],
                         "domain")
         self.__domain = domain
 
