@@ -1,7 +1,4 @@
-try:
-    from ..core.exceptions import typeChecker
-except ImportError:
-    from core.exceptions import typeChecker
+from mitreattack.navlayers.core.exceptions import typeChecker
 
 
 class Metadata:

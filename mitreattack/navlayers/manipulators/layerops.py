@@ -20,10 +20,7 @@
 # out_layer2.export_file("C:\demo_layer2.json")
 
 import copy
-try:
-    from core import Layer
-except ImportError:
-    from ..core import Layer
+from mitreattack.navlayers.core import Layer
 
 
 class InvalidFormat(Exception):

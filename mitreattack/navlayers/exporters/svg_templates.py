@@ -3,16 +3,11 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import drawSvg as draw
 
-try:
-    from exporters.matrix_gen import MatrixGen
-    from exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx, _optimalFontSize
-    from core.gradient import Gradient
-    from core.filter import Filter
-except ImportError:
-    from ..exporters.matrix_gen import MatrixGen
-    from ..exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx, _optimalFontSize
-    from ..core.gradient import Gradient
-    from ..core.filter import Filter
+from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
+from mitreattack.navlayers.exporters.svg_objects import G, SVG_HeaderBlock, SVG_Technique, Text, convertToPx, \
+     _optimalFontSize
+from mitreattack.navlayers.core.gradient import Gradient
+from mitreattack.navlayers.core.filter import Filter
 
 
 class BadTemplateException(Exception):

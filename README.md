@@ -137,6 +137,40 @@ optional arguments:
 C:\Users\attack>attackToExcel_cli -domain ics-attack -version v8.1 -output exported_data
 ```
 
+
+##### layerGenerator_cli.py
+This command line tool allows users to generate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) 
+layer files from either a specific group, software, or mitigation. Alternatively, users can generate a layer file with a
+mapping to all associated groups, software, or mitigations across the techniques within ATT&CK. 
+```
+C:\Users\attack>layerGenerator_cli -h
+usage: layerGenerator_cli.py [-h]
+                             (--overview-type {group,software,mitigation} | --mapped-to MAPPED_TO)
+                             [-o OUTPUT] [--domain {enterprise,mobile,ics}]
+                             [--source {taxii,local}] [--local LOCAL]
+
+Generate an ATT&CK Navigator layer
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --overview-type {group,software,mitigation}
+                        Output a matrix where the target type is summarized
+                        across the entire dataset.
+  --mapped-to MAPPED_TO
+                        Output techniques mapped to the given group, software,
+                        or mitigation. Argument can be name, associated
+                        group/software, or ATT&CK ID.
+  -o OUTPUT, --output OUTPUT
+                        Path to the output layer file
+  --domain {enterprise,mobile,ics}
+                        Which domain to build off of
+  --source {taxii,local}
+                        What source to utilize when building the matrix
+  --local LOCAL         Path to the local resource if --source=local
+  
+C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
+```
+
 ## Related MITRE Work
 #### CTI
 [Cyber Threat Intelligence repository](https://github.com/mitre/cti) of the ATT&CK catalog expressed in STIX 2.0 JSON. This repository also contains [our USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md) which includes additional examples of accessing and parsing our dataset in Python.

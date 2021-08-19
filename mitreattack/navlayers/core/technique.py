@@ -1,13 +1,7 @@
-try:
-    from ..core.exceptions import BadInput, handler, typeChecker, \
-        UNSETVALUE, UnknownTechniqueProperty, BadType
-    from ..core.metadata import Metadata, MetaDiv
-    from ..core.helpers import handle_object_placement
-except ImportError:
-    from core.exceptions import BadInput, handler, typeChecker, \
-        UNSETVALUE, UnknownTechniqueProperty, BadType
-    from core.metadata import Metadata, MetaDiv
-    from core.helpers import handle_object_placement
+from mitreattack.navlayers.core.exceptions import BadInput, handler, typeChecker, UNSETVALUE, \
+     UnknownTechniqueProperty, BadType
+from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
+from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
 class Technique:

@@ -1,10 +1,14 @@
 # Staged in Develop
-# Improvements
+## Fixes
+- Addresses potential import issues for some operating systems
+## Improvements
 - Updated attackToExcel to include platform information when generating excel matrices
+- Added layer generation capabilities to the library
+- Added a cli integration for the layer generation capabilities 
 
 # v1.2.2 - 7/27/2021
 This bug fix patches a few outstanding issues with the library
-# Fixes
+## Fixes
 - Added missing fields to attackToExcel technique output:
     - Enterprise: _Impact Type_, _System Requirements_, _Effective Permissions_
     - Mobile: _Tactic Type_

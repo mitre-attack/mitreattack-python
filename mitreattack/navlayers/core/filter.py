@@ -1,9 +1,4 @@
-try:
-    from ..core.exceptions import typeCheckerArray, categoryChecker, \
-        UNSETVALUE
-except ImportError:
-    from core.exceptions import typeCheckerArray, categoryChecker, \
-        UNSETVALUE
+from mitreattack.navlayers.core.exceptions import typeCheckerArray, categoryChecker, UNSETVALUE
 
 
 class Filter:

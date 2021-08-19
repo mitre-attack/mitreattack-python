@@ -1,13 +1,8 @@
 import json
 import traceback
-try:
-    from ..core.exceptions import UninitializedLayer, BadType, BadInput, \
-        handler
-    from ..core.layerobj import _LayerObj
-except ImportError:
-    from core.exceptions import UninitializedLayer, BadType, BadInput, \
-        handler
-    from core.layerobj import _LayerObj
+
+from mitreattack.navlayers.core.exceptions import UninitializedLayer, BadType, BadInput, handler
+from mitreattack.navlayers.core.layerobj import _LayerObj
 
 
 class Layer:
