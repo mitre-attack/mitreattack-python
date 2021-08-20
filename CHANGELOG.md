@@ -1,4 +1,6 @@
-# Staged in Develop
+# v1.3.0 - 8/20/2021
+This release introduces generator functionality to the library, as well as some improvements to excel matrix generation 
+through attackToExcel.
 ## Fixes
 - Addresses potential import issues for some operating systems
 ## Improvements
