@@ -1,7 +1,9 @@
 import argparse
+import os
 
 from mitreattack.navlayers.generators.overview_generator import OverviewLayerGenerator
 from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
+from mitreattack.navlayers.generators.sum_generator import SumGenerator
 
 
 def main():
@@ -11,7 +13,12 @@ def main():
                        help='Output a matrix where the target type is summarized across the entire dataset.')
     group.add_argument('--mapped-to', help='Output techniques mapped to the given group, software, or mitigation. '
                                            'Argument can be name, associated group/software, or ATT&CK ID.')
-    parser.add_argument('-o', '--output', help='Path to the output layer file', default='generated_layer.json')
+    group.add_argument('--mass-type', choices=['group', 'software', 'mitigation'],
+                       help='Output a collection of matrices to the specified folder, each one representing a '
+                            'different instance of the target type.')
+    parser.add_argument('-p', '--path', help='Path to the output layer directory (mass-type)',
+                        default='generated_layers')
+    parser.add_argument('-o', '--output', help='Path to the output layer file (output)', default='generated_layer.json')
     parser.add_argument('--domain', help='Which domain to build off of', choices=['enterprise', 'mobile', 'ics'],
                         default='enterprise')
     parser.add_argument('--source', choices=['taxii', 'local'], default='taxii',
@@ -31,6 +38,14 @@ def main():
         print('Generating Layer File')
         generated.to_file(args.output)
         print(f'Layer file generated as {args.output}.')
+    elif args.mass_type:
+        sg = SumGenerator(source=args.source, domain=args.domain, local=args.local)
+        generated = sg.generate_layers(layers_type=args.mass_type)
+        if not os.path.exists(args.path):
+            os.mkdir(args.path)
+        for sid in generated:
+            generated[sid].to_file(f"{args.path}/{sid}.json")
+        print(f"Files saved to {args.path}/")
 
 
 if __name__ == '__main__':
