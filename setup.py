@@ -20,7 +20,8 @@ setuptools.setup(
         'console_scripts': [
             'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
             'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main',
-            'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main'
+            'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main',
+            'collectionToMarkdown_cli=mitreattack.navlayers.collections.col_to_md:main'
         ]
     },
     packages=setuptools.find_packages(),
@@ -44,5 +45,6 @@ setuptools.setup(
         'tqdm>=4.31.1',
         'requests>=2.21.0',
         'xlsxwriter>=1.3.7',
+        'tabulate>=0.8.9',
     ]
 )
