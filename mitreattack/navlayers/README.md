@@ -30,6 +30,10 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server or from a local STIX Bundle. |
 | [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
 | [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
+##### Collections Scripts
+| script | description |
+|:-------|:------------|
+|[col_to_md](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/collections/col_to_md.py)| Provides a means by which to convert a collection index into a human-readable markdown file. More information can be found in the corresponding [section](#col_to_md.py) below.|
 ##### Command Line Tools
 | script | description |
 |:-------|:------------|
@@ -248,4 +252,22 @@ conf.load_from_file(filename="path/to/poster/config.json")
 
 t2 = ToSvg(domain='mobile', source='local', local='path/to/local/stix.json', config=conf)
 t2.to_svg(layerInit=lay, filepath="demo2.svg")
+```
+
+## col_to_md.py
+col_to_md.py provides the CollectionToMarkdown class, which is a way to transform an existing collection [index file]() 
+into a [markdown file]() for easy of use and reference. The CollectionToMarkdown class is very simple, and provides a 
+single method, `index_to_markdown`, which in turn only requires a single parameter - a dictionary representation of the 
+desired index file to convert to markdown. An example of how to use the class, and method, can be found below.
+#### Example Usage
+```python
+import json
+from mitreattack.navlayers import CollectionToMarkdown
+
+with open('input_file.json', 'r') as input_file:
+    with open('output_file.md', 'w') as output_file:
+        input_index = json.load(input_file)
+        generated_md = CollectionToMarkdown.index_to_markdown(input_index)  # Convert index to markdown
+        output_file.write(generated_md)
+print(generated_md)
 ```

@@ -33,12 +33,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Print a markdown string to std-out representing a collection index"
     )
-    parser.add_argument("-index",
+    parser.add_argument("-i",
+                        "--index",
                         type=str,
                         default="index.json",
                         help="the collection index file to convert to markdown"
                         )
-    parser.add_argument("-output",
+    parser.add_argument("-o",
+                        "--output",
                         type=str,
                         default="index.md",
                         help="markdown output file"

@@ -171,6 +171,23 @@ optional arguments:
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
 ```
 
+##### collectionToMarkdown_cli
+This command line tool allows users to transform a
+[ATT&CK collection index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) 
+into a [human-readable markdown file](https://github.com/mitre-attack/attack-stix-data/blob/master/index.md) that 
+documents the contents of said collections.
+```
+C:\Users\attack>collectionToMarkdown_cli -h
+usage: col_to_md.py [-h] [-index INDEX] [-output OUTPUT]
+
+Print a markdown string to std-out representing a collection index
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -i INDEX, --index INDEX    the collection index file to convert to markdown
+  -o output, --output OUTPUT  markdown output file
+C:\Users\attack>collectionToMarkdown_cli --index C:\Users\attack\examples\index.json --output example.md
+```
 ## Related MITRE Work
 #### CTI
 [Cyber Threat Intelligence repository](https://github.com/mitre/cti) of the ATT&CK catalog expressed in STIX 2.0 JSON. This repository also contains [our USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md) which includes additional examples of accessing and parsing our dataset in Python.
