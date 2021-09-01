@@ -145,8 +145,9 @@ mapping to all associated groups, software, or mitigations across the techniques
 ```
 C:\Users\attack>layerGenerator_cli -h
 usage: layerGenerator_cli.py [-h]
-                             (--overview-type {group,software,mitigation} | --mapped-to MAPPED_TO)
-                             [-o OUTPUT] [--domain {enterprise,mobile,ics}]
+                             (--overview-type {group,software,mitigation} | --mapped-to MAPPED_TO | --mass-type {group,software,mitigation})
+                             [-p PATH] [-o OUTPUT]
+                             [--domain {enterprise,mobile,ics}]
                              [--source {taxii,local}] [--local LOCAL]
 
 Generate an ATT&CK Navigator layer
@@ -160,8 +161,13 @@ optional arguments:
                         Output techniques mapped to the given group, software,
                         or mitigation. Argument can be name, associated
                         group/software, or ATT&CK ID.
+  --mass-type {group,software,mitigation}
+                        Output a collection of matrices to the specified
+                        folder, each one representing a different instance of
+                        the target type.
+  -p PATH, --path PATH  Path to the output layer directory (mass-type)
   -o OUTPUT, --output OUTPUT
-                        Path to the output layer file
+                        Path to the output layer file (output)
   --domain {enterprise,mobile,ics}
                         Which domain to build off of
   --source {taxii,local}
@@ -169,6 +175,8 @@ optional arguments:
   --local LOCAL         Path to the local resource if --source=local
   
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
+C:\Users\attack>layerGenerator_cli --domain mobile --source taxii --overview-type mitigation --output generated_layer2.json
+C:\Users\attack>layerGenerator_cli --domain ics --source taxii --mass-type software
 ```
 
 ##### IndexToMarkdown_cli
