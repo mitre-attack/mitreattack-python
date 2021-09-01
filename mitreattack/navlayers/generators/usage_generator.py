@@ -1,5 +1,6 @@
 from stix2 import Filter
 from itertools import chain
+import copy
 
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.core.exceptions import BadInput, typeChecker
@@ -31,6 +32,7 @@ class UsageLayerGenerator:
         except KeyError:
             print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
             raise BadInput
+        self.full_matrix = self.matrix_handle.get_matrix(self.domain)
 
     def get_stix_object(self, match):
         """
@@ -86,7 +88,7 @@ class UsageLayerGenerator:
                 if phase.kill_chain_name == 'mitre-attack':
                     xphase = phase.phase_name
             shortlist.append((xid, xphase, match.description))
-        full_matrix_listing = self.matrix_handle.get_matrix(self.domain)
+        full_matrix_listing = copy.deepcopy(self.full_matrix)
         construct = list()
         for tactic in full_matrix_listing:
             for tech in tactic.techniques:
