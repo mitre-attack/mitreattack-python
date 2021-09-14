@@ -5,7 +5,7 @@ from mitreattack.navlayers.generators.gen_helpers import remove_revoked_deprecia
 from tqdm import tqdm
 
 
-class SumGenerator:
+class BatchGenerator:
     def __init__(self, source, domain='enterprise', local=None):
         """
         Initialize the Generator
@@ -20,7 +20,7 @@ class SumGenerator:
 
     def generate_layers(self, layers_type):
         """
-        Generate a layer
+        Generate and return a collection of layers for all objects of a given type
         :param layers_type: the type of object to generate layers for (group, software, or mitigation)
         :return: dictionary of generated layer objects, referenced by STIX-ID
         """

@@ -64,6 +64,7 @@ class UsageLayerGenerator:
         obj = self.get_stix_object(match_pattern)
         verb = 'mitigates' if obj.type == 'course-of-action' else 'uses'
         related = self.source_handle.relationships(obj.id, verb, source_only=True)
+
         out = self.source_handle.query([
             Filter('type', '=', 'attack-pattern'),
             Filter('id', 'in', [r.target_ref for r in related])
