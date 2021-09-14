@@ -47,5 +47,6 @@ setuptools.setup(
         'requests>=2.21.0',
         'xlsxwriter>=1.3.7',
         'tabulate>=0.8.9',
+        'stix2-elevator>=4.0.1',
     ]
 )
