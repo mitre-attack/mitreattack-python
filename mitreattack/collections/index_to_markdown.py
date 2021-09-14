@@ -4,7 +4,7 @@ from tabulate import tabulate
 from dateutil.parser import isoparse
 
 
-class CollectionToMarkdown:
+class IndexToMarkdown:
     @staticmethod
     def index_to_markdown(indexobj):
         """
@@ -49,7 +49,7 @@ def main():
     with open(args.index, "r") as f:
         index = json.load(f)
         with open(args.output, "w") as f2:
-            f2.write(CollectionToMarkdown.index_to_markdown(index))
+            f2.write(IndexToMarkdown.index_to_markdown(index))
 
 
 if __name__ == "__main__":
