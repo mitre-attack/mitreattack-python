@@ -49,7 +49,7 @@ with open('path/to/bundle/bundleC.json', 'r') as f:
 output_indexC = CollectionToIndex.generate_index(name='example3', description='exhibit index',
                                                  root_url='www.example.com',
                                                  files=None, folders=None, bundles=[data])
-for destination in [('A', output_indexA), ('B', output_indexB), ('C', output_indexC)]:
-    with open(f'path/to/output/index{destination[0]}.json', 'w') as f:
-        json.dump(f, destination[1])
+print(output_indexA)
+print(output_indexB)
+print(output_indexC)
 ```
