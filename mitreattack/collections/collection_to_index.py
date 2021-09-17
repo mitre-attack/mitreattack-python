@@ -53,12 +53,12 @@ class CollectionToIndex:
                     bundle = json.load(f)
                     url = root_url + collection_bundle_file if root_url.endswith("/") \
                         else root_url + "/" + collection_bundle_file
-                    CollectionToIndex.extract_collection(bundle, collections, url)
+                    CollectionToIndex._extract_collection(bundle, collections, url)
 
         if cleaned_bundles:
             for input_bundle in tqdm(cleaned_bundles, desc="transferring input bundles"):
                 url = "Imported"
-                CollectionToIndex.extract_collection(input_bundle, collections, url)
+                CollectionToIndex._extract_collection(input_bundle, collections, url)
 
         for collection in collections.values():
             # set collection name and description from most recently modified version
@@ -86,7 +86,7 @@ class CollectionToIndex:
         }
 
     @staticmethod
-    def extract_collection(bundle, collections, url):
+    def _extract_collection(bundle, collections, url):
         """
         Extract a collection from a bundle, and build it into the passed in collections dictionary
         :param bundle: The bundle to work with

@@ -21,7 +21,7 @@ setuptools.setup(
             'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
             'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main',
             'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main',
-            'collectionToMarkdown_cli=mitreattack.collections.index_to_markdown:main',
+            'indexToMarkdown_cli=mitreattack.collections.index_to_markdown:main',
             'collectionToIndex_cli=mitreattack.collections.collection_to_index:main'
         ]
     },
