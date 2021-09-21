@@ -5,6 +5,7 @@ import traceback
 from uuid import uuid4
 from datetime import datetime
 from stix2elevator.stix_stepper import step_bundle
+from stix2elevator.options import initialize_options, ElevatorOptions
 
 
 class STIXToCollection:
@@ -24,6 +25,7 @@ class STIXToCollection:
             try:
                 print("[NOTE] - version 2.0 spec detected. Forcibly upgrading the bundle to 2.1 to support "
                       "collections.")
+                initialize_options(ElevatorOptions(custom_property_prefix='mitre', silent=True))
                 working_bundle = step_bundle(working_bundle)
                 working_bundle["spec_version"] = "2.1"
             except Exception as e:
@@ -84,7 +86,7 @@ def main():
                         help="the output bundle file"
                         )
     args = parser.parse_args()
-    with open(args.bundle, "r") as f:
+    with open(args.bundle, "r", encoding="utf8") as f:
         bundle = json.load(f)
         with open(args.output, "w") as f2:
             f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name), indent=4))
