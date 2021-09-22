@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mitreattack-python",
-    version="1.3.0",
+    version="1.3.1",
     author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
@@ -36,7 +36,7 @@ setuptools.setup(
         'colour>=0.1.5',
         'openpyxl>=3.0.3',
         'stix2>=1.1.2',
-        'taxii2-client>=2.2.1',
+        'taxii2-client==2.2.2',
         'numpy>=1.16.0',
         'drawSvg>=1.6.0',
         'Pillow>=7.1.2',
