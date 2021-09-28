@@ -5,11 +5,12 @@ import json
 import uuid
 from dateutil.parser import isoparse
 import re
+from stix2 import MemoryStore, Filter
 
 
 class CollectionToIndex:
     @staticmethod
-    def generate_index(name, description, root_url, files=None, folders=None, bundles=None):
+    def generate_index(name, description, root_url, files=None, folders=None, sets=None):
         """generate a collection index from the input data and return the index as a dict
         arguments:
             name (string): the name of the index
@@ -20,11 +21,13 @@ class CollectionToIndex:
                                 argument
             folders (string[], optional): folders of collection JSON files to include in the index. Cannot be used with
                                 files argument. Will only match collections that end with a version number
-            bundles (stix bundle[], optional): array of stix bundle objects to include in the index
-            output (string, optional): filename for the generated collection index file
+            sets (meta[], optional): array of json dictionaries representing stix bundle objects or and array of
+                                     MemoryStore objects to include in the index
         """
-        if files and folders:
-            print("cannot use both files and folder at the same time, please use only one argument at a time")
+        if len([x for x in [files, folders, sets] if x]) > 1:
+            print("cannot use multiple arguments (files, folders, sets) at the same time, please use only one "
+                  "argument at a time")
+            return
 
         if folders:
             version_regex = re.compile("(\w+-)+(\d\.?)+.json")
@@ -34,12 +37,20 @@ class CollectionToIndex:
                                   filter(lambda fname: version_regex.match(fname), os.listdir(folder))))
 
         cleaned_bundles = []
-        if bundles:
-            for potentially_valid_bundle in bundles:
-                if any(x["type"] == 'x-mitre-collection' for x in potentially_valid_bundle["objects"]):
-                    potentially_valid_bundle["objects"] = filter(lambda x: x["type"] == "x-mitre-collection",
-                                                                 potentially_valid_bundle["objects"])
-                    cleaned_bundles.append(potentially_valid_bundle)
+        if sets:
+            if isinstance(sets[0], MemoryStore):
+                uset = [dict(type="bundle", id=f"bundle--{x.id}", spec_version="2.0",
+                             objects=x.source.query([Filter("type", "=", "x-mitre-collection")]))
+                        for x in sets]
+                sets = uset
+            for potentially_valid_bundle in sets:
+                if potentially_valid_bundle["objects"] is not [[]]:  # Catch case where MemoryStore didn't have a match
+                    if any(x["type"] == 'x-mitre-collection' for x in potentially_valid_bundle["objects"]):
+                        potentially_valid_bundle["objects"] = filter(lambda x: x["type"] == "x-mitre-collection",
+                                                                     potentially_valid_bundle["objects"])
+                        cleaned_bundles.append(potentially_valid_bundle)
+                    else:
+                        print(f"cannot use bundle {potentially_valid_bundle.id} due to lack of collection object")
                 else:
                     print(f"cannot use bundle {potentially_valid_bundle.id} due to lack of collection object")
 
