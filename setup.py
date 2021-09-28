@@ -38,8 +38,8 @@ setuptools.setup(
     install_requires=[
         'colour>=0.1.5',
         'openpyxl>=3.0.3',
-        'stix2>=1.1.2',
-        'taxii2-client>=2.2.1',
+        'stix2>=3.0.1',
+        'taxii2-client>=2.3.0',
         'numpy>=1.16.0',
         'drawSvg>=1.6.0',
         'Pillow>=7.1.2',
