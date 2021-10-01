@@ -40,15 +40,15 @@ from mitreattack.collections import CollectionToIndex
 output_indexA = CollectionToIndex.generate_index(name='example', description='example index', 
                                                  root_url='www.example.com', 
                                                  files=['/path/to/collection1.json', '/path/to/collection2.json'], 
-                                                 folders=None, bundles=None)
+                                                 folders=None, sets=None)
 output_indexB = CollectionToIndex.generate_index(name='example2', description='demonstration index',
                                                  root_url='www.example.com',
-                                                 files=None, folders=['/path/to/folder/with/collections'], bundles=None)
+                                                 files=None, folders=['/path/to/folder/with/collections'], sets=None)
 with open('path/to/bundle/bundleC.json', 'r') as f:
     data = json.load(f)
 output_indexC = CollectionToIndex.generate_index(name='example3', description='exhibit index',
                                                  root_url='www.example.com',
-                                                 files=None, folders=None, bundles=[data])
+                                                 files=None, folders=None, sets=[data])
 print(output_indexA)
 print(output_indexB)
 print(output_indexC)
