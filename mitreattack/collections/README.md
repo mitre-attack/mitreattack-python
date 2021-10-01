@@ -6,6 +6,7 @@ This folder contains modules and scripts for working with ATT&CK collections. Co
 | script | description |
 |:-------|:------------|
 |[index_to_markdown](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py)| Provides a means by which to convert a [collection index](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) into a human-readable markdown file. More information can be found in the corresponding [section](#index_to_markdown.py) below.|
+|[collection_to_index](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py)| Provides a means by which to convert a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) into a easy-to-share [index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes). More information can be found in the corresponding [section](#collection_to_index.py) below.|
 
 ## index_to_markdown.py
 index_to_markdown.py provides the IndexToMarkdown class, which provides a way to transform an existing [collection index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) 
@@ -24,4 +25,31 @@ with open('collection_index.json', 'r') as input_file:
         generated_md = IndexToMarkdown.index_to_markdown(input_index)  # Convert index to markdown
         output_file.write(generated_md)
 print(generated_md)
+```
+
+## collection_to_index.py
+collection_to_index.py provides the CollectionToIndex class, which proves a means by which to summarize existing [collections](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections)
+into a single [collection index](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) file.
+The CollectionToIndex class contains the generate_index function, which when provided with a name, description, root url (pointing to where the raw collections are stored), 
+and a list of either files, folders, or already loaded bundles in the form of dictionaries, will create a summarizing index.
+#### Example Usage
+```python
+import json
+from mitreattack.collections import CollectionToIndex
+
+output_indexA = CollectionToIndex.generate_index(name='example', description='example index', 
+                                                 root_url='www.example.com', 
+                                                 files=['/path/to/collection1.json', '/path/to/collection2.json'], 
+                                                 folders=None, sets=None)
+output_indexB = CollectionToIndex.generate_index(name='example2', description='demonstration index',
+                                                 root_url='www.example.com',
+                                                 files=None, folders=['/path/to/folder/with/collections'], sets=None)
+with open('path/to/bundle/bundleC.json', 'r') as f:
+    data = json.load(f)
+output_indexC = CollectionToIndex.generate_index(name='example3', description='exhibit index',
+                                                 root_url='www.example.com',
+                                                 files=None, folders=None, sets=[data])
+print(output_indexA)
+print(output_indexB)
+print(output_indexC)
 ```

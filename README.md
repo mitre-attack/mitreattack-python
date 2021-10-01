@@ -171,14 +171,14 @@ optional arguments:
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
 ```
 
-##### collectionToMarkdown_cli
+##### IndexToMarkdown_cli
 This command line tool allows users to transform a
 [ATT&CK collection index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) 
 into a [human-readable markdown file](https://github.com/mitre-attack/attack-stix-data/blob/master/index.md) that 
 documents the contents of said collections.
-```
-C:\Users\attack>collectionToMarkdown_cli -h
-usage: col_to_md.py [-h] [-index INDEX] [-output OUTPUT]
+```commandline
+C:\Users\attack>indexToMarkdown_cli -h
+usage: index_to_markdown.py [-h] [-index INDEX] [-output OUTPUT]
 
 Print a markdown string to std-out representing a collection index
 
@@ -186,7 +186,37 @@ optional arguments:
   -h, --help      show this help message and exit
   -i INDEX, --index INDEX    the collection index file to convert to markdown
   -o output, --output OUTPUT  markdown output file
-C:\Users\attack>collectionToMarkdown_cli --index C:\Users\attack\examples\index.json --output example.md
+C:\Users\attack>indexToMarkdown_cli --index C:\Users\attack\examples\index.json --output example.md
+```
+##### CollectionToIndex_cli
+This command line tool allows users to transform [ATT&CK collections](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) 
+into an [ATT&CK collection index](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) 
+that summarizes the contents of the linked collections.
+```commandline
+C:\Users\attack>collectionToIndex_cli -h
+usage: collection_to_index.py [-h] [-output OUTPUT]
+                              (-files collection1 [collection2 ...] | -folders FOLDERS [FOLDERS ...])
+                              name description root_url
+
+Create a collection index from a set of collections
+
+positional arguments:
+  name                  name of the collection index. If omitted a placeholder
+                        will be used
+  description           description of the collection index. If omitted a
+                        placeholder will be used
+  root_url              the root URL where the collections can be found.
+                        Specified collection paths will be appended to this
+                        for the collection URL
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -output OUTPUT        filename for the output collection index file
+  -files collection1 [collection2 ...]
+                        list of collections to include in the index
+  -folders FOLDERS [FOLDERS ...]
+                        folder of JSON files to treat as collections
+C:\Users\attack>collectionToIndex_cli test_index "a layer created as a demo" www.example.com -files C:\Users\attack\examples\collection.json -output C:\Users\attack\examples\index.json
 ```
 ## Related MITRE Work
 #### CTI

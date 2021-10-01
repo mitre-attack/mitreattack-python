@@ -2,6 +2,7 @@
 ## Improvements
 - Created Collections module
 - Added method to turn a collection index into a markdown file for human readability
+- Added method to turn a collection into a collection index for summary purposes
 
 # v1.3.0 - 8/20/2021
 This release introduces generator functionality to the library, as well as some improvements to excel matrix generation 
