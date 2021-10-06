@@ -40,6 +40,7 @@ def build_dataframes(src, domain):
         "tactics": stixToDf.tacticsToDf(src, domain),
         "software": stixToDf.softwareToDf(src, domain),
         "groups": stixToDf.groupsToDf(src, domain),
+        "data objects": stixToDf.sourcesToDf(src, domain),
         "mitigations": stixToDf.mitigationsToDf(src, domain),
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src)

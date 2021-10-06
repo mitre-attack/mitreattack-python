@@ -214,6 +214,59 @@ def tacticsToDf(src, domain):
     return dataframes
 
 
+def sourcesToDf(src, domain):
+    """
+    Parse STIX Data Sources and their Data components from the given data and return corresponding pandas dataframes.
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    data = list(chain.from_iterable(  # software are the union of the tool and malware types
+        src.query(f) for f in [Filter("type", "=", "x-mitre-data-component"),
+                               Filter("type", "=", "x-mitre-data-source")]
+    ))
+    refined = remove_revoked_deprecated(data)
+    data_object_rows = []
+    source_lookup = dict()
+    for x in refined:
+        if x['type'] == 'x-mitre-data-source':
+            source_lookup[x['id']] = x['name']
+    for data_object in tqdm(refined, desc="parsing data objects"):
+        # add common STIx fields
+        row = parseBaseStix(data_object)
+        # add software-specific fields
+        if "x_mitre_platforms" in data_object:
+            row["platforms"] = ", ".join(sorted(data_object["x_mitre_platforms"]))
+        if "x_mitre_collection_layers" in data_object:
+            row["collection layers"] = ', '.join(sorted(data_object["x_mitre_collection_layers"]))
+        if "x_mitre_aliases" in data_object:
+            row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
+        if data_object["type"] == "x-mitre-data-component":
+            row["name"] = f"{data_object['name']}: {source_lookup[data_object['x_mitre_data_source_ref']]}"
+        if "description" in data_object:
+            row['description'] = data_object['description']
+        data_object_rows.append(row)
+
+    citations = get_citations(refined)
+    tempa = pd.DataFrame(data_object_rows).sort_values("name")
+    dataframes = {
+        "data objects": tempa.reindex(columns=["name", "ID", "description", "collection layers", "platforms", "created",
+                                               "modified", "version", "url", "contributors"]),
+    }
+    # add relationships
+    dataframes.update(relationshipsToDf(src, relatedType="data object"))
+    # add/merge citations
+    if not citations.empty:
+        if "citations" in dataframes:  # append to existing citations from references
+            dataframes["citations"] = dataframes["citations"].append(citations)
+        else:  # add citations
+            dataframes["citations"] = citations
+
+        dataframes["citations"].sort_values("reference")
+
+    return dataframes
+
+
 def softwareToDf(src, domain):
     """
     Parse STIX software from the given data and return corresponding pandas dataframes.
@@ -584,6 +637,7 @@ def relationshipsToDf(src, relatedType=None):
         "group": ["intrusion-set"],
         "mitigation": ["course-of-action"],
         "matrix": ["x-mitre-matrix"],
+        "data object": ["x-mitre-data-component", "x-mitre-data-source"],
     }
     stixToAttackTerm = {
         "attack-pattern": "technique",
@@ -592,7 +646,9 @@ def relationshipsToDf(src, relatedType=None):
         "malware": "software",
         "intrusion-set": "group",
         "course-of-action": "mitigation",
-        "x-mitre-matrix": "matrix"
+        "x-mitre-matrix": "matrix",
+        "x-mitre-data-component": "data component",
+        "x-mitre-data-source": "data source"
     }
 
     # get master list of relationships
@@ -625,7 +681,8 @@ def relationshipsToDf(src, relatedType=None):
                         target["type"] == stixTerm):  # if any stix type is part of the relationship
                     related = True
                     break
-            if not related: continue  # skip this relationship if the types don't match
+            if not related:
+                continue  # skip this relationship if the types don't match
 
         # add mapping data
         row = {}
