@@ -1,8 +1,9 @@
 # Staged in Develop
 ## Improvements
 - Created Collections module
-- Added method to turn a collection index into a markdown file for human readability
-- Added method to turn a collection into a collection index for summary purposes
+- Added method and cli to turn a collection index into a markdown file for human readability
+- Added method and cli to turn a collection into a collection index for summary purposes
+- Added method and cli to turn raw stix data into a collection
 - Added method and cli to allow for bulk layer generation (expands generator module)
 
 # v1.3.0 - 8/20/2021
