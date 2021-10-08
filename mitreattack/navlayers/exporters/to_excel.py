@@ -8,16 +8,17 @@ from mitreattack.navlayers.exporters import ExcelTemplates
 
 
 class ToExcel:
-    def __init__(self, domain='enterprise', source='taxii', local=None):
+    def __init__(self, domain='enterprise', source='taxii', resource=None):
         """
             Sets up exporting system, builds underlying matrix
 
-            :param source: Source to generate the matrix from, one of (taxii or local)
-            :param local: Optional path to local stix data, required in source is local
+            :param source: Source to generate the matrix from, one of (taxii, local, or remote)
+            :param resource: Optional string path to local cache of stix data (local) or url of workbench to reach out
+                                to (remote)
 
         """
         self.domain = domain
-        self.raw_handle = ExcelTemplates(domain=domain, source=source, local=local)
+        self.raw_handle = ExcelTemplates(domain=domain, source=source, resource=resource)
 
     def to_xlsx(self, layerInit, filepath="layer.xlsx"):
         """

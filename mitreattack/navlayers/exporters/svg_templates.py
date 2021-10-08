@@ -15,13 +15,14 @@ class BadTemplateException(Exception):
 
 
 class SvgTemplates:
-    def __init__(self, source='taxii', domain='enterprise', local=None):
+    def __init__(self, source='taxii', domain='enterprise', resource=None):
         """
             Initialization - Creates a SvgTemplate object
 
             :param domain: Which domain to utilize for the underlying matrix layout
             :param source: Use the taxii server or local data
-            :param local: Optional path to local stix data
+            :param resource: string path to local cache of stix data (local) or url of workbench to reach out
+                                to (remote)
         """
         muse = domain
         if muse.startswith('mitre-'):
@@ -30,7 +31,7 @@ class SvgTemplates:
             muse = domain[:-7]
         if muse in ['enterprise', 'mobile']:
             self.mode = muse
-            self.h = MatrixGen(source=source, local=local)
+            self.h = MatrixGen(source=source, resource=resource)
             self.lhandle = None
         else:
             raise BadTemplateException
