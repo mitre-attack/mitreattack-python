@@ -11,13 +11,23 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain, version=None):
+def get_stix_data(domain, version=None, custom=None):
     """
     download the ATT&CK STIX data for the given domain and version from MITRE/CTI.
     :param domain: the domain of ATT&CK to fetch data from, e.g "enterprise-attack"
     :param version: the version of attack to fetch data from, e.g "v8.1". If omitted, returns the latest version
+    :param custom: optional url to a ATT&CK workbench instance
     :returns: a MemoryStore containing the domain data
     """
+    if custom:
+        if ':' not in custom[6:]:
+            custom += ":3000"
+        if not custom.startswith('http'):
+            custom = 'http://' + custom
+        url = f"{custom}/api/stix-bundles?domain={domain}&includeRevoked=true&includeDeprecated=true"
+        stix_json = requests.get(url).json()
+        return MemoryStore(stix_json)
+
     if version:
         url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
     else:
