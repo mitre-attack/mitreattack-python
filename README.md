@@ -3,6 +3,7 @@
 This repository contains a library of Python-based tools and utilities for working with ATT&CK content.
 - the [navlayers](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/navlayers) module contains a collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers.
 - the [attackToExcel](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/attackToExcel) module provides utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
+- the [collections](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/collections) module contains a set of utilities for working with [ATT&CK Collections and Collection Indexes](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md).
 
 ## Requirements
 - [python3](https://www.python.org/)
@@ -20,6 +21,7 @@ Some simple examples are provided here to get you started on using this library.
 |:------------|:------------|:--------------|
 | navlayers | Provides a means by which to import, export, and manipulate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images as users desire. | Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).|
 | attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md).|
+| collections | Provides functionalities for converting and summarizing data in collections and collection indexes. It also provides a means by which to generate a collection from a raw stix bundle. | Further documentation for the collections module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/README.md).| 
 ### Usage Examples
 #### navlayers
 ```python
@@ -225,6 +227,32 @@ optional arguments:
   -folders FOLDERS [FOLDERS ...]
                         folder of JSON files to treat as collections
 C:\Users\attack>collectionToIndex_cli test_index "a layer created as a demo" www.example.com -files C:\Users\attack\examples\collection.json -output C:\Users\attack\examples\index.json
+```
+##### StixToCollection_cli
+This command line tool allows users to transform raw stix bundle files into versions featuring [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) objects.
+It is compatible with both STIX 2.0 and STIX 2.1 bundles.
+```commandline
+C:\Users\attack>stixToCollection_cli -h
+usage: stix_to_collection.py [-h] [-input INPUT] [-output OUTPUT]
+                             [-description DESCRIPTION]
+                             name version
+
+Update a STIX 2.0 or 2.1 bundle to include a collection object referencing the
+contents of the bundle.
+
+positional arguments:
+  name                  the name for the generated collection object
+  version               the ATT&CK version for the generated collection object
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -input INPUT          the input bundle file
+  -output OUTPUT        the output bundle file
+  -description DESCRIPTION
+                        description to use for the generated collection
+
+C:\Users\attack>stixToCollection "2.0 demo bundle" 9.1 -input C:\Users\bundles\enterprise-bundle-2_0.json
+C:\Users\attack>stixToCollection "2.1 demo bundle" 9.1 -input C:\Users\bundles\enterprise-bundle-2_1.json
 ```
 ## Related MITRE Work
 #### CTI
