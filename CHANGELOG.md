@@ -4,6 +4,7 @@
 - Added method to turn a collection index into a markdown file for human readability
 - Added method to turn a collection into a collection index for summary purposes
 - Added method and cli to allow for bulk layer generation (expands generator module)
+- Added Data Sources and Data Components support to attackToExcel
 
 # v1.3.0 - 8/20/2021
 This release introduces generator functionality to the library, as well as some improvements to excel matrix generation 
