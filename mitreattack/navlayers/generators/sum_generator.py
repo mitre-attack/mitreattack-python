@@ -9,7 +9,7 @@ class BatchGenerator:
     def __init__(self, source, domain='enterprise', local=None):
         """
         Initialize the Generator
-        :param source: Which source to use for data (local or taxii [server])
+        :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which matrix to use during generation
         :param local: Optional path to local data
         """

@@ -19,9 +19,10 @@ def main():
     parser.add_argument('-o', '--output', help='Path to the output layer file/directory', default='generated_layer')
     parser.add_argument('--domain', help='Which domain to build off of', choices=['enterprise', 'mobile', 'ics'],
                         default='enterprise')
-    parser.add_argument('--source', choices=['taxii', 'local'], default='taxii',
+    parser.add_argument('--source', choices=['taxii', 'local', 'remote'], default='taxii',
                         help='What source to utilize when building the layer files')
-    parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)
+    parser.add_argument('--resource', help='Path to the local resource if --source=local, or url of an ATT&CK Workbench'
+                                           ' instance if --source=remote', default=None)
     args = parser.parse_args()
 
     if args.overview_type:

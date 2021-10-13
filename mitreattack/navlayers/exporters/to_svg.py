@@ -385,7 +385,7 @@ class ToSvg:
             Sets up exporting system, builds underlying matrix
 
             :param domain: Which domain to utilize for the underlying matrix layout
-            :param source: Use the taxii server or local data
+            :param source: Use the taxii server, local data, or a remote ATT&CK Workbench instance
             :param resource: string path to local cache of stix data (local) or url of workbench to reach out 
                                 to (remote)
             :param config: Optional pre-existing SVGConfig object

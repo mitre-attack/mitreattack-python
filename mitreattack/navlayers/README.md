@@ -158,10 +158,10 @@ tells the exporter what data source to use when building the output matrix. Vali
 
 ##### ToExcel()
 ```python
-x = ToExcel(domain='enterprise', source='taxii', local=None)
+x = ToExcel(domain='enterprise', source='taxii', resource=None)
 ```
 The ToExcel constructor takes domain, server, and local arguments during instantiation. The domain can
-be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix, while the `local` option indicates that it should use a local bundle respectively. The local argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle.
+be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
 
 ##### .to_xlsx() Method
 ```python
@@ -180,9 +180,11 @@ lay.from_file("path/to/layer/file.json")
 # Using taxii server for template
 t = ToExcel(domain=lay.layer.domain, source='taxii')
 t.to_xlsx(layerInit=lay, filepath="demo.xlsx")
-#Using local stix data for template
-t2 = ToExcel(domain='mobile', source='local', local='path/to/local/stix.json')
+# Using local stix data for template
+t2 = ToExcel(domain='mobile', source='local', resource='path/to/local/stix.json')
 t2.to_xlsx(layerInit=lay, filepath="demo2.xlsx")
+# Using remote ATT&CK Workbench instance for template
+t3 = ToExcel(domain='ics', source='remote', resource='workbench.instance.url')
 ```
 
 ## to_svg.py
@@ -191,9 +193,9 @@ tells the exporter what data source to use when building the output matrix. Vali
 
 ##### ToSvg()
 ```python
-x = ToSvg(domain='enterprise', source='taxii', local=None, config=None)
+x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
 ```
-The ToSvg constructor, just like the ToExcel constructor, takes domain, server, and local arguments during instantiation. The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle respectively. The local argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle. The `config` parameter is an optional SVGConfig object that can be used to configure the export as desired. If not provided, the configuration for the export will be set to default values.
+The ToSvg constructor, just like the ToExcel constructor, takes domain, server, and local arguments during instantiation. The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance. The `config` parameter is an optional SVGConfig object that can be used to configure the export as desired. If not provided, the configuration for the export will be set to default values.
 
 ##### SVGConfig()
 ```python
@@ -247,6 +249,9 @@ t.to_svg(layerInit=lay, filepath="demo.svg")
 conf = SVGConfig()
 conf.load_from_file(filename="path/to/poster/config.json")
 
-t2 = ToSvg(domain='mobile', source='local', local='path/to/local/stix.json', config=conf)
+t2 = ToSvg(domain='mobile', source='local', resource='path/to/local/stix.json', config=conf)
 t2.to_svg(layerInit=lay, filepath="demo2.svg")
+
+t3 = ToSvg(domain='enterprise', source='remote', resource='workbench.instance.url', config=conf)
+t3.to_svg(layerInit=lay, filepath="demo3.svg")
 ```

@@ -102,7 +102,7 @@ class MatrixGen:
             Initialization - Creates a matrix generator object
 
             :param source: Source to utilize (taxii, remote, or local)
-            :param resource: string path to local cache of stix data (local) or url of workbench to reach out to (remote)
+            :param resource: string path to local cache of stix data (local) or url of an ATT&CK Workbench (remote)
         """
         self.convert_data = {}
         self.collections = dict()
@@ -138,7 +138,8 @@ class MatrixGen:
                     resource = 'http://' + resource
                 for dataset in ['enterprise', 'mobile']:
                     hd = MemoryStore()
-                    response = requests.get(f"{resource}/api/stix-bundles?domain={dataset}-attack&includeRevoked=true&includeDeprecated=true")
+                    response = requests.get(f"{resource}/api/stix-bundles?domain={dataset}-"
+                                            f"attack&includeRevoked=true&includeDeprecated=true")
                     response.raise_for_status()  # ensure we notice bad responses
                     _add(hd, json.loads(response.text), True, None)
                     self.collections[dataset] = hd

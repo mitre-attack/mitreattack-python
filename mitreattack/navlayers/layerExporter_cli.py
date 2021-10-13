@@ -10,9 +10,10 @@ def main():
     parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True,
                         help='The form to export the layers in')
     parser.add_argument('input', nargs='+', help='Path(s) to the file to export')
-    parser.add_argument('-s', '--source', choices=['taxii', 'local'], default='taxii',
+    parser.add_argument('-s', '--source', choices=['taxii', 'local', 'remote'], default='taxii',
                         help='What source to utilize when building the matrix')
-    parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)
+    parser.add_argument('--resource', help='Path to the local resource if --source=local, or url of an ATT&CK Workbench'
+                                           ' instance if --source=remote', default=None)
     parser.add_argument('-o', '--output', nargs='+', help='Path(s) to the exported svg/xlsx file', required=True)
     parser.add_argument('-l', '--load_settings', help='[SVG Only] Path to a SVG configuration json to use when '
                                                       'rendering', default=None)
