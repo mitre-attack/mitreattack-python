@@ -55,8 +55,8 @@ print(output_indexB)
 print(output_indexC)
 ```
 ## stix_to_collection.py
-stix_to_collection.py provides the STIXToCollection class, which proves a means by which to convert existing stix bundles into a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) object.
-The STIXToCollection class contains the stix_to_collection function, which when provided with a starter bundle, a name, a version, and an optional description, will output a modified bundle that contains a collection object.
+stix_to_collection.py provides the STIXToCollection class, which proves a means by which to convert existing stix bundles into ones containing a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) object.
+The STIXToCollection class contains the stix_to_collection function, which when provided with a starter bundle, a name, a version, and an optional description, will output a modified bundle that contains a summary collection object.
 #### Example Usage
 ```python
 import json
@@ -68,7 +68,7 @@ output_bundleA = stix_to_collection.STIXToCollection.stix_to_collection(bundle=d
 
 with open('path/to/bundle/bundle2_1.json', 'r') as f:
     data = json.load(f)
-output_bundleB = stix_to_collection.STIXToCollection.stix_to_collection(bundle=data, name='collectionB', version='9.1', description="demo bundle (2.1)")
+output_bundleB = stix_to_collection.STIXToCollection.stix_to_collection(bundle=data, name='collectionB', version='9.0', description="demo bundle (2.1)")
 
 print(output_bundleA)
 print(output_bundleB)
