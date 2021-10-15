@@ -14,7 +14,7 @@ setuptools.setup(
     maintainer="Caleb Little",
     maintainer_email="clittle@mitre.org",
     license="Apache 2.0",
-    url="https://github.com/mitreattack-python/",
+    url="https://github.com/mitre-attack/mitreattack-python/",
     include_package_data=True,
     entry_points={
         'console_scripts': [
