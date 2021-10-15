@@ -1,4 +1,6 @@
 # Staged in Develop
+## Fixes
+- Updated stix2 and taxii2-client module version requirements to avoid potential bug 
 ## Improvements
 - Created Collections module
 - Added method and cli to turn a collection index into a markdown file for human readability
