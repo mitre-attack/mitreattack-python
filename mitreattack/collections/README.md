@@ -60,15 +60,15 @@ The STIXToCollection class contains the stix_to_collection function, which when 
 #### Example Usage
 ```python
 import json
-from mitreattack.collections import stix_to_collection
+from mitreattack.collections import STIXToCollection
 
 with open('path/to/bundle/bundle2_0.json', 'r') as f:
     data = json.load(f)
-output_bundleA = stix_to_collection.STIXToCollection.stix_to_collection(bundle=data, name='collectionA', version='9.1', description="demo bundle (2.0)")
+output_bundleA = STIXToCollection.stix_to_collection(bundle=data, name='collectionA', version='9.1', description="demo bundle (2.0)")
 
 with open('path/to/bundle/bundle2_1.json', 'r') as f:
     data = json.load(f)
-output_bundleB = stix_to_collection.STIXToCollection.stix_to_collection(bundle=data, name='collectionB', version='9.0', description="demo bundle (2.1)")
+output_bundleB = STIXToCollection.stix_to_collection(bundle=data, name='collectionB', version='9.0', description="demo bundle (2.1)")
 
 print(output_bundleA)
 print(output_bundleB)
