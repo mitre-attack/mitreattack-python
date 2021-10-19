@@ -14,7 +14,7 @@ setuptools.setup(
     maintainer="Caleb Little",
     maintainer_email="clittle@mitre.org",
     license="Apache 2.0",
-    url="https://github.com/mitreattack-python/",
+    url="https://github.com/mitre-attack/mitreattack-python/",
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -22,7 +22,8 @@ setuptools.setup(
             'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main',
             'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main',
             'indexToMarkdown_cli=mitreattack.collections.index_to_markdown:main',
-            'collectionToIndex_cli=mitreattack.collections.collection_to_index:main'
+            'collectionToIndex_cli=mitreattack.collections.collection_to_index:main',
+            'stixToCollection_cli=mitreattack.collections.stix_to_collection:main'
         ]
     },
     packages=setuptools.find_packages(),
@@ -37,8 +38,8 @@ setuptools.setup(
     install_requires=[
         'colour>=0.1.5',
         'openpyxl>=3.0.3',
-        'stix2>=1.1.2',
-        'taxii2-client>=2.2.1',
+        'stix2>=3.0.1',
+        'taxii2-client>=2.3.0',
         'numpy>=1.16.0',
         'drawSvg>=1.6.0',
         'Pillow>=7.1.2',
@@ -47,5 +48,6 @@ setuptools.setup(
         'requests>=2.21.0',
         'xlsxwriter>=1.3.7',
         'tabulate>=0.8.9',
+        'stix2-elevator>=4.0.1',
     ]
 )

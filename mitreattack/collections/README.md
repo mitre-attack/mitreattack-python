@@ -6,7 +6,8 @@ This folder contains modules and scripts for working with ATT&CK collections. Co
 | script | description |
 |:-------|:------------|
 |[index_to_markdown](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py)| Provides a means by which to convert a [collection index](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) into a human-readable markdown file. More information can be found in the corresponding [section](#index_to_markdown.py) below.|
-|[collection_to_index](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py)| Provides a means by which to convert a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) into a easy-to-share [index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes). More information can be found in the corresponding [section](#collection_to_index.py) below.|
+|[collection_to_index](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/collection_to_index.py)| Provides a means by which to convert a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) into a easy-to-share [index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes). More information can be found in the corresponding [section](#collection_to_index.py) below.|
+|[stix_to_collection](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/stix_to_collection.py)| Provides a means by which to convert raw stix (in the form of [bundles](https://docs.oasis-open.org/cti/stix/v2.1/cs01/stix-v2.1-cs01.html#_gms872kuzdmg)) into a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections). More information can be found in the corresponding [section](#stix_to_collection.py) below.|
 
 ## index_to_markdown.py
 index_to_markdown.py provides the IndexToMarkdown class, which provides a way to transform an existing [collection index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) 
@@ -52,4 +53,23 @@ output_indexC = CollectionToIndex.generate_index(name='example3', description='e
 print(output_indexA)
 print(output_indexB)
 print(output_indexC)
+```
+## stix_to_collection.py
+stix_to_collection.py provides the STIXToCollection class, which proves a means by which to convert existing stix bundles into ones containing a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) object.
+The STIXToCollection class contains the stix_to_collection function, which when provided with a starter bundle, a name, a version, and an optional description, will output a modified bundle that contains a summary collection object.
+#### Example Usage
+```python
+import json
+from mitreattack.collections import STIXToCollection
+
+with open('path/to/bundle/bundle2_0.json', 'r') as f:
+    data = json.load(f)
+output_bundleA = STIXToCollection.stix_to_collection(bundle=data, name='collectionA', version='9.1', description="demo bundle (2.0)")
+
+with open('path/to/bundle/bundle2_1.json', 'r') as f:
+    data = json.load(f)
+output_bundleB = STIXToCollection.stix_to_collection(bundle=data, name='collectionB', version='9.0', description="demo bundle (2.1)")
+
+print(output_bundleA)
+print(output_bundleB)
 ```
