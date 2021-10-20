@@ -34,16 +34,19 @@ def build_dataframes(src, domain):
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
+    df = {
+            "techniques": stixToDf.techniquesToDf(src, domain),
+            "tactics": stixToDf.tacticsToDf(src, domain),
+            "software": stixToDf.softwareToDf(src, domain),
+            "groups": stixToDf.groupsToDf(src, domain),
+            "mitigations": stixToDf.mitigationsToDf(src, domain),
+            "matrices": stixToDf.matricesToDf(src, domain),
+            "relationships": stixToDf.relationshipsToDf(src)
+        }
     # get each ATT&CK type
-    return {
-        "techniques": stixToDf.techniquesToDf(src, domain),
-        "tactics": stixToDf.tacticsToDf(src, domain),
-        "software": stixToDf.softwareToDf(src, domain),
-        "groups": stixToDf.groupsToDf(src, domain),
-        "mitigations": stixToDf.mitigationsToDf(src, domain),
-        "matrices": stixToDf.matricesToDf(src, domain),
-        "relationships": stixToDf.relationshipsToDf(src)
-    }
+    if domain == 'enterprise-attack':
+        df["datasources"] = stixToDf.sourcesToDf(src, domain)
+    return df
 
 
 def write_excel(dataframes, domain, version=None, outputDir="."):
