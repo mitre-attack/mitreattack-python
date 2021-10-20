@@ -9,7 +9,7 @@
 - Added method and cli to allow for bulk layer generation (expands generator module)
 - Added Data Sources and Data Components support to attackToExcel
 
-# v1.3.1 - 7/22/2021
+# v1.3.1 - 9/22/2021
 Minor release that downgrades the required version of taxii2-client to 2.2.2 due to a bug in 2.3.0.
 
 # v1.3.0 - 8/20/2021
