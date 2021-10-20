@@ -1,4 +1,4 @@
-# Staged in Develop
+# v1.4.0 - 10/21/2021
 ## Fixes
 - Updated stix2 and taxii2-client module version requirements to avoid potential bug 
 ## Improvements
@@ -8,6 +8,9 @@
 - Added method and cli to turn raw stix data into a collection
 - Added method and cli to allow for bulk layer generation (expands generator module)
 - Added Data Sources and Data Components support to attackToExcel
+
+# v1.3.1 - 7/22/2021
+Minor release that downgrades the required version of taxii2-client to 2.2.2 due to a bug in 2.3.0.
 
 # v1.3.0 - 8/20/2021
 This release introduces generator functionality to the library, as well as some improvements to excel matrix generation 
