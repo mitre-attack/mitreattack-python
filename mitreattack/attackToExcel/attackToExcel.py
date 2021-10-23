@@ -221,7 +221,7 @@ def main():
                         )
     args = parser.parse_args()
 
-    export(args.domain, args.version, args.output)
+    export(args.domain, args.version, args.output, args.remote)
 
 
 if __name__ == '__main__':
