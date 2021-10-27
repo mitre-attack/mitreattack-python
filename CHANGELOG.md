@@ -1,3 +1,7 @@
+# Staged in Develop
+## Improvements
+- Added support for ATT&CK Workbench as a datasource
+
 # v1.4.0 - 10/21/2021
 ## Fixes
 - Updated stix2 and taxii2-client module version requirements to avoid potential bug 

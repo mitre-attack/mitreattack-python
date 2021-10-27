@@ -37,7 +37,7 @@ def main():
             if not args.output[i].endswith('.xlsx'):
                 print('[ERROR] Unable to export {} as type: excel to {}'.format(entry, args.output[i]))
                 continue
-            exy = ToExcel(domain=lay.layer.domain, source=args.source, local=args.local)
+            exy = ToExcel(domain=lay.layer.domain, source=args.source, resource=args.resource)
             exy.to_xlsx(lay, filepath=args.output[i])
         else:
             if not args.output[i].endswith('.svg'):
@@ -49,7 +49,7 @@ def main():
             if len(args.size) == 2:
                 conf.width = float(args.size[0])
                 conf.height = float(args.size[1])
-            svy = ToSvg(domain=lay.layer.domain, source=args.source, local=args.local, config=conf)
+            svy = ToSvg(domain=lay.layer.domain, source=args.source, resource=args.resource, config=conf)
             svy.to_svg(lay, filepath=args.output[i])
         print('{}/{} - Finished exporting {} to {}'.format(i + 1, len(args.input), entry, args.output[i]))
 
