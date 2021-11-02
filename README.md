@@ -87,7 +87,7 @@ This command line tool allows users to convert a [navigator](https://github.com/
  Details about the SVG configuration json mentioned below can be found in the [SVGConfig](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
 ```
 C:\Users\attack>layerExporter_cli -h
-usage: layerExporter_cli.py [-h] -m {svg,excel} [-s {taxii,local,remote}]
+usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local,remote}]
                             [--resource RESOURCE] -o OUTPUT [OUTPUT ...]
                             [-l LOAD_SETTINGS] [-d WIDTH HEIGHT]
                             input [input ...]
@@ -147,7 +147,7 @@ layer files from either a specific group, software, or mitigation. Alternatively
 mapping to all associated groups, software, or mitigations across the techniques within ATT&CK. 
 ```
 C:\Users\attack>layerGenerator_cli -h
-usage: layerGenerator_cli.py [-h]
+usage: layerGenerator_cli [-h]
                              (--overview-type {group,software,mitigation} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation})
                              [-o OUTPUT] [--domain {enterprise,mobile,ics}]
                              [--source {taxii,local,remote}]
