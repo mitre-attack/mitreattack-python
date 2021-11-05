@@ -4,7 +4,7 @@ from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
 from mitreattack.navlayers.core.layer import Layer
 from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-     MITRE_ATTACK_DOMAIN_STRINGS
+     MITRE_ATTACK_DOMAIN_STRINGS, build_data_strings
 
 
 class UnableToFindTechnique(Exception):
@@ -33,9 +33,16 @@ class OverviewLayerGenerator:
                                                            Filter('relationship_type', '=', 'uses')])
         complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
                                                                 Filter('relationship_type', '=', 'mitigates')]))
+        complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
+                                                                Filter('relationship_type', '=', 'detects')]))
+
+        self.sources = self.source_handle.query([Filter('type', '=', 'x-mitre-data-source')])
+        self.components = self.source_handle.query([Filter('type', '=', 'x-mitre-data-component')])
+        self.source_mapping = build_data_strings(self.sources, self.components)
         # Contains relationship mapping [stix id] -> [relationships associated with that stix id for each type]
         self.simplifier = {"course-of-action": dict(), "tool": dict(),
-                           "malware": dict(), "intrusion-set": dict()}
+                           "malware": dict(), "intrusion-set": dict(),
+                           "x-mitre-data-component": dict()}
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort
         # these into the mapping dictionary by what kind of stix object they are (tool, course-of-action, etc.)
@@ -44,6 +51,7 @@ class OverviewLayerGenerator:
                 construct_relationship_mapping(self.simplifier[entry['source_ref'].split('--')[0]], entry)
         self.simplifier['software'] = self.simplifier['malware']
         self.simplifier['software'].update(self.simplifier['tool'])  # get combination of malware/tool
+        self.simplifier['datasource'] = self.simplifier['x-mitre-data-component']
 
         self.tech_listing = dict()
         self.tech_no_tactic_listing = dict()
@@ -101,6 +109,15 @@ class OverviewLayerGenerator:
         :return: length of matched mitigations, list of mitigation names
         """
         names = [x.name for x in self.mitigation_objects if x.id in relationships]
+        return len(names), names
+
+    def get_datasources(self, relationships):
+        """
+        Sort datasources/datacomponents out of relationships
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched datasources/datacomponents, list of associated names
+        """
+        names = [self.source_mapping[x.source_ref] for x in relationships]
         return len(names), names
 
     def get_matrix_template(self):
@@ -165,7 +182,13 @@ class OverviewLayerGenerator:
                     related = self.simplifier['course-of-action'][tech.id]
                     score, listing = self.get_mitigations(related)
                 except KeyError:
-                    pass # we don't have any matches for this one
+                    pass  # we don't have any matches for this one
+            elif obj_type == "datasource":
+                try:
+                    related = self.simplifier['datasource'][tech.id]
+                    score, listing = self.get_datasources(related)
+                except KeyError:
+                    pass
             entry['score'] = score
             entry['comment'] = ', '.join(listing)
         return temp
@@ -177,7 +200,7 @@ class OverviewLayerGenerator:
         :return: layer object with annotated techniques
         """
         typeChecker(type(self).__name__, obj_type, str, "type")
-        categoryChecker(type(self).__name__, obj_type, ["group", "software", "mitigation"], "type")
+        categoryChecker(type(self).__name__, obj_type, ["group", "software", "mitigation", "datasource"], "type")
         initial_list = self.get_matrix_template()
         updated_list = self.update_template(obj_type, initial_list)
         if obj_type == "group":
@@ -186,6 +209,9 @@ class OverviewLayerGenerator:
         elif obj_type == "software":
             p_name = "software"
             r_type = "using"
+        elif obj_type == "datasource":
+            p_name = "data sources"
+            r_type = "detecting"
         else:  # mitigation case
             p_name = "mitigations"
             r_type = "mitigating"

@@ -45,6 +45,7 @@ class UsageLayerGenerator:
             [Filter(match, 'in', 'aliases')],
             [Filter(match, 'in', 'x_mitre_aliases')],
             [Filter('external_references.external_id', '=', match)],
+            [Filter('id', '=', match)]
         ]
         data = list(chain.from_iterable(self.source_handle.query(f) for f in filts))
         data = remove_revoked_depreciated(data)
@@ -62,8 +63,13 @@ class UsageLayerGenerator:
                               Techniques mapped to the object matching this pattern are returned.```
         """
         obj = self.get_stix_object(match_pattern)
-        verb = 'mitigates' if obj.type == 'course-of-action' else 'uses'
-        related = self.source_handle.relationships(obj.id, verb, source_only=True)
+        if obj['type'] == 'course-of-action':
+            verb = 'mitigates'
+        elif obj['type'] == 'x-mitre-data-component':
+            verb = 'detects'
+        else:
+            verb = 'uses'
+        related = self.source_handle.relationships(obj['id'], verb, source_only=True)
 
         out = self.source_handle.query([
             Filter('type', '=', 'attack-pattern'),
@@ -114,15 +120,16 @@ class UsageLayerGenerator:
         """
         typeChecker(type(self).__name__, match, str, "match")
         raw_data, matched_obj = self.get_matrix_data(match)
-        if matched_obj.type not in ["course-of-action", 'tool', 'malware', 'intrusion-set']:
+        if matched_obj['type'] not in ["course-of-action", 'tool', 'malware', 'intrusion-set',
+                                       'x-mitre-data-component']:
             print(f"Warning: The input match {match} corresponds with an ATT&CK Technique, which is not supported. "
                   f"Please provide a group, software, or mitigation instead.")
             raise StixObjectIsNotValid
         a_id = get_attack_id(matched_obj)
         processed_listing = self.generate_technique_data(raw_data)
-        raw_layer = dict(name=f"{matched_obj.name} ({matched_obj.id})", domain=self.domain + '-attack')
+        raw_layer = dict(name=f"{matched_obj['name']} ({matched_obj['id']})", domain=self.domain + '-attack')
         raw_layer['techniques'] = processed_listing
         output_layer = Layer(raw_layer)
         output_layer.description = f"{self.domain.capitalize() if len(self.domain) > 3 else self.domain.upper()} " \
-                                   f"techniques used by {matched_obj.name}, ATT&CK {matched_obj.type} {a_id}"
+                                   f"techniques used by {matched_obj['name']}, ATT&CK {matched_obj['type']} {a_id}"
         return output_layer

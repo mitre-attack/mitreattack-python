@@ -9,11 +9,11 @@ from mitreattack.navlayers.generators.sum_generator import BatchGenerator
 def main():
     parser = argparse.ArgumentParser(description='Generate an ATT&CK Navigator layer')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--overview-type', choices=['group', 'software', 'mitigation'],
+    group.add_argument('--overview-type', choices=['group', 'software', 'mitigation', 'datasource'],
                        help='Output a layer file where the target type is summarized across the entire dataset.')
     group.add_argument('--mapped-to', help='Output layer file with techniques mapped to the given group, software, or '
                                            'mitigation. Argument can be name, associated group/software, or ATT&CK ID.')
-    group.add_argument('--batch-type', choices=['group', 'software', 'mitigation'],
+    group.add_argument('--batch-type', choices=['group', 'software', 'mitigation', 'datasource'],
                        help='Output a collection of layer files to the specified folder, each one representing a '
                             'different instance of the target type.')
     parser.add_argument('-o', '--output', help='Path to the output layer file/directory', default='generated_layer')
