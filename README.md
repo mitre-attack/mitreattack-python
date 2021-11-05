@@ -148,7 +148,7 @@ mapping to all associated groups, software, or mitigations across the techniques
 ```
 C:\Users\attack>layerGenerator_cli -h
 usage: layerGenerator_cli [-h]
-                             (--overview-type {group,software,mitigation} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation})
+                             (--overview-type {group,software,mitigation,datasource} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation,datasource})
                              [-o OUTPUT] [--domain {enterprise,mobile,ics}]
                              [--source {taxii,local,remote}]
                              [--resource RESOURCE]
@@ -157,14 +157,14 @@ Generate an ATT&CK Navigator layer
 
 optional arguments:
   -h, --help            show this help message and exit
-  --overview-type {group,software,mitigation}
+  --overview-type {group,software,mitigation,datasource}
                         Output a layer file where the target type is
                         summarized across the entire dataset.
   --mapped-to MAPPED_TO
                         Output layer file with techniques mapped to the given
-                        group, software, or mitigation. Argument can be name,
-                        associated group/software, or ATT&CK ID.
-  --batch-type {group,software,mitigation}
+                        group, software, mitigation, or data component. Argument 
+                        can be name, associated group/software, or ATT&CK ID.
+  --batch-type {group,software,mitigation,datasource}
                         Output a collection of layer files to the specified
                         folder, each one representing a different instance of
                         the target type.
@@ -180,6 +180,7 @@ optional arguments:
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
 C:\Users\attack>layerGenerator_cli --domain mobile --source taxii --overview-type mitigation --output generated_layer2.json
 C:\Users\attack>layerGenerator_cli --domain ics --source taxii --mass-type software
+C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --overview-type datasource --output generated_layer3.json
 ```
 
 ##### IndexToMarkdown_cli

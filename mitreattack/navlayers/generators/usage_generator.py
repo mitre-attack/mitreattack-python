@@ -5,7 +5,7 @@ import copy
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.core.exceptions import BadInput, typeChecker
 from mitreattack.navlayers.core.layer import Layer
-from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
+from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id, build_data_strings
 
 
 class UnableToFindStixObject(Exception):
@@ -33,6 +33,9 @@ class UsageLayerGenerator:
             print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
             raise BadInput
         self.full_matrix = self.matrix_handle.get_matrix(self.domain)
+        self.sources = self.source_handle.query([Filter('type', '=', 'x-mitre-data-source')])
+        self.components = self.source_handle.query([Filter('type', '=', 'x-mitre-data-component')])
+        self.source_mapping = build_data_strings(self.sources, self.components)
 
     def get_stix_object(self, match):
         """
@@ -45,7 +48,7 @@ class UsageLayerGenerator:
             [Filter(match, 'in', 'aliases')],
             [Filter(match, 'in', 'x_mitre_aliases')],
             [Filter('external_references.external_id', '=', match)],
-            [Filter('id', '=', match)]
+            [Filter('id', '=', match)]  # Support data component type objects from sum generator
         ]
         data = list(chain.from_iterable(self.source_handle.query(f) for f in filts))
         data = remove_revoked_depreciated(data)
@@ -65,7 +68,7 @@ class UsageLayerGenerator:
         obj = self.get_stix_object(match_pattern)
         if obj['type'] == 'course-of-action':
             verb = 'mitigates'
-        elif obj['type'] == 'x-mitre-data-component':
+        elif obj['type'] == 'x-mitre-data-component' or obj['type'] == 'x-mitre-data-source':
             verb = 'detects'
         else:
             verb = 'uses'
@@ -121,7 +124,7 @@ class UsageLayerGenerator:
         typeChecker(type(self).__name__, match, str, "match")
         raw_data, matched_obj = self.get_matrix_data(match)
         if matched_obj['type'] not in ["course-of-action", 'tool', 'malware', 'intrusion-set',
-                                       'x-mitre-data-component']:
+                                       'x-mitre-data-source', 'x-mitre-data-component']:
             print(f"Warning: The input match {match} corresponds with an ATT&CK Technique, which is not supported. "
                   f"Please provide a group, software, or mitigation instead.")
             raise StixObjectIsNotValid
@@ -130,6 +133,10 @@ class UsageLayerGenerator:
         raw_layer = dict(name=f"{matched_obj['name']} ({matched_obj['id']})", domain=self.domain + '-attack')
         raw_layer['techniques'] = processed_listing
         output_layer = Layer(raw_layer)
+        if matched_obj['type'] != 'x-mitre-data-component':
+            name = matched_obj['name']
+        else:
+            name = self.source_mapping[matched_obj['id']]
         output_layer.description = f"{self.domain.capitalize() if len(self.domain) > 3 else self.domain.upper()} " \
-                                   f"techniques used by {matched_obj['name']}, ATT&CK {matched_obj['type']} {a_id}"
+                                   f"techniques used by {name}, ATT&CK {matched_obj['type']} {a_id}"
         return output_layer

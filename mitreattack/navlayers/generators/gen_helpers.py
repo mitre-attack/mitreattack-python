@@ -44,6 +44,12 @@ def get_attack_id(obj):
 
 
 def build_data_strings(data_sources, data_components):
+    """
+    Build source->component strings for layer generation
+    :param data_sources: List of Data Sources (dicts)
+    :param data_components: List of Data Components (dicts)
+    :return: dict mapping of Data Component IDs to generated source->component strings
+    """
     out = dict()
     for component in data_components:
         ref = component['x_mitre_data_source_ref']

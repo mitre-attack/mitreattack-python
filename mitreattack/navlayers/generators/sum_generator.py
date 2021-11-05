@@ -17,7 +17,7 @@ class BatchGenerator:
         self.mapping = dict(group=[Filter('type', '=', 'intrusion-set')],
                             software=[Filter('type', '=', 'malware'), Filter('type', '=', 'tool')],
                             mitigation=[Filter('type', '=', 'course-of-action')],
-                            datasource=[Filter('type', '=', 'x-mitre-data-component')])
+                            datasource=[Filter('type', '=', 'x-mitre-data-source')])
 
     def generate_layers(self, layers_type):
         """
