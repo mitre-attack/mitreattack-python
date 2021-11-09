@@ -143,6 +143,10 @@ class MatrixGen:
                     response.raise_for_status()  # ensure we notice bad responses
                     _add(hd, json.loads(response.text), True, None)
                     self.collections[dataset] = hd
+            else:
+                print(f'[MatrixGen] - WARNING: "remote" selected without providing a "resource" url. The use of '
+                      f'"remote" requires the inclusion of a "resource" url to an ATT&CK Workbench instance. No matrix '
+                      f'will be generated...')
         self.matrix = {}
         self._build_matrix()
 

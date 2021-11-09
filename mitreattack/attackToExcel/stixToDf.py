@@ -269,6 +269,8 @@ def sourcesToDf(src, domain):
             dataframes["citations"].sort_values("reference")
 
         return dataframes
+    else:
+        print(f'[WARNING] (sourceToDf) - No data components or data sources found for domain {domain}. Skipping...')
 
 
 def softwareToDf(src, domain):

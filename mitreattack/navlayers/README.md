@@ -27,7 +27,7 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | script | description |
 |:-------|:------------|
 | [excel_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py) | Provides a means by which to convert a matrix into a clean excel matrix template. |
-| [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from a ATT&CK Workbench instance (via url). |
+| [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). |
 | [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
 | [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
 ##### Command Line Tools
@@ -154,7 +154,7 @@ out_layer6.to_file("C:\demo_layer6.json")                     # Save combined co
 ## to_excel.py
 to_excel.py provides the ToExcel class, which is a way to export an existing layer file as an Excel
 spreadsheet. The ToExcel class has an optional parameter for the initialization function, that
-tells the exporter what data source to use when building the output matrix. Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from a ATT&CK Workbench instance.
+tells the exporter what data source to use when building the output matrix. Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
 
 ##### ToExcel()
 ```python
@@ -184,7 +184,8 @@ t.to_xlsx(layerInit=lay, filepath="demo.xlsx")
 t2 = ToExcel(domain='mobile', source='local', resource='path/to/local/stix.json')
 t2.to_xlsx(layerInit=lay, filepath="demo2.xlsx")
 # Using remote ATT&CK Workbench instance for template
-t3 = ToExcel(domain='ics', source='remote', resource='workbench.instance.url')
+workbench_url = 'localhost:3000'
+t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
 ```
 
 ## to_svg.py
@@ -252,6 +253,7 @@ conf.load_from_file(filename="path/to/poster/config.json")
 t2 = ToSvg(domain='mobile', source='local', resource='path/to/local/stix.json', config=conf)
 t2.to_svg(layerInit=lay, filepath="demo2.svg")
 
-t3 = ToSvg(domain='enterprise', source='remote', resource='workbench.instance.url', config=conf)
+workbench_url = "localhost:3000"
+t3 = ToSvg(domain='enterprise', source='remote', resource=workbench_url, config=conf)
 t3.to_svg(layerInit=lay, filepath="demo3.svg")
 ```

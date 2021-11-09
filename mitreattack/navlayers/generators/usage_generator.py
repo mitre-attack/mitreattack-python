@@ -23,7 +23,7 @@ class UsageLayerGenerator:
         Initialize the Generator
         :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which matrix to use during generation
-        :param resource: string path to local cache of stix data (local) or url of workbench to reach out to (remote)
+        :param resource: string path to local STIX data (local) or url of workbench to reach out to (remote)
         """
         self.matrix_handle = MatrixGen(source, resource)
         self.domain = domain
