@@ -19,13 +19,14 @@ def main():
     parser.add_argument('-o', '--output', help='Path to the output layer file/directory', default='generated_layer')
     parser.add_argument('--domain', help='Which domain to build off of', choices=['enterprise', 'mobile', 'ics'],
                         default='enterprise')
-    parser.add_argument('--source', choices=['taxii', 'local'], default='taxii',
+    parser.add_argument('--source', choices=['taxii', 'local', 'remote'], default='taxii',
                         help='What source to utilize when building the layer files')
-    parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)
+    parser.add_argument('--resource', help='Path to the local resource if --source=local, or url of an ATT&CK Workbench'
+                                           ' instance if --source=remote', default=None)
     args = parser.parse_args()
 
     if args.overview_type:
-        og = OverviewLayerGenerator(source=args.source, domain=args.domain, local=args.local)
+        og = OverviewLayerGenerator(source=args.source, domain=args.domain, resource=args.resource)
         generated = og.generate_layer(obj_type=args.overview_type)
         print('Generating Layer File')
         out_path = args.output
@@ -34,7 +35,7 @@ def main():
         generated.to_file(out_path)
         print(f'Layer file generated as {out_path}.')
     elif args.mapped_to:
-        ug = UsageLayerGenerator(source=args.source, domain=args.domain, local=args.local)
+        ug = UsageLayerGenerator(source=args.source, domain=args.domain, resource=args.resource)
         generated = ug.generate_layer(match=args.mapped_to)
         print('Generating Layer File')
         out_path = args.output
@@ -43,7 +44,7 @@ def main():
         generated.to_file(out_path)
         print(f'Layer file generated as {out_path}.')
     elif args.batch_type:
-        bg = BatchGenerator(source=args.source, domain=args.domain, local=args.local)
+        bg = BatchGenerator(source=args.source, domain=args.domain, resource=args.resource)
         generated = bg.generate_layers(layers_type=args.batch_type)
         out_path = args.output
         if out_path == 'generated_layer':

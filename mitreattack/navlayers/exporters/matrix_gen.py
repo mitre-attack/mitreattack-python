@@ -1,5 +1,8 @@
 from stix2 import TAXIICollectionSource, Filter, MemoryStore
+from stix2.datastore.memory import _add
 from taxii2client.v20 import Server, Collection
+import requests
+import json
 
 
 class DomainNotLoadedError(Exception):
@@ -94,17 +97,18 @@ class Tactic:
 
 
 class MatrixGen:
-    def __init__(self, source='taxii', local=None):
+    def __init__(self, source='taxii', resource=None):
         """
             Initialization - Creates a matrix generator object
 
-            :param source: Source to utilize (taxii or local)
-            :param local: string path to local cache of stix data
+            :param source: Source to utilize (taxii, remote, or local)
+            :param resource: string path to local cache of stix data (local) or url of an ATT&CK Workbench (remote)
         """
         self.convert_data = {}
         self.collections = dict()
-        if source.lower() not in ['taxii', 'local']:
-            print('[MatrixGen] - Unable to generate matrix, source {} is not one of "taxii" or "local"'.format(source))
+        if source.lower() not in ['taxii', 'local', 'remote']:
+            print('[MatrixGen] - Unable to generate matrix, source {} is not one of "taxii", "remote" or '
+                  '"local"'.format(source))
             raise ValueError
 
         if source.lower() == 'taxii':
@@ -115,16 +119,34 @@ class MatrixGen:
                     tc = Collection('https://cti-taxii.mitre.org/stix/collections/' + collection.id)
                     self.collections[collection.title.split(' ')[0].lower()] = TAXIICollectionSource(tc)
         elif source.lower() == 'local':
-            if local is not None:
+            if resource is not None:
                 hd = MemoryStore()
-                hd.load_from_file(local)
-                if 'mobile' in local.lower():
+                hd.load_from_file(resource)
+                if 'mobile' in resource.lower():
                     self.collections['mobile'] = hd
                 else:
                     self.collections['enterprise'] = hd
             else:
                 print('[MatrixGen] - "local" source specified, but path to local source not provided')
                 raise ValueError
+        elif source.lower() == 'remote':
+            if resource is not None:
+                if ':' not in resource[6:]:
+                    print('[MatrixGen] - "remote" source missing port; assuming ":3000"')
+                    resource += ":3000"
+                if not resource.startswith('http'):
+                    resource = 'http://' + resource
+                for dataset in ['enterprise', 'mobile']:
+                    hd = MemoryStore()
+                    response = requests.get(f"{resource}/api/stix-bundles?domain={dataset}-"
+                                            f"attack&includeRevoked=true&includeDeprecated=true")
+                    response.raise_for_status()  # ensure we notice bad responses
+                    _add(hd, json.loads(response.text), True, None)
+                    self.collections[dataset] = hd
+            else:
+                print(f'[MatrixGen] - WARNING: "remote" selected without providing a "resource" url. The use of '
+                      f'"remote" requires the inclusion of a "resource" url to an ATT&CK Workbench instance. No matrix '
+                      f'will be generated...')
         self.matrix = {}
         self._build_matrix()
 

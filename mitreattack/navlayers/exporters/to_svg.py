@@ -380,16 +380,17 @@ class SVGConfig:
 
 
 class ToSvg:
-    def __init__(self, domain='enterprise', source='taxii', local=None, config=None):
+    def __init__(self, domain='enterprise', source='taxii', resource=None, config=None):
         """
             Sets up exporting system, builds underlying matrix
 
             :param domain: Which domain to utilize for the underlying matrix layout
-            :param source: Use the taxii server or local data
-            :param local: Optional path to local stix data
+            :param source: Use the taxii server, local data, or a remote ATT&CK Workbench instance
+            :param resource: string path to local cache of stix data (local) or url of workbench to reach out 
+                                to (remote)
             :param config: Optional pre-existing SVGConfig object
         """
-        self.raw_handle = SvgTemplates(domain=domain, source=source, local=local)
+        self.raw_handle = SvgTemplates(domain=domain, source=source, resource=resource)
         if config is not None and isinstance(config, SVGConfig):
             self.config = config
         else:

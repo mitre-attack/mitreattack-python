@@ -6,14 +6,14 @@ from tqdm import tqdm
 
 
 class BatchGenerator:
-    def __init__(self, source, domain='enterprise', local=None):
+    def __init__(self, source, domain='enterprise', resource=None):
         """
         Initialize the Generator
-        :param source: Which source to use for data (local or taxii [server])
+        :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which matrix to use during generation
-        :param local: Optional path to local data
+        :param resource: string path to local STIX data (local) or url of workbench to reach out to (remote)
         """
-        self.usage_handle = UsageLayerGenerator(source, domain, local)
+        self.usage_handle = UsageLayerGenerator(source, domain, resource)
         self.mapping = dict(group=[Filter('type', '=', 'intrusion-set')],
                             software=[Filter('type', '=', 'malware'), Filter('type', '=', 'tool')],
                             mitigation=[Filter('type', '=', 'course-of-action')])

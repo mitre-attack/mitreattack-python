@@ -225,49 +225,52 @@ def sourcesToDf(src, domain):
         src.query(f) for f in [Filter("type", "=", "x-mitre-data-component"),
                                Filter("type", "=", "x-mitre-data-source")]
     ))
-    refined = remove_revoked_deprecated(data)
-    data_object_rows = []
-    source_lookup = dict()
-    for x in refined:
-        if x['type'] == 'x-mitre-data-source':
-            source_lookup[x['id']] = x['name']
-    for data_object in tqdm(refined, desc="parsing data sources"):
-        # add common STIx fields
-        row = parseBaseStix(data_object)
-        # add software-specific fields
-        if "x_mitre_platforms" in data_object:
-            row["platforms"] = ", ".join(sorted(data_object["x_mitre_platforms"]))
-        if "x_mitre_collection_layers" in data_object:
-            row["collection layers"] = ', '.join(sorted(data_object["x_mitre_collection_layers"]))
-        if "x_mitre_aliases" in data_object:
-            row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
-        if data_object["type"] == "x-mitre-data-component":
-            row["name"] = f"{data_object['name']}: {source_lookup[data_object['x_mitre_data_source_ref']]}"
-            row["type"] = "datacomponent"
-        else:
-            row["type"] = "datasource"
-        if "description" in data_object:
-            row['description'] = data_object['description']
-        data_object_rows.append(row)
+    if data:
+        refined = remove_revoked_deprecated(data)
+        data_object_rows = []
+        source_lookup = dict()
+        for x in refined:
+            if x['type'] == 'x-mitre-data-source':
+                source_lookup[x['id']] = x['name']
+        for data_object in tqdm(refined, desc="parsing data sources"):
+            # add common STIx fields
+            row = parseBaseStix(data_object)
+            # add software-specific fields
+            if "x_mitre_platforms" in data_object:
+                row["platforms"] = ", ".join(sorted(data_object["x_mitre_platforms"]))
+            if "x_mitre_collection_layers" in data_object:
+                row["collection layers"] = ', '.join(sorted(data_object["x_mitre_collection_layers"]))
+            if "x_mitre_aliases" in data_object:
+                row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
+            if data_object["type"] == "x-mitre-data-component":
+                row["name"] = f"{data_object['name']}: {source_lookup[data_object['x_mitre_data_source_ref']]}"
+                row["type"] = "datacomponent"
+            else:
+                row["type"] = "datasource"
+            if "description" in data_object:
+                row['description'] = data_object['description']
+            data_object_rows.append(row)
 
-    citations = get_citations(refined)
-    tempa = pd.DataFrame(data_object_rows).sort_values("name")
-    dataframes = {
-        "datasources": tempa.reindex(columns=["name", "ID", "description", "collection layers", "platforms", "created",
-                                               "modified", "type", "version", "url", "contributors"]),
-    }
-    # add relationships
-    dataframes.update(relationshipsToDf(src, relatedType="datasource"))
-    # add/merge citations
-    if not citations.empty:
-        if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = dataframes["citations"].append(citations)
-        else:  # add citations
-            dataframes["citations"] = citations
+        citations = get_citations(refined)
+        tempa = pd.DataFrame(data_object_rows).sort_values("name")
+        dataframes = {
+            "datasources": tempa.reindex(columns=["name", "ID", "description", "collection layers", "platforms", "created",
+                                                   "modified", "type", "version", "url", "contributors"]),
+        }
+        # add relationships
+        dataframes.update(relationshipsToDf(src, relatedType="datasource"))
+        # add/merge citations
+        if not citations.empty:
+            if "citations" in dataframes:  # append to existing citations from references
+                dataframes["citations"] = dataframes["citations"].append(citations)
+            else:  # add citations
+                dataframes["citations"] = citations
 
-        dataframes["citations"].sort_values("reference")
+            dataframes["citations"].sort_values("reference")
 
-    return dataframes
+        return dataframes
+    else:
+        print(f'[WARNING] (sourceToDf) - No data components or data sources found for domain {domain}. Skipping...')
 
 
 def softwareToDf(src, domain):

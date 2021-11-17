@@ -13,14 +13,14 @@ class UnableToFindTechnique(Exception):
 
 class OverviewLayerGenerator:
     """Generates a Layer file that provides an overview of entities related to each technique"""
-    def __init__(self, source, domain='enterprise', local=None):
+    def __init__(self, source, domain='enterprise', resource=None):
         """
         Initialize the Generator
-        :param source: Which source to use for data (local or taxii [server])
+        :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which domain to use during generation
-        :param local: Optional path to local data
+        :param resource: string path to local cache of stix data (local) or url of Workbench to connect to (remote)
         """
-        self.matrix_handle = MatrixGen(source, local)
+        self.matrix_handle = MatrixGen(source, resource)
         self.domain = domain
         try:
             self.source_handle = self.matrix_handle.collections[domain]

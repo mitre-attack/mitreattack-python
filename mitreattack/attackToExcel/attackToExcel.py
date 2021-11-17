@@ -11,20 +11,33 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain, version=None):
+def get_stix_data(domain, version=None, remote=None):
     """
-    download the ATT&CK STIX data for the given domain and version from MITRE/CTI.
+    download the ATT&CK STIX data for the given domain and version from MITRE/CTI (or just domain if a remote workbench
+    is specified).
     :param domain: the domain of ATT&CK to fetch data from, e.g "enterprise-attack"
     :param version: the version of attack to fetch data from, e.g "v8.1". If omitted, returns the latest version
+                    (not used for invocations that use remote)
+    :param remote: optional url to a ATT&CK workbench instance. If specified, data will be retrieved from the target
+                    Workbench instead of MITRE/CTI
     :returns: a MemoryStore containing the domain data
     """
-    if version:
-        url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
-    else:
-        url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
+    if remote:  # Using Workbench Instance
+        if ':' not in remote[6:]:
+            remote += ":3000"
+        if not remote.startswith('http'):
+            remote = 'http://' + remote
+        url = f"{remote}/api/stix-bundles?domain={domain}&includeRevoked=true&includeDeprecated=true"
+        stix_json = requests.get(url).json()
+        return MemoryStore(stix_json)
+    else:  # Using MITRE/CTI
+        if version:
+            url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
+        else:
+            url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-    stix_json = requests.get(url).json()
-    return MemoryStore(stix_data=stix_json["objects"])
+        stix_json = requests.get(url).json()
+        return MemoryStore(stix_data=stix_json["objects"])
 
 
 def build_dataframes(src, domain):
@@ -168,7 +181,7 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
     return written_files
 
 
-def export(domain="enterprise-attack", version=None, outputDir="."):
+def export(domain="enterprise-attack", version=None, outputDir=".", remote=None):
     """
     Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets
     :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
@@ -176,9 +189,10 @@ def export(domain="enterprise-attack", version=None, outputDir="."):
                     of ATT&CK
     :param outputDir: optional, the directory to write the excel files to. If omitted writes to a
                       subfolder of the current directory depending on specified domain and version
+    :param remote: optional, the URL of a remote ATT&CK Workbench instance to connect to for stix data
     """
     # build dataframes
-    dataframes = build_dataframes(get_stix_data(domain, version), domain)
+    dataframes = build_dataframes(get_stix_data(domain, version, remote), domain)
     write_excel(dataframes, domain, version, outputDir)
 
 
@@ -202,9 +216,15 @@ def main():
                         help="output directory. If omitted writes to a subfolder of the current directory depending on "
                              "the domain and version"
                         )
+    parser.add_argument("-remote",
+                        type=str,
+                        default=None,
+                        help="remote url of an ATT&CK workbench server. If omitted, stix data will be acquired from the"
+                             " official ATT&CK Taxii server (cti-taxii.mitre.org)"
+                        )
     args = parser.parse_args()
 
-    export(args.domain, args.version, args.output)
+    export(args.domain, args.version, args.output, args.remote)
 
 
 if __name__ == '__main__':

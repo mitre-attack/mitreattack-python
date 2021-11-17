@@ -10,9 +10,10 @@ def main():
     parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True,
                         help='The form to export the layers in')
     parser.add_argument('input', nargs='+', help='Path(s) to the file to export')
-    parser.add_argument('-s', '--source', choices=['taxii', 'local'], default='taxii',
+    parser.add_argument('-s', '--source', choices=['taxii', 'local', 'remote'], default='taxii',
                         help='What source to utilize when building the matrix')
-    parser.add_argument('--local', help='Path to the local resource if --source=local', default=None)
+    parser.add_argument('--resource', help='Path to the local resource if --source=local, or url of an ATT&CK Workbench'
+                                           ' instance if --source=remote', default=None)
     parser.add_argument('-o', '--output', nargs='+', help='Path(s) to the exported svg/xlsx file', required=True)
     parser.add_argument('-l', '--load_settings', help='[SVG Only] Path to a SVG configuration json to use when '
                                                       'rendering', default=None)
@@ -36,7 +37,7 @@ def main():
             if not args.output[i].endswith('.xlsx'):
                 print('[ERROR] Unable to export {} as type: excel to {}'.format(entry, args.output[i]))
                 continue
-            exy = ToExcel(domain=lay.layer.domain, source=args.source, local=args.local)
+            exy = ToExcel(domain=lay.layer.domain, source=args.source, resource=args.resource)
             exy.to_xlsx(lay, filepath=args.output[i])
         else:
             if not args.output[i].endswith('.svg'):
@@ -48,7 +49,7 @@ def main():
             if len(args.size) == 2:
                 conf.width = float(args.size[0])
                 conf.height = float(args.size[1])
-            svy = ToSvg(domain=lay.layer.domain, source=args.source, local=args.local, config=conf)
+            svy = ToSvg(domain=lay.layer.domain, source=args.source, resource=args.resource, config=conf)
             svy.to_svg(lay, filepath=args.output[i])
         print('{}/{} - Finished exporting {} to {}'.format(i + 1, len(args.input), entry, args.output[i]))
 
