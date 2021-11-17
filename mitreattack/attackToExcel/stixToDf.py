@@ -160,6 +160,10 @@ def techniquesToDf(src, domain):
                 row["supports remote"] = technique["x_mitre_remote_support"]
             if "impact" in tactic_shortnames and "x_mitre_impact_type" in technique:
                 row["impact type"] = ", ".join(sorted(technique["x_mitre_impact_type"]))
+            capec_refs = list(filter(lambda ref: ref["source_name"] == "capec",
+                                     technique["external_references"]))
+            if capec_refs:
+                row["CAPEC ID"] = capec_refs[0]["external_id"]
 
         # domain specific fields -- mobile
         elif domain == "mobile-attack":
