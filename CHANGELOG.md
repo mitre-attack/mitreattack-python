@@ -1,6 +1,7 @@
 # Staged in Develop
 ## Improvements
 - Added support for ATT&CK Workbench as a datasource
+- Added support for data sources and data components when generating layers
 
 # v1.4.0 - 10/21/2021
 ## Fixes
