@@ -181,7 +181,12 @@ def techniquesToDf(src, domain):
         "techniques": pd.DataFrame(technique_rows).sort_values("name"),
     }
     # add relationships
-    dataframes.update(relationshipsToDf(src, relatedType="technique"))
+    codex = relationshipsToDf(src, relatedType="technique")
+    dataframes.update(codex)
+    # add relationship references
+    group_listing = [x for x in dataframes["techniques"]["ID"]]
+    for y in [x for x in codex if x != 'citations']:
+        dataframes["techniques"][f"relationship citations ({y})"] = _get_relationship_citations(group_listing, codex[y])
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -307,7 +312,12 @@ def softwareToDf(src, domain):
         "software": pd.DataFrame(software_rows).sort_values("name"),
     }
     # add relationships
-    dataframes.update(relationshipsToDf(src, relatedType="software"))
+    codex = relationshipsToDf(src, relatedType="software")
+    dataframes.update(codex)
+    # add relationship references
+    group_listing = [x for x in dataframes["software"]["ID"]]
+    for y in [x for x in codex if x != 'citations']:
+        dataframes["software"][f"relationship citations ({y})"] = _get_relationship_citations(group_listing, codex[y])
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -355,7 +365,12 @@ def groupsToDf(src, domain):
         "groups": pd.DataFrame(group_rows).sort_values("name"),
     }
     # add relationships
-    dataframes.update(relationshipsToDf(src, relatedType="group"))
+    codex = relationshipsToDf(src, relatedType="group")
+    dataframes.update(codex)
+    # add relationship references
+    group_listing = [x for x in dataframes["groups"]["ID"]]
+    for y in [x for x in codex if x != 'citations']:
+        dataframes["groups"][f"relationship citations ({y})"] = _get_relationship_citations(group_listing, codex[y])
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -387,7 +402,12 @@ def mitigationsToDf(src, domain):
         "mitigations": pd.DataFrame(mitigation_rows).sort_values("name"),
     }
     # add relationships
-    dataframes.update(relationshipsToDf(src, relatedType="mitigation"))
+    codex = relationshipsToDf(src, relatedType="mitigation")
+    dataframes.update(codex)
+    # add relationship references
+    group_listing = [x for x in dataframes["mitigations"]["ID"]]
+    for y in [x for x in codex if x != 'citations']:
+        dataframes["mitigations"][f"relationship citations ({y})"] = _get_relationship_citations(group_listing, codex[y])
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -718,7 +738,7 @@ def relationshipsToDf(src, relatedType=None):
     relationships = pd.DataFrame(relationship_rows).sort_values(
         ["mapping type", "source type", "target type", "source name", "target name"])
 
-    if not relatedType:  # return all relationships and citrations
+    if not relatedType:  # return all relationships and citations
         dataframes = {
             "relationships": relationships,
         }
@@ -748,7 +768,7 @@ def relationshipsToDf(src, relatedType=None):
                 'associated mitigations' if relatedType == 'technique' else 'techniques addressed'] = relatedMitigations
 
         if not citations.empty:
-            # fitler citations by ones actually used
+            # filter citations by ones actually used
             # build master list of used citations
             usedCitations = set()
             for dfname in dataframes:
@@ -763,3 +783,23 @@ def relationshipsToDf(src, relatedType=None):
             dataframes["citations"] = citations.sort_values("reference")
 
         return dataframes
+
+
+def _get_relationship_citations(object_listing, relationship_df):
+    """
+    Extract citations for each _object_ in the listing from the relationship dataframe. This allows us to include
+    citations from relationships for each ATT&CK object type.
+    :param object_listing: List of all _object ids_ for the given ATT&CK object type
+    :param relationship_df: Dataframe of relationships
+    :return: Array of strings, with each string being placed relative to the object listing, and containing all
+        relevant citations
+    """
+    new_citations = []
+    for y in object_listing:
+        mask = relationship_df.values == y
+        filtered = relationship_df.loc[mask]
+        temp = set()
+        for description in filter(lambda x: x == x, filtered["mapping description"].tolist()):
+            [temp.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
+        new_citations.append(",".join([f"(Citation: {z})" for z in temp]))
+    return new_citations
