@@ -34,7 +34,31 @@ def get_attack_id(obj):
     :param obj: The object to extract from
     :return: The ATT&CK ID in string form
     """
-    for entry in obj['external_references']:
-        if entry['source_name'] in MITRE_ATTACK_DOMAIN_STRINGS:
-            return entry['external_id']
+    if not obj['type'].startswith('x-mitre'):
+        for entry in obj['external_references']:
+            if entry['source_name'] in MITRE_ATTACK_DOMAIN_STRINGS:
+                return entry['external_id']
+    else:
+        return obj['id']
     return '-1'
+
+
+def build_data_strings(data_sources, data_components):
+    """
+    Build source->component strings for layer generation
+    :param data_sources: List of Data Sources (dicts)
+    :param data_components: List of Data Components (dicts)
+    :return: dict mapping of Data Component IDs to generated source->component strings
+    """
+    out = dict()
+    for component in data_components:
+        ref = component['x_mitre_data_source_ref']
+        try:
+            source = [x for x in data_sources if x['id'] == ref][0]
+            name = f"{source['name']}: {component['name']}"
+            out[component['id']] = name
+        except IndexError:
+            print(f'[generator] - (WARNING): no matching data source{ref} found for data component {component["id"]}. '
+                  f'Skipping...')
+            pass
+    return out
