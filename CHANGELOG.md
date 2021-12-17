@@ -1,4 +1,4 @@
-# Staged in Develop
+# v1.4.1 - 12/17/2021
 ## Improvements
 - Added support for ATT&CK Workbench as a datasource
 - Added parsing for CAPEC IDs in AttackToExcel
