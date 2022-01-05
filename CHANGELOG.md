@@ -1,5 +1,11 @@
 # Staged in Develop
 ## Improvements
+- Added support for multiple CAPEC IDs for a single technique in AttackToExcel
+- Tweaked AttackToExcel permissions sorting
+- Added parsing for all technique permissions in AttackToExcel
+
+# v1.4.1 - 12/17/2021
+## Improvements
 - Added support for ATT&CK Workbench as a datasource
 - Added parsing for CAPEC IDs in AttackToExcel
 - Added support for data sources and data components when generating layers
