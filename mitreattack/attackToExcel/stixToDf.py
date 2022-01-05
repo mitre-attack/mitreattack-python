@@ -149,11 +149,13 @@ def techniquesToDf(src, domain):
 
             if "x_mitre_system_requirements" in technique:
                 row["system requirements"] = ", ".join(sorted(technique["x_mitre_system_requirements"]))
-            if "privilege-escalation" in tactic_shortnames:
-                if "x_mitre_permissions_required" in technique:
-                    row["permissions required"] = ", ".join(sorted(technique["x_mitre_permissions_required"]))
-                if "x_mitre_effective_permissions" in technique:
-                    row["effective permissions"] = ", ".join(sorted(technique["x_mitre_effective_permissions"]))
+            if "x_mitre_permissions_required" in technique:
+                row["permissions required"] = ", ".join(sorted(technique["x_mitre_permissions_required"],
+                                                               key=str.lower))
+            if "x_mitre_effective_permissions" in technique:
+                row["effective permissions"] = ", ".join(sorted(technique["x_mitre_effective_permissions"],
+                                                                key=str.lower))
+
             if "defense-evasion" in tactic_shortnames and "x_mitre_defense_bypassed" in technique:
                 row["defenses bypassed"] = ", ".join(sorted(technique["x_mitre_defense_bypassed"]))
             if "execution" in tactic_shortnames and "x_mitre_remote_support" in technique:
@@ -163,7 +165,7 @@ def techniquesToDf(src, domain):
             capec_refs = list(filter(lambda ref: ref["source_name"] == "capec",
                                      technique["external_references"]))
             if capec_refs:
-                row["CAPEC ID"] = capec_refs[0]["external_id"]
+                row["CAPEC ID"] = ", ".join([x["external_id"] for x in capec_refs])
 
         # domain specific fields -- mobile
         elif domain == "mobile-attack":
