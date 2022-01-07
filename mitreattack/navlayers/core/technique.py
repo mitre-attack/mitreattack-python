@@ -1,6 +1,7 @@
 from mitreattack.navlayers.core.exceptions import BadInput, handler, typeChecker, UNSETVALUE, \
      UnknownTechniqueProperty, BadType
 from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
+from mitreattack.navlayers.core.objlink import Link, LinkDiv
 from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
@@ -19,6 +20,7 @@ class Technique:
         self.__color = UNSETVALUE
         self.__metadata = UNSETVALUE
         self.__showSubtechniques = UNSETVALUE
+        self.__links = UNSETVALUE
 
     @property
     def techniqueID(self):
@@ -98,17 +100,17 @@ class Technique:
         typeChecker(type(self).__name__, metadata, list, "metadata")
         if not handle_object_placement(self.__metadata, metadata, Metadata):
             self.__metadata = []
-            entry = ""
-            try:
-                for entry in metadata:
-                    if "divider" in entry:
-                        self.__metadata.append(MetaDiv(entry["divider"]))
-                    else:
-                        self.__metadata.append(Metadata(entry['name'], entry['value']))
-            except KeyError as e:
-                handler(type(self).__name__, 'Metadata {} is missing parameters: '
-                                             '{}. Unable to load.'
-                        .format(entry, e))
+        entry = ""
+        try:
+            for entry in metadata:
+                if "divider" in entry:
+                    self.__metadata.append(MetaDiv(entry["divider"]))
+                else:
+                    self.__metadata.append(Metadata(entry['name'], entry['value']))
+        except KeyError as e:
+            handler(type(self).__name__, 'Metadata {} is missing parameters: '
+                                         '{}. Unable to load.'
+                    .format(entry, e))
 
     @property
     def showSubtechniques(self):
@@ -120,6 +122,28 @@ class Technique:
         typeChecker(type(self).__name__, showSubtechniques, bool,
                     "showSubtechniques")
         self.__showSubtechniques = showSubtechniques
+
+    @property
+    def links(self):
+        if self.__links != UNSETVALUE:
+            return self.__links
+
+    @links.setter
+    def links(self, links):
+        typeChecker(type(self).__name__, links, list, "links")
+        if not handle_object_placement(self.__links, links, Link):
+            self.__links = []
+        entry = ""
+        try:
+            for entry in links:
+                if "divider" in entry:
+                    self.__links.append(Link(entry["divider"]))
+                else:
+                    self.__links.append(Link(entry['label'], entry['url']))
+        except KeyError as e:
+            handler(type(self).__name__, 'Link {} is missing parameters: '
+                                         '{}. Unable to load.'
+                    .format(entry, e))
 
     def _loader(self, data):
         """
@@ -146,6 +170,8 @@ class Technique:
                 self.metadata = data[entry]
             elif entry == 'showSubtechniques':
                 self.showSubtechniques = data[entry]
+            elif entry == 'links':
+                self.links = data[entry]
             else:
                 handler(type(self).__name__, "Unknown technique property: {}"
                         .format(entry))
@@ -161,7 +187,7 @@ class Technique:
         for key in dset:
             entry = key.split(type(self).__name__ + '__')[-1]
             if dset[key] != UNSETVALUE:
-                if entry != 'metadata':
+                if entry != 'metadata' and entry != 'links':
                     temp[entry] = dset[key]
                 else:
                     temp[entry] = [x.get_dict() for x in dset[key]]

@@ -3,6 +3,7 @@
 - Added support for multiple CAPEC IDs for a single technique in AttackToExcel
 - Tweaked AttackToExcel permissions sorting
 - Added parsing for all technique permissions in AttackToExcel
+- Added support for [ATT&CK Layer format 4.3](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_3.md)
 
 # v1.4.1 - 12/17/2021
 ## Improvements

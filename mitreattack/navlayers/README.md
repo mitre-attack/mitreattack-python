@@ -1,6 +1,6 @@
 # navlayers
 
-This folder contains modules and scripts for working with ATT&CK Navigator layers. ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix. For more about ATT&CK Navigator layers, visit the ATT&CK Navigator repository. The core module allows users to load, validate, manipulate, and save ATT&CK layers. A brief overview of the components can be found below. All scripts adhere to the MITRE ATT&CK Navigator Layer file format, [version 4.1](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md), but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md) layers, upgrading them to version 4.1.
+This folder contains modules and scripts for working with ATT&CK Navigator layers. ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix. For more about ATT&CK Navigator layers, visit the ATT&CK Navigator repository. The core module allows users to load, validate, manipulate, and save ATT&CK layers. A brief overview of the components can be found below. All scripts adhere to the MITRE ATT&CK Navigator Layer file format, [version 4.3](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_3.md), but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md) and version 4.X layers, upgrading them to version 4.3.
 
 #### Core Modules
 | script | description |
@@ -66,11 +66,11 @@ example_layer3_dict = {
 }
 
 example_layer4_dict = {
-    "name": "layer v4.1 example",
+    "name": "layer v4.3 example",
     "versions" : {
         "attack": "8",
-        "layer" : "4.1",
-        "navigator": "4.1"
+        "layer" : "4.3",
+        "navigator": "4.4.4"
     },
     "domain": "enterprise-attack"
 }

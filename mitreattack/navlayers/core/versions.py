@@ -1,8 +1,9 @@
 from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
+defaults = dict(layer="4.3", navigator="4.5.5")
 
 class Versions:
-    def __init__(self, layer="4.2", attack=UNSETVALUE, navigator="4.2"):
+    def __init__(self, layer=defaults['layer'], attack=UNSETVALUE, navigator=defaults['navigator']):
         """
             Initialization - Creates a v4 Versions object
 
@@ -33,11 +34,10 @@ class Versions:
     @navigator.setter
     def navigator(self, navigator):
         typeChecker(type(self).__name__, navigator, str, "navigator")
-        try:
-            categoryChecker(type(self).__name__, navigator, ["4.0", "4.1", "4.2"], "navigator version")
-        except BadInput:
-            print(f'[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.2 schema, '
+        if not navigator.startswith('4.'):
+            print(f'[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.X schema, '
                   f'this may result in unexpected behavior.')
+            navigator = defaults['navigator']
         self.__navigator = navigator
 
     @property
@@ -48,13 +48,13 @@ class Versions:
     def layer(self, layer):
         typeChecker(type(self).__name__, layer, str, "layer")
         try:
-            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2"], "layer version")
+            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2", "4.3"], "layer version")
         except BadInput:
-            print(f'[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.2 schema, this may result in '
+            print(f'[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.3 schema, this may result in '
                   f'unexpected behavior.')
-        if layer in ["3.0", "4.0", "4.1"]:
-            print(f'[NOTICE] - Forcibly upgrading version from {layer} to 4.2.')
-            layer = "4.2"
+        if layer in ["3.0", "4.0", "4.1", "4.2"]:
+            print(f'[NOTICE] - Forcibly upgrading version from {layer} to 4.3.')
+            layer = "4.3"
         self.__layer = layer
 
     def get_dict(self):
