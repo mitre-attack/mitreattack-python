@@ -28,11 +28,11 @@ Some simple examples are provided here to get you started on using this library.
 from mitreattack.navlayers import Layer
 
 example_layer4_dict = {
-    "name": "layer v4.1 example",
+    "name": "layer v3 example",
     "versions" : {
         "attack": "8",
-        "layer" : "4.1",
-        "navigator": "4.1"
+        "layer" : "4.3",
+        "navigator": "4.3"
     },
     "domain": "enterprise-attack"
 }

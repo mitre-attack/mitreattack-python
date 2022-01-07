@@ -4,6 +4,7 @@ from mitreattack.navlayers.core.technique import Technique
 from mitreattack.navlayers.core.gradient import Gradient
 from mitreattack.navlayers.core.legenditem import LegendItem
 from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
+from mitreattack.navlayers.core.objlink import Link, LinkDiv
 from mitreattack.navlayers.core.versions import Versions
 from mitreattack.navlayers.core.exceptions import UNSETVALUE, typeChecker, handler, categoryChecker, \
      UnknownLayerProperty, loadChecker, MissingParameters
@@ -35,6 +36,7 @@ class _LayerObj:
         self.__selectTechniquesAcrossTactics = UNSETVALUE
         self.__selectSubtechniquesWithParent = UNSETVALUE
         self.__metadata = UNSETVALUE
+        self.__links = UNSETVALUE
 
     @property
     def version(self):
@@ -44,7 +46,7 @@ class _LayerObj:
     @version.setter
     def version(self, version):
         typeChecker(type(self).__name__, version, str, "version")
-        categoryChecker(type(self).__name__, version, ["3.0", "4.0", "4.1"], "version")
+        categoryChecker(type(self).__name__, version, ["3.0", "4.0", "4.1", "4.2", "4.3"], "version")
         if self.__versions is UNSETVALUE:
             self.__versions = Versions()
         self.__versions.layer = version
@@ -314,6 +316,28 @@ class _LayerObj:
                         type(self).__name__,
                         'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
                     )
+
+    @property
+    def links(self):
+        if self.__links != UNSETVALUE:
+            return self.__links
+
+    @links.setter
+    def links(self, links):
+        typeChecker(type(self).__name__, links, list, "links")
+        if not handle_object_placement(self.__links, links, Link):
+            self.__links = []
+        entry = ""
+        try:
+            for entry in links:
+                if "divider" in entry:
+                    self.__links.append(Link(entry["divider"]))
+                else:
+                    self.__links.append(Link(entry['label'], entry['url']))
+        except KeyError as e:
+            handler(type(self).__name__, 'Link {} is missing parameters: '
+                                         '{}. Unable to load.'
+                    .format(entry, e))
 
     def _enumerate(self):
         """
