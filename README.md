@@ -28,7 +28,7 @@ Some simple examples are provided here to get you started on using this library.
 from mitreattack.navlayers import Layer
 
 example_layer4_dict = {
-    "name": "layer v3 example",
+    "name": "layer v4.3 example",
     "versions" : {
         "attack": "8",
         "layer" : "4.3",
