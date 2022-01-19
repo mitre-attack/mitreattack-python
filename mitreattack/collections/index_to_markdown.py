@@ -29,7 +29,14 @@ class IndexToMarkdown:
         return "\n".join(lines)
 
 
-def main():
+def main(args):
+    with open(args.index, "r") as f:
+        index = json.load(f)
+        with open(args.output, "w") as f2:
+            f2.write(IndexToMarkdown.index_to_markdown(index))
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Print a markdown string to std-out representing a collection index"
     )
@@ -45,12 +52,5 @@ def main():
                         default="index.md",
                         help="markdown output file"
                         )
-    args = parser.parse_args()
-    with open(args.index, "r") as f:
-        index = json.load(f)
-        with open(args.output, "w") as f2:
-            f2.write(IndexToMarkdown.index_to_markdown(index))
-
-
-if __name__ == "__main__":
-    main()
+    argv = parser.parse_args()
+    main(argv)

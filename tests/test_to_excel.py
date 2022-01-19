@@ -1,0 +1,46 @@
+import os
+import shutil
+import requests
+from mitreattack.attackToExcel import attackToExcel
+
+
+class TestAttackToExcel:
+    def test_enterprise_latest(self):
+        if os.path.isdir('test_attacktoexcel_exports_enterprise'):
+            shutil.rmtree('test_attacktoexcel_exports_enterprise')
+
+        try:
+            attackToExcel.export(domain='enterprise-attack', outputDir='test_attacktoexcel_exports_enterprise')
+            shutil.rmtree('test_attacktoexcel_exports_enterprise')
+        except requests.exceptions.SSLError:
+            print('UNABLE TO RUN TEST DUE TO CERT ISSUE.')
+
+    def test_mobile_latest(self):
+        if os.path.isdir('test_attacktoexcel_exports_mobile'):
+            shutil.rmtree('test_attacktoexcel_exports_mobile')
+        try:
+            attackToExcel.export(domain='mobile-attack', outputDir='test_attacktoexcel_exports_mobile')
+            shutil.rmtree('test_attacktoexcel_exports_mobile')
+        except requests.exceptions.SSLError:
+            print('UNABLE TO RUN TEST DUE TO CERT ISSUE.')
+
+    def test_ics_latest(self):
+        if os.path.isdir('test_attacktoexcel_exports_ics'):
+            shutil.rmtree('test_attacktoexcel_exports_ics')
+
+        try:
+            attackToExcel.export(domain='ics-attack', outputDir='test_attacktoexcel_exports_ics')
+            shutil.rmtree('test_attacktoexcel_exports_ics')
+        except requests.exceptions.SSLError:
+            print('UNABLE TO RUN TEST DUE TO CERT ISSUE.')
+
+    def test_enterprise_legacy(self):
+        if os.path.isdir('test_attacktoexcel_exports_enterprise'):
+            shutil.rmtree('test_attacktoexcel_exports_enterprise')
+
+        try:
+            attackToExcel.export(domain='enterprise-attack', version='9.0',
+                                 outputDir='test_attacktoexcel_exports_enterprise')
+            shutil.rmtree('test_attacktoexcel_exports_enterprise')
+        except requests.exceptions.SSLError:
+            print('UNABLE TO RUN TEST DUE TO CERT ISSUE.')

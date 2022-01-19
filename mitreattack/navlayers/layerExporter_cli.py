@@ -5,7 +5,8 @@ from mitreattack.navlayers.exporters.to_excel import ToExcel
 from mitreattack.navlayers.core import Layer
 
 
-def main():
+def main(argv=None):
+
     parser = argparse.ArgumentParser(description='Export an ATT&CK Navigator layer as a svg image or excel file')
     parser.add_argument('-m', '--mode', choices=['svg', 'excel'], required=True,
                         help='The form to export the layers in')
@@ -20,9 +21,11 @@ def main():
     parser.add_argument('-d', '--size', nargs=2, help='[SVG Only] X and Y size values (in inches) for SVG export (use '
                                                       '-l for other settings)', default=[8.5, 11], metavar=("WIDTH",
                                                                                                             "HEIGHT"))
-    args = parser.parse_args()
+    args = parser.parse_args(args=argv)
+
     if len(args.output) != len(args.input):
         print('Mismatched number of output file paths to input file paths. Exiting...')
+        return
 
     for i in range(0, len(args.input)):
         entry = args.input[i]

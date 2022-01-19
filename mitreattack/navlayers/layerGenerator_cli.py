@@ -6,7 +6,8 @@ from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 from mitreattack.navlayers.generators.sum_generator import BatchGenerator
 
 
-def main():
+def main(argv=None):
+
     parser = argparse.ArgumentParser(description='Generate an ATT&CK Navigator layer')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--overview-type', choices=['group', 'software', 'mitigation', 'datasource'],
@@ -24,7 +25,7 @@ def main():
                         help='What source to utilize when building the layer files')
     parser.add_argument('--resource', help='Path to the local resource if --source=local, or url of an ATT&CK Workbench'
                                            ' instance if --source=remote', default=None)
-    args = parser.parse_args()
+    args = parser.parse_args(args=argv)
 
     if args.overview_type:
         og = OverviewLayerGenerator(source=args.source, domain=args.domain, resource=args.resource)
