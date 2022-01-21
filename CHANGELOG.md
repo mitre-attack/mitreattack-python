@@ -1,3 +1,7 @@
+# Staged in Develop
+## Misc
+- Added standard test framework
+
 # v1.4.2 - 1/11/2022
 ## Improvements
 - Added support for multiple CAPEC IDs for a single technique in AttackToExcel
