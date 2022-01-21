@@ -12,6 +12,7 @@ l1.from_str(data_layer)
 
 class TestMass:
     def test_dimensions(self):
+        """Test SVG export: dimensions"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 
@@ -34,6 +35,7 @@ class TestMass:
         shutil.rmtree('mass')
         
     def test_showSubtechniques(self):
+        """Test SVG export: Displaying Subtechniques"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 
@@ -54,6 +56,7 @@ class TestMass:
         shutil.rmtree('mass')
             
     def test_legendWidth(self):
+        """Test SVG export: legend width variations"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 
@@ -77,6 +80,7 @@ class TestMass:
         shutil.rmtree('mass')
         
     def test_showFilters(self):
+        """Test SVG export: customization options"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 
@@ -100,6 +104,7 @@ class TestMass:
         shutil.rmtree('mass')
     
     def test_borders(self):
+        """Test SVG export: borders"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 
@@ -120,6 +125,7 @@ class TestMass:
         shutil.rmtree('mass')
         
     def test_counts(self):
+        """Test SVG export: scores/aggregation"""
         if os.path.isdir('mass'):
             shutil.rmtree('mass')
 

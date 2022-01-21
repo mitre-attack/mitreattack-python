@@ -9,6 +9,7 @@ import shutil
 class TestCLI:
     @staticmethod
     def test_export_svg():
+        """Test SVG Export capabilities from CLI"""
         if os.path.isfile('test_export_svg.svg'):
             os.remove('test_export_svg.svg')
         if os.path.isfile('demo_file.json'):
@@ -24,6 +25,7 @@ class TestCLI:
 
     @staticmethod
     def test_export_excel():
+        """Test excel export capabilities from CLI"""
         if os.path.isfile('test_export_excel.xlsx'):
             os.remove('test_export_excel.xlsx')
         if os.path.isfile('demo_file.json'):
@@ -39,6 +41,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_overview_group():
+        """Test CLI group overview generation"""
         if os.path.isfile('test_overview_group'):
             os.remove('test_overview_group')
 
@@ -49,6 +52,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_overview_software():
+        """Test CLI software overview generation"""
         if os.path.isfile('test_overview_software'):
             os.remove('test_overview_software')
 
@@ -59,6 +63,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_overview_mitigation():
+        """Test CLI mitigation overview generation"""
         if os.path.isfile('test_overview_mitigation'):
             os.remove('test_overview_mitigation')
 
@@ -69,6 +74,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_overview_datasource():
+        """Test CLI datasource overview generation"""
         if os.path.isfile('test_overview_datasource'):
             os.remove('test_overview_datasource')
 
@@ -79,6 +85,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_mapped_group():
+        """Test CLI group mapped generation (APT1)"""
         if os.path.isfile('test_mapped_group'):
             os.remove('test_mapped_group')
 
@@ -89,6 +96,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_mapped_software():
+        """Test CLI software mapped generation (S0202)"""
         if os.path.isfile('test_mapped_software'):
             os.remove('test_mapped_software')
 
@@ -99,6 +107,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_mapped_mitigation():
+        """Test CLI mitigation mapped generation (M1013)"""
         if os.path.isfile('test_mapped_mitigation'):
             os.remove('test_mapped_mitigation')
 
@@ -109,6 +118,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_mapped_datasource():
+        """Test CLI datasource mapped generation"""
         if os.path.isfile('test_mapped_datasource'):
             os.remove('test_mapped_datasource')
 
@@ -119,6 +129,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_batch_group():
+        """Test CLI group batch generation"""
         if os.path.isdir('test_batch_group'):
             os.remove('test_batch_group')
 
@@ -129,6 +140,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_batch_software():
+        """Test CLI software batch generation"""
         if os.path.isdir('test_batch_software'):
             os.remove('test_batch_software')
 
@@ -139,6 +151,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_batch_mitigation():
+        """Test CLI mitigation batch generation"""
         if os.path.isdir('test_batch_mitigation'):
             os.remove('test_batch_mitigation')
 
@@ -149,6 +162,7 @@ class TestCLI:
 
     @staticmethod
     def test_generate_batch_datasource():
+        """Test CLI datasource batch generation"""
         if os.path.isdir('test_batch_datasource'):
             os.remove('test_batch_datasource')
 

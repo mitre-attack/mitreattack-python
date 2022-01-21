@@ -7,6 +7,7 @@ import shutil
 class TestLayers:
     @staticmethod
     def test_depreciated_tactics_export():
+        """Test exporting a layer with depreciated tactics"""
         if os.path.isfile("test.xlsx"):
             os.remove("test.xlsx")
         if os.path.isfile("test.svg"):
@@ -24,6 +25,7 @@ class TestLayers:
 
     @staticmethod
     def test_colormap_export():
+        """Test exporting a layer with a gradiant of scores"""
         if os.path.isfile("layer.xlsx"):
             os.remove("layer.xlsx")
         if os.path.isfile("layer.svg"):
@@ -42,14 +44,17 @@ class TestLayers:
 
     @staticmethod
     def test_config_load():
+        """Test loading a svg config"""
         lay = Layer(testing_data.example_layer_v3_all)
         exp = ToSvg(domain=lay.layer.domain)
         exp.config.load_from_file("resources/demo.json")
         exp.config.__str__()
         exp.to_svg(lay)
+        os.remove('example.svg')
 
     @staticmethod
     def test_aggregate():
+        """Test aggregate layer exports (agg configurations are present in each layer)"""
         if os.path.isdir("agg_tests"):
             shutil.rmtree("agg_tests")
 
@@ -73,6 +78,7 @@ class TestLayers:
 
     @staticmethod
     def test_upgrades():
+        """Test layer version auto-upgrade functionality"""
         lay = Layer()
         lay2 = Layer()
         lay3 = Layer()
@@ -93,6 +99,7 @@ class TestLayers:
 
     @staticmethod
     def test_layer_ops():
+        """ Test layer lambda computation functionality"""
         def get_layers_by_name(test_layers):
             layers_dict['Endgame'] = Layer()
             layers_dict['Endgame'].from_str(test_layers[0])

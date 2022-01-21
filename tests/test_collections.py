@@ -7,11 +7,13 @@ import json
 class TestCollections:
     @staticmethod
     def test_collection_to_index():
+        """Test converting a collection to an index"""
         output_index = CollectionToIndex.generate_index(name='example3', description='exhibit index',
                                                         root_url='www.example.com',
                                                         files=None, folders=None, sets=[collection])
     @staticmethod
     def test_stix_to_collection():
+        """Test converting stix bundle file to a collection"""
         with open('resources/enterprise-bundle.json', 'r') as fio:
             v21 = json.load(fio)
         with open('resources/ics-bundle.json', 'r') as fio:
@@ -21,4 +23,5 @@ class TestCollections:
 
     @staticmethod
     def test_index_to_markdown():
+        """Test converting index file to a markdown document"""
         outMD = IndexToMarkdown.index_to_markdown(index)
