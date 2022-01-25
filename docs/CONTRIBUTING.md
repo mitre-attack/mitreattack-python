@@ -17,5 +17,6 @@ If you want to work on the `mitreattack-python` library and contribute to it's o
 1. Clone the repository - `git clone https://github.com/mitre-attack/mitreattack-python`.
 2. Create a virtual environment, and activate it - `python3 -m venv venv`/`. venv/bin/activate`.
 3. Install the appropriate python modules via pip - `pip install -r requirements-dev.txt`.
+
 ### Merge Requests
-When making a merge request, please make sure to include a summary of what the changes are intended to do, functionality wise, and the testing performed to validate the changes. In the near future, we intend to add a test battery, and once that has been created, merge requests will be required to pass all tests in order to be considered.
+When making a merge request, please make sure to include a summary of what the changes are intended to do, functionality wise, and the testing performed to validate the changes (ideally in the form of new pytests integrated into the `tests/` collection, though this is not strictly required). In addition, the complete test battery `tests/` must be passed without errors in order for any code to actually be merged. 
