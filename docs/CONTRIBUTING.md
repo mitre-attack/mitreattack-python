@@ -13,7 +13,7 @@ If you have an idea for a new feature for `mitreattack-python`, please let us kn
 * If applicable, provide examples of other requests for the proposed functionality
 
 ## Developing
-If you want to work on the `mitreattack-python` library and contribute to it's ongoing development, we welcome merge requests! You can set up an environment for development by following this process:
+If you want to work on the `mitreattack-python` library and contribute to its ongoing development, we welcome merge requests! You can set up an environment for development by following this process:
 1. Clone the repository - `git clone https://github.com/mitre-attack/mitreattack-python`.
 2. Create a virtual environment, and activate it - `python3 -m venv venv`/`. venv/bin/activate`.
 3. Install the appropriate python modules via pip - `pip install -r requirements-dev.txt`.
