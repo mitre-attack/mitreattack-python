@@ -3,7 +3,7 @@ In order to release a new version of mitreattack-python, follow the process outl
 
 1. Verify that all changes desired in the next release are present in the `develop` branch (unless this is an urgent bug fix, in which case more nuanced approaches may be necessary).
 2. Verify that all changes are documented in the CHANGELOG staged in the `develop` branch.
-3. Run validation testing on the library. At the moment, we have no official tests (just a collection of personal ones), though this will hopefully change in the near future.
+3. Run validation testing on the library, specifically the pytest collection located in `tests/`. Please note, this test battery is exhaustive and takes a while to run (just under 3 hours at time of writing).
 4. Build the python library for pip:
    1. Edit setup.py and increment the version number. Update other fields in setup.py as necessary (used libraries, etc.)
    2. Update setuptools and wheel - `python3 -m pip install --user --upgrade setuptools wheel`.
