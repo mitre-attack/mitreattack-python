@@ -1,6 +1,9 @@
 # Staged in Develop
 ## Misc
 - Added standard test framework
+## Fixes
+- Fixed tactic parsing in AttackToExcel so tactics are capitalized correctly in the output (Command and Control instead of Command And Control)
+- Corrected minor mistakes in the README documentation of some cli scripts
 
 # v1.4.2 - 1/11/2022
 ## Improvements

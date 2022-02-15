@@ -49,7 +49,7 @@ lay = Layer()
 lay.from_file("path/to/layer/example.json")           # import a layer from the filesystem
 
 t = ToSvg(domain=lay.layer.domain, source='taxii')    # Use taxii server to get data for template
-t.to_svg(layer=lay, filepath="example.svg")           # render the layer to an SVG file
+t.to_svg(lay, filepath="example.svg")           # render the layer to an SVG file
 ```
 
 Further documentation for the navlayers module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).
@@ -85,7 +85,7 @@ Two command line tools have been included in this package as part of the `navlay
 This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
   layer file to either an svg image or excel file using the functionality provided by the navlayers module. 
  Details about the SVG configuration json mentioned below can be found in the [SVGConfig](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig) entry within the navlayers module documentation.
-```
+```commandline
 C:\Users\attack>layerExporter_cli -h
 usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local,remote}]
                             [--resource RESOURCE] -o OUTPUT [OUTPUT ...]
@@ -119,7 +119,7 @@ C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o out
 
 ##### attackToExcel_cli
 This command line tool allows users to generate excel spreadsheets representing the ATT&CK dataset.
-```
+```commandline
 C:\Users\attack>attackToExcel_cli -h
 usage: attackToExcel_cli [-h]
                          [-domain {enterprise-attack,mobile-attack,ics-attack}]
@@ -145,7 +145,7 @@ C:\Users\attack>attackToExcel_cli -domain ics-attack -version v8.1 -output expor
 This command line tool allows users to generate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) 
 layer files from either a specific group, software, or mitigation. Alternatively, users can generate a layer file with a
 mapping to all associated groups, software, or mitigations across the techniques within ATT&CK. 
-```
+```commandline
 C:\Users\attack>layerGenerator_cli -h
 usage: layerGenerator_cli [-h]
                              (--overview-type {group,software,mitigation,datasource} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation,datasource})
@@ -179,7 +179,7 @@ optional arguments:
   
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
 C:\Users\attack>layerGenerator_cli --domain mobile --source taxii --overview-type mitigation --output generated_layer2.json
-C:\Users\attack>layerGenerator_cli --domain ics --source taxii --mass-type software
+C:\Users\attack>layerGenerator_cli --domain ics --source taxii --batch-type software
 C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --overview-type datasource --output generated_layer3.json
 ```
 
@@ -206,8 +206,8 @@ into an [ATT&CK collection index](https://github.com/center-for-threat-informed-
 that summarizes the contents of the linked collections.
 ```commandline
 C:\Users\attack>collectionToIndex_cli -h
-usage: collection_to_index.py [-h] [-output OUTPUT]
-                              (-files collection1 [collection2 ...] | -folders FOLDERS [FOLDERS ...])
+usage: collection_to_index.py [-h] [--output OUTPUT]
+                              (--files collection1 [collection2 ...] | --folders FOLDERS [FOLDERS ...])
                               name description root_url
 
 Create a collection index from a set of collections
@@ -223,20 +223,20 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -output OUTPUT        filename for the output collection index file
-  -files collection1 [collection2 ...]
+  --output OUTPUT        filename for the output collection index file
+  --files collection1 [collection2 ...]
                         list of collections to include in the index
-  -folders FOLDERS [FOLDERS ...]
+  --folders FOLDERS [FOLDERS ...]
                         folder of JSON files to treat as collections
-C:\Users\attack>collectionToIndex_cli test_index "a layer created as a demo" www.example.com -files C:\Users\attack\examples\collection.json -output C:\Users\attack\examples\index.json
+C:\Users\attack>collectionToIndex_cli test_index "a layer created as a demo" www.example.com --files C:\Users\attack\examples\collection.json --output C:\Users\attack\examples\index.json
 ```
 ##### StixToCollection_cli
 This command line tool allows users to transform raw stix bundle files into versions featuring [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) objects.
 It is compatible with both STIX 2.0 and STIX 2.1 bundles.
 ```commandline
 C:\Users\attack>stixToCollection_cli -h
-usage: stix_to_collection.py [-h] [-input INPUT] [-output OUTPUT]
-                             [-description DESCRIPTION]
+usage: stix_to_collection.py [-h] [--input INPUT] [--output OUTPUT]
+                             [--description DESCRIPTION]
                              name version
 
 Update a STIX 2.0 or 2.1 bundle to include a collection object referencing the
@@ -248,13 +248,13 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -input INPUT          the input bundle file
-  -output OUTPUT        the output bundle file
-  -description DESCRIPTION
+  --input INPUT          the input bundle file
+  --output OUTPUT        the output bundle file
+  --description DESCRIPTION
                         description to use for the generated collection
 
-C:\Users\attack>stixToCollection "2.0 demo bundle" 9.1 -input C:\Users\bundles\enterprise-bundle-2_0.json
-C:\Users\attack>stixToCollection "2.1 demo bundle" 9.1 -input C:\Users\bundles\enterprise-bundle-2_1.json
+C:\Users\attack>stixToCollection "2.0 demo bundle" 9.1 --input C:\Users\bundles\enterprise-bundle-2_0.json
+C:\Users\attack>stixToCollection "2.1 demo bundle" 9.1 --input C:\Users\bundles\enterprise-bundle-2_1.json
 ```
 ## Related MITRE Work
 #### CTI
