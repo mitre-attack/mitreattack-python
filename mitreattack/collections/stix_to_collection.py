@@ -85,17 +85,17 @@ def main():
                         help="the name for the generated collection object")
     parser.add_argument("version",
                         help="the ATT&CK version for the generated collection object")
-    parser.add_argument("-input",
+    parser.add_argument("--input",
                         type=str,
                         default="bundle.json",
                         help="the input bundle file"
                         )
-    parser.add_argument("-output",
+    parser.add_argument("--output",
                         type=str,
                         default="bundle_out.json",
                         help="the output bundle file"
                         )
-    parser.add_argument("-description",
+    parser.add_argument("--description",
                         type=str,
                         default=None,
                         help="description to use for the generated collection")
