@@ -19,6 +19,7 @@ MATRIX_PLATFORMS_LOOKUP = {"enterprise-attack": ['PRE', 'Windows', 'macOS', 'Lin
                                           "Control Server", "Input/Output Server", "Windows", "Human-Machine Interface",
                                           "Engineering Workstation", "Data Historian"]}
 
+TITLE_EXCLUSIONS = ['and']
 
 def remove_revoked_deprecated(stix_objects):
     """Remove any revoked or deprecated objects from queries made to the data source"""
@@ -127,7 +128,8 @@ def techniquesToDf(src, domain):
 
         # sub-technique properties
         tactic_shortnames = list(map(lambda kcp: kcp["phase_name"], technique["kill_chain_phases"]))
-        tactics = list(map(lambda t: t.replace("-", " ").title(), tactic_shortnames))
+        tactics = list(map(lambda t: ' '.join([x.title() if x not in TITLE_EXCLUSIONS else x for x in t.split('-')]),
+                           tactic_shortnames))
         row["tactics"] = ", ".join(sorted(tactics))
 
         if "x_mitre_detection" in technique:

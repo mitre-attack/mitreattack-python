@@ -151,14 +151,14 @@ def main():
              "the collection URL"
     )
     parser.add_argument(
-        "-output",
+        "--output",
         type=str,
         default="index.json",
         help="filename for the output collection index file"
     )
     input_options = parser.add_mutually_exclusive_group(required=True)  # require at least one input type
     input_options.add_argument(
-        '-files',
+        '--files',
         type=str,
         nargs="+",
         default=None,
@@ -166,7 +166,7 @@ def main():
         help="list of collections to include in the index"
     )
     input_options.add_argument(
-        '-folders',
+        '--folders',
         type=str,
         nargs="+",
         default=None,
