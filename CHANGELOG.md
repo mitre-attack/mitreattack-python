@@ -1,4 +1,7 @@
 # Staged in Develop
+## Improvements
+- Added documentation regarding Release process
+- Added documentation regarding Contributing
 ## Fixes
 - Fixed tactic parsing in AttackToExcel so tactics are capitalized correctly in the output (Command and Control instead of Command And Control)
 - Corrected minor mistakes in the README documentation of some cli scripts

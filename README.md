@@ -14,6 +14,9 @@ To use this package, simply install the mitreattack-python library:
 pip install mitreattack-python
 ``` 
 
+## Contributing
+To contribute to this project, either through a bug report, feature request, or merge request, please see the [Contributors guide](https://github.com/mitre-attack/mitreattack-python/docs/CONTRIBUTING.MD).
+
 ## Usage
 Some simple examples are provided here to get you started on using this library. More detailed information about the specific usage of the modules in this package, with examples, can be found in the individual README files for each module.
 
