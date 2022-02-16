@@ -75,7 +75,15 @@ class STIXToCollection:
         return working_bundle
 
 
-def main():
+def main(args):
+    with open(args.input, "r", encoding="utf8") as f:
+        bundle = json.load(f)
+        with open(args.output, "w") as f2:
+            f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name, args.version, args.description),
+                                indent=4))
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Update a STIX 2.0 or 2.1 bundle to include a collection object referencing the contents of the "
                     "bundle."
@@ -99,13 +107,5 @@ def main():
                         type=str,
                         default=None,
                         help="description to use for the generated collection")
-    args = parser.parse_args()
-    with open(args.input, "r", encoding="utf8") as f:
-        bundle = json.load(f)
-        with open(args.output, "w") as f2:
-            f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name, args.version, args.description),
-                                indent=4))
-
-
-if __name__ == "__main__":
-    main()
+    argv = parser.parse_args()
+    main(argv)

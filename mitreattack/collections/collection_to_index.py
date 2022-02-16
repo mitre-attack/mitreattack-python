@@ -128,7 +128,15 @@ class CollectionToIndex:
             collection["versions"].sort(key=lambda version: isoparse(version["modified"]), reverse=True)
 
 
-def main():
+def main(args):
+    with open(args.output, "w") as f:
+        index = CollectionToIndex.generate_index(name=args.name, description=args.description, root_url=args.root_url,
+                                                 files=args.files, folders=args.folders)
+        print(f"writing {args.output}")
+        json.dump(index, f, indent=4)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Create a collection index from a set of collections"
     )
@@ -173,13 +181,5 @@ def main():
         help="folder of JSON files to treat as collections"
     )
 
-    args = parser.parse_args()
-    with open(args.output, "w") as f:
-        index = CollectionToIndex.generate_index(name=args.name, description=args.description, root_url=args.root_url,
-                                                 files=args.files, folders=args.folders)
-        print(f"writing {args.output}")
-        json.dump(index, f, indent=4)
-
-
-if __name__ == "__main__":
-    main()
+    argv = parser.parse_args()
+    main(argv)
