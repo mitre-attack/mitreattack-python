@@ -1,4 +1,4 @@
-# Staged in Develop
+# v1.4.3 - 2/16/2022
 ## Improvements
 - Added documentation regarding Release process
 - Added documentation regarding Contributing
