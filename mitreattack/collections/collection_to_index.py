@@ -128,7 +128,15 @@ class CollectionToIndex:
             collection["versions"].sort(key=lambda version: isoparse(version["modified"]), reverse=True)
 
 
-def main():
+def main(args):
+    with open(args.output, "w") as f:
+        index = CollectionToIndex.generate_index(name=args.name, description=args.description, root_url=args.root_url,
+                                                 files=args.files, folders=args.folders)
+        print(f"writing {args.output}")
+        json.dump(index, f, indent=4)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Create a collection index from a set of collections"
     )
@@ -151,14 +159,14 @@ def main():
              "the collection URL"
     )
     parser.add_argument(
-        "-output",
+        "--output",
         type=str,
         default="index.json",
         help="filename for the output collection index file"
     )
     input_options = parser.add_mutually_exclusive_group(required=True)  # require at least one input type
     input_options.add_argument(
-        '-files',
+        '--files',
         type=str,
         nargs="+",
         default=None,
@@ -166,20 +174,12 @@ def main():
         help="list of collections to include in the index"
     )
     input_options.add_argument(
-        '-folders',
+        '--folders',
         type=str,
         nargs="+",
         default=None,
         help="folder of JSON files to treat as collections"
     )
 
-    args = parser.parse_args()
-    with open(args.output, "w") as f:
-        index = CollectionToIndex.generate_index(name=args.name, description=args.description, root_url=args.root_url,
-                                                 files=args.files, folders=args.folders)
-        print(f"writing {args.output}")
-        json.dump(index, f, indent=4)
-
-
-if __name__ == "__main__":
-    main()
+    argv = parser.parse_args()
+    main(argv)

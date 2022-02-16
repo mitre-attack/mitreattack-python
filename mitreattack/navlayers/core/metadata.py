@@ -27,6 +27,8 @@ class Metadata:
 
     @value.setter
     def value(self, value):
+        if isinstance(value, bool):
+            value = str(value)
         typeChecker(type(self).__name__, value, str, "value")
         self.__value = value
 

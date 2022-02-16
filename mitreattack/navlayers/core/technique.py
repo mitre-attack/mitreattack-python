@@ -20,6 +20,7 @@ class Technique:
         self.__color = UNSETVALUE
         self.__metadata = UNSETVALUE
         self.__showSubtechniques = UNSETVALUE
+        self.__aggregateScore = UNSETVALUE
         self.__links = UNSETVALUE
 
     @property
@@ -124,6 +125,16 @@ class Technique:
         self.__showSubtechniques = showSubtechniques
 
     @property
+    def aggregateScore(self):
+        if self.__aggregateScore != UNSETVALUE:
+            return self.__aggregateScore
+
+    @aggregateScore.setter
+    def aggregateScore(self, aggregateScore):
+        typeChecker(type(self).__name__, aggregateScore, int, "aggregate")
+        self.__aggregateScore = aggregateScore
+
+    @property
     def links(self):
         if self.__links != UNSETVALUE:
             return self.__links
@@ -172,6 +183,8 @@ class Technique:
                 self.showSubtechniques = data[entry]
             elif entry == 'links':
                 self.links = data[entry]
+            elif entry == 'aggregateScore':
+                self.aggregateScore = data[entry]
             else:
                 handler(type(self).__name__, "Unknown technique property: {}"
                         .format(entry))

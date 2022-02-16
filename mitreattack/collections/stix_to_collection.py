@@ -75,7 +75,15 @@ class STIXToCollection:
         return working_bundle
 
 
-def main():
+def main(args):
+    with open(args.input, "r", encoding="utf8") as f:
+        bundle = json.load(f)
+        with open(args.output, "w") as f2:
+            f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name, args.version, args.description),
+                                indent=4))
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Update a STIX 2.0 or 2.1 bundle to include a collection object referencing the contents of the "
                     "bundle."
@@ -85,27 +93,19 @@ def main():
                         help="the name for the generated collection object")
     parser.add_argument("version",
                         help="the ATT&CK version for the generated collection object")
-    parser.add_argument("-input",
+    parser.add_argument("--input",
                         type=str,
                         default="bundle.json",
                         help="the input bundle file"
                         )
-    parser.add_argument("-output",
+    parser.add_argument("--output",
                         type=str,
                         default="bundle_out.json",
                         help="the output bundle file"
                         )
-    parser.add_argument("-description",
+    parser.add_argument("--description",
                         type=str,
                         default=None,
                         help="description to use for the generated collection")
-    args = parser.parse_args()
-    with open(args.input, "r", encoding="utf8") as f:
-        bundle = json.load(f)
-        with open(args.output, "w") as f2:
-            f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name, args.version, args.description),
-                                indent=4))
-
-
-if __name__ == "__main__":
-    main()
+    argv = parser.parse_args()
+    main(argv)

@@ -1,3 +1,12 @@
+# v1.4.3 - 2/16/2022
+## Improvements
+- Added documentation regarding Release process
+- Added documentation regarding Contributing
+- Added standard test framework
+## Fixes
+- Fixed tactic parsing in AttackToExcel so tactics are capitalized correctly in the output (Command and Control instead of Command And Control)
+- Corrected minor mistakes in the README documentation of some cli scripts
+
 # v1.4.2 - 1/11/2022
 ## Improvements
 - Added support for multiple CAPEC IDs for a single technique in AttackToExcel
