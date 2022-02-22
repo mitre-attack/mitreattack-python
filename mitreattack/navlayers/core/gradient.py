@@ -28,6 +28,13 @@ class Gradient:
         typeCheckerArray(type(self).__name__, colors, str, "colors")
         self.__colors = []
         for entry in colors:
+            try:
+                colour.Color(entry)
+            except AttributeError:
+                if entry.startswith('#'):
+                    entry = entry[:7]
+                else:
+                    entry = entry[:6]
             self.__colors.append(entry)
         self._compute_curve()
 

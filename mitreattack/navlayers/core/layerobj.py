@@ -456,6 +456,8 @@ class _LayerObj:
             self.selectSubtechniquesWithParent = data
         elif field == 'metadata':
             self.metadata = data
+        elif field == 'links':
+            self.links = data
         else:
             handler(type(self).__name__, "Unknown layer property: {}"
                     .format(field))
