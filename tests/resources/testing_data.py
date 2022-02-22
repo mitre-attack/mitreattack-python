@@ -7721,9 +7721,9 @@ example_layer_v43_dict = {
   ],
   "gradient": {
    "colors": [
-    "#ff6666",
-    "#ffe766",
-    "#8ec843"
+    "#ff6666ff",
+    "#ffe766ff",
+    "#8ec843ff"
    ],
    "minValue": 0,
    "maxValue": 100
@@ -7750,7 +7750,8 @@ example_layer_v43_dict = {
     "name": "layer metadata 2",
     "value": "layer metadata 2 value"
    }
-  ]
+  ],
+  "links": [],
  }
 
 example_layer_v42_dict = {
