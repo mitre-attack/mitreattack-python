@@ -1,3 +1,7 @@
+# v1.4.4 - 2/22/2022
+## Fixes
+- Patched core layer code to support minor changes in the 4.3 layer format
+
 # v1.4.3 - 2/16/2022
 ## Improvements
 - Added documentation regarding Release process
