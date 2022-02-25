@@ -1,3 +1,8 @@
+# Staged in Develop
+## Fixes
+- Added storage support for transparency in gradient colors (rendering support will follow)
+- Library now supports unicode characters in layers (UTF-16)
+
 # v1.4.4 - 2/22/2022
 ## Fixes
 - Patched core layer code to support minor changes in the 4.3 layer format

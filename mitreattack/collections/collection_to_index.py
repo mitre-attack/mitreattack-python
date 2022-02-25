@@ -60,7 +60,7 @@ class CollectionToIndex:
 
         if files:
             for collection_bundle_file in tqdm(files, desc="parsing collections"):
-                with open(collection_bundle_file, "r") as f:
+                with open(collection_bundle_file, "r", encoding="utf-16") as f:
                     bundle = json.load(f)
                     url = root_url + collection_bundle_file if root_url.endswith("/") \
                         else root_url + "/" + collection_bundle_file
@@ -129,11 +129,11 @@ class CollectionToIndex:
 
 
 def main(args):
-    with open(args.output, "w") as f:
+    with open(args.output, "w", encoding="utf-16") as f:
         index = CollectionToIndex.generate_index(name=args.name, description=args.description, root_url=args.root_url,
                                                  files=args.files, folders=args.folders)
         print(f"writing {args.output}")
-        json.dump(index, f, indent=4)
+        json.dump(index, f, indent=4, enforce_ascii=False)
 
 
 if __name__ == "__main__":

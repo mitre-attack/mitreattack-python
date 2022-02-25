@@ -57,10 +57,17 @@ class Layer:
              loads input from a layer file specified by filename
              :param filename: the target filename to load from
         """
-        with open(filename, 'r') as fio:
-            raw = fio.read()
-            self._data = json.loads(raw)
-            self._build()
+        fallback = False
+        with open(filename, 'r', encoding='utf-16') as fio:
+            try:
+                raw = fio.read()
+            except UnicodeError or UnicodeDecodeError:
+                fallback = True
+        if fallback:
+            with open(filename, 'r')as fio:
+                raw = fio.read()
+        self._data = json.loads(raw)
+        self._build()
 
     def to_file(self, filename):
         """
@@ -69,8 +76,8 @@ class Layer:
             :param filename: the target filename to save as
         """
         if self.__layer is not None:
-            with open(filename, 'w') as fio:
-                json.dump(self.__layer.get_dict(), fio)
+            with open(filename, 'w', encoding='utf-16') as fio:
+                json.dump(self.__layer.get_dict(), fio, ensure_ascii=False)
         else:
             raise UninitializedLayer
 

@@ -76,9 +76,9 @@ class STIXToCollection:
 
 
 def main(args):
-    with open(args.input, "r", encoding="utf8") as f:
+    with open(args.input, "r", encoding="utf-16") as f:
         bundle = json.load(f)
-        with open(args.output, "w") as f2:
+        with open(args.output, "w", encoding="utf-16") as f2:
             f2.write(json.dumps(STIXToCollection.stix_to_collection(bundle, args.name, args.version, args.description),
                                 indent=4))
 

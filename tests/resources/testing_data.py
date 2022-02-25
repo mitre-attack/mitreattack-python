@@ -1,3 +1,55 @@
+compat = {
+    "name": "layer",
+    "versions": {
+        "attack": "10",
+        "navigator": "4.5.5",
+        "layer": "4.3"
+    },
+    "domain": "enterprise-attack",
+    "description": "а б в г ґ д е є ж з и і ї й к л м н о п р с т у ф х ц ч ш щ ь ю я",
+    "filters": {
+        "platforms": [
+            "Linux",
+            "macOS",
+            "Windows",
+            "Azure AD",
+            "Office 365",
+            "SaaS",
+            "IaaS",
+            "Google Workspace",
+            "PRE",
+            "Network",
+            "Containers"
+        ]
+    },
+    "sorting": 0,
+    "layout": {
+        "layout": "side",
+        "aggregateFunction": "average",
+        "showID": False,
+        "showName": True,
+        "showAggregateScores": False,
+        "countUnscored": False
+    },
+    "hideDisabled": False,
+    "techniques": [],
+    "gradient": {
+        "colors": [
+            "#ff6666ff",
+            "#ffe766ff",
+            "#8ec843ff"
+        ],
+        "minValue": 0,
+        "maxValue": 100
+    },
+    "legendItems": [],
+    "metadata": [],
+    "links": [],
+    "showTacticRowBackground": False,
+    "tacticRowBackground": "#dddddd",
+    "selectTechniquesAcrossTactics": True,
+    "selectSubtechniquesWithParent": False
+}
 agg_layer_1 = """
 {
     "name": "example1",
