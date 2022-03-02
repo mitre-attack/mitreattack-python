@@ -103,7 +103,7 @@ class SVGConfig:
         """
         with open(filename, 'r') as fio:
             raw = fio.read()
-            self._data = json.loads(raw)
+        self._data = json.loads(raw)
         for entry in self._data:
             patched = entry
             if not patched.startswith('_SVGConfig__'):
@@ -127,8 +127,8 @@ class SVGConfig:
                    legendY=self.legendY, legendWidth=self.legendWidth, legendHeight=self.legendHeight,
                    showLegend=self.showLegend, showFilters=self.showFilters, showAbout=self.showAbout,
                    border=self.border)
-        with open(filename, 'w') as file:
-            json.dump(out, file)
+        with open(filename, 'w', encoding="utf-16") as file:
+            json.dump(out, file, ensure_ascii=False)
 
     def __str__(self):
         """

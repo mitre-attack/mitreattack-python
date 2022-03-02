@@ -30,9 +30,9 @@ class IndexToMarkdown:
 
 
 def main(args):
-    with open(args.index, "r") as f:
+    with open(args.index, "r", encoding="utf-16") as f:
         index = json.load(f)
-        with open(args.output, "w") as f2:
+        with open(args.output, "w", encoding="utf-16") as f2:
             f2.write(IndexToMarkdown.index_to_markdown(index))
 
 

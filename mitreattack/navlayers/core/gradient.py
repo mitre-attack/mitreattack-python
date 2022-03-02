@@ -15,6 +15,7 @@ class Gradient:
         """
         self.__minValue = None
         self.__maxValue = None
+        self.__alpha = []
         self.colors = colors
         self.minValue = minValue
         self.maxValue = maxValue
@@ -27,10 +28,12 @@ class Gradient:
     def colors(self, colors):
         typeCheckerArray(type(self).__name__, colors, str, "colors")
         self.__colors = []
+        self.__alpha = []
         for entry in colors:
             try:
                 colour.Color(entry)
             except AttributeError:
+                self.__alpha.append(entry[-2:])
                 if entry.startswith('#'):
                     entry = entry[:7]
                 else:
@@ -97,5 +100,9 @@ class Gradient:
             Converts the currently loaded gradient file into a dict
             :returns: A dict representation of the current gradient object
         """
-        return dict(colors=self.__colors, minValue=self.__minValue,
+        if len(self.__alpha) == len(self.__colors):
+            color_out = [f"{self.__colors[i]}{self.__alpha[i]}" for i in range(0, len(self.__alpha))]
+        else:
+            color_out = self.__colors
+        return dict(colors=color_out, minValue=self.__minValue,
                     maxValue=self.maxValue)

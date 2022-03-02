@@ -2,6 +2,7 @@ from resources import testing_data
 from mitreattack.navlayers import Layer, ToExcel, ToSvg, LayerOps
 import os
 import shutil
+import json
 
 
 class TestLayers:
@@ -93,7 +94,7 @@ class TestLayers:
         assert all([(out3[x] == out1[x], x) for x in out3 if x not in ['versions', 'techniques', 'metadata',
                                                                        'gradient', 'selectSubtechniquesWithParent',
                                                                        'layout']])
-        assert all([out3[x] == out2[x] for x in out3 if x not in ['versions', 'techniques', 'metadata']])
+        assert all([out3[x] == out2[x] for x in out3 if x not in ['versions', 'techniques', 'metadata', 'gradient']])
         assert all(['4.3' == x['versions']['layer'] for x in [out1, out2, out3]])
 
 
@@ -115,3 +116,16 @@ class TestLayers:
         layers_dict = get_layers_by_name([testing_data.example_layer_v3_longer, testing_data.example_layer_v3_all])
         out_layer = build_combined_layer(layers_dict)
         assert isinstance(out_layer, Layer)
+
+    @staticmethod
+    def test_compat():
+        layer_dict = testing_data.compat
+        layer_file = Layer()
+        layer_file.from_dict(layer_dict)
+        layer_file.to_file("output.json")
+        with open("output.json", 'r', encoding="utf-16") as fio:
+            output = json.load(fio)
+        # check both 8-hex color and unicode preservation
+        assert output["description"] == layer_dict["description"]
+        assert output["gradient"] == layer_dict["gradient"]
+        os.remove("output.json")
