@@ -104,10 +104,10 @@ class Technique:
         entry = ""
         try:
             for entry in metadata:
-                if "divider" in entry:
-                    self.__metadata.append(MetaDiv(entry["divider"]))
+                if isinstance(entry, Metadata) or isinstance(entry, MetaDiv):
+                    self.__metadata.append(entry)
                 else:
-                    self.__metadata.append(Metadata(entry['name'], entry['value']))
+                    pass  # Object in the list was not of Metadata or MetaDiv type
         except KeyError as e:
             handler(type(self).__name__, 'Metadata {} is missing parameters: '
                                          '{}. Unable to load.'
