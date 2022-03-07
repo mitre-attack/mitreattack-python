@@ -15,7 +15,7 @@ class Layer:
         self.__layer = None
         self.strict = strict
         if name and domain:
-            self.__data = dict(name=name, domain=domain)
+            self._data = dict(name=name, domain=domain)
             self._build()
         elif isinstance(init_data, str):
             self.from_str(init_data)
