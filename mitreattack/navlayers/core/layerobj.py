@@ -300,22 +300,25 @@ class _LayerObj:
     def metadata(self, metadata):
         typeChecker(type(self).__name__, metadata, list, "metadata")
         self.__metadata = []
+
         for entry in metadata:
-            ret = handle_object_placement(self.__metadata, entry, Metadata, list=True)
-            if ret:
-                self.__metadata = ret
-            else:
-                try:
-                    if "divider" in entry:
-                        self.__metadata.append(MetaDiv(entry["divider"]))
+            try:
+                if isinstance(entry, Metadata) or isinstance(entry, MetaDiv):
+                    loadChecker(type(self).__name__, entry.get_dict(), ['name', 'value'], "metadata")
+                    self.__metadata.append(entry)
+                elif isinstance(entry, dict):
+                    loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
+                    if entry['name'] == "DIVIDER":
+                        self.__metadata.append(MetaDiv(active=entry['value']))
                     else:
-                        loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
-                        self.__metadata.append(Metadata(entry['name'], entry['value']))
-                except MissingParameters as e:
-                    handler(
-                        type(self).__name__,
-                        'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
-                    )
+                        self.__metadata.append(Metadata(name=entry['name'], value=entry['value']))
+                else:
+                    pass  # Object in the list was not of Metadata or MetaDiv type
+            except MissingParameters as e:
+                handler(
+                    type(self).__name__,
+                    'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
+                )
 
     @property
     def links(self):
@@ -330,10 +333,21 @@ class _LayerObj:
         entry = ""
         try:
             for entry in links:
-                if "divider" in entry:
-                    self.__links.append(Link(entry["divider"]))
+                if isinstance(entry, Link):
+                    loadChecker(type(self).__name__, entry.get_dict(), ['label', 'url'], "link")
+                    self.__links.append(entry)
+                elif isinstance(entry, LinkDiv):
+                    loadChecker(type(self).__name__, entry.get_dict(), ['name', 'value'], "linkdiv")
+                    self.__links.append(entry)
+                elif isinstance(entry, dict):
+                    if 'name' in entry and entry['name'] == "DIVIDER":
+                        loadChecker(type(self).__name__, entry, ['name', 'value'], "linkdiv")
+                        self.__links.append(LinkDiv(active=entry['value']))
+                    else:
+                        loadChecker(type(self).__name__, entry, ['label', 'url'], "link")
+                        self.__links.append(Link(label=entry['label'], url=entry['url']))
                 else:
-                    self.__links.append(Link(entry['label'], entry['url']))
+                    pass
         except KeyError as e:
             handler(type(self).__name__, 'Link {} is missing parameters: '
                                          '{}. Unable to load.'

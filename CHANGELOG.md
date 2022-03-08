@@ -1,3 +1,10 @@
+# Staged in Develop
+## Fixes
+- Patched core layer code to properly store 8-hex colors
+- Patched core layer code to properly handle non-ascii characters when ingesting text
+- Patched core layer code to properly initialize layers during instantiation
+- Patched core layer code to properly support Metadata, MetaDiv, Link, LinkDiv instantiation
+
 # v1.4.4 - 2/22/2022
 ## Fixes
 - Patched core layer code to support minor changes in the 4.3 layer format
