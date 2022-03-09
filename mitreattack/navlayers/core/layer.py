@@ -14,7 +14,7 @@ class Layer:
          """
         self.__layer = None
         self.strict = strict
-        if name and domain:
+        if isinstance(name, str) and isinstance(domain, str):
             self.__data = dict(name=name, domain=domain)
             self._build()
         elif isinstance(init_data, str):
@@ -39,7 +39,7 @@ class Layer:
             :param init_str: the string representing the layer data to
                 be loaded
         """
-        self._data = json.loads(init_str)
+        self.__data = json.loads(init_str)
         self._build()
 
     def from_dict(self, init_dict):
@@ -48,8 +48,8 @@ class Layer:
             :param init_dict: the dictionary representing the layer data to
                 be loaded
         """
-        self._data = init_dict
-        if self._data != {}:
+        self.__data = init_dict
+        if self.__data != {}:
             self._build()
 
     def from_file(self, filename):
@@ -66,7 +66,7 @@ class Layer:
         if fallback:
             with open(filename, 'r')as fio:
                 raw = fio.read()
-        self._data = json.loads(raw)
+        self.__data = json.loads(raw)
         self._build()
 
     def to_file(self, filename):
@@ -86,7 +86,7 @@ class Layer:
             Loads the data stored in self.data into a LayerObj (self.layer)
         """
         try:
-            self.__layer = _LayerObj(self._data['name'],  self._data['domain'])
+            self.__layer = _LayerObj(self.__data['name'],  self.__data['domain'])
         except BadType or BadInput as e:
             handler(type(self).__name__, 'Layer is malformed: {}. '
                                          'Unable to load.'.format(e))
@@ -98,10 +98,10 @@ class Layer:
             self.__layer = None
             return
 
-        for key in self._data:
+        for key in self.__data:
             if key not in ['name', 'domain']:
                 try:
-                    self.__layer._linker(key, self._data[key])
+                    self.__layer._linker(key, self.__data[key])
                 except Exception as e:
                     if self.strict:
                         handler(type(self).__name__, "{} encountered [{}]. "

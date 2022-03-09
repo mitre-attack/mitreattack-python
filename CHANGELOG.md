@@ -1,5 +1,9 @@
-# Staged in Develop
+# v1.4.5 3/9/2022
 ## Fixes
+- Patched core layer code to properly store 8-hex colors
+- Patched core layer code to properly handle non-ascii characters when ingesting text
+- Patched core layer code to properly initialize layers during instantiation
+- Patched core layer code to properly support Metadata, MetaDiv, Link, LinkDiv instantiation
 - Added storage support for transparency in gradient colors (rendering support will follow)
 - Library now supports unicode characters in layers (UTF-16)
 

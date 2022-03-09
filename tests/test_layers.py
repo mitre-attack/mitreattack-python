@@ -1,5 +1,5 @@
 from resources import testing_data
-from mitreattack.navlayers import Layer, ToExcel, ToSvg, LayerOps
+from mitreattack.navlayers import Layer, ToExcel, ToSvg, LayerOps, Technique, MetaDiv, Metadata, Link, LinkDiv
 import os
 import shutil
 import json
@@ -116,6 +116,25 @@ class TestLayers:
         layers_dict = get_layers_by_name([testing_data.example_layer_v3_longer, testing_data.example_layer_v3_all])
         out_layer = build_combined_layer(layers_dict)
         assert isinstance(out_layer, Layer)
+
+    @staticmethod
+    def test_direct_meta():
+        Layer(init_data={'name': "Layer A", 'domain': "enterprise-attack"})
+        layer_technique = Technique(tID="T1003")
+        layer_technique.metadata = [Metadata(name="Metadata", value="1"), MetaDiv(active=True)]
+        layer_technique2 = Technique(tID="T1004")
+        layer_technique2.metadata = [dict(name="Metadata", value="1"), dict(name="DIVIDER", value=True)]
+        assert layer_technique.metadata[0].get_dict() == layer_technique2.metadata[0].get_dict()
+        assert layer_technique.metadata[1].get_dict() == layer_technique2.metadata[1].get_dict()
+
+    @staticmethod
+    def test_direct_link():
+        layer_technique = Technique(tID="T1003")
+        layer_technique.links = [Link(label='test', url='127.0.0.1'), LinkDiv(active=True)]
+        layer_technique2 = Technique(tID="T1004")
+        layer_technique2.links = [dict(label='test', url='127.0.0.1'), dict(name='DIVIDER', value=True)]
+        assert layer_technique.links[0].get_dict() == layer_technique2.links[0].get_dict()
+        assert layer_technique.links[1].get_dict() == layer_technique2.links[1].get_dict()
 
     @staticmethod
     def test_compat():
