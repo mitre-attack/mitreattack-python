@@ -1,7 +1,7 @@
 import copy
 
 import pandas as pd
-from stix2 import Filter
+from stix2 import Filter, MemoryStore
 from itertools import chain
 from tqdm import tqdm
 import datetime
@@ -112,13 +112,17 @@ def techniquesToDf(src, domain):
     techniques = remove_revoked_deprecated(techniques)
     technique_rows = []
 
+    all_sub_techniques = src.query([
+        Filter("type", "=", "relationship"),
+        Filter("relationship_type", "=", "subtechnique-of"),
+    ])
+    all_sub_techniques = MemoryStore(stix_data=all_sub_techniques)
+
     for technique in tqdm(techniques, desc="parsing techniques"):
         # get parent technique if sub-technique
         subtechnique = "x_mitre_is_subtechnique" in technique and technique["x_mitre_is_subtechnique"]
         if subtechnique:
-            subtechnique_of = src.query([
-                Filter("type", "=", "relationship"),
-                Filter("relationship_type", "=", "subtechnique-of"),
+            subtechnique_of = all_sub_techniques.query([
                 Filter("source_ref", "=", technique["id"])
             ])[0]
             parent = src.get(subtechnique_of["target_ref"])
@@ -461,12 +465,16 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
     techniques_column = []
     subtechniques_column = []
 
+    all_sub_techniques = src.query([
+        Filter("type", "=", "relationship"),
+        Filter("relationship_type", "=", "subtechnique-of"),
+    ])
+    all_sub_techniques = MemoryStore(stix_data=all_sub_techniques)
+
     for technique in techniques:
         techniques_column.append(technique["name"])
         # sub-technique relationships
-        subtechnique_ofs = src.query([
-            Filter("type", "=", "relationship"),
-            Filter("relationship_type", "=", "subtechnique-of"),
+        subtechnique_ofs = all_sub_techniques.query([
             Filter("target_ref", "=", technique["id"])
         ])
         if len(subtechnique_ofs) > 0:  # if there are sub-techniques on the tactic
