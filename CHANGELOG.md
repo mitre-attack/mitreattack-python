@@ -1,3 +1,8 @@
+# Staged in Develop
+## Improvements
+- Improved efficency of Excel generation capability
+
+
 # v1.4.5 3/9/2022
 ## Fixes
 - Patched core layer code to properly store 8-hex colors
