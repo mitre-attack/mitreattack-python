@@ -413,12 +413,12 @@ class DiffStix(object):
                 # find changes, revocations and deprecations
                 for key in intersection:
 
-                    # find revoked objects
+                    # find revoked objects in the new bundle
                     if (
                         "revoked" in new["id_to_obj"][key]
                         and new["id_to_obj"][key]["revoked"]
                     ):
-                        # if it was previously revoked, it's not a change
+                        # only work with newly revoked objects
                         if (
                             not "revoked" in old["id_to_obj"][key]
                             or not old["id_to_obj"][key]["revoked"]
@@ -438,6 +438,10 @@ class DiffStix(object):
                                 continue
                             else:
                                 revoked_by_key = revoked_by_key[0]["target_ref"]
+
+                            if revoked_by_key not in new["id_to_obj"]:
+                                logger.error(f"{key} revoked by {revoked_by_key}, but {revoked_by_key} not found in new STIX bundle!!")
+                                continue
 
                             new["id_to_obj"][key]["revoked_by"] = new["id_to_obj"][
                                 revoked_by_key
