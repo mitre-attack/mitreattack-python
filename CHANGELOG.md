@@ -1,3 +1,9 @@
+# v1.5.2 4/13/2022
+
+## Fixes
+
+- Handle issue where there is a missing revoked relationship in the new STIX bundle
+
 # v1.5.1 - 4/13/2022
 
 ## Improvements
