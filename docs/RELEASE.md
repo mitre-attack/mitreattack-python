@@ -1,4 +1,5 @@
 # Release Process
+
 In order to release a new version of mitreattack-python, follow the process outlined here:
 
 1. Verify that all changes desired in the next release are present in the `develop` branch (unless this is an urgent bug fix, in which case more nuanced approaches may be necessary).
