@@ -9,6 +9,8 @@ This repository contains a library of Python-based tools and utilities for worki
   It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis.
 - the [collections](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/collections) module
   contains a set of utilities for working with [ATT&CK Collections and Collection Indexes](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md).
+- the [diffStix](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/diffStix) module
+  contains a script that generates changelogs between two versions of STIX bundles.
 
 ## Requirements
 
