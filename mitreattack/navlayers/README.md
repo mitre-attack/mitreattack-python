@@ -1,8 +1,17 @@
 # navlayers
 
-This folder contains modules and scripts for working with ATT&CK Navigator layers. ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix. For more about ATT&CK Navigator layers, visit the ATT&CK Navigator repository. The core module allows users to load, validate, manipulate, and save ATT&CK layers. A brief overview of the components can be found below. All scripts adhere to the MITRE ATT&CK Navigator Layer file format, [version 4.3](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_3.md), but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md) and version 4.X layers, upgrading them to version 4.3.
+This folder contains modules and scripts for working with ATT&CK Navigator layers.
+ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix.
+For more about ATT&CK Navigator layers, visit the ATT&CK Navigator repository.
+The core module allows users to load, validate, manipulate, and save ATT&CK layers.
+A brief overview of the components can be found below.
+All scripts adhere to the MITRE ATT&CK Navigator Layer file format,
+[version 4.3](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_3.md),
+but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md)
+and version 4.X layers, upgrading them to version 4.3.
 
-#### Core Modules
+## Core Modules
+
 | script | description |
 |:-------|:------------|
 | [filter](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py) | Implements a basic [filter object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties). |
@@ -13,50 +22,64 @@ This folder contains modules and scripts for working with ATT&CK Navigator layer
 | [metadata](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/metadata.py) | Implements a basic [metadata object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#metadata-object-properties). |
 | [technique](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/technique.py) | Implements a basic [technique object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#technique-object-properties). |
 | [versions](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/versions.py) | Implements a basic [versions object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties).|
-#### Manipulator Scripts
+
+### Manipulator Scripts
+
 | script | description |
 |:-------|:------------|
 | [layerops](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py) | Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. |
-#### Exporter Scripts
+
+### Exporter Scripts
+
 | script | description |
 |:-------|:------------|
 | [to_excel](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py) | Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below. |
 | [to_svg](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py) | Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.|
-##### Generator Scripts
+
+### Generator Scripts
+
 | script | description |
 |:-------|:------------|
 | [overview_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py)| Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. |
 | [usage_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py)| Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below. |
 | [sum_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py)| Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
-##### Utility Modules
+
+### Utility Modules
+
 | script | description |
 |:-------|:------------|
 | [excel_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py) | Provides a means by which to convert a matrix into a clean excel matrix template. |
 | [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). |
 | [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
 | [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
-##### Command Line Tools
+
+### Command Line Tools
+
 | script | description |
 |:-------|:------------|
 | [layerExporter_cli.py](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py) | A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. |
 | [layerGenerator_cli.py](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py) | A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. |
 
 ## Layer
-The Layer class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python. It is the primary interface through which other Layer-related classes defined in the core module should be used. The Layer class API and a usage example are below. The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
+
+The `Layer` class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python.
+It is the primary interface through which other Layer-related classes defined in the core module should be used.
+The Layer class API and a usage example are below.
+The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
 
 | method [x = Layer()]| description |
 |:-------|:------------|
-| x.from_str(_input_) | Loads an ATT&CK layer from a string representation of a json layer. |
-| x.from_dict(_input_) | Loads an ATT&CK layer from a dictionary. |
-| x.from_file(_filepath_) | Loads an ATT&CK layer from a file location specified by the _filepath_. |
-| x.to_file(_filepath_) | Saves the current state of the loaded ATT&CK layer to a json file denoted by the _filepath_. |
-| x.to_dict() | Returns a representation of the current ATT&CK layer object as a dictionary. |
-| x.to_str() | Returns a representation of the current ATT&CK layer object as a string representation of a dictionary. |
+| `x.from_str(_input_)` | Loads an ATT&CK layer from a string representation of a json layer. |
+| `x.from_dict(_input_)` | Loads an ATT&CK layer from a dictionary. |
+| `x.from_file(_filepath_)` | Loads an ATT&CK layer from a file location specified by the _filepath_. |
+| `x.to_file(_filepath_)` | Saves the current state of the loaded ATT&CK layer to a json file denoted by the _filepath_. |
+| `x.to_dict()` | Returns a representation of the current ATT&CK layer object as a dictionary. |
+| `x.to_str()` | Returns a representation of the current ATT&CK layer object as a string representation of a dictionary. |
 
-Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found 
+Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
 [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md).
 
-#### Example Usage
+### Example Usage
 
 ```python
 example_layer3_dict = {
@@ -91,24 +114,35 @@ layer3 = Layer()                                # Create a new layer object
 layer3.from_file(example_layer_location)        # Load layer data from a file into existing layer object
 ```
 
-## layerops.py
-Layerops.py provides the LayerOps class, which is a way to combine layer files in an automated way, using user defined lambda functions. Each LayerOps instance, when created, ingests the provided lambda functions, and stores them for use. An existing LayerOps class can be used to combine layer files according to the initialized lambda using the process method. The breakdown of this two step process is documented in the table below, while examples of both the list and dictionary modes of operation can be found below.
+### layerops.py
 
-##### LayerOps()
+`Layerops.py` provides the `LayerOps` class, which is a way to combine layer files in an automated way, using user defined lambda functions.
+Each LayerOps instance, when created, ingests the provided lambda functions, and stores them for use.
+An existing `LayerOps` class can be used to combine layer files according to the initialized lambda using the process method.
+The breakdown of this two step process is documented in the table below, while examples of both the list and dictionary modes of operation can be found below.
+
+#### LayerOps()
+
 ```python
- x = LayerOps(score=score, comment=comment, enabled=enabled, colors=colors, metadata=metadata, name=name, desc=desc, default_values=default_values)
+x = LayerOps(score=score, comment=comment, enabled=enabled, colors=colors, metadata=metadata, name=name, desc=desc, default_values=default_values)
 ```
 
- Each of the _inputs_ takes a lambda function that will be used to combine technique object fields matching the parameter. The one exception to this is _default_values_, which is an optional dictionary argument containing default values to provide the lambda functions if techniques of the combined layers are missing them.
+Each of the _inputs_ takes a lambda function that will be used to combine technique object fields matching the parameter.
+The one exception to this is _default_values_, which is an optional dictionary argument containing default values
+to provide the lambda functions if techniques of the combined layers are missing them.
 
 ##### .process() Method
+
 ```python
 x.process(data, default_values=default_values)
 ```
-The process method applies the lambda functions stored during initialization to the layer objects in _data_. _data_ must be either a list or a dictionary of Layer objects, and is expected to match the format of the lambda equations provided during initialization. default_values is an optional dictionary argument that overrides the currently stored default
- values with new ones for this specific processing operation.
+
+The process method applies the lambda functions stored during initialization to the layer objects in _data_.
+_data_ must be either a list or a dictionary of Layer objects, and is expected to match the format of the lambda equations provided during initialization.
+`default_values` is an optional dictionary argument that overrides the currently stored default values with new ones for this specific processing operation.
 
 #### Example Usage
+
 ```python
 from mitreattack.navlayers.manipulators.layerops import LayerOps
 from mitreattack.navlayers.core.layer import Layer
@@ -157,25 +191,36 @@ out_layer6.to_file("C:\demo_layer6.json")                     # Save combined co
 ```
 
 ## to_excel.py
-to_excel.py provides the ToExcel class, which is a way to export an existing layer file as an Excel
-spreadsheet. The ToExcel class has an optional parameter for the initialization function, that
-tells the exporter what data source to use when building the output matrix. Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
 
-##### ToExcel()
+`to_excel.py` provides the `ToExcel` class, which is a way to export an existing layer file as an Excel spreadsheet.
+The `ToExcel` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
+Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
+
+### ToExcel()
+
 ```python
 x = ToExcel(domain='enterprise', source='taxii', resource=None)
 ```
-The ToExcel constructor takes domain, server, and resource arguments during instantiation. The domain can
-be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
 
-##### .to_xlsx() Method
+The `ToExcel` constructor takes domain, server, and resource arguments during instantiation.
+The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
+The source argument tells the matrix generation tool which data source to use when building the matrix.
+`taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix,
+while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that
+it should utilize a remote ATT&CK Workbench instance.
+The `resource` argument is only required if the source is set to `local`, in which case it should be a path
+to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
+
+### .to_xlsx() Method
+
 ```python
 x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
 ```
-The to_xlsx method exports the layer file referenced as `layer`, as an excel file to the
-`filepath` specified.
+
+The `to_xlsx` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
 #### Example Usage
+
 ```python
 from mitreattack.navlayers import Layer
 from mitreattack.navlayers import ToExcel
@@ -194,23 +239,43 @@ t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
 ```
 
 ## to_svg.py
-to_svg.py provides the ToSvg class, which is a way to export an existing layer file as an SVG image file. The ToSvg class, like the ToExcel class, has an optional parameter for the initialization function, that
-tells the exporter what data source to use when building the output matrix. Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
 
-##### ToSvg()
+`to_svg.py` provides the `ToSvg` class, which is a way to export an existing layer file as an SVG image file.
+The `ToSvg` class, like the `ToExcel` class, has an optional parameter for the initialization function,
+that tells the exporter what data source to use when building the output matrix.
+Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
+
+### ToSvg()
+
 ```python
 x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
 ```
-The ToSvg constructor, just like the ToExcel constructor, takes domain, server, and resource arguments during instantiation. The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance. The `config` parameter is an optional SVGConfig object that can be used to configure the export as desired. If not provided, the configuration for the export will be set to default values.
 
-##### SVGConfig()
+The `ToSvg` constructor, just like the `ToExcel` constructor, takes domain, server, and resource arguments during instantiation.
+The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
+The source argument tells the matrix generation tool which data source to use when building the matrix.
+`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
+while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
+or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+The `config` parameter is an optional `SVGConfig` object that can be used to configure the export as desired.
+If not provided, the configuration for the export will be set to default values.
+
+### SVGConfig()
+
 ```python
 y = SVGConfig(width=8.5, height=11, headerHeight=1, unit="in", showSubtechniques="expanded",
                  font="sans-serif", tableBorderColor="#6B7279", showHeader=True, legendDocked=True,
                  legendX=0, legendY=0, legendWidth=2, legendHeight=1, showLegend=True, showFilters=True,
                  showAbout=True, showDomain=True, border=0.104)
 ```
-The SVGConfig object is used to configure how an SVG export behaves. The defaults for each of the available values can be found in the declaration above, and a brief explanation for each field is included in the table below. The config object should be provided to the ToSvg object during instantiation, but if values need to be updated on the fly, the currently loaded configuration can be interacted with at `ToSvg().config`. The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method, or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
+
+The `SVGConfig` object is used to configure how an SVG export behaves.
+The defaults for each of the available values can be found in the declaration above, and a brief explanation for each field is included in the table below.
+The config object should be provided to the `ToSvg` object during instantiation, but if values need to be updated on the fly,
+the currently loaded configuration can be interacted with at `ToSvg().config`.
+The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method,
+or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 
 | attribute| description | type | default value |
 |:-------|:------------|:------------|:------------|
@@ -233,14 +298,16 @@ The SVGConfig object is used to configure how an SVG export behaves. The default
 | showAbout | Whether or not to show the About Header Block | bool | True |
 | border | What default border width to use | number | 0.104 |
 
-##### .to_svg() Method
+### .to_svg() Method
+
 ```python
 x.to_svg(layerInit=layer, filepath="layer.svg")
 ```
-The to_svg method exports the layer file referenced as `layer`, as an excel file to the
-`filepath` specified.
+
+The `to_svg` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
 #### Example Usage
+
 ```python
 from mitreattack.navlayers import Layer
 from mitreattack.navlayers import ToSvg, SVGConfig
@@ -262,43 +329,72 @@ workbench_url = "localhost:3000"
 t3 = ToSvg(domain='enterprise', source='remote', resource=workbench_url, config=conf)
 t3.to_svg(layerInit=lay, filepath="demo3.svg")
 ```
-## overview_generator.py
-overview_generator.py provides the OverviewLayerGenerator class, which is designed to allow users to 
-generate an ATT&CK layer that, on a per technique basis, has a score that corresponds to all instances 
-of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance. 
 
-#### OverviewLayerGenerator()
+## overview_generator.py
+
+`overview_generator.py` provides the `OverviewLayerGenerator` class, which is designed to allow users to
+generate an ATT&CK layer that, on a per technique basis, has a score that corresponds to all instances
+of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance.
+
+### OverviewLayerGenerator()
+
 ```python
 x = OverviewLayerGenerator(source='taxii', domain='enterprise', resource=None)
 ```
-The initialization function for OverviewLayerGenerator, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.). The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance. If not provided, the configuration for the generator will be set to default values.
 
-#### .generate_layer()
+The initialization function for `OverviewLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
+to retrieve data from (taxii server etc.).
+The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The source argument tells the matrix generation tool which data source to use when building the matrix.
+`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
+while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
+or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+If not provided, the configuration for the generator will be set to default values.
+
+### .generate_layer()
+
 ```python
 x.generate_layer(obj_type=object_type_name)
 ```
-The `generate_layer` function generates a layer, customized to the input `object_type_name`. Valid values include `group`, `mitigation`, `software`, and `datasource`.
+
+The `generate_layer` function generates a layer, customized to the input `object_type_name`.
+Valid values include `group`, `mitigation`, `software`, and `datasource`.
 
 ## usage_generator.py
-usage_ generator.py provides the UsageLayerGenerator class, which is designed to allow users to 
-generate an ATT&CK layer that scores any relevant techniques that a given input ATT&CK object has. These objects can
-be any `group`, `software`, `mitigation`, or `data component`, and can be referenced by ID or by any alias when 
-provided to the generator.
 
-#### UsageLayerGenerator()
+`usage_ generator.py` provides the `UsageLayerGenerator` class, which is designed to allow users to
+generate an ATT&CK layer that scores any relevant techniques that a given input ATT&CK object has.
+These objects can be any `group`, `software`, `mitigation`, or `data component`,
+and can be referenced by ID or by any alias when provided to the generator.
+
+### UsageLayerGenerator()
+
 ```python
 x = UsageLayerGenerator(source='taxii', domain='enterprise', resource=None)
 ```
-The initialization function for UsageLayerGenerator, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.). The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance. If not provided, the configuration for the generator will be set to default values.
 
-#### .generate_layer()
+The initialization function for `UsageLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
+to retrieve data from (taxii server etc.).
+The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The source argument tells the matrix generation tool which data source to use when building the matrix.
+`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
+while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
+or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+If not provided, the configuration for the generator will be set to default values.
+
+### .generate_layer()
+
 ```python
 x.generate_layer(match=object_identifier)
 ```
-The `generate_layer` function generates a layer, customized to the input `object_identifier`. Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mitigation`, `software`, and `data component` objects within the selected ATT&CK data.
+
+The `generate_layer` function generates a layer, customized to the input `object_identifier`.
+Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mitigation`, `software`, and `data component` objects within the selected ATT&CK data.
+
 #### Example Usage
+
 ```python
 from mitreattack.navlayers import UsageLayerGenerator
 
@@ -309,20 +405,33 @@ layer2 = handle.generate_layer(match='Adups')
 ```
 
 ## sum_generator.py
-sum_generator.py provides the SumLayerGenerator class, which is designed to allow users to 
-generate a collection of ATT&CK layers that, on a per technique basis, have a score that corresponds to all instances 
-of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance. Each one 
-of the generated layers will correspond to a single instance of the specified ATT&CK object type.
 
-#### SumLayerGenerator()
+`sum_generator.py` provides the `SumLayerGenerator` class, which is designed to allow users to
+generate a collection of ATT&CK layers that, on a per technique basis, have a score that corresponds to all instances
+of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance.
+Each one of the generated layers will correspond to a single instance of the specified ATT&CK object type.
+
+### SumLayerGenerator()
+
 ```python
 x = SumLayerGenerator(source='taxii', domain='enterprise', resource=None)
 ```
-The initialization function for SumGeneratorLayer, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.). The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`. The source argument tells the matrix generation tool which data source to use when building the matrix. `taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix, while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance. The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance. If not provided, the configuration for the generator will be set to default values.
 
-#### .generate_layer()
+The initialization function for `SumGeneratorLayer`, like `ToSVG` and `ToExcel`, requires the specification of where
+to retrieve data from (taxii server etc.).
+The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The source argument tells the matrix generation tool which data source to use when building the matrix.
+`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
+while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
+or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+If not provided, the configuration for the generator will be set to default values.
+
+### .generate_layer()
+
 ```python
 x.generate_layer(layers_type=object_type_name)
 ```
-The `generate_layer` function generates a collection of layers, each customized to one instance of the input `object_type_name`. Valid types include `group`, `mitigation`, `software`, and `datasource`.
+
+The `generate_layer` function generates a collection of layers, each customized to one instance of the input `object_type_name`.
+Valid types include `group`, `mitigation`, `software`, and `datasource`.

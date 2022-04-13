@@ -1,3 +1,6 @@
+# mitreattack-python specific
+output/
+
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos
 
