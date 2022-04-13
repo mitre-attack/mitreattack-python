@@ -18,12 +18,13 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
             'attackToExcel_cli=mitreattack.attackToExcel.attackToExcel:main',
+            'layerExporter_cli=mitreattack.navlayers.layerExporter_cli:main',
             'layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main',
             'indexToMarkdown_cli=mitreattack.collections.index_to_markdown:main',
             'collectionToIndex_cli=mitreattack.collections.collection_to_index:main',
-            'stixToCollection_cli=mitreattack.collections.stix_to_collection:main'
+            'stixToCollection_cli=mitreattack.collections.stix_to_collection:main',
+            'diff_stix=mitreattack.diffStix.changelog_helper:main'
         ]
     },
     packages=setuptools.find_packages(),
@@ -36,18 +37,20 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'colour>=0.1.5',
-        'openpyxl>=3.0.3',
-        'stix2>=3.0.1',
-        'taxii2-client>=2.3.0',
-        'numpy>=1.16.0',
-        'drawSvg>=1.6.0',
-        'Pillow>=7.1.2',
-        'pandas>=1.1.5',
-        'tqdm>=4.31.1',
-        'requests>=2.21.0',
-        'xlsxwriter>=1.3.7',
-        'tabulate>=0.8.9',
-        'stix2-elevator>=4.0.1',
+        'colour',
+        'drawSvg',
+        'loguru',
+        'Markdown',
+        'numpy',
+        'openpyxl',
+        'pandas',
+        'Pillow',
+        'requests',
+        'stix2',
+        'stix2-elevator',
+        'tabulate',
+        'taxii2-client',
+        'tqdm',
+        'xlsxwriter',
     ]
 )
