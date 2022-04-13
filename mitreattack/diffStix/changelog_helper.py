@@ -4,6 +4,7 @@ import json
 import os
 from itertools import chain
 from pathlib import Path
+from typing import List
 
 import markdown
 import requests
@@ -1257,8 +1258,8 @@ def get_parsed_args():
 
 # Used by attack-website script to generate changelog
 def get_new_changelog_md(
-    domains: list[str] = ["enterprise-attack", "mobile-attack"],
-    layers: list[str] = layer_defaults,
+    domains: List[str] = ["enterprise-attack", "mobile-attack"],
+    layers: List[str] = layer_defaults,
     markdown_file: str = md_default,
     minor_changes: bool = False,
     unchanged: bool = False,
@@ -1266,7 +1267,7 @@ def get_new_changelog_md(
     old: str = None,
     show_key: bool = False,
     site_prefix: str = "",
-    types: list[str] = ["technique", "software", "group", "mitigation", "datasource"],
+    types: List[str] = ["technique", "software", "group", "mitigation", "datasource"],
     use_taxii: bool = False,
     use_mitre_cti: bool = False,
     verbose: bool = False,
