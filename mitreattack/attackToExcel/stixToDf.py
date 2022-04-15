@@ -258,7 +258,7 @@ def sourcesToDf(src, domain):
             if "x_mitre_aliases" in data_object:
                 row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
             if data_object["type"] == "x-mitre-data-component":
-                row["name"] = f"{data_object['name']}: {source_lookup[data_object['x_mitre_data_source_ref']]}"
+                row["name"] = f"{source_lookup[data_object['x_mitre_data_source_ref']]}: {data_object['name']}"
                 row["type"] = "datacomponent"
             else:
                 row["type"] = "datasource"

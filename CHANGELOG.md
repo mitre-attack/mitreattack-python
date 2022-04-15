@@ -1,3 +1,9 @@
+# v1.5.3 4/15/2022
+
+## Fixes
+
+- Fix Excel output for datasources/components to display correctly
+
 # v1.5.2 4/13/2022
 
 ## Fixes
