@@ -1,5 +1,7 @@
+black>=22.3.0
 colour>=0.1.5
 drawSvg>=1.6.0
+isort>=5.10.1
 loguru>=0.6.0
 Markdown>=3.3.6
 numpy>=1.16.0
