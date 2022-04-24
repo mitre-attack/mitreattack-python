@@ -1,8 +1,10 @@
 import argparse
 import os
+from typing import Dict, List
 
 import pandas as pd
 import requests
+from loguru import logger
 from stix2 import MemoryStore
 
 # import mitreattack.attackToExcel.stixToDf as stixToDf
@@ -12,15 +14,24 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain, version=None, remote=None):
+def get_stix_data(domain: str, version: str = None, remote: str = None) -> MemoryStore:
     """Download the ATT&CK STIX data for the given domain and version from MITRE/CTI (or just domain if a remote workbench is specified).
 
-    :param domain: the domain of ATT&CK to fetch data from, e.g "enterprise-attack"
-    :param version: the version of attack to fetch data from, e.g "v8.1". If omitted, returns the latest version
-                    (not used for invocations that use remote)
-    :param remote: optional url to a ATT&CK workbench instance. If specified, data will be retrieved from the target
-                    Workbench instead of MITRE/CTI
-    :returns: a MemoryStore containing the domain data
+    Parameters
+    ----------
+    domain : str
+        The domain of ATT&CK to fetch data from, e.g "enterprise-attack"
+    version : str, optional
+        The version of attack to fetch data from, e.g "v8.1".
+        If omitted, returns the latest version (not used for invocations that use remote), by default None
+    remote : str, optional
+        Optional url to a ATT&CK workbench instance.
+        If specified, data will be retrieved from the target Workbench instead of MITRE/CTI, by default None
+
+    Returns
+    -------
+    MemoryStore
+        A stix2.MemoryStore object containing the domain data
     """
     if remote:  # Using Workbench Instance
         if ":" not in remote[6:]:
@@ -29,7 +40,7 @@ def get_stix_data(domain, version=None, remote=None):
             remote = "http://" + remote
         url = f"{remote}/api/stix-bundles?domain={domain}&includeRevoked=true&includeDeprecated=true"
         stix_json = requests.get(url).json()
-        return MemoryStore(stix_json)
+        ms = MemoryStore(stix_json)
     else:  # Using MITRE/CTI
         if version:
             url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
@@ -37,15 +48,27 @@ def get_stix_data(domain, version=None, remote=None):
             url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
         stix_json = requests.get(url).json()
-        return MemoryStore(stix_data=stix_json["objects"])
+        ms = MemoryStore(stix_data=stix_json["objects"])
+
+    return ms
 
 
-def build_dataframes(src, domain):
+def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     """Build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe.
 
-    :param src: MemoryStore or other stix2 DataSource object
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
-    :returns: a dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
+    :returns: 
+
+    Parameters
+    ----------
+    src : MemoryStore
+        MemoryStore or other stix2 DataSource object
+    domain : str
+        domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+
+    Returns
+    -------
+    dict
+        A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
     df = {
         "techniques": stixToDf.techniquesToDf(src, domain),
@@ -62,16 +85,26 @@ def build_dataframes(src, domain):
     return df
 
 
-def write_excel(dataframes, domain, version=None, outputDir="."):
+def write_excel(dataframes: Dict, domain: str, version: str = None, outputDir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
-    :param dataframes: pandas dataframes as built by build_dataframes
-    :param domain: domain of ATT&CK the dataframes correspond to, e.g "enterprise-attack"
-    :param version: optional, the version of ATT&CK the dataframes correspond to, e.g "v8.1".
-                    If omitted, the output files will not be labelled with the version number
-    :param outputDir: optional, the directory to write the excel files to. If omitted writes to a
-                      subfolder of the current directory depending on specified domain and version
-    :returns: a list of filepaths corresponding to the files written by the function
+    Parameters
+    ----------
+    dataframes : dict
+        A dictionary of pandas dataframes as built by build_dataframes()
+    domain : str
+        Domain of ATT&CK the dataframes correspond to, e.g "enterprise-attack"
+    version : str, optional
+        The version of ATT&CK the dataframes correspond to, e.g "v8.1".
+        If omitted, the output files will not be labelled with the version number, by default None
+    outputDir : str, optional
+        The directory to write the excel files to.
+        If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
+
+    Returns
+    -------
+    list
+        A list of filepaths corresponding to the files written by the function
     """
     print("writing formatted files... ", end="", flush=True)
     # master list of files that have been written
@@ -184,18 +217,55 @@ def write_excel(dataframes, domain, version=None, outputDir="."):
     return written_files
 
 
-def export(domain="enterprise-attack", version=None, outputDir=".", remote=None):
-    """Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets.
+def export(
+    domain: str = "enterprise-attack",
+    version: str = None,
+    outputDir: str = ".",
+    remote: str = None,
+    stix_file: str = None,
+):
+    """Download ATT&CK data from MITRE/CTI and convert it to Excel spreadsheets.
 
-    :param domain: the domain of ATT&CK to download, e.g "enterprise-attack"
-    :param version: optional, the version of ATT&CK to download, e.g "v8.1". If omitted will build the current version
-                    of ATT&CK
-    :param outputDir: optional, the directory to write the excel files to. If omitted writes to a
-                        subfolder of the current directory depending on specified domain and version
-    :param remote: optional, the URL of a remote ATT&CK Workbench instance to connect to for stix data
+    Parameters
+    ----------
+    domain : str, optional
+        The domain of ATT&CK to download, e.g "enterprise-attack", by default "enterprise-attack"
+    version : str, optional
+        The version of ATT&CK to download, e.g "v8.1".
+        If omitted will build the current version of ATT&CK, by default None
+    outputDir : str, optional
+        The directory to write the excel files to.
+        If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
+    remote : str, optional
+        The URL of a remote ATT&CK Workbench instance to connect to for stix data.
+        Mutually exclusive with stix_file.
+        by default None
+    stix_file : str, optional
+        Path to a local STIX file containing ATT&CK data for a domain, by default None
+
+    Raises
+    ------
+    ValueError
+        Raised if both `remote` and `stix_file` are passed
+    FileNotFoundError
+        Raised if `stix_file` not found
     """
+    if remote and stix_file:
+        raise ValueError("remote and stix_file are mutually exclusive. Please only use one or the other")
+
+    mem_store = None
+    if remote:
+        mem_store = get_stix_data(domain, version, remote)
+    elif stix_file:
+        if os.path.exists(stix_file):
+            logger.info(f"Loading STIX file from: {stix_file}")
+            mem_store = MemoryStore()
+            mem_store.load_from_file(stix_file)
+        else:
+            raise FileNotFoundError(f"{stix_file} file does not exist.")
+
     # build dataframes
-    dataframes = build_dataframes(get_stix_data(domain, version, remote), domain)
+    dataframes = build_dataframes(src=mem_store, domain=domain)
     write_excel(dataframes, domain, version, outputDir)
 
 

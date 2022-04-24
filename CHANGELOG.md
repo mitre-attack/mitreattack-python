@@ -1,3 +1,9 @@
+# v1.5.4 4/23/2022
+
+## Improvements
+
+- Allow Excel to be exported from local STIX file without needint to download from GitHub
+
 # v1.5.3 4/15/2022
 
 ## Fixes
