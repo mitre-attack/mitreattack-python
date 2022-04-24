@@ -1,8 +1,14 @@
+# v1.5.5 4/23/2022
+
+## Fixes
+
+- Fix logic error in Excel export when exporting from local file
+
 # v1.5.4 4/23/2022
 
 ## Improvements
 
-- Allow Excel to be exported from local STIX file without needint to download from GitHub
+- Allow Excel to be exported from local STIX file without needing to download from GitHub
 
 # v1.5.3 4/15/2022
 

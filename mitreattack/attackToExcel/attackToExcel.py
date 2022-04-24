@@ -14,7 +14,7 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain: str, version: str = None, remote: str = None) -> MemoryStore:
+def get_stix_data(domain: str, version: str = None, remote: str = None, stix_file: str = None) -> MemoryStore:
     """Download the ATT&CK STIX data for the given domain and version from MITRE/CTI (or just domain if a remote workbench is specified).
 
     Parameters
@@ -27,36 +27,59 @@ def get_stix_data(domain: str, version: str = None, remote: str = None) -> Memor
     remote : str, optional
         Optional url to a ATT&CK workbench instance.
         If specified, data will be retrieved from the target Workbench instead of MITRE/CTI, by default None
+    stix_file : str, optional
+        Path to a local STIX file containing ATT&CK data for a domain, by default None
 
     Returns
     -------
     MemoryStore
         A stix2.MemoryStore object containing the domain data
+
+    Raises
+    ------
+    ValueError
+        Raised if both `remote` and `stix_file` are passed
+    FileNotFoundError
+        Raised if `stix_file` not found
     """
-    if remote:  # Using Workbench Instance
-        if ":" not in remote[6:]:
-            remote += ":3000"
-        if not remote.startswith("http"):
-            remote = "http://" + remote
-        url = f"{remote}/api/stix-bundles?domain={domain}&includeRevoked=true&includeDeprecated=true"
-        stix_json = requests.get(url).json()
-        ms = MemoryStore(stix_json)
-    else:  # Using MITRE/CTI
-        if version:
-            url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
+    if remote and stix_file:
+        raise ValueError("remote and stix_file are mutually exclusive. Please only use one or the other")
+
+    mem_store = None
+    if stix_file:
+        if os.path.exists(stix_file):
+            logger.info(f"Loading STIX file from: {stix_file}")
+            mem_store = MemoryStore()
+            mem_store.load_from_file(stix_file)
         else:
-            url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
+            raise FileNotFoundError(f"{stix_file} file does not exist.")
+    else:
+        if remote:
+            logger.info("Downloading ATT&CK data from an ATT&CK Workbench instance")
+            if ":" not in remote[6:]:
+                remote += ":3000"
+            if not remote.startswith("http"):
+                remote = "http://" + remote
+            url = f"{remote}/api/stix-bundles?domain={domain}&includeRevoked=true&includeDeprecated=true"
+            stix_json = requests.get(url).json()
+            mem_store = MemoryStore(stix_json)
+        else:
+            logger.info("Downloading ATT&CK data from github.com/mitre/cti")
+            if version:
+                url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-{version}/{domain}/{domain}.json"
+            else:
+                url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
 
-        stix_json = requests.get(url).json()
-        ms = MemoryStore(stix_data=stix_json["objects"])
+            stix_json = requests.get(url).json()
+            mem_store = MemoryStore(stix_data=stix_json["objects"])
 
-    return ms
+    return mem_store
 
 
 def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     """Build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe.
 
-    :returns: 
+    :returns:
 
     Parameters
     ----------
@@ -247,26 +270,15 @@ def export(
     ------
     ValueError
         Raised if both `remote` and `stix_file` are passed
-    FileNotFoundError
-        Raised if `stix_file` not found
     """
     if remote and stix_file:
         raise ValueError("remote and stix_file are mutually exclusive. Please only use one or the other")
 
-    mem_store = None
-    if remote:
-        mem_store = get_stix_data(domain, version, remote)
-    elif stix_file:
-        if os.path.exists(stix_file):
-            logger.info(f"Loading STIX file from: {stix_file}")
-            mem_store = MemoryStore()
-            mem_store.load_from_file(stix_file)
-        else:
-            raise FileNotFoundError(f"{stix_file} file does not exist.")
+    mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
 
     # build dataframes
     dataframes = build_dataframes(src=mem_store, domain=domain)
-    write_excel(dataframes, domain, version, outputDir)
+    write_excel(dataframes=dataframes, domain=domain, version=version, outputDir=outputDir)
 
 
 def main():
