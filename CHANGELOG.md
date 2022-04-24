@@ -1,3 +1,9 @@
+# v1.5.6 4/24/2022
+
+## Fixes
+
+- Fix Excel parsing for x-data-components
+
 # v1.5.5 4/23/2022
 
 ## Fixes

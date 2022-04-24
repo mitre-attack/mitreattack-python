@@ -5,6 +5,7 @@ from itertools import chain
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
@@ -104,13 +105,14 @@ def parseBaseStix(sdo):
     """Given an SDO, return a dict of field names:values that are common across all ATT&CK STIX types."""
     row = {}
     url = None
-    if "external_references" in sdo and sdo["external_references"][0]["source_name"] in [
-        "mitre-attack",
-        "mitre-mobile-attack",
-        "mitre-ics-attack",
-    ]:
-        row["ID"] = sdo["external_references"][0]["external_id"]
-        url = sdo["external_references"][0]["url"]
+    if sdo.get("external_references"):
+        if sdo["external_references"][0]["source_name"] in [
+            "mitre-attack",
+            "mitre-mobile-attack",
+            "mitre-ics-attack",
+        ]:
+            row["ID"] = sdo["external_references"][0]["external_id"]
+            url = sdo["external_references"][0]["url"]
     if "name" in sdo:
         row["name"] = sdo["name"]
     if "description" in sdo:
@@ -237,7 +239,7 @@ def techniquesToDf(src, domain):
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = dataframes["citations"].append(citations)
+            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
         else:  # add citations
             dataframes["citations"] = citations
 
@@ -336,7 +338,7 @@ def sourcesToDf(src, domain):
         # add/merge citations
         if not citations.empty:
             if "citations" in dataframes:  # append to existing citations from references
-                dataframes["citations"] = dataframes["citations"].append(citations)
+                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
             else:  # add citations
                 dataframes["citations"] = citations
 
@@ -385,7 +387,7 @@ def softwareToDf(src, domain):
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = dataframes["citations"].append(citations)
+            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
         else:  # add citations
             dataframes["citations"] = citations
 
@@ -435,7 +437,7 @@ def groupsToDf(src, domain):
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = dataframes["citations"].append(citations)
+            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
         else:  # add citations
             dataframes["citations"] = citations
 
@@ -469,7 +471,7 @@ def mitigationsToDf(src, domain):
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = dataframes["citations"].append(citations)
+            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
         else:  # add citations
             dataframes["citations"] = citations
 
@@ -804,12 +806,15 @@ def relationshipsToDf(src, relatedType=None):
         row = {}
 
         def add_side(label, sdo):
-            """add data for one side of the mapping"""
-            if "external_references" in sdo and sdo["external_references"][0]["source_name"] in [
-                "mitre-attack",
-                "mitre-mobile-attack",
-            ]:
-                row[f"{label} ID"] = sdo["external_references"][0]["external_id"]  # "source ID" or "target ID"
+            """Add data for one side of the mapping."""
+            # logger.debug(sdo)
+            if sdo.get("external_references"):
+                if sdo["external_references"][0]["source_name"] in [
+                    "mitre-attack",
+                    "mitre-mobile-attack",
+                    "mitre-ics-attack",
+                ]:
+                    row[f"{label} ID"] = sdo["external_references"][0]["external_id"]  # "source ID" or "target ID"
             if "name" in sdo:
                 row[f"{label} name"] = sdo["name"]  # "source name" or "target name"
             row[f"{label} type"] = stixToAttackTerm[sdo["type"]]  # "source type" or "target type"

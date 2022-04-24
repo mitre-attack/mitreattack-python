@@ -157,7 +157,7 @@ def write_excel(dataframes: Dict, domain: str, version: str = None, outputDir: s
 
             # add citations to master citations list
             if "citations" in dataframes[objType]:
-                citations = citations.append(dataframes[objType]["citations"])
+                citations = pd.concat([citations, dataframes[objType]["citations"]])
 
             # add main df to master dataset
             dataframes[objType][objType].to_excel(master_writer, sheet_name=objType, index=False)
