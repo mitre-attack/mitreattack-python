@@ -160,6 +160,9 @@ def techniquesToDf(src, domain):
         row = parseBaseStix(technique)
 
         # sub-technique properties
+        if "kill_chain_phases" not in technique:
+            logger.error(f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases")
+            continue
         tactic_shortnames = list(map(lambda kcp: kcp["phase_name"], technique["kill_chain_phases"]))
         tactics = list(
             map(

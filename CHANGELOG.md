@@ -1,3 +1,9 @@
+# v1.5.7 5/2/2022
+
+## Fixes
+
+- Gracefully handle missing kill chain phases
+
 # v1.5.6 4/24/2022
 
 ## Fixes
