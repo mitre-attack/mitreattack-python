@@ -1,0 +1,1 @@
+ python3 changelog_helper.py -old ..\..\..\cti-ATT-CK-v11.1\ics-attack\ -new ../../../cti-ATT-CK-v11.2/ics-attack/ -markdown -domains ics-attack
