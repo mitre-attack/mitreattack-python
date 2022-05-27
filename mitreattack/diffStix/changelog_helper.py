@@ -1,5 +1,3 @@
-import sys
-sys.path.append("C:\\Users\\apare\\Appdata\local\\programs\\python\\python39\\lib\\site-packages")
 import argparse
 import datetime
 import json
@@ -18,11 +16,11 @@ from taxii2client.v20 import Collection
 from tqdm import tqdm
 
 # helper maps
-### add ics helper map
 domainToDomainLabel = {"enterprise-attack": "Enterprise", "mobile-attack": "Mobile", "ics-attack": "ICS"}
 domainToTaxiiCollectionId = {
     "enterprise-attack": "95ecc380-afe9-11e4-9b6c-751b66dd541e",
     "mobile-attack": "2f669986-b40b-4423-b720-4396ca6a462b",
+    "ics-attack": "02c3ef24-9cd4-48f3-a99f-b74ce24f1d34"
 }
 # stix filters for querying for each type of data
 attackTypeToStixFilter = {
@@ -75,7 +73,6 @@ statusToColor = {
     "unchanged": "#ffffff",
 }
 # explanation of modification types to data objects for legend in layer files
-### output file for ics
 statusDescriptions = {
     "additions": "objects which are present in the new data and not the old",
     "changes": "objects which have a newer version number in the new data compared to the old",
@@ -96,7 +93,6 @@ layer_defaults = [
 md_default = os.path.join("output", f"updates-{this_month.lower()}.md")
 json_default = os.path.join("output", f"updates-{this_month.lower()}.json")
 
-### add domain for ics
 class DiffStix(object):
     """Utilities for detecting and summarizing differences between two versions of the ATT&CK content."""
 
@@ -846,7 +842,6 @@ class DiffStix(object):
                 contribSection += f"* {contributor}\n"
 
             return contribSection
-### look into this
         logger.info("generating markdown string")
         content = ""
         for obj_type in self.data.keys():
@@ -1079,7 +1074,6 @@ def markdown_to_index_html(markdown_outfile, content):
 
     logger.info("finished writing HTML to file")
 
-### add for ics
 def layers_dict_to_files(outfiles, layers):
     """Print the layers dict passed in to layer files."""
     logger.info("writing layers dict to layer files")
@@ -1094,6 +1088,11 @@ def layers_dict_to_files(outfiles, layers):
         mobile_attack_layer_file = outfiles[1]
         Path(mobile_attack_layer_file).parent.mkdir(parents=True, exist_ok=True)
         json.dump(layers["mobile-attack"], open(mobile_attack_layer_file, "w"), indent=4)
+
+    if "ics-attack" in layers:
+        ics_attack_layer_file = outfiles[2]
+        Path(ics_attack_layer_file).parent.mkdir(parents=True, exist_ok=True)
+        json.dump(layers["ics-attack"], open(ics_attack_layer_file, "w"), indent=4)
 
     logger.info("finished writing layers dict to layer files")
 
@@ -1134,7 +1133,6 @@ def get_parsed_args():
         default=["technique", "software", "group", "mitigation", "datasource"],
         help="which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
-### Add ics option
     parser.add_argument(
         "-domains",
         type=str,
@@ -1266,7 +1264,6 @@ def get_parsed_args():
 
 
 # Used by attack-website script to generate changelog
-### update here
 def get_new_changelog_md(
     domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
     layers: List[str] = layer_defaults,
