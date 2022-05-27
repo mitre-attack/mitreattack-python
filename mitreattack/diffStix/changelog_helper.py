@@ -1174,7 +1174,7 @@ def get_parsed_args():
         # metavar=("ENTERPRISE", "MOBILE", "PRE"),
         help=f"""
             create layer files showing changes in each domain
-            expected order of filenames is 'enterprise', 'mobile', 'pre attack'.
+            expected order of filenames is 'enterprise', 'mobile', 'ics', 'pre attack'.
             If values are unspecified, defaults to {", ".join(layer_defaults)}
             """,
     )
