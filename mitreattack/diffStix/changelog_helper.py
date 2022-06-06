@@ -87,7 +87,7 @@ this_month = date.strftime("%B_%Y")
 layer_defaults = [
     os.path.join("output", f"{this_month}_Updates_Enterprise.json"),
     os.path.join("output", f"{this_month}_Updates_Mobile.json"),
-    os.path.join("output", f"{this_month}_Updates_Ics.json"),
+    os.path.join("output", f"{this_month}_Updates_ICS.json"),
     os.path.join("output", f"{this_month}_Updates_Pre.json"),
 ]
 md_default = os.path.join("output", f"updates-{this_month.lower()}.md")
