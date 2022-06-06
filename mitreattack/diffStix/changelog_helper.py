@@ -16,10 +16,11 @@ from taxii2client.v20 import Collection
 from tqdm import tqdm
 
 # helper maps
-domainToDomainLabel = {"enterprise-attack": "Enterprise", "mobile-attack": "Mobile"}
+domainToDomainLabel = {"enterprise-attack": "Enterprise", "mobile-attack": "Mobile", "ics-attack": "ICS"}
 domainToTaxiiCollectionId = {
     "enterprise-attack": "95ecc380-afe9-11e4-9b6c-751b66dd541e",
     "mobile-attack": "2f669986-b40b-4423-b720-4396ca6a462b",
+    "ics-attack": "02c3ef24-9cd4-48f3-a99f-b74ce24f1d34"
 }
 # stix filters for querying for each type of data
 attackTypeToStixFilter = {
@@ -86,18 +87,18 @@ this_month = date.strftime("%B_%Y")
 layer_defaults = [
     os.path.join("output", f"{this_month}_Updates_Enterprise.json"),
     os.path.join("output", f"{this_month}_Updates_Mobile.json"),
+    os.path.join("output", f"{this_month}_Updates_ICS.json"),
     os.path.join("output", f"{this_month}_Updates_Pre.json"),
 ]
 md_default = os.path.join("output", f"updates-{this_month.lower()}.md")
 json_default = os.path.join("output", f"updates-{this_month.lower()}.json")
-
 
 class DiffStix(object):
     """Utilities for detecting and summarizing differences between two versions of the ATT&CK content."""
 
     def __init__(
         self,
-        domains=["enterprise-attack", "mobile-attack"],
+        domains=["enterprise-attack", "mobile-attack", "ics-attack"],
         layers=None,
         markdown=None,
         minor_changes=False,
@@ -841,7 +842,6 @@ class DiffStix(object):
                 contribSection += f"* {contributor}\n"
 
             return contribSection
-
         logger.info("generating markdown string")
         content = ""
         for obj_type in self.data.keys():
@@ -1074,7 +1074,6 @@ def markdown_to_index_html(markdown_outfile, content):
 
     logger.info("finished writing HTML to file")
 
-
 def layers_dict_to_files(outfiles, layers):
     """Print the layers dict passed in to layer files."""
     logger.info("writing layers dict to layer files")
@@ -1089,6 +1088,11 @@ def layers_dict_to_files(outfiles, layers):
         mobile_attack_layer_file = outfiles[1]
         Path(mobile_attack_layer_file).parent.mkdir(parents=True, exist_ok=True)
         json.dump(layers["mobile-attack"], open(mobile_attack_layer_file, "w"), indent=4)
+
+    if "ics-attack" in layers:
+        ics_attack_layer_file = outfiles[2]
+        Path(ics_attack_layer_file).parent.mkdir(parents=True, exist_ok=True)
+        json.dump(layers["ics-attack"], open(ics_attack_layer_file, "w"), indent=4)
 
     logger.info("finished writing layers dict to layer files")
 
@@ -1129,14 +1133,13 @@ def get_parsed_args():
         default=["technique", "software", "group", "mitigation", "datasource"],
         help="which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
-
     parser.add_argument(
         "-domains",
         type=str,
         nargs="+",
         metavar="DOMAIN",
-        choices=["enterprise-attack", "mobile-attack"],
-        default=["enterprise-attack", "mobile-attack"],
+        choices=["enterprise-attack", "mobile-attack", "ics-attack"],
+        default=["enterprise-attack", "mobile-attack", "ics-attack"],
         help="which domains to report on. Choices (and defaults) are %(choices)s",
     )
 
@@ -1171,7 +1174,7 @@ def get_parsed_args():
         # metavar=("ENTERPRISE", "MOBILE", "PRE"),
         help=f"""
             create layer files showing changes in each domain
-            expected order of filenames is 'enterprise', 'mobile', 'pre attack'. 
+            expected order of filenames is 'enterprise', 'mobile', 'ics', 'pre attack'.
             If values are unspecified, defaults to {", ".join(layer_defaults)}
             """,
     )
@@ -1262,7 +1265,7 @@ def get_parsed_args():
 
 # Used by attack-website script to generate changelog
 def get_new_changelog_md(
-    domains: List[str] = ["enterprise-attack", "mobile-attack"],
+    domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
     layers: List[str] = layer_defaults,
     markdown_file: str = md_default,
     minor_changes: bool = False,
