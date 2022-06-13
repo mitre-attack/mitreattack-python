@@ -1,4 +1,3 @@
-# MITRE_ATTACK_DOMAIN_STRINGS = ['mitre-attack', 'mitre-mobile-attack', 'mitre-ics-attack']  # TODO delete line
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
