@@ -3,6 +3,7 @@ from stix2.datastore.memory import _add
 from taxii2client.v20 import Server, Collection
 import requests
 import json
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
 class DomainNotLoadedError(Exception):
@@ -195,9 +196,8 @@ class MatrixGen:
         techs = self._search(domain, [Filter('type', '=', 'attack-pattern'),
                                       Filter('kill_chain_phases.phase_name', '=', tactic)])
         for entry in techs:
-            if entry['kill_chain_phases'][0]['kill_chain_name'] == 'mitre-attack' or \
-                            entry['kill_chain_phases'][0]['kill_chain_name'] == 'mitre-mobile-attack':
-                tid = [t['external_id'] for t in entry['external_references'] if 'attack' in t['source_name']]
+            if entry['kill_chain_phases'][0]['kill_chain_name'] in MITRE_ATTACK_ID_SOURCE_NAMES:
+                tid = [t['external_id'] for t in entry['external_references'][:1] if 'attack' in t['source_name']]
                 platform_tags = []
                 if 'x_mitre_platforms' in entry:
                     platform_tags = entry['x_mitre_platforms']
@@ -277,7 +277,7 @@ class MatrixGen:
             if cycle:
                 for entry in to_add:
                     sr = entry[0]
-                    joins.append([entry[0], column-1, len(stechs[entry[1]])])
+                    joins.append([entry[0], column - 1, len(stechs[entry[1]])])
                     for element in stechs[entry[1]]:
                         matrix_obj[(sr, column)] = element.name
                         sr += 1

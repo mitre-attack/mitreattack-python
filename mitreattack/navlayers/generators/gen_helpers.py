@@ -1,4 +1,4 @@
-MITRE_ATTACK_DOMAIN_STRINGS = ['mitre-attack', 'mitre-mobile-attack', 'mitre-ics-attack']
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
 def remove_revoked_depreciated(listing):
@@ -36,7 +36,7 @@ def get_attack_id(obj):
     """
     if not obj['type'].startswith('x-mitre'):
         for entry in obj['external_references']:
-            if entry['source_name'] in MITRE_ATTACK_DOMAIN_STRINGS:
+            if entry['source_name'] in MITRE_ATTACK_ID_SOURCE_NAMES:
                 return entry['external_id']
     else:
         return obj['id']

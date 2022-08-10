@@ -9,6 +9,9 @@ from loguru import logger
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
+
+
 # Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
 #   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
 #   of a platform at the top level of this lookup indicates the existence of subplatforms.
@@ -106,11 +109,7 @@ def parseBaseStix(sdo):
     row = {}
     url = None
     if sdo.get("external_references"):
-        if sdo["external_references"][0]["source_name"] in [
-            "mitre-attack",
-            "mitre-mobile-attack",
-            "mitre-ics-attack",
-        ]:
+        if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
             row["ID"] = sdo["external_references"][0]["external_id"]
             url = sdo["external_references"][0]["url"]
     if "name" in sdo:
@@ -812,11 +811,7 @@ def relationshipsToDf(src, relatedType=None):
             """Add data for one side of the mapping."""
             # logger.debug(sdo)
             if sdo.get("external_references"):
-                if sdo["external_references"][0]["source_name"] in [
-                    "mitre-attack",
-                    "mitre-mobile-attack",
-                    "mitre-ics-attack",
-                ]:
+                if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
                     row[f"{label} ID"] = sdo["external_references"][0]["external_id"]  # "source ID" or "target ID"
             if "name" in sdo:
                 row[f"{label} name"] = sdo["name"]  # "source name" or "target name"
