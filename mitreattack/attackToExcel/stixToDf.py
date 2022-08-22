@@ -512,7 +512,7 @@ class CellRange:
         return "".join(result) + str(row)
 
 
-def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name):
+def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name, platform=None):
     """Build technique and subtechnique columns for a given matrix and attach them to the appropriate object listings.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
@@ -522,6 +522,8 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
     :param matrix_grid_handle: Handle to the 2D grid array being constructed for the matrix (technique and subtechnique
                                 columns will be appended here)
     :param tactic_name: The name of the corresponding tactic for this column
+    :param platform: [Optional] The name of a platform to filter subtechniques by
+
     :return: Nothing (meta - modifies the passed in merge_data_handle and matrix_grid_handle objects)
     """
     techniques_column = []
@@ -543,6 +545,12 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
             technique_top = len(techniques_column) + 1  # top of row range to merge
             # get sub-techniques
             subtechniques = [src.get(rel["source_ref"]) for rel in subtechnique_ofs]
+            if platform:
+                subtechniques = filter_platforms(
+                    subtechniques,
+                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform]
+                )
+
             subtechniques = remove_revoked_deprecated(subtechniques)
             subtechniques = sorted(subtechniques, key=lambda x: x["name"])
             for i in range(len(subtechniques)):  # for each sub-technique
@@ -683,7 +691,14 @@ def matricesToDf(src, domain):
             techniques = remove_revoked_deprecated(techniques)
             techniques = sorted(techniques, key=lambda x: x["name"])
             # add techniques
-            build_technique_and_sub_columns(src, techniques, columns, merge, matrix_grid, tactic["name"])
+            build_technique_and_sub_columns(
+                src=src,
+                techniques=techniques,
+                columns=columns,
+                merge_data_handle=merge,
+                matrix_grid_handle=matrix_grid,
+                tactic_name=tactic["name"]
+            )
 
             for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
                 # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
@@ -691,17 +706,18 @@ def matricesToDf(src, domain):
                 # platform will be.
                 a_techs = filter_platforms(
                     techniques,
-                    [platform] if platform not in MATRIX_PLATFORMS_LOOKUP else MATRIX_PLATFORMS_LOOKUP[platform],
+                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
                 )
                 if a_techs:
                     sub_matrices_columns[platform].append(tactic["name"])
                     build_technique_and_sub_columns(
-                        src,
-                        a_techs,
-                        sub_matrices_columns[platform],
-                        sub_matrices_merges[platform],
-                        sub_matrices_grid[platform],
-                        tactic["name"],
+                        src=src,
+                        techniques=a_techs,
+                        columns=sub_matrices_columns[platform],
+                        merge_data_handle=sub_matrices_merges[platform],
+                        matrix_grid_handle=sub_matrices_grid[platform],
+                        tactic_name=tactic["name"],
+                        platform=platform
                     )
 
         # square the grid because pandas doesn't like jagged columns
