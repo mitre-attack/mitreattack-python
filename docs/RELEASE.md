@@ -23,4 +23,4 @@ In order to release a new version of mitreattack-python, follow the process outl
    1. Tag the `master` branch with the version number - `git tag -a "vA.B.C" -m "mitreattack-python version A.B.C"`
    2. Push both the commit and the tag - `git push`/`git push --tags`
 6. Upload the release to PyPI
-   1. `twine upload --repository pypi dist/*`
+   1. `twine upload dist/*`
