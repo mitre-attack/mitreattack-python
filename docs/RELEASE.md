@@ -16,9 +16,11 @@ In order to release a new version of mitreattack-python, follow the process outl
    1. Edit setup.py and increment the version number.
       Update other fields in setup.py as necessary (used libraries, etc.)
    2. Update setuptools and wheel - `pip install --upgrade setuptools wheel`.
-   3. Build the package - `python setup.py sdist bdist_wheel`.
-   4. Install the package locally using pip, and import it in a python session to validate the build.
-   5. Upload the build to PyPI - `twine upload --repository pypi dist/*`.
+   3. Remove older built pacakges - `rm -rf dist/`.
+   4. Build the package - `python setup.py sdist bdist_wheel`.
+   5. Install the package locally using pip, and import it in a python session to validate the build.
 5. Tag the release:
    1. Tag the `master` branch with the version number - `git tag -a "vA.B.C" -m "mitreattack-python version A.B.C"`
    2. Push both the commit and the tag - `git push`/`git push --tags`
+6. Upload the release to PyPI
+   1. `twine upload --repository pypi dist/*`
