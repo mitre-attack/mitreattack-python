@@ -1,3 +1,10 @@
+# v1.5.8 8/23/2022
+
+## Fixes
+
+- Fix ability to construct SVG files from TAXII data [#76](https://github.com/mitre-attack/mitreattack-python/issues/76)
+- Filter subtechniques in platforms in attacktoexcel
+
 # v1.5.7 5/2/2022
 
 ## Fixes
