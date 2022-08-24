@@ -1,3 +1,9 @@
+# v1.5.10 8/24/2022
+
+## Misc
+
+- Fix GitHub Actions pipeline to be able to publish to PyPI
+
 # v1.5.9 8/24/2022
 
 ## Fixes
