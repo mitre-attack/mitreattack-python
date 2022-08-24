@@ -1,3 +1,14 @@
+# v1.5.9 8/24/2022
+
+## Fixes
+
+- Releasing a new version due to broken 1.5.8 package deployed from modified development environment
+
+## Misc
+
+- GitHub Actions now publish releases from tags instead of from local development environments
+- Autoformatted code with black, and set up flake8 to lint as a GitHub Action going forward
+
 # v1.5.8 8/23/2022
 
 ## Fixes
