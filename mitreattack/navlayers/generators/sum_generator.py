@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 class BatchGenerator:
-    def __init__(self, source, domain='enterprise', resource=None):
+    def __init__(self, source, domain="enterprise", resource=None):
         """
         Initialize the Generator
         :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
@@ -14,10 +14,12 @@ class BatchGenerator:
         :param resource: string path to local STIX data (local) or url of workbench to reach out to (remote)
         """
         self.usage_handle = UsageLayerGenerator(source, domain, resource)
-        self.mapping = dict(group=[Filter('type', '=', 'intrusion-set')],
-                            software=[Filter('type', '=', 'malware'), Filter('type', '=', 'tool')],
-                            mitigation=[Filter('type', '=', 'course-of-action')],
-                            datasource=[Filter('type', '=', 'x-mitre-data-source')])
+        self.mapping = dict(
+            group=[Filter("type", "=", "intrusion-set")],
+            software=[Filter("type", "=", "malware"), Filter("type", "=", "tool")],
+            mitigation=[Filter("type", "=", "course-of-action")],
+            datasource=[Filter("type", "=", "x-mitre-data-source")],
+        )
 
     def generate_layers(self, layers_type):
         """
@@ -31,8 +33,10 @@ class BatchGenerator:
         object_listing = remove_revoked_depreciated(self.usage_handle.source_handle.query(self.mapping[layers_type]))
         for entry in tqdm(object_listing, desc=f"building {layers_type} matrices"):
             try:
-                produced[entry['id']] = self.usage_handle.generate_layer(get_attack_id(entry))
+                produced[entry["id"]] = self.usage_handle.generate_layer(get_attack_id(entry))
             except datastore.DataSourceError as e:
-                print(f"WARNING - unable to generate layer for {(entry['id'], entry['name'])}. "
-                      f"Specifically, generator encountered {e}. Continuing...")
+                print(
+                    f"WARNING - unable to generate layer for {(entry['id'], entry['name'])}. "
+                    f"Specifically, generator encountered {e}. Continuing..."
+                )
         return produced

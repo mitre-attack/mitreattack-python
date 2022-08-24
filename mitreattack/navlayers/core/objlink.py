@@ -4,10 +4,10 @@ from mitreattack.navlayers.core.exceptions import typeChecker
 class Link:
     def __init__(self, label, url):
         """
-            Initialization - Creates a link object
+        Initialization - Creates a link object
 
-            :param label: the label for this link entry
-            :param url: the corresponding url for this link entry
+        :param label: the label for this link entry
+        :param url: the corresponding url for this link entry
         """
         self.label = label
         self.url = url
@@ -32,8 +32,8 @@ class Link:
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local metadata object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local metadata object
         """
         return dict(label=self.__label, url=self.__url)
 
@@ -41,7 +41,7 @@ class Link:
 class LinkDiv:
     def __init__(self, active):
         """
-            Initialization - Creates a Link object divider
+        Initialization - Creates a Link object divider
         """
         self.__name = "DIVIDER"
         self.__value = active
@@ -61,7 +61,7 @@ class LinkDiv:
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local metadata object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local metadata object
         """
         return dict(name=self.__name, value=self.__value)

@@ -7,11 +7,11 @@ from mitreattack.navlayers.core.exceptions import typeChecker, typeCheckerArray
 class Gradient:
     def __init__(self, colors, minValue, maxValue):
         """
-            Initialization - Creates a gradient object
+        Initialization - Creates a gradient object
 
-            :param colors: The array of color codes for this gradient
-            :param minValue: The minValue for this gradient
-            :param maxValue: The maxValue for this gradient
+        :param colors: The array of color codes for this gradient
+        :param minValue: The minValue for this gradient
+        :param maxValue: The maxValue for this gradient
         """
         self.__minValue = None
         self.__maxValue = None
@@ -34,7 +34,7 @@ class Gradient:
                 colour.Color(entry)
             except AttributeError:
                 self.__alpha.append(entry[-2:])
-                if entry.startswith('#'):
+                if entry.startswith("#"):
                     entry = entry[:7]
                 else:
                     entry = entry[:6]
@@ -63,15 +63,15 @@ class Gradient:
 
     def _compute_curve(self):
         """
-            Computes the gradient color curve
+        Computes the gradient color curve
         """
         if self.maxValue is not None and self.minValue is not None and self.colors is not None:
-            chunksize = int(math.floor((self.maxValue - self.minValue)/(len(self.colors) - 1)))
-            fchunksize = int(math.ceil((self.maxValue - self.minValue)/(len(self.colors) - 1)))
+            chunksize = int(math.floor((self.maxValue - self.minValue) / (len(self.colors) - 1)))
+            fchunksize = int(math.ceil((self.maxValue - self.minValue) / (len(self.colors) - 1)))
             self.curve = []
             index = 1
             while index < len(self.colors):
-                s_c = colour.Color(self.colors[index-1])
+                s_c = colour.Color(self.colors[index - 1])
                 e_c = colour.Color(self.colors[index])
                 if index == len(self.colors):
                     curve_2 = list(s_c.range_to(e_c, fchunksize))
@@ -83,9 +83,9 @@ class Gradient:
 
     def compute_color(self, score):
         """
-            Computes a specific color based on the score value provided
-            :returns: A hexadecimal color representation of the score on
-                the gradient
+        Computes a specific color based on the score value provided
+        :returns: A hexadecimal color representation of the score on
+            the gradient
         """
         if score <= self.minValue:
             return self.curve[0].hex_l
@@ -97,12 +97,11 @@ class Gradient:
 
     def get_dict(self):
         """
-            Converts the currently loaded gradient file into a dict
-            :returns: A dict representation of the current gradient object
+        Converts the currently loaded gradient file into a dict
+        :returns: A dict representation of the current gradient object
         """
         if len(self.__alpha) == len(self.__colors):
             color_out = [f"{self.__colors[i]}{self.__alpha[i]}" for i in range(0, len(self.__alpha))]
         else:
             color_out = self.__colors
-        return dict(colors=color_out, minValue=self.__minValue,
-                    maxValue=self.maxValue)
+        return dict(colors=color_out, minValue=self.__minValue, maxValue=self.maxValue)

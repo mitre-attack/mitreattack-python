@@ -160,7 +160,9 @@ def techniquesToDf(src, domain):
 
         # sub-technique properties
         if "kill_chain_phases" not in technique:
-            logger.error(f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases")
+            logger.error(
+                f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases"
+            )
             continue
         tactic_shortnames = list(map(lambda kcp: kcp["phase_name"], technique["kill_chain_phases"]))
         tactics = list(
@@ -512,7 +514,9 @@ class CellRange:
         return "".join(result) + str(row)
 
 
-def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name, platform=None):
+def build_technique_and_sub_columns(
+    src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name, platform=None
+):
     """Build technique and subtechnique columns for a given matrix and attach them to the appropriate object listings.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
@@ -548,7 +552,7 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
             if platform:
                 subtechniques = filter_platforms(
                     subtechniques,
-                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform]
+                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
                 )
 
             subtechniques = remove_revoked_deprecated(subtechniques)
@@ -697,7 +701,7 @@ def matricesToDf(src, domain):
                 columns=columns,
                 merge_data_handle=merge,
                 matrix_grid_handle=matrix_grid,
-                tactic_name=tactic["name"]
+                tactic_name=tactic["name"],
             )
 
             for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
@@ -717,7 +721,7 @@ def matricesToDf(src, domain):
                         merge_data_handle=sub_matrices_merges[platform],
                         matrix_grid_handle=sub_matrices_grid[platform],
                         tactic_name=tactic["name"],
-                        platform=platform
+                        platform=platform,
                     )
 
         # square the grid because pandas doesn't like jagged columns

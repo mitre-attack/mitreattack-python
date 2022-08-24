@@ -1,5 +1,13 @@
-from mitreattack.navlayers.core.exceptions import BadInput, handler, typeChecker, loadChecker, UNSETVALUE, \
-    UnknownTechniqueProperty, BadType, MissingParameters
+from mitreattack.navlayers.core.exceptions import (
+    BadInput,
+    handler,
+    typeChecker,
+    loadChecker,
+    UNSETVALUE,
+    UnknownTechniqueProperty,
+    BadType,
+    MissingParameters,
+)
 from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
 from mitreattack.navlayers.core.objlink import Link, LinkDiv
 from mitreattack.navlayers.core.helpers import handle_object_placement
@@ -8,9 +16,9 @@ from mitreattack.navlayers.core.helpers import handle_object_placement
 class Technique:
     def __init__(self, tID):
         """
-            Initialization - Creates a technique object
+        Initialization - Creates a technique object
 
-            :param tID: The techniqueID associated with this technique object
+        :param tID: The techniqueID associated with this technique object
         """
         self.techniqueID = tID
         self.__tactic = UNSETVALUE
@@ -30,9 +38,8 @@ class Technique:
     @techniqueID.setter
     def techniqueID(self, techniqueID):
         typeChecker(type(self).__name__, techniqueID, str, "techniqueID")
-        if not techniqueID.startswith('T'):
-            handler(type(self).__name__, '{} not a valid value for techniqueID'
-                    .format(techniqueID))
+        if not techniqueID.startswith("T"):
+            handler(type(self).__name__, "{} not a valid value for techniqueID".format(techniqueID))
             raise BadInput
         else:
             self.__techniqueID = techniqueID
@@ -105,25 +112,20 @@ class Technique:
             for entry in metadata:
                 try:
                     if isinstance(entry, Metadata) or isinstance(entry, MetaDiv):
-                        loadChecker(type(self).__name__, entry.get_dict(), ['name', 'value'], "metadata")
+                        loadChecker(type(self).__name__, entry.get_dict(), ["name", "value"], "metadata")
                         self.__metadata.append(entry)
                     elif isinstance(entry, dict):
-                        loadChecker(type(self).__name__, entry, ['name', 'value'], "metadata")
-                        if entry['name'] == "DIVIDER":
-                            self.__metadata.append(MetaDiv(active=entry['value']))
+                        loadChecker(type(self).__name__, entry, ["name", "value"], "metadata")
+                        if entry["name"] == "DIVIDER":
+                            self.__metadata.append(MetaDiv(active=entry["value"]))
                         else:
-                            self.__metadata.append(Metadata(name=entry['name'], value=entry['value']))
+                            self.__metadata.append(Metadata(name=entry["name"], value=entry["value"]))
                     else:
                         pass  # Object in the list was not of Metadata or MetaDiv classes
                 except MissingParameters as e:
-                    handler(
-                        type(self).__name__,
-                        'Metadata {} is missing parameters: {}. Skipping.'.format(entry, e)
-                    )
+                    handler(type(self).__name__, "Metadata {} is missing parameters: {}. Skipping.".format(entry, e))
         except KeyError as e:
-            handler(type(self).__name__, 'Metadata {} is missing parameters: '
-                                         '{}. Unable to load.'
-                    .format(entry, e))
+            handler(type(self).__name__, "Metadata {} is missing parameters: " "{}. Unable to load.".format(entry, e))
 
     @property
     def showSubtechniques(self):
@@ -132,8 +134,7 @@ class Technique:
 
     @showSubtechniques.setter
     def showSubtechniques(self, showSubtechniques):
-        typeChecker(type(self).__name__, showSubtechniques, bool,
-                    "showSubtechniques")
+        typeChecker(type(self).__name__, showSubtechniques, bool, "showSubtechniques")
         self.__showSubtechniques = showSubtechniques
 
     @property
@@ -160,70 +161,67 @@ class Technique:
         try:
             for entry in links:
                 if isinstance(entry, Link):
-                    loadChecker(type(self).__name__, entry.get_dict(), ['label', 'url'], "link")
+                    loadChecker(type(self).__name__, entry.get_dict(), ["label", "url"], "link")
                     self.__links.append(entry)
                 elif isinstance(entry, LinkDiv):
-                    loadChecker(type(self).__name__, entry.get_dict(), ['name', 'value'], "linkdiv")
+                    loadChecker(type(self).__name__, entry.get_dict(), ["name", "value"], "linkdiv")
                     self.__links.append(entry)
                 elif isinstance(entry, dict):
-                    if 'name' in entry and entry['name'] == "DIVIDER":
-                        loadChecker(type(self).__name__, entry, ['name', 'value'], "linkdiv")
-                        self.__links.append(LinkDiv(active=entry['value']))
+                    if "name" in entry and entry["name"] == "DIVIDER":
+                        loadChecker(type(self).__name__, entry, ["name", "value"], "linkdiv")
+                        self.__links.append(LinkDiv(active=entry["value"]))
                     else:
-                        loadChecker(type(self).__name__, entry, ['label', 'url'], "link")
-                        self.__links.append(Link(label=entry['label'], url=entry['url']))
+                        loadChecker(type(self).__name__, entry, ["label", "url"], "link")
+                        self.__links.append(Link(label=entry["label"], url=entry["url"]))
                 else:
                     pass
         except KeyError as e:
-            handler(type(self).__name__, 'Link {} is missing parameters: '
-                                         '{}. Unable to load.'
-                    .format(entry, e))
+            handler(type(self).__name__, "Link {} is missing parameters: " "{}. Unable to load.".format(entry, e))
 
     def _loader(self, data):
         """
-            INTERNAL: Acts a middleman for loading values into the technique
-                object from a dict representation
-            :param data: A dict describing the technique
-            :raises UnknownTechniqueProperty: An error indicating that an
-                unexpected property was found on the technique
+        INTERNAL: Acts a middleman for loading values into the technique
+            object from a dict representation
+        :param data: A dict describing the technique
+        :raises UnknownTechniqueProperty: An error indicating that an
+            unexpected property was found on the technique
         """
         for entry in data.keys():
-            if entry == 'techniqueID':
+            if entry == "techniqueID":
                 pass
-            elif entry == 'tactic':
+            elif entry == "tactic":
                 self.tactic = data[entry]
-            elif entry == 'comment':
+            elif entry == "comment":
                 self.comment = data[entry]
-            elif entry == 'enabled':
+            elif entry == "enabled":
                 self.enabled = data[entry]
-            elif entry == 'score':
+            elif entry == "score":
                 self.score = data[entry]
-            elif entry == 'color':
+            elif entry == "color":
                 self.color = data[entry]
-            elif entry == 'metadata':
+            elif entry == "metadata":
                 self.metadata = data[entry]
-            elif entry == 'showSubtechniques':
+            elif entry == "showSubtechniques":
                 self.showSubtechniques = data[entry]
-            elif entry == 'links':
+            elif entry == "links":
                 self.links = data[entry]
-            elif entry == 'aggregateScore':
+            elif entry == "aggregateScore":
                 self.aggregateScore = data[entry]
             else:
-                handler(type(self).__name__, "Unknown technique property: {}"
-                        .format(entry))
+                handler(type(self).__name__, "Unknown technique property: {}".format(entry))
                 raise UnknownTechniqueProperty
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local technique object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local technique object
         """
         dset = vars(self)
         temp = {}
         for key in dset:
-            entry = key.split(type(self).__name__ + '__')[-1]
+            entry = key.split(type(self).__name__ + "__")[-1]
             if dset[key] != UNSETVALUE:
-                if entry != 'metadata' and entry != 'links':
+                if entry != "metadata" and entry != "links":
                     temp[entry] = dset[key]
                 else:
                     temp[entry] = [x.get_dict() for x in dset[key]]

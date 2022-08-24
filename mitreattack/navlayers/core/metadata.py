@@ -4,10 +4,10 @@ from mitreattack.navlayers.core.exceptions import typeChecker
 class Metadata:
     def __init__(self, name, value):
         """
-            Initialization - Creates a metadata object
+        Initialization - Creates a metadata object
 
-            :param name: the name for this metadata entry
-            :param value: the corresponding value for this metadata entry
+        :param name: the name for this metadata entry
+        :param value: the corresponding value for this metadata entry
         """
         self.name = name
         self.value = value
@@ -34,8 +34,8 @@ class Metadata:
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local metadata object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local metadata object
         """
         return dict(name=self.__name, value=self.__value)
 
@@ -43,7 +43,7 @@ class Metadata:
 class MetaDiv:
     def __init__(self, active):
         """
-            Initialization - Creates a metadata object divider
+        Initialization - Creates a metadata object divider
         """
         self.__name = "DIVIDER"
         self.__value = active
@@ -63,7 +63,7 @@ class MetaDiv:
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local metadata object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local metadata object
         """
         return dict(name=self.__name, value=self.__value)

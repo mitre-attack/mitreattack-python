@@ -4,10 +4,10 @@ from mitreattack.navlayers.core.exceptions import typeChecker
 class LegendItem:
     def __init__(self, label, color):
         """
-            Initialization - Creates a legendItem object
+        Initialization - Creates a legendItem object
 
-            :param label: The label described by this object
-            :param color: The color associated with the label
+        :param label: The label described by this object
+        :param color: The color associated with the label
         """
         self.label = label
         self.color = color
@@ -32,7 +32,7 @@ class LegendItem:
 
     def get_dict(self):
         """
-            Converts the currently loaded data into a dict
-            :returns: A dict representation of the local legendItem object
+        Converts the currently loaded data into a dict
+        :returns: A dict representation of the local legendItem object
         """
         return dict(label=self.__label, color=self.__color)
