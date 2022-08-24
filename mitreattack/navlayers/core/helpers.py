@@ -1,7 +1,9 @@
+"""Helper functions."""
+
+
 def handle_object_placement(handle_to_self_field, potential_object, objectType, list=False):
-    """
-    Helper function to checks to see if we can safely set a given field (handle_to_self_field)
-    to a potential_object by checking whether or not it is an instance of objectType.
+    """Check to see if we can safely set a given field (handle_to_self_field) to a potential_object by checking whether or not it is an instance of objectType.
+
     :param handle_to_self_field: the field the object is to be assigned to
     :param potential_object: the potential instance of an object
     :param objectType: the type of object being looked for

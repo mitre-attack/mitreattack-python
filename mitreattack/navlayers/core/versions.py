@@ -1,12 +1,15 @@
+"""Contains Versions class."""
+
 from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
 defaults = dict(layer="4.3", navigator="4.5.5")
 
 
 class Versions:
+    """A Versions object."""
+
     def __init__(self, layer=defaults["layer"], attack=UNSETVALUE, navigator=defaults["navigator"]):
-        """
-        Initialization - Creates a v4 Versions object
+        """Initialize - Creates a v4 Versions object.
 
         :param layer: The layer version
         :param attack: The attack version
@@ -18,6 +21,7 @@ class Versions:
 
     @property
     def attack(self):
+        """Getter for attack."""
         if self.__attack != UNSETVALUE:
             return self.__attack
         else:
@@ -25,15 +29,18 @@ class Versions:
 
     @attack.setter
     def attack(self, attack):
+        """Setter for attack."""
         typeChecker(type(self).__name__, attack, str, "attack")
         self.__attack = attack
 
     @property
     def navigator(self):
+        """Getter for navigator."""
         return self.__navigator
 
     @navigator.setter
     def navigator(self, navigator):
+        """Setter for navigator."""
         typeChecker(type(self).__name__, navigator, str, "navigator")
         if not navigator.startswith("4."):
             print(
@@ -45,10 +52,12 @@ class Versions:
 
     @property
     def layer(self):
+        """Getter for layer."""
         return self.__layer
 
     @layer.setter
     def layer(self, layer):
+        """Setter for layer."""
         typeChecker(type(self).__name__, layer, str, "layer")
         try:
             categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2", "4.3"], "layer version")
@@ -63,8 +72,8 @@ class Versions:
         self.__layer = layer
 
     def get_dict(self):
-        """
-        Converts the currently loaded data into a dict
+        """Convert the currently loaded data into a dict.
+
         :returns: A dict representation of the local Versions object
         """
         temp = dict()

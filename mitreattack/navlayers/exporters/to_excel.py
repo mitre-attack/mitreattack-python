@@ -1,3 +1,5 @@
+"""Contains ToExcel class."""
+
 from copy import deepcopy
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill, Font
@@ -8,26 +10,24 @@ from mitreattack.navlayers.exporters import ExcelTemplates
 
 
 class ToExcel:
+    """Class that assists in converting data to Excel files."""
+
     def __init__(self, domain="enterprise", source="taxii", resource=None):
-        """
-        Sets up exporting system, builds underlying matrix
+        """Set up exporting system, builds underlying matrix.
 
         :param source: Source to generate the matrix from, one of (taxii, local, or remote)
         :param resource: Optional string path to local cache of stix data (local) or url of workbench to reach out
                             to (remote)
-
         """
         self.domain = domain
         self.raw_handle = ExcelTemplates(domain=domain, source=source, resource=resource)
 
     def to_xlsx(self, layerInit, filepath="layer.xlsx"):
-        """
-        Exports a layer file to the excel format as the file specified
+        """Export a layer file to the excel format as the file specified.
 
         :param layerInit: A layer to initialize the instance with
         :param filepath: The location to write the excel file to
         """
-
         if not isinstance(layerInit, Layer):
             raise TypeError
 
@@ -165,7 +165,7 @@ class ToExcel:
                     comp_color = safe_gradient.compute_color(tscore)
                     c_color = PatternFill(fill_type="solid", start_color=comp_color.upper()[1:])
                     cell.fill = c_color
-                    RGB = tuple(int(comp_color.upper()[1:][i : i + 2], 16) for i in (0, 2, 4))
+                    RGB = tuple(int(comp_color.upper()[1:][i: i + 2], 16) for i in (0, 2, 4))
                     hls = colorsys.rgb_to_hls(RGB[0], RGB[1], RGB[2])
                     if hls[1] < 127.5:
                         white = Font(color="FFFFFF")

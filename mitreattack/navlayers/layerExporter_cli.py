@@ -1,3 +1,5 @@
+"""Entrypoint for the layer exporter cli."""
+
 import argparse
 
 from mitreattack.navlayers.exporters.to_svg import ToSvg, SVGConfig
@@ -6,7 +8,7 @@ from mitreattack.navlayers.core import Layer
 
 
 def main(argv=None):
-
+    """Entrypoint for layerExporter_cli."""
     parser = argparse.ArgumentParser(description="Export an ATT&CK Navigator layer as a svg image or excel file")
     parser.add_argument(
         "-m", "--mode", choices=["svg", "excel"], required=True, help="The form to export the layers in"
@@ -48,22 +50,22 @@ def main(argv=None):
 
     for i in range(0, len(args.input)):
         entry = args.input[i]
-        print("{}/{} - Beginning processing {}".format(i + 1, len(args.input), entry))
+        print(f"{i + 1}/{len(args.input)} - Beginning processing {entry}")
         lay = Layer()
         try:
             lay.from_file(entry)
         except Exception as e:
-            print("Unable to load {} due to exception: {}. Skipping...".format(entry, e))
+            print(f"Unable to load {entry} due to exception: {e}. Skipping...")
             continue
         if args.mode == "excel":
             if not args.output[i].endswith(".xlsx"):
-                print("[ERROR] Unable to export {} as type: excel to {}".format(entry, args.output[i]))
+                print(f"[ERROR] Unable to export {entry} as type: excel to {args.output[i]}")
                 continue
             exy = ToExcel(domain=lay.layer.domain, source=args.source, resource=args.resource)
             exy.to_xlsx(lay, filepath=args.output[i])
         else:
             if not args.output[i].endswith(".svg"):
-                print("[ERROR] Unable to export {} as type: svg to {}".format(entry, args.output[i]))
+                print(f"[ERROR] Unable to export {entry} as type: svg to {args.output[i]}")
                 continue
             conf = SVGConfig()
             if args.load_settings:
@@ -73,7 +75,7 @@ def main(argv=None):
                 conf.height = float(args.size[1])
             svy = ToSvg(domain=lay.layer.domain, source=args.source, resource=args.resource, config=conf)
             svy.to_svg(lay, filepath=args.output[i])
-        print("{}/{} - Finished exporting {} to {}".format(i + 1, len(args.input), entry, args.output[i]))
+        print(f"{i + 1}/{len(args.input)} - Finished exporting {entry} to {args.output[i]}")
 
 
 if __name__ == "__main__":

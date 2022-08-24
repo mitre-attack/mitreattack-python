@@ -1,3 +1,5 @@
+"""Contains UsageLayerGenerator class."""
+
 from stix2 import Filter
 from itertools import chain
 import copy
@@ -9,19 +11,23 @@ from mitreattack.navlayers.generators.gen_helpers import remove_revoked_deprecia
 
 
 class UnableToFindStixObject(Exception):
+    """Custom exception used when STIX object is not found."""
+
     pass
 
 
 class StixObjectIsNotValid(Exception):
+    """Custom exception used when STIX objects are found to not be valid."""
+
     pass
 
 
 class UsageLayerGenerator:
-    """Generates a Layer that shows techniques mapped to an input group, software or mitigation"""
+    """Generates a Layer that shows techniques mapped to an input group, software or mitigation."""
 
     def __init__(self, source, domain="enterprise", resource=None):
-        """
-        Initialize the Generator
+        """Initialize the Generator.
+
         :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which matrix to use during generation
         :param resource: string path to local STIX data (local) or url of workbench to reach out to (remote)
@@ -39,8 +45,8 @@ class UsageLayerGenerator:
         self.source_mapping = build_data_strings(self.sources, self.components)
 
     def get_stix_object(self, match):
-        """
-        Retrieve the stix object for a given string
+        """Retrieve the stix object for a given string.
+
         :param match: The string to match on - can be a name, alias, or ATT&CK ID
         :return: the corresponding stix object
         """
@@ -63,8 +69,8 @@ class UsageLayerGenerator:
         raise UnableToFindStixObject
 
     def get_matrix_data(self, match_pattern):
-        """
-        Retrieve a list of attack-pattern (technique) objects that map to a group, software or mitigation.
+        """Retrieve a list of attack-pattern (technique) objects that map to a group, software or mitigation.
+
         :param match_pattern: Name, associated group/software (alias), or ATT&CK ID.
                               Techniques mapped to the object matching this pattern are returned.```
         """
@@ -83,8 +89,8 @@ class UsageLayerGenerator:
         return remove_revoked_depreciated(out), obj
 
     def generate_technique_data(self, raw_matches):
-        """
-        Generate technique list of dictionary objects (dictionary form of technique listing for a layer)
+        """Generate technique list of dictionary objects (dictionary form of technique listing for a layer).
+
         :param raw_matches: matching attack-pattern objects
         :return: list of dictionary objects for every technique: score=0 if not in raw_matches, 1 otherwise,
                     description in comments
@@ -120,8 +126,8 @@ class UsageLayerGenerator:
         return construct
 
     def generate_layer(self, match):
-        """
-        Generate a layer
+        """Generate a layer.
+
         :param match: the pattern to match
         :return: layer object with annotated techniques
         """

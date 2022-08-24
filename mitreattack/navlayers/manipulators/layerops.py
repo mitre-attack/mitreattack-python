@@ -1,3 +1,5 @@
+"""Contains LayerOps class."""
+
 # Example Use:
 # from navlayers.manipulators.layerops import LayerOps
 # from navlayers.core.layer import Layer
@@ -24,18 +26,26 @@ from mitreattack.navlayers.core import Layer
 
 
 class InvalidFormat(Exception):
+    """Custom exception used for invalid formats."""
+
     pass
 
 
 class BadLambda(Exception):
+    """Custom exception used for bad lambdas."""
+
     pass
 
 
 class MismatchedDomain(Exception):
+    """Custom exception used for mismatched domains."""
+
     pass
 
 
 class LayerOps:
+    """A LayerOps object."""
+
     def __init__(
         self,
         score=None,
@@ -47,9 +57,8 @@ class LayerOps:
         desc=None,
         default_values=None,
     ):
-        """
-        Initialization - configures the object to handle processing
-            based on user provided Lambdas
+        """Initialize - configures the object to handle processing based on user provided Lambdas.
+
         :param score: lambda to calculate score
         :param comment: lambda to generate comments
         :param enabled: lambda to determine enabled status
@@ -72,8 +81,8 @@ class LayerOps:
                 self._default_values[entry] = default_values[entry]
 
     def process(self, data, default_values=None):
-        """
-        takes a list or dict of Layer objects, and processes them
+        """Take a list or dict of Layer objects, and processes them.
+
         :param data: A dict or list of Layer objects.
         :param default_values: dictionary containing desired default values for
             missing data element values
@@ -105,8 +114,8 @@ class LayerOps:
         return self._compute(data, da, corpus, out, defaults)
 
     def _compute(self, data, da, corpus, out, defaults):
-        """
-        INTERNAL: Applies the configured lambda to the dataset
+        """Apply the configured lambda to the dataset.
+
         :param data: the dataset being processed
         :param da: extracted techniques from the dataset, sorted by
             dataset format
@@ -151,10 +160,8 @@ class LayerOps:
         return Layer(processed)
 
     def _merge_to_template(self, data, key=0):
-        """
-        INTERNAL: merges initial layer files in either dict or list form
-            into a single template. Defaults to the first entry in the
-            case of difference in metadata.
+        """Merge initial layer files in either dict or list form into a single template. Defaults to the first entry in the case of difference in metadata.
+
         :param key: the key referencing the first entry to default to
         :raises MismatchedDomain: An error indicating that the layers
             came from different domains
@@ -178,14 +185,13 @@ class LayerOps:
                     if entry == "domain":
                         print("FATAL ERROR! Layer mis-match on domain. " "Exiting.")
                         raise MismatchedDomain
-                    print("Warning! Layer mis-match detected for {}. " "Defaulting to {}'s value".format(entry, key))
+                    print(f"Warning! Layer mis-match detected for {entry}. Defaulting to {key}'s value")
                 out[entry] = standard
         return out
 
     def _build_template(self, data):
-        """
-        INTERNAL: builds a base template by combining available technique
-            listings from each layer
+        """Build a base template by combining available technique listings from each layer.
+
         :param data: the raw ingested technique data (list or dict)
         """
         if self.mode == "list":
@@ -210,9 +216,8 @@ class LayerOps:
 
     @staticmethod
     def _template(data):
-        """
-        INTERNAL: creates a template technique entry for a given listing
-            of techniques
+        """Create a template technique entry for a given listing of techniques.
+
         :param data: a single layer's technique data
         :returns: a list of technique templates
         """
@@ -233,9 +238,8 @@ class LayerOps:
         return complete
 
     def _grabList(self, search, collection):
-        """
-        INTERNAL: generates a list containing all values for a given key
-            across the collection
+        """Generate a list containing all values for a given key across the collection.
+
         :param search: the key to search for
         :param collection: the data collection to search
         :returns: a list of values for that key across the collection
@@ -246,9 +250,8 @@ class LayerOps:
         return temp
 
     def _grabDict(self, search, collection):
-        """
-        INTERNAL: generates a dictionary containing all values for a given
-            key across the collection
+        """Generate a dictionary containing all values for a given key across the collection.
+
         :param search: the key to search for
         :param collection: the data collection to search
         :returns: a dict of values for that key across the collection
@@ -259,9 +262,8 @@ class LayerOps:
         return temp
 
     def _grabElement(self, search, listing):
-        """
-        INTERNAL: returns a matching element in the listing for the
-            search key
+        """Return a matching element in the listing for the search key.
+
         :param search: the key to search for
         :param listing: the data element to search
         :returns: the found value, or an empty dict
@@ -273,9 +275,8 @@ class LayerOps:
 
     @staticmethod
     def _inDict(search, complete):
-        """
-        INTERNAL: returns bool of whether or not the key searched
-            for can be found across the dataset corpus
+        """Return bool of whether or not the key searched for can be found across the dataset corpus.
+
         :param search: the key to search for
         :param complete: the data set to search for
         :returns: true/false
@@ -285,8 +286,8 @@ class LayerOps:
         return all(elm in comp_list for elm in search_terms)
 
     def _applyOperation(self, corpus, element, name, lda, defaults, glob=None):
-        """
-        INTERNAL: applies a lambda expression to the dataset
+        """Apply a lambda expression to the dataset.
+
         :param corpus: the dataset
         :param element: the template file to fill out
         :param name: the name of the field being processed
@@ -350,5 +351,5 @@ class LayerOps:
                 'Unable to continue, lambda targeting "{}" could not operate'
                 " correctly on {}. Maybe the field is missing?".format(name, element)
             )
-            print("[RAW] Extracted matching elements: {}".format(listing))
+            print(f"[RAW] Extracted matching elements: {listing}")
             raise BadLambda

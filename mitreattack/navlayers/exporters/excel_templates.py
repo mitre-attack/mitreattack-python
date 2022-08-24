@@ -1,3 +1,5 @@
+"""Contains ExcelTemplates class."""
+
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
@@ -5,13 +7,16 @@ from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 
 
 class BadTemplateException(Exception):
+    """Custom exception used when bad templates are found."""
+
     pass
 
 
 class ExcelTemplates:
+    """An ExcelTemplates object."""
+
     def __init__(self, source="taxii", resource=None, domain="enterprise"):
-        """
-        Initialization - Creates a ExcelTemplate object
+        """Initialize - Creates a ExcelTemplate object.
 
         :param source: Source to use when compiling the matrix
         :param resource: string path to local cache of stix data (local) or url of workbench to reach out
@@ -30,8 +35,7 @@ class ExcelTemplates:
             raise BadTemplateException
 
     def _build_raw(self, showName=True, showID=False, sort=0, scores=[], subtechs=[], exclude=[]):
-        """
-        INTERNAL - builds a raw, not-yet-marked-up excel document based on the specifications
+        """Build a raw, not-yet-marked-up excel document based on the specifications.
 
         :param showName: Whether or not to display names for each entry
         :param showID: Whether or not to display Technique IDs for each entry
@@ -104,9 +108,7 @@ class ExcelTemplates:
         return wb
 
     def export(self, showName, showID, filters=None, sort=0, scores=[], subtechs=[], exclude=[]):
-        """
-        Export a raw customized excel template
-
+        """Export a raw customized excel template.
 
         :param showName: Whether or not to display names for each entry
         :param showID: Whether or not to display Technique IDs for each entry
@@ -121,8 +123,7 @@ class ExcelTemplates:
         return self._build_raw(showName, showID, sort, scores, subtechs, exclude)
 
     def retrieve_coords(self, techniqueID, tactic=None):
-        """
-        Locate the openpyxl coordinates of the provided technique for the currently loaded matrix
+        """Locate the openpyxl coordinates of the provided technique for the currently loaded matrix.
 
         :param techniqueID: The ID of the technique to locate
         :param tactic: Optional parameter to isolate the technique to a specific tactic

@@ -1,3 +1,5 @@
+"""Contains OverviewLayerGenerator class."""
+
 from stix2 import Filter
 
 from mitreattack.constants import MITRE_ATTACK_DOMAIN_STRINGS
@@ -12,15 +14,17 @@ from mitreattack.navlayers.generators.gen_helpers import (
 
 
 class UnableToFindTechnique(Exception):
+    """Custom exception used when unable to find techniques."""
+
     pass
 
 
 class OverviewLayerGenerator:
-    """Generates a Layer file that provides an overview of entities related to each technique"""
+    """Generates a Layer file that provides an overview of entities related to each technique."""
 
     def __init__(self, source, domain="enterprise", resource=None):
-        """
-        Initialize the Generator
+        """Initialize the Generator.
+
         :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which domain to use during generation
         :param resource: string path to local cache of stix data (local) or url of Workbench to connect to (remote)
@@ -84,8 +88,8 @@ class OverviewLayerGenerator:
             self.tech_no_tactic_listing[xid] = entry
 
     def get_groups(self, relationships):
-        """
-        Sort Groups out of relationships
+        """Sort Groups out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched groups, list of group names
         """
@@ -100,8 +104,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_software(self, relationships):
-        """
-        Sort software out of relationships
+        """Sort software out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched software, list of software names
         """
@@ -118,8 +122,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_mitigations(self, relationships):
-        """
-        Sort mitigations out of relationships
+        """Sort mitigations out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched mitigations, list of mitigation names
         """
@@ -127,8 +131,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_datasources(self, relationships):
-        """
-        Sort datasources/datacomponents out of relationships
+        """Sort datasources/datacomponents out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched datasources/datacomponents, list of associated names
         """
@@ -136,8 +140,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_matrix_template(self):
-        """
-        Build the raw dictionary form matrix layer object
+        """Build the raw dictionary form matrix layer object.
+
         :return: dictionary representing all entries in the matrix layer
         """
         construct = list()
@@ -155,8 +159,8 @@ class OverviewLayerGenerator:
         return construct
 
     def get_technique_obj(self, techniqueID, tactic):
-        """
-        Extract the matching technique object from the tech_listing
+        """Extract the matching technique object from the tech_listing.
+
         :param techniqueID: the technique object's id
         :param tactic: optional tactic for the technique object (shortname - ex. "reconnaissance")
         :return: the matching technique object (or a UnableToFindTechnique exception)
@@ -171,8 +175,8 @@ class OverviewLayerGenerator:
             raise UnableToFindTechnique
 
     def update_template(self, obj_type, complete_tech_listing):
-        """
-        Update an existing dictionary of layer techniques with the appropriate matching objects
+        """Update an existing dictionary of layer techniques with the appropriate matching objects.
+
         :param obj_type: the type of object to update the data with
         :param complete_tech_listing: 'clean' technique dictionary template
         :return: Updated technique dictionary
@@ -211,8 +215,8 @@ class OverviewLayerGenerator:
         return temp
 
     def generate_layer(self, obj_type):
-        """
-        Generate a layer
+        """Generate a layer.
+
         :param obj_type: the type of object data to compute over (group, software, or mitigation)
         :return: layer object with annotated techniques
         """

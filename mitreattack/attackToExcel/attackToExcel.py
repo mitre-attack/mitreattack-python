@@ -1,3 +1,5 @@
+"""Functions to convert ATT&CK STIX data to Excel, as well as entrypoint for attackToExcel_cli."""
+
 import argparse
 import os
 from typing import Dict, List
@@ -282,6 +284,7 @@ def export(
 
 
 def main():
+    """Entrypoint for attackToExcel_cli."""
     parser = argparse.ArgumentParser(
         description="Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets"
     )

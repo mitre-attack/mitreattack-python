@@ -1,3 +1,5 @@
+"""Contains SvgTemplates class."""
+
 import warnings
 
 with warnings.catch_warnings():
@@ -18,13 +20,16 @@ from mitreattack.navlayers.core.filter import Filter
 
 
 class BadTemplateException(Exception):
+    """Custom exception used when bad templates are found."""
+
     pass
 
 
 class SvgTemplates:
+    """An SvgTemplates object."""
+
     def __init__(self, source="taxii", domain="enterprise", resource=None):
-        """
-        Initialization - Creates a SvgTemplate object
+        """Initialize - Creates a SvgTemplate object.
 
         :param domain: Which domain to utilize for the underlying matrix layout
         :param source: Use the taxii server or local data
@@ -44,8 +49,7 @@ class SvgTemplates:
             raise BadTemplateException
 
     def _build_headers(self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None):
-        """
-        Internal - build the header blocks for the svg
+        """Build the header blocks for the svg.
 
         :param name: The name of the layer being exported
         :param config: SVG Config object
@@ -65,7 +69,7 @@ class SvgTemplates:
         overlay = None
         if config.showHeader:
             border = convertToPx(config.border, config.unit)
-            root = G(tx=border, ty=border, style="font-family: {}".format(ff))
+            root = G(tx=border, ty=border, style=f"font-family: {ff}")
 
             header = G()
             root.append(header)
@@ -216,8 +220,7 @@ class SvgTemplates:
     def get_tactic(
         self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)
     ):
-        """
-        Build a 'tactic column' svg object
+        """Build a 'tactic column' svg object.
 
         :param tactic: The corresponding tactic for this column
         :param height: A technique block's allocated height
@@ -272,8 +275,7 @@ class SvgTemplates:
     def get_tech(
         self, offset, mode, technique, tactic, config, height, width, subtechniques=[], colors=[], subscores=[]
     ):
-        """
-        Retrieve a svg object for a single technique
+        """Retrieve a svg object for a single technique.
 
         :param offset: The offset in the column based on previous work
         :param mode: Tuple describing display format (Show Name, Show ID)
@@ -306,8 +308,7 @@ class SvgTemplates:
         return a, b
 
     def export(self, showName, showID, lhandle, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[]):
-        """
-        Export a layer object to an SVG object
+        """Export a layer object to an SVG object.
 
         :param showName: Boolean of whether or not to show names
         :param showID:  Boolean of whether or not to show IDs
@@ -393,8 +394,7 @@ class SvgTemplates:
         return d
 
     def _copy_scores(self, listing, scores, tactic_name, exclude):
-        """
-        INTERNAL: Move scores over from the input object (scores) to the one used to build the svg (listing)
+        """Move scores over from the input object (scores) to the one used to build the svg (listing).
 
         :param listing: List of objects to apply scores to
         :param scores: List of scores for this tactic

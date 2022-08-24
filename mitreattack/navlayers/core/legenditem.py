@@ -1,10 +1,13 @@
+"""Contains LegendItem class."""
+
 from mitreattack.navlayers.core.exceptions import typeChecker
 
 
 class LegendItem:
+    """A LegendItem object."""
+
     def __init__(self, label, color):
-        """
-        Initialization - Creates a legendItem object
+        """Initialize - Creates a legendItem object.
 
         :param label: The label described by this object
         :param color: The color associated with the label
@@ -14,6 +17,7 @@ class LegendItem:
 
     @property
     def color(self):
+        """Getter for color."""
         return self.__color
 
     @color.setter
@@ -23,6 +27,7 @@ class LegendItem:
 
     @property
     def label(self):
+        """Getter for label."""
         return self.__label
 
     @label.setter
@@ -31,8 +36,8 @@ class LegendItem:
         self.__label = label
 
     def get_dict(self):
-        """
-        Converts the currently loaded data into a dict
+        """Convert the currently loaded data into a dict.
+
         :returns: A dict representation of the local legendItem object
         """
         return dict(label=self.__label, color=self.__color)

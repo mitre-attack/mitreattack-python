@@ -1,3 +1,5 @@
+"""Helper functions to convert STIX to pandas dataframes."""
+
 import copy
 import datetime
 import re
@@ -78,7 +80,7 @@ def format_date(date):
     """Given a date string, return it formatted as %d %B %Y."""
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return "{} {} {}".format(date.strftime("%d"), date.strftime("%B"), date.strftime("%Y"))
+    return f"{date.strftime('%d')} {date.strftime('%B')} {date.strftime('%Y')}"
 
 
 def get_citations(objects):
@@ -239,7 +241,7 @@ def techniquesToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="technique")
     dataframes.update(codex)
     # add relationship references
-    dataframes["techniques"][f"relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
+    dataframes["techniques"]["relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -387,7 +389,7 @@ def softwareToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="software")
     dataframes.update(codex)
     # add relationship references
-    dataframes["software"][f"relationship citations"] = _get_relationship_citations(dataframes["software"], codex)
+    dataframes["software"]["relationship citations"] = _get_relationship_citations(dataframes["software"], codex)
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -437,7 +439,7 @@ def groupsToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="group")
     dataframes.update(codex)
     # add relationship references
-    dataframes["groups"][f"relationship citations"] = _get_relationship_citations(dataframes["groups"], codex)
+    dataframes["groups"]["relationship citations"] = _get_relationship_citations(dataframes["groups"], codex)
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -638,7 +640,7 @@ def build_parsed_DF_matrix(matrix_grid, columns, merge, parsed_dict):
 
 
 def matricesToDf(src, domain):
-    """Parse STIX matrices from the given data and return parsed matrix structures
+    """Parse STIX matrices from the given data and return parsed matrix structures.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"

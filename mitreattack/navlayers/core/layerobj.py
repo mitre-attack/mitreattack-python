@@ -1,3 +1,5 @@
+"""Contains _LayerObj class."""
+
 from mitreattack.navlayers.core.filter import Filter
 from mitreattack.navlayers.core.layout import Layout
 from mitreattack.navlayers.core.technique import Technique
@@ -19,9 +21,10 @@ from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
 class _LayerObj:
+    """A _LayerObj object."""
+
     def __init__(self, name, domain):
-        """
-        Initialization - Creates a layer object
+        """Initialize - Creates a layer object.
 
         :param name: The name for this layer
         :param domain: The domain for this layer (enterprise-attack
@@ -47,6 +50,7 @@ class _LayerObj:
 
     @property
     def version(self):
+        """Getter for version."""
         if self.__versions != UNSETVALUE:
             return self.__versions.layer
 
@@ -60,6 +64,7 @@ class _LayerObj:
 
     @property
     def versions(self):
+        """Getter for versions."""
         if self.__versions != UNSETVALUE:
             return self.__versions
 
@@ -77,10 +82,11 @@ class _LayerObj:
                 loadChecker(type(self).__name__, versions, ["layer", "navigator"], "versions")
                 self.__versions = Versions(versions["layer"], attack, versions["navigator"])
             except MissingParameters as e:
-                handler(type(self).__name__, "versions {} is missing parameters: " "{}. Skipping.".format(versions, e))
+                handler(type(self).__name__, f"versions {versions} is missing parameters: {e}. Skipping.")
 
     @property
     def name(self):
+        """Getter for name."""
         return self.__name
 
     @name.setter
@@ -90,6 +96,7 @@ class _LayerObj:
 
     @property
     def domain(self):
+        """Getter for domain."""
         return self.__domain
 
     @domain.setter
@@ -103,6 +110,7 @@ class _LayerObj:
 
     @property
     def description(self):
+        """Getter for description."""
         if self.__description != UNSETVALUE:
             return self.__description
 
@@ -113,6 +121,7 @@ class _LayerObj:
 
     @property
     def filters(self):
+        """Getter for filters."""
         if self.__filters != UNSETVALUE:
             return self.__filters
 
@@ -131,10 +140,11 @@ class _LayerObj:
                 temp.platforms = filters["platforms"]
                 self.__filters = temp
             except MissingParameters as e:
-                handler(type(self).__name__, "Filters {} is missing parameters: " "{}. Skipping.".format(filters, e))
+                handler(type(self).__name__, f"Filters {filters} is missing parameters: {e}. Skipping.")
 
     @property
     def sorting(self):
+        """Getter for sorting."""
         if self.__sorting != UNSETVALUE:
             return self.__sorting
 
@@ -146,6 +156,7 @@ class _LayerObj:
 
     @property
     def layout(self):
+        """Getter for layout."""
         if self.__layout != UNSETVALUE:
             return self.__layout
 
@@ -172,6 +183,7 @@ class _LayerObj:
 
     @property
     def hideDisabled(self):
+        """Getter for hideDisabled."""
         if self.__hideDisabled != UNSETVALUE:
             return self.__hideDisabled
 
@@ -182,6 +194,7 @@ class _LayerObj:
 
     @property
     def techniques(self):
+        """Getter for techniques."""
         if self.__techniques != UNSETVALUE:
             return self.__techniques
 
@@ -202,11 +215,12 @@ class _LayerObj:
                     self.__techniques.append(temp)
                 except MissingParameters as e:
                     handler(
-                        type(self).__name__, "Technique {} is missing parameters: " "{}. Skipping.".format(entry, e)
+                        type(self).__name__, f"Technique {entry} is missing parameters: {e}. Skipping."
                     )
 
     @property
     def gradient(self):
+        """Getter for gradient."""
         if self.__gradient != UNSETVALUE:
             return self.__gradient
 
@@ -220,10 +234,11 @@ class _LayerObj:
                 loadChecker(type(self).__name__, gradient, ["colors", "minValue", "maxValue"], "gradient")
                 self.__gradient = Gradient(gradient["colors"], gradient["minValue"], gradient["maxValue"])
             except MissingParameters as e:
-                handler(type(self).__name__, "Gradient {} is missing parameters: " "{}. Skipping.".format(gradient, e))
+                handler(type(self).__name__, f"Gradient {gradient} is missing parameters: {e}. Skipping.")
 
     @property
     def legendItems(self):
+        """Getter for legendItems."""
         if self.__legendItems != UNSETVALUE:
             return self.__legendItems
 
@@ -242,11 +257,12 @@ class _LayerObj:
                     self.__legendItems.append(temp)
                 except MissingParameters as e:
                     handler(
-                        type(self).__name__, "Legend Item {} is missing parameters: " "{}. Skipping.".format(entry, e)
+                        type(self).__name__, f"Legend Item {entry} is missing parameters: {e}. Skipping."
                     )
 
     @property
     def showTacticRowBackground(self):
+        """Getter for showTacticRowBackground."""
         if self.__showTacticRowBackground != UNSETVALUE:
             return self.__showTacticRowBackground
 
@@ -257,6 +273,7 @@ class _LayerObj:
 
     @property
     def tacticRowBackground(self):
+        """Getter for tacticRowBackground."""
         if self.__tacticRowBackground != UNSETVALUE:
             return self.__tacticRowBackground
 
@@ -267,6 +284,7 @@ class _LayerObj:
 
     @property
     def selectTechniquesAcrossTactics(self):
+        """Getter for selectTechniquesAcrossTactics."""
         if self.__selectTechniquesAcrossTactics != UNSETVALUE:
             return self.__selectTechniquesAcrossTactics
 
@@ -277,6 +295,7 @@ class _LayerObj:
 
     @property
     def selectSubtechniquesWithParent(self):
+        """Getter for selectSubtechniquesWithParent."""
         if self.__selectSubtechniquesWithParent != UNSETVALUE:
             return self.__selectSubtechniquesWithParent
 
@@ -287,6 +306,7 @@ class _LayerObj:
 
     @property
     def metadata(self):
+        """Getter for metadata."""
         if self.__metadata != UNSETVALUE:
             return self.__metadata
 
@@ -309,10 +329,11 @@ class _LayerObj:
                 else:
                     pass  # Object in the list was not of Metadata or MetaDiv type
             except MissingParameters as e:
-                handler(type(self).__name__, "Metadata {} is missing parameters: {}. Skipping.".format(entry, e))
+                handler(type(self).__name__, f"Metadata {entry} is missing parameters: {e}. Skipping.")
 
     @property
     def links(self):
+        """Getter for links."""
         if self.__links != UNSETVALUE:
             return self.__links
 
@@ -340,12 +361,11 @@ class _LayerObj:
                 else:
                     pass
         except KeyError as e:
-            handler(type(self).__name__, "Link {} is missing parameters: " "{}. Unable to load.".format(entry, e))
+            handler(type(self).__name__, f"Link {entry} is missing parameters: {e}. Unable to load.")
 
     def _enumerate(self):
-        """
-        INTERNAL: Identifies which fields have been set for this Layer
-            object
+        """Identify which fields have been set for this Layer object.
+
         :returns: a list of all set fields within this Layer object
         """
         temp = ["name", "versions", "domain"]
@@ -378,8 +398,8 @@ class _LayerObj:
         return temp
 
     def get_dict(self):
-        """
-        Converts the currently loaded layer into a dict
+        """Convert the currently loaded layer into a dict.
+
         :returns: A dict representation of the current layer object
         """
         temp = dict(name=self.name, domain=self.domain)
@@ -415,9 +435,8 @@ class _LayerObj:
         return temp
 
     def _linker(self, field, data):
-        """
-        INTERNAL: Acts as a middleman routing the settings of values
-            within the layer
+        """Act as a middleman routing the settings of values within the layer.
+
         :param field: The value field being set
         :param data: The corresponding data to set that field to
         :raises UnknownLayerProperty: An error indicating that an
@@ -460,5 +479,5 @@ class _LayerObj:
         elif field == "links":
             self.links = data
         else:
-            handler(type(self).__name__, "Unknown layer property: {}".format(field))
+            handler(type(self).__name__, f"Unknown layer property: {field}")
             raise UnknownLayerProperty

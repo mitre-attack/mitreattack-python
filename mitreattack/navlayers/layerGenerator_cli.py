@@ -1,3 +1,5 @@
+"""Entrypoint for the layer generator cli."""
+
 import argparse
 import os
 
@@ -7,7 +9,7 @@ from mitreattack.navlayers.generators.sum_generator import BatchGenerator
 
 
 def main(argv=None):
-
+    """Entrypoint for layerGenerator_cli."""
     parser = argparse.ArgumentParser(description="Generate an ATT&CK Navigator layer")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(

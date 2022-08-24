@@ -1,3 +1,5 @@
+"""Contains MatrixEntry, Tactic, and MatrixGen classes."""
+
 from stix2 import TAXIICollectionSource, Filter, MemoryStore
 from stix2.datastore.memory import _add
 from taxii2client.v20 import Server, Collection
@@ -7,10 +9,14 @@ from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
 class DomainNotLoadedError(Exception):
+    """Custom exception used when an ATT&CK domain is not loaded properly."""
+
     pass
 
 
 class MatrixEntry:
+    """A Matrix Entry object."""
+
     def __init__(self, id=None, name=None, platforms=[]):
         if id is not None:
             self.id = id
@@ -22,29 +28,35 @@ class MatrixEntry:
 
     @property
     def id(self):
+        """Id getter."""
         if self.__id is not None:
             return self.__id
 
     @id.setter
     def id(self, new_id):
+        """Id setter."""
         self.__id = new_id
 
     @property
     def name(self):
+        """Name getter."""
         if self.__name is not None:
             return self.__name
 
     @name.setter
     def name(self, name):
+        """Name setter."""
         self.__name = name
 
     @property
     def platforms(self):
+        """Platforms getter."""
         if self.__platforms is not None:
             return self.__platforms
 
     @platforms.setter
     def platforms(self, platforms):
+        """Platforms setter."""
         if isinstance(platforms, list):
             self.__platforms.extend(platforms)
         else:
@@ -52,15 +64,19 @@ class MatrixEntry:
 
     @property
     def score(self):
+        """Score getter."""
         if self.__score is not None:
             return self.__score
 
     @score.setter
     def score(self, score):
+        """Score setter."""
         self.__score = score
 
 
 class Tactic:
+    """A Tactic object."""
+
     def __init__(self, tactic=None, techniques=None, subtechniques=None):
         if tactic is not None:
             self.tactic = tactic
@@ -71,36 +87,43 @@ class Tactic:
 
     @property
     def tactic(self):
+        """Tactic getter."""
         if self.__tactic is not None:
             return self.__tactic
 
     @tactic.setter
     def tactic(self, tactic):
+        """Tactic setter."""
         self.__tactic = tactic
 
     @property
     def techniques(self):
+        """Techniques getter."""
         if self.__techniques is not None:
             return self.__techniques
 
     @techniques.setter
     def techniques(self, techniques):
+        """Techniques setter."""
         self.__techniques = techniques
 
     @property
     def subtechniques(self):
+        """Subtechniques getter."""
         if self.__subtechniques is not None:
             return self.__subtechniques
 
     @subtechniques.setter
     def subtechniques(self, subtechniques):
+        """Subtechniques setter."""
         self.__subtechniques = subtechniques
 
 
 class MatrixGen:
+    """A MatrixGen object."""
+
     def __init__(self, source="taxii", resource=None):
-        """
-        Initialization - Creates a matrix generator object
+        """Initialize - Creates a matrix generator object.
 
         :param source: Source to utilize (taxii, remote, or local)
         :param resource: string path to local cache of stix data (local) or url of an ATT&CK Workbench (remote)
@@ -150,16 +173,16 @@ class MatrixGen:
                     self.collections[dataset] = hd
             else:
                 print(
-                    f'[MatrixGen] - WARNING: "remote" selected without providing a "resource" url. The use of '
-                    f'"remote" requires the inclusion of a "resource" url to an ATT&CK Workbench instance. No matrix '
-                    f"will be generated..."
+                    '[MatrixGen] - WARNING: "remote" selected without providing a "resource" url. The use of '
+                    '"remote" requires the inclusion of a "resource" url to an ATT&CK Workbench instance. No matrix '
+                    "will be generated..."
                 )
         self.matrix = {}
         self._build_matrix()
 
     @staticmethod
     def _remove_revoked_deprecated(content):
-        """Remove any revoked or deprecated objects from queries made to the data source"""
+        """Remove any revoked or deprecated objects from queries made to the data source."""
         return list(
             filter(lambda x: x.get("x_mitre_deprecated", False) is False and x.get("revoked", False) is False, content)
         )
@@ -169,8 +192,7 @@ class MatrixGen:
         return self._remove_revoked_deprecated(interum)
 
     def _get_tactic_listing(self, domain="enterprise"):
-        """
-        INTERNAL - retrieves tactics for the associated domain
+        """Retrieve tactics for the associated domain.
 
         :param domain: The domain to draw from
         """
@@ -188,8 +210,7 @@ class MatrixGen:
         return t_filt
 
     def _get_technique_listing(self, tactic, domain="enterprise"):
-        """
-        INTERNAL - retrieves techniques for a given tactic and domain
+        """Retrieve techniques for a given tactic and domain.
 
         :param tactic: The tactic to grab techniques from
         :param domain: The domain to draw from
@@ -215,8 +236,7 @@ class MatrixGen:
         return techniques, subtechs
 
     def _adjust_ordering(self, codex, mode, scores=[]):
-        """
-        INTERNAL - Adjust ordering of matrix based on sort mode
+        """Adjust ordering of matrix based on sort mode.
 
         :param codex: The pre-existing matrix data
         :param mode: The sort mode to use
@@ -257,8 +277,7 @@ class MatrixGen:
         return codex
 
     def _construct_panop(self, codex, subtechs, excludes):
-        """
-        INTERNAL - Creates a list of lists template for the matrix layout
+        """Create a list of lists template for the matrix layout.
 
         :param codex: A list of lists matrix (output of .get_matrix())
         :param subtechs: A list of subtechniques that will be visible
@@ -316,8 +335,7 @@ class MatrixGen:
         return matrix_obj, joins
 
     def _get_ID(self, codex, name):
-        """
-        INTERNAL - Do lookups to retrieve the ID of a technique given it's name
+        """Do lookups to retrieve the ID of a technique given it's name.
 
         :param codex: The list of lists matrix object (output of get_matrix)
         :param name: The name of the technique to retrieve the ID of
@@ -336,8 +354,7 @@ class MatrixGen:
         return ""
 
     def _get_name(self, codex, id):
-        """
-        INTERNAL - Do lookups to retrieve the name of a technique given it's ID
+        """Do lookups to retrieve the name of a technique given it's ID.
 
         :param codex: The list of lists matrix object (output of get_matrix)
         :param id: The ID of the technique to retrieve the name of
@@ -356,8 +373,7 @@ class MatrixGen:
         return ""
 
     def convert(self, input_str):
-        """
-        Convert tactic names to and from short names
+        """Convert tactic names to and from short names.
 
         :param input_str: A tactic normal or short name
         :return: The tactic's short or normal name
@@ -368,8 +384,7 @@ class MatrixGen:
             return self.convert_data[input_str]
 
     def _build_matrix(self, domain="enterprise"):
-        """
-        Build a ATT&CK matrix object, as a list of lists containing technique dictionaries
+        """Build a ATT&CK matrix object, as a list of lists containing technique dictionaries.
 
         :param domain: The domain to build a matrix for
         """
@@ -390,8 +405,7 @@ class MatrixGen:
             self.matrix[domain].append(colm)
 
     def get_matrix(self, domain="enterprise", filters=None):
-        """
-        Retrieve an ATT&CK Domain object
+        """Retrieve an ATT&CK Domain object.
 
         :param domain: The domain to build a matrix for
         :param filters: Any platform filters to apply to the matrix
@@ -402,8 +416,8 @@ class MatrixGen:
 
     @staticmethod
     def _filter_matrix_platforms(matrix, filters):
-        """
-        INTERNAL - Filter a matrix according to its platforms
+        """Filter a matrix according to its platforms.
+
         :param matrix: the matrix to refine
         :param filters: a list of platforms to filter
         :return: filtered matrix

@@ -1,3 +1,5 @@
+"""Contains STIXToCollection class and entrypoint for stixToCollection_cli."""
+
 import argparse
 import copy
 import json
@@ -12,9 +14,12 @@ X_MITRE_SPEC_VERSION = "2.1.0"
 
 
 class STIXToCollection:
+    """A STIXToCollection object."""
+
     @staticmethod
     def stix_to_collection(bundle, name, version, description=None):
-        """Enhance an existing stix bundle with a ATT&CK Collection object
+        """Enhance an existing stix bundle with a ATT&CK Collection object.
+
         :param bundle: dictionary representation of a stix bundle
         :param name: name for the generated collection object
         :param version: parameter indicating the ATT&CK version for the generated collection object
@@ -97,6 +102,7 @@ class STIXToCollection:
 
 
 def main(args):
+    """Entrypoint for stixToCollection_cli."""
     with open(args.input, "r", encoding="utf-16") as f:
         bundle = json.load(f)
         with open(args.output, "w", encoding="utf-16") as f2:

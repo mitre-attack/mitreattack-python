@@ -1,3 +1,5 @@
+"""Contains Gradient class."""
+
 import colour
 import math
 
@@ -5,9 +7,10 @@ from mitreattack.navlayers.core.exceptions import typeChecker, typeCheckerArray
 
 
 class Gradient:
+    """A Gradient object."""
+
     def __init__(self, colors, minValue, maxValue):
-        """
-        Initialization - Creates a gradient object
+        """Initialize - Creates a gradient object.
 
         :param colors: The array of color codes for this gradient
         :param minValue: The minValue for this gradient
@@ -22,6 +25,7 @@ class Gradient:
 
     @property
     def colors(self):
+        """Getter for colors."""
         return self.__colors
 
     @colors.setter
@@ -43,6 +47,7 @@ class Gradient:
 
     @property
     def minValue(self):
+        """Getter for minValue."""
         return self.__minValue
 
     @minValue.setter
@@ -53,6 +58,7 @@ class Gradient:
 
     @property
     def maxValue(self):
+        """Getter for maxValue."""
         return self.__maxValue
 
     @maxValue.setter
@@ -62,9 +68,7 @@ class Gradient:
         self._compute_curve()
 
     def _compute_curve(self):
-        """
-        Computes the gradient color curve
-        """
+        """Compute the gradient color curve."""
         if self.maxValue is not None and self.minValue is not None and self.colors is not None:
             chunksize = int(math.floor((self.maxValue - self.minValue) / (len(self.colors) - 1)))
             fchunksize = int(math.ceil((self.maxValue - self.minValue) / (len(self.colors) - 1)))
@@ -82,10 +86,9 @@ class Gradient:
             self.curve.append(colour.Color(self.colors[-1]))
 
     def compute_color(self, score):
-        """
-        Computes a specific color based on the score value provided
-        :returns: A hexadecimal color representation of the score on
-            the gradient
+        """Compute a specific color based on the score value provided.
+
+        :returns: A hexadecimal color representation of the score on the gradient
         """
         if score <= self.minValue:
             return self.curve[0].hex_l
@@ -96,8 +99,8 @@ class Gradient:
         return target.hex_l
 
     def get_dict(self):
-        """
-        Converts the currently loaded gradient file into a dict
+        """Convert the currently loaded gradient file into a dict.
+
         :returns: A dict representation of the current gradient object
         """
         if len(self.__alpha) == len(self.__colors):

@@ -1,3 +1,5 @@
+"""Contains CollectionToIndex class, and entrypoint for collectionToIndex_cli."""
+
 import argparse
 import os
 from tqdm import tqdm
@@ -9,20 +11,29 @@ from stix2 import MemoryStore, Filter
 
 
 class CollectionToIndex:
+    """A CollectionToIndex object."""
+
     @staticmethod
     def generate_index(name, description, root_url, files=None, folders=None, sets=None):
-        """generate a collection index from the input data and return the index as a dict
-        arguments:
-            name (string): the name of the index
-            description (string): the description of the index
-            root_url (string): the root URL where the collections can be found. Specified collection paths will be
-                                appended to this for the collection URL
-            files (string[], optional): collection JSON files to include in the index. Cannot be used with folder
-                                argument
-            folders (string[], optional): folders of collection JSON files to include in the index. Cannot be used with
-                                files argument. Will only match collections that end with a version number
-            sets (meta[], optional): array of json dictionaries representing stix bundle objects or and array of
-                                     MemoryStore objects to include in the index
+        """Generate a collection index from the input data and return the index as a dict.
+
+        Arguments
+        ---------
+            name (string):
+                the name of the index
+            description (string):
+                the description of the index
+            root_url (string):
+                the root URL where the collections can be found. Specified collection paths will be
+                appended to this for the collection URL
+            files (string[], optional):
+                collection JSON files to include in the index. Cannot be used with folder argument
+            folders (string[], optional):
+                folders of collection JSON files to include in the index. Cannot be used with
+                files argument. Will only match collections that end with a version number
+            sets (meta[], optional):
+                array of json dictionaries representing stix bundle objects or and array of
+                MemoryStore objects to include in the index
         """
         if len([x for x in [files, folders, sets] if x]) > 1:
             print(
@@ -120,8 +131,8 @@ class CollectionToIndex:
 
     @staticmethod
     def _extract_collection(bundle, collections, url):
-        """
-        Extract a collection from a bundle, and build it into the passed in collections dictionary
+        """Extract a collection from a bundle, and build it into the passed in collections dictionary.
+
         :param bundle: The bundle to work with
         :param collections: A dictionary to place the extracted collection into
         :param url: The corresponding url for this given collection version
@@ -153,6 +164,7 @@ class CollectionToIndex:
 
 
 def main(args):
+    """Entrypoint for collectionToIndex_cli."""
     with open(args.output, "w", encoding="utf-16") as f:
         index = CollectionToIndex.generate_index(
             name=args.name, description=args.description, root_url=args.root_url, files=args.files, folders=args.folders
