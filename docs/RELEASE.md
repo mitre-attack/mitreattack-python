@@ -12,15 +12,16 @@ In order to release a new version of mitreattack-python, follow the process outl
    PYTHONPATH=. pytest --cov=mitreattack --cov-report html
    ```
 
-4. Build the python library for pip:
-   1. Edit setup.py and increment the version number.
-      Update other fields in setup.py as necessary (used libraries, etc.)
-   2. Update setuptools and wheel - `pip install --upgrade setuptools wheel`.
-   3. Remove older built pacakges - `rm -rf dist/`.
-   4. Build the package - `python setup.py sdist bdist_wheel`.
-   5. Install the package locally using pip, and import it in a python session to validate the build.
-5. Tag the release:
+4. Edit setup.py and increment the version number.
+   Update other fields in setup.py as necessary (used libraries, etc.)
+   1. Update setuptools and wheel - `pip install --upgrade setuptools wheel`.
+5. [Optional, but recommended] Build the python library for pip locally:
+   1. Remove older built pacakges - `rm -rf dist/`.
+   2. Build the package - `python setup.py sdist bdist_wheel`.
+   3. Install the package locally using pip, and import it in a python session to validate the build.
+6. Tag the release:
    1. Tag the `master` branch with the version number - `git tag -a "vA.B.C" -m "mitreattack-python version A.B.C"`
    2. Push both the commit and the tag - `git push`/`git push --tags`
-6. Upload the release to PyPI
-   1. `twine upload dist/*`
+7. Verify that the package uploaded correctly
+   1. Check that GitHub Actions succeeded: <https://github.com/mitre-attack/mitreattack-python/actions>
+   2. Verify PyPI has expected release: <https://pypi.org/project/mitreattack-python/>
