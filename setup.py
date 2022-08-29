@@ -15,6 +15,7 @@ setuptools.setup(
     maintainer_email="jondricek@mitre.org",
     license="Apache 2.0",
     url="https://github.com/mitre-attack/mitreattack-python/",
+    package_data={'mitreattack': ['navlayers/exporters/fonts/*.ttf']},
     include_package_data=True,
     entry_points={
         'console_scripts': [
