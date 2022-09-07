@@ -1,3 +1,13 @@
+# v1.6.0 9/7/2022
+
+## Fixes
+
+- Fix Excel file generation for previous ATT&CK versions [#88](https://github.com/mitre-attack/mitreattack-python/issues/88)
+
+## Misc
+
+- Changed attackToExcel's `write_excel()` and `export()` function parameters to use snake case instead of camel case (`outputDir` became `output_dir`)
+
 # v1.5.10 8/24/2022
 
 ## Misc
