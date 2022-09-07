@@ -13,7 +13,7 @@ class TestAttackToExcel:
             shutil.rmtree("test_attacktoexcel_exports_enterprise")
 
         try:
-            attackToExcel.export(domain="enterprise-attack", outputDir="test_attacktoexcel_exports_enterprise")
+            attackToExcel.export(domain="enterprise-attack", output_dir="test_attacktoexcel_exports_enterprise")
             shutil.rmtree("test_attacktoexcel_exports_enterprise")
         except requests.exceptions.SSLError:
             print("UNABLE TO RUN TEST DUE TO CERT ISSUE.")
@@ -23,7 +23,7 @@ class TestAttackToExcel:
         if os.path.isdir("test_attacktoexcel_exports_mobile"):
             shutil.rmtree("test_attacktoexcel_exports_mobile")
         try:
-            attackToExcel.export(domain="mobile-attack", outputDir="test_attacktoexcel_exports_mobile")
+            attackToExcel.export(domain="mobile-attack", output_dir="test_attacktoexcel_exports_mobile")
             shutil.rmtree("test_attacktoexcel_exports_mobile")
         except requests.exceptions.SSLError:
             print("UNABLE TO RUN TEST DUE TO CERT ISSUE.")
@@ -34,7 +34,7 @@ class TestAttackToExcel:
             shutil.rmtree("test_attacktoexcel_exports_ics")
 
         try:
-            attackToExcel.export(domain="ics-attack", outputDir="test_attacktoexcel_exports_ics")
+            attackToExcel.export(domain="ics-attack", output_dir="test_attacktoexcel_exports_ics")
             shutil.rmtree("test_attacktoexcel_exports_ics")
         except requests.exceptions.SSLError:
             print("UNABLE TO RUN TEST DUE TO CERT ISSUE.")
@@ -46,7 +46,7 @@ class TestAttackToExcel:
 
         try:
             attackToExcel.export(
-                domain="enterprise-attack", version="9.0", outputDir="test_attacktoexcel_exports_enterprise"
+                domain="enterprise-attack", version="9.0", output_dir="test_attacktoexcel_exports_enterprise"
             )
             shutil.rmtree("test_attacktoexcel_exports_enterprise")
         except requests.exceptions.SSLError:

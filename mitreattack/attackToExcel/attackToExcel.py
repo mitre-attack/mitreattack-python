@@ -97,20 +97,21 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     """
     df = {
         "techniques": stixToDf.techniquesToDf(src, domain),
-        "tactics": stixToDf.tacticsToDf(src, domain),
-        "software": stixToDf.softwareToDf(src, domain),
-        "groups": stixToDf.groupsToDf(src, domain),
-        "mitigations": stixToDf.mitigationsToDf(src, domain),
+        "tactics": stixToDf.tacticsToDf(src),
+        "software": stixToDf.softwareToDf(src),
+        "groups": stixToDf.groupsToDf(src),
+        "campaigns": stixToDf.campaignsToDf(src),
+        "mitigations": stixToDf.mitigationsToDf(src),
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
     }
     # get each ATT&CK type
     if domain == "enterprise-attack":
-        df["datasources"] = stixToDf.sourcesToDf(src, domain)
+        df["datasources"] = stixToDf.datasourcesToDf(src)
     return df
 
 
-def write_excel(dataframes: Dict, domain: str, version: str = None, outputDir: str = ".") -> List:
+def write_excel(dataframes: Dict, domain: str, version: str = None, output_dir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
     Parameters
@@ -122,7 +123,7 @@ def write_excel(dataframes: Dict, domain: str, version: str = None, outputDir: s
     version : str, optional
         The version of ATT&CK the dataframes correspond to, e.g "v8.1".
         If omitted, the output files will not be labelled with the version number, by default None
-    outputDir : str, optional
+    output_dir : str, optional
         The directory to write the excel files to.
         If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
 
@@ -131,121 +132,139 @@ def write_excel(dataframes: Dict, domain: str, version: str = None, outputDir: s
     list
         A list of filepaths corresponding to the files written by the function
     """
-    print("writing formatted files... ", end="", flush=True)
+    logger.info("writing formatted files... ")
     # master list of files that have been written
     written_files = []
     # set up output directory
     if version:
-        domainVersionString = f"{domain}-{version}"
+        domain_version_string = f"{domain}-{version}"
     else:
-        domainVersionString = domain
-    outputDirectory = os.path.join(outputDir, domainVersionString)
-    if not os.path.exists(outputDirectory):
-        os.makedirs(outputDirectory)
+        domain_version_string = domain
+    output_directory = os.path.join(output_dir, domain_version_string)
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
     # master dataset file
-    master_fp = os.path.join(outputDirectory, f"{domainVersionString}.xlsx")
-    master_writer = pd.ExcelWriter(master_fp, engine="xlsxwriter")
-    citations = pd.DataFrame()  # master list of citations
-    # write individual dataframes and add to master writer
-    for objType in dataframes:
-        if objType != "matrices":
-            # write the dataframes for the object type into named sheets
-            fp = os.path.join(outputDirectory, f"{domainVersionString}-{objType}.xlsx")
-            obj_writer = pd.ExcelWriter(fp)
-            for dfname in dataframes[objType]:
-                dataframes[objType][dfname].to_excel(obj_writer, sheet_name=dfname, index=False)
-            obj_writer.save()
-            written_files.append(fp)
+    master_fp = os.path.join(output_directory, f"{domain_version_string}.xlsx")
+    with pd.ExcelWriter(master_fp, engine="xlsxwriter") as master_writer:
+        # master list of citations
+        citations = pd.DataFrame()
 
-            # add citations to master citations list
-            if "citations" in dataframes[objType]:
-                citations = pd.concat([citations, dataframes[objType]["citations"]])
+        # write individual dataframes and add to master writer
+        for object_type, object_data in dataframes.items():
+            fp = os.path.join(output_directory, f"{domain_version_string}-{object_type}.xlsx")
 
-            # add main df to master dataset
-            dataframes[objType][objType].to_excel(master_writer, sheet_name=objType, index=False)
-        else:  # handle matrix special formatting
-            fp = os.path.join(outputDirectory, f"{domainVersionString}-{objType}.xlsx")
-            matrix_writer = pd.ExcelWriter(fp, engine="xlsxwriter")
-            combined = dataframes[objType][0] + dataframes[objType][1]  # Combine both matrix types
-            for matrix in combined:  # some domains have multiple matrices
-                # name them accordingly if there are multiple
-                sheetname = "matrix" if len(combined) == 1 else matrix["name"] + " matrix"
-                for character in INVALID_CHARACTERS:
-                    sheetname = sheetname.replace(character, " or " if character in SUB_CHARACTERS else " ")
+            if object_type != "matrices":
+                if not object_data:
+                    logger.warning(f"No data for {object_type}. Skipping building an Excel file.")
+                    continue
 
-                if len(sheetname) > 31:
-                    sheetname = sheetname[0:28] + "..."
-                listing = []
-                if matrix in dataframes[objType][0]:  # avoid printing subtype matrices to the master file
-                    matrix["matrix"].to_excel(
-                        master_writer, sheet_name=sheetname, index=False
-                    )  # write unformatted matrix data to master file
-                    listing.append(master_writer)
+                # write the dataframes for the object type into named sheets
+                with pd.ExcelWriter(fp) as object_writer:
+                    for sheet_name in object_data:
+                        logger.debug(f"Writing sheet to {fp}: {sheet_name}")
+                        object_data[sheet_name].to_excel(object_writer, sheet_name=sheet_name, index=False)
+                written_files.append(fp)
 
-                matrix["matrix"].to_excel(
-                    matrix_writer, sheet_name=sheetname, index=False
-                )  # write unformatted matrix to matrix file
-                listing.append(matrix_writer)
+                # add citations to master citations list
+                if "citations" in object_data:
+                    citations = pd.concat([citations, object_data["citations"]])
 
-                # for each writer, format the matrix for readability
-                for writer in listing:
-                    # define column border styles
-                    borderleft = writer.book.add_format({"left": 1, "shrink": 1})
-                    borderright = writer.book.add_format({"right": 1, "shrink": 1})
-                    formats = {}  # formats only need to be defined once: pointers stored here for subsequent uses
-                    sheet = writer.sheets[sheetname]
+                # add main df to master dataset
+                logger.debug(f"Writing sheet to {master_fp}: {object_type}")
+                object_data[object_type].to_excel(master_writer, sheet_name=object_type, index=False)
 
-                    sheet.set_column(
-                        0, matrix["columns"], width=20
-                    )  # set all columns to 20 width, and add text shrinking to fit
+            else:  # handle matrix special formatting
+                with pd.ExcelWriter(fp, engine="xlsxwriter") as matrix_writer:
+                    # Combine both matrix types
+                    combined = object_data[0] + object_data[1]
 
-                    # merge supertechniques and tactic headers if sub-techniques are present on a tactic
-                    for mergeRange in matrix["merge"]:
-                        if mergeRange.format:  # sometimes merge ranges have formats to add to the merged range
-                            if mergeRange.format["name"] not in formats:  # add format to book if not defined
-                                formats[mergeRange.format["name"]] = writer.book.add_format(mergeRange.format["format"])
-                            theformat = formats[mergeRange.format["name"]]  # get saved format if already added
-                            # tactic header merge has additional behavior
-                            if mergeRange.format["name"] == "tacticHeader":
-                                # also set border for entire column for grouping
-                                sheet.set_column(
-                                    mergeRange.leftCol - 1,
-                                    mergeRange.leftCol - 1,
-                                    width=20,  # set column widths to make matrix more readable
-                                    cell_format=borderleft,  # left border around tactic
-                                )
-                                sheet.set_column(
-                                    mergeRange.rightCol - 1,
-                                    mergeRange.rightCol - 1,
-                                    width=20,  # set column widths to make matrix more readable
-                                    cell_format=borderright,  # right border around tactic
-                                )
-                        else:
-                            theformat = None  # no format
-                        sheet.merge_range(mergeRange.to_excel_format(), mergeRange.data, theformat)  # apply the merge
+                    # some domains have multiple matrices
+                    for matrix in combined:
+                        # name them accordingly if there are multiple
+                        sheetname = "matrix" if len(combined) == 1 else matrix["name"] + " matrix"
+                        for character in INVALID_CHARACTERS:
+                            sheetname = sheetname.replace(character, " or " if character in SUB_CHARACTERS else " ")
 
-            matrix_writer.save()  # save the matrix data
-            written_files.append(fp)
-            # end of matrix sheet writing
+                        if len(sheetname) > 31:
+                            sheetname = sheetname[0:28] + "..."
+                        listing = []
 
-    # remove duplicate citations and add sheet to master file
-    citations.drop_duplicates(subset="reference", ignore_index=True).sort_values("reference").to_excel(
-        master_writer, sheet_name="citations", index=False
-    )
-    # write the master file
-    master_writer.save()
+                        # avoid printing subtype matrices to the master file
+                        if matrix in object_data[0]:
+                            # write unformatted matrix data to master file
+                            logger.debug(f"Writing sheet to {master_fp}: {sheetname}")
+                            matrix["matrix"].to_excel(master_writer, sheet_name=sheetname, index=False)
+                            listing.append(master_writer)
+
+                        # write unformatted matrix to matrix file
+                        logger.debug(f"Writing sheet to {fp}: {sheetname}")
+                        matrix["matrix"].to_excel(matrix_writer, sheet_name=sheetname, index=False)
+                        listing.append(matrix_writer)
+
+                        # for each writer, format the matrix for readability
+                        for writer in listing:
+                            # define column border styles
+                            borderleft = writer.book.add_format({"left": 1, "shrink": 1})
+                            borderright = writer.book.add_format({"right": 1, "shrink": 1})
+
+                            # formats only need to be defined once: pointers stored here for subsequent uses
+                            formats = {}
+                            sheet = writer.sheets[sheetname]
+
+                            # set all columns to 20 width, and add text shrinking to fit
+                            sheet.set_column(0, matrix["columns"], width=20)
+
+                            # merge supertechniques and tactic headers if sub-techniques are present on a tactic
+                            for merge_range in matrix["merge"]:
+                                # sometimes merge ranges have formats to add to the merged range
+                                if merge_range.format:
+                                    # add format to book if not defined
+                                    if merge_range.format["name"] not in formats:
+                                        formats[merge_range.format["name"]] = writer.book.add_format(
+                                            merge_range.format["format"]
+                                        )
+                                    # get saved format if already added
+                                    theformat = formats[merge_range.format["name"]]
+
+                                    # tactic header merge has additional behavior
+                                    if merge_range.format["name"] == "tacticHeader":
+                                        # also set border for entire column for grouping
+                                        sheet.set_column(
+                                            merge_range.leftCol - 1,
+                                            merge_range.leftCol - 1,
+                                            width=20,  # set column widths to make matrix more readable
+                                            cell_format=borderleft,  # left border around tactic
+                                        )
+                                        sheet.set_column(
+                                            merge_range.rightCol - 1,
+                                            merge_range.rightCol - 1,
+                                            width=20,  # set column widths to make matrix more readable
+                                            cell_format=borderright,  # right border around tactic
+                                        )
+                                else:
+                                    theformat = None  # no format
+
+                                # apply the merge
+                                sheet.merge_range(merge_range.to_excel_format(), merge_range.data, theformat)
+
+                written_files.append(fp)
+
+        # remove duplicate citations and add sheet to master file
+        logger.debug(f"Writing sheet to {master_fp}: citations")
+        citations.drop_duplicates(subset="reference", ignore_index=True).sort_values("reference").to_excel(
+            master_writer, sheet_name="citations", index=False
+        )
+
     written_files.append(master_fp)
-    print("done")
-    print("files created:")
     for thefile in written_files:
-        print("\t", thefile)
+        logger.info(f"Excel file created: {thefile}")
     return written_files
 
 
 def export(
     domain: str = "enterprise-attack",
     version: str = None,
-    outputDir: str = ".",
+    output_dir: str = ".",
     remote: str = None,
     stix_file: str = None,
 ):
@@ -258,7 +277,7 @@ def export(
     version : str, optional
         The version of ATT&CK to download, e.g "v8.1".
         If omitted will build the current version of ATT&CK, by default None
-    outputDir : str, optional
+    output_dir : str, optional
         The directory to write the excel files to.
         If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
     remote : str, optional
@@ -278,9 +297,11 @@ def export(
 
     mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
 
+    logger.info(f"************ Exporting {domain} to Excel ************")
+
     # build dataframes
     dataframes = build_dataframes(src=mem_store, domain=domain)
-    write_excel(dataframes=dataframes, domain=domain, version=version, outputDir=outputDir)
+    write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
 
 
 def main():
@@ -314,9 +335,17 @@ def main():
         help="remote url of an ATT&CK workbench server. If omitted, stix data will be acquired from the"
         " official ATT&CK Taxii server (cti-taxii.mitre.org)",
     )
+    parser.add_argument(
+        "-stix-file",
+        type=str,
+        default=None,
+        help="Path to a local STIX file containing ATT&CK data for a domain, by default None",
+    )
     args = parser.parse_args()
 
-    export(args.domain, args.version, args.output, args.remote)
+    export(
+        domain=args.domain, version=args.version, outputDir=args.output, remote=args.remote, stix_file=args.stix_file
+    )
 
 
 if __name__ == "__main__":
