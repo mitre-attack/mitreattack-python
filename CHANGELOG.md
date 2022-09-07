@@ -1,3 +1,9 @@
+# v1.6.2 9/7/2022
+
+## Fixes
+
+- Fix SVG export functionality [#74](https://github.com/mitre-attack/mitreattack-python/issues/74)
+
 # v1.6.1 9/7/2022
 
 ## Fixes
