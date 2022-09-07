@@ -347,7 +347,7 @@ def datasourcesToDf(src):
 
             dataframes["citations"].sort_values("reference")
     else:
-        logger.warning(f"No data components or data sources found - nothing to parse")
+        logger.warning("No data components or data sources found - nothing to parse")
 
     return dataframes
 
@@ -502,7 +502,7 @@ def campaignsToDf(src):
 
             dataframes["citations"].sort_values("reference")
     else:
-        logger.warning(f"No campaigns found - nothing to parse")
+        logger.warning("No campaigns found - nothing to parse")
 
     return dataframes
 
