@@ -344,7 +344,7 @@ def main():
     args = parser.parse_args()
 
     export(
-        domain=args.domain, version=args.version, outputDir=args.output, remote=args.remote, stix_file=args.stix_file
+        domain=args.domain, version=args.version, output_dir=args.output, remote=args.remote, stix_file=args.stix_file
     )
 
 

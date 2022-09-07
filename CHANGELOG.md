@@ -1,3 +1,9 @@
+# v1.6.1 9/7/2022
+
+## Fixes
+
+- Finish switching from `outputDir` to `output_dir` (the breaking change broke ourselves! But this itself isn't a breaking change)
+
 # v1.6.0 9/7/2022
 
 ## Fixes
