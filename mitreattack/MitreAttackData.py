@@ -134,7 +134,7 @@ class MitreAttackData:
         return output
 
     # software:group
-    def software_used_by_groups(self) -> dict:
+    def get_software_used_by_groups(self) -> dict:
         """Get software used by groups
 
         Returns
@@ -176,7 +176,7 @@ class MitreAttackData:
                 software_used_by_group[group_id] = software_used_by_campaigns
         return software_used_by_group
 
-    def groups_using_software(self) -> dict:
+    def get_groups_using_software(self) -> dict:
         """Get groups using software
 
         Returns
@@ -219,7 +219,7 @@ class MitreAttackData:
         return groups_using_software
 
     # software:campaign
-    def software_used_by_campaigns(self) -> dict:
+    def get_software_used_by_campaigns(self) -> dict:
         """Get software used by campaigns
 
         Returns
@@ -231,7 +231,7 @@ class MitreAttackData:
         malware_used_by_campaign = self.get_related(self.src, "campaign", "uses", "malware")
         return {**tools_used_by_campaign, **malware_used_by_campaign}
 
-    def campaigns_using_software(self) -> dict:
+    def get_campaigns_using_software(self) -> dict:
         """Get campaigns using software
 
         Returns
@@ -244,7 +244,7 @@ class MitreAttackData:
         return {**campaigns_using_tool, **campaigns_using_malware}
 
     # campaign:group
-    def groups_attributing_to_campaigns(self) -> dict:
+    def get_groups_attributing_to_campaigns(self) -> dict:
         """Get groups attributing to campaigns
 
         Returns
@@ -254,7 +254,7 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set")
 
-    def campaigns_attributed_to_groups(self) -> dict:
+    def get_campaigns_attributed_to_groups(self) -> dict:
         """Get campaigns attributed to groups
 
         Returns
@@ -265,7 +265,7 @@ class MitreAttackData:
         return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set", reverse=True)
 
     # technique:group
-    def techniques_used_by_groups(self) -> dict:
+    def get_techniques_used_by_groups(self) -> dict:
         """Get techniques used by groups
 
         Returns
@@ -298,7 +298,7 @@ class MitreAttackData:
                 techniques_used_by_groups[group_id] = techniques_used_by_campaigns
         return techniques_used_by_groups
 
-    def groups_using_techniques(self) -> dict:
+    def get_groups_using_techniques(self) -> dict:
         """Get groups using techniques
 
         Returns
@@ -332,7 +332,7 @@ class MitreAttackData:
         return groups_using_techniques
 
     # technique:campaign
-    def techniques_used_by_campaigns(self) -> dict:
+    def get_techniques_used_by_campaigns(self) -> dict:
         """Get techniques used by campaigns
 
         Returns
@@ -342,7 +342,7 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "campaign", "uses", "attack-pattern")
 
-    def campaigns_using_techniques(self) -> dict:
+    def get_campaigns_using_techniques(self) -> dict:
         """Get campaigns using techniques
 
         Returns
@@ -353,7 +353,7 @@ class MitreAttackData:
         return self.get_related(self.src, "campaign", "uses", "attack-pattern", reverse=True)
 
     # technique:software
-    def techniques_used_by_software(self) -> dict:
+    def get_techniques_used_by_software(self) -> dict:
         """Get techniques used by software
 
         Returns
@@ -365,7 +365,7 @@ class MitreAttackData:
         techniques_by_malware = self.get_related(self.src, "malware", "uses", "attack-pattern")
         return {**techniques_by_tool, **techniques_by_malware}
 
-    def software_using_techniques(self) -> dict:
+    def get_software_using_techniques(self) -> dict:
         """Get software using technique
 
         Returns
@@ -378,7 +378,7 @@ class MitreAttackData:
         return {**tools_by_technique_id, **malware_by_technique_id}
 
     # technique:mitigation
-    def mitigations_mitigate_techniques(self) -> dict:
+    def get_mitigations_mitigate_techniques(self) -> dict:
         """Get mitigations that mitigate techniques
 
         Returns
@@ -388,7 +388,7 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=False)
 
-    def techniques_mitigated_by_mitigations(self) -> dict:
+    def get_techniques_mitigated_by_mitigations(self) -> dict:
         """Get techniques mitigated by mitigations
 
         Returns
@@ -399,7 +399,7 @@ class MitreAttackData:
         return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=True)
 
     # technique:sub-technique
-    def subtechniques_of(self) -> dict:
+    def get_subtechniques_of(self) -> dict:
         """Get technique subtechniques
 
         Returns
@@ -409,7 +409,7 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern", reverse=True)
 
-    def parent_technique_of(self) -> dict:
+    def get_parent_technique_of(self) -> dict:
         """Get parent technique of subtechniques
 
         Returns
@@ -420,7 +420,7 @@ class MitreAttackData:
         return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern")[0]
 
     # technique:data-component
-    def datacomponents_detect_techniques(self) -> dict:
+    def get_datacomponents_detect_techniques(self) -> dict:
         """Get data components that detect techniques
         Returns
         -------
@@ -429,7 +429,7 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern")
 
-    def techniques_detected_by_datacomponents(self) -> dict:
+    def get_techniques_detected_by_datacomponents(self) -> dict:
         """Get techniques detected by data components
 
         Returns
