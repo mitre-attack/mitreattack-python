@@ -11,6 +11,7 @@ This repository contains a library of Python-based tools and utilities for worki
   contains a set of utilities for working with [ATT&CK Collections and Collection Indexes](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md).
 - the [diffStix](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/diffStix) module
   contains a script that generates changelogs between two versions of STIX bundles.
+- the [attackObjects](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/attackObjects) module contains a set of utilities for working with ATT&CK relationship objects.
 
 ## Requirements
 
@@ -41,6 +42,7 @@ with examples, can be found in the individual README files for each module.
 | attackToExcel | Provides functionalities for exporting the ATT&CK dataset into Excel Spreadsheets. It also provides programmatic access to the dataset as [Pandas](https://pandas.pydata.org/) DataFrames to enable data analysis using that library. | Further documentation for the attackToExcel module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md).|
 | collections | Provides functionalities for converting and summarizing data in collections and collection indexes. It also provides a means by which to generate a collection from a raw stix bundle input. | Further documentation for the collections module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/README.md).|
 | diffStix | Create markdown, HTML, JSON and/or ATT&CK Navigator layers reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content. Run `diff_stix -h` for full usage instructions. | Further documentation for the diffStix module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/diffStix/README.md).|
+| attackObjects | Provides functionality to build lookup tables of stixID to related objects and relationships. | Further documentation of the attackObjects module can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackObjects/README.md).|
 
 ### Usage Examples
 
