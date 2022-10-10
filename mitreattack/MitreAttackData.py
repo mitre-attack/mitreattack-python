@@ -44,6 +44,10 @@ class MitreAttackData:
             )
         )
 
+    ###################################
+    # Relationship section
+    ###################################
+
     def get_related(self, source_type: str, relationship_type: str, target_type: str, reverse: bool = False) -> dict:
         """Build relationship mappings
 
@@ -133,7 +137,10 @@ class MitreAttackData:
             output[stix_id] = value
         return output
 
-    # software:group
+    ###################################
+    # Software/Group Relationships
+    ###################################
+
     def get_software_used_by_groups(self) -> dict:
         """Get software used by groups
 
@@ -176,14 +183,31 @@ class MitreAttackData:
                 software_used_by_group[group_id] = software_used_by_campaigns
         return software_used_by_group
 
+    def get_software_used_by_group_with_id(self, stix_id: str) -> list:
+        """Get all software used by a single group
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the group
+
+        Returns
+        -------
+        list
+            a list of {software, relationship} for each software used by the group and each software used 
+            by campaigns attributed to the group
+        """
+        software_used_by_groups = self.get_software_used_by_groups()
+        return software_used_by_groups[stix_id] if stix_id in software_used_by_groups else []
+
     def get_groups_using_software(self) -> dict:
         """Get groups using software
 
         Returns
         -------
         dict
-            a mapping of software_id => {group, relationship} for each group using the software and each software used by 
-            attributed campaigns
+            a mapping of software_id => {group, relationship} for each group using the software and each attributed campaign
+            using the software
         """
         # get all groups using software
         groups_using_tool = self.get_related(self.src, "intrusion-set", "uses", "tool", reverse=True)
@@ -218,7 +242,27 @@ class MitreAttackData:
                 groups_using_software[software_id] = groups_attributed_to_campaigns
         return groups_using_software
 
-    # software:campaign
+    def get_groups_using_software_with_id(self, stix_id: str) -> list:
+        """Get all groups using a single software
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the software
+
+        Returns
+        -------
+        list
+            a list of {group, relationship} for each group using the software and each attributed campaign
+            using the software
+        """
+        groups_using_software = self.get_groups_using_software()
+        return groups_using_software[stix_id] if stix_id in groups_using_software else []
+
+    ###################################
+    # Software/Campaign Relationships
+    ###################################
+
     def get_software_used_by_campaigns(self) -> dict:
         """Get software used by campaigns
 
@@ -230,6 +274,22 @@ class MitreAttackData:
         tools_used_by_campaign = self.get_related(self.src, "campaign", "uses", "tool")
         malware_used_by_campaign = self.get_related(self.src, "campaign", "uses", "malware")
         return {**tools_used_by_campaign, **malware_used_by_campaign}
+
+    def get_software_used_by_campaigns_with_id(self, stix_id: str) -> list:
+        """Get all software used by a single campaign
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the campaign
+
+        Returns
+        -------
+        list
+            a list of {software, relationship} for each software used by the campaign
+        """
+        software_used_by_campaigns = self.get_software_used_by_campaigns()
+        return software_used_by_campaigns[stix_id] if stix_id in software_used_by_campaigns else []
 
     def get_campaigns_using_software(self) -> dict:
         """Get campaigns using software
@@ -243,7 +303,27 @@ class MitreAttackData:
         campaigns_using_malware = self.get_related(self.src, "campaign", "uses", "malware", reverse=True)
         return {**campaigns_using_tool, **campaigns_using_malware}
 
-    # campaign:group
+    def get_campaigns_using_software_with_id(self, stix_id: str) -> list:
+        """Get all campaigns using a single software
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the software
+
+        Returns
+        -------
+        list
+            a list of {campaign, relationship} for each campaign using the software
+        """
+        campaigns_using_software = self.get_campaigns_using_software()
+        return campaigns_using_software[stix_id] if stix_id in campaigns_using_software else []
+
+
+    ###################################
+    # Campaign/Group Relationships
+    ###################################
+
     def get_groups_attributing_to_campaigns(self) -> dict:
         """Get groups attributing to campaigns
 
@@ -253,6 +333,22 @@ class MitreAttackData:
             a mapping of campaign_id => {group, relationship} for each group attributing to the campaign
         """
         return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set")
+    
+    def get_groups_attributing_to_campaign_with_id(self, stix_id: str) -> list:
+        """Get all groups attributing to a single campaign
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the campaign
+
+        Returns
+        -------
+        list
+            a list of {group, relationship} for each group attributing to the campaign
+        """
+        groups_attributing_to_campaigns = self.get_groups_attributing_to_campaigns()
+        return groups_attributing_to_campaigns[stix_id] if stix_id in groups_attributing_to_campaigns else []
 
     def get_campaigns_attributed_to_groups(self) -> dict:
         """Get campaigns attributed to groups
@@ -264,7 +360,24 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set", reverse=True)
 
-    # technique:group
+    def get_campaigns_attributed_to_group_with_id(self, stix_id: str) -> list:
+        """Get all campaigns attributed to a single group
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the group
+
+        Returns
+        -------
+        list
+            a list of {campaign, relationship} for each campaign attributed to the group
+        """
+
+    ###################################
+    # Technique/Group Relationships
+    ###################################
+
     def get_techniques_used_by_groups(self) -> dict:
         """Get techniques used by groups
 
@@ -297,6 +410,23 @@ class MitreAttackData:
             else:
                 techniques_used_by_groups[group_id] = techniques_used_by_campaigns
         return techniques_used_by_groups
+
+    def get_techniques_used_by_group_with_id(self, stix_id: str) -> list:
+        """Get all techniques used by a single group
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the group
+
+        Returns
+        -------
+        list
+            a list of {technique, relationship} for each technique used by the group and 
+            each technique used by campaigns attributed to the group
+        """
+        techniques_used_by_groups = self.get_techniques_used_by_groups()
+        return techniques_used_by_groups[stix_id] if stix_id in techniques_used_by_groups else []
 
     def get_groups_using_techniques(self) -> dict:
         """Get groups using techniques
@@ -331,7 +461,27 @@ class MitreAttackData:
                 groups_using_techniques[technique_id] = campaigns_attributed_to_group
         return groups_using_techniques
 
-    # technique:campaign
+    def get_groups_using_technique_with_id(self, stix_id: str) -> list:
+        """Get all groups using a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {group, relationship} for each group using the technique and each campaign attributed to 
+            groups using the technique
+        """
+        groups_using_techniques = self.get_groups_using_techniques()
+        return groups_using_techniques[stix_id] if stix_id in groups_using_techniques else []
+
+    ###################################
+    # Technique/Campaign Relationships
+    ###################################
+
     def get_techniques_used_by_campaigns(self) -> dict:
         """Get techniques used by campaigns
 
@@ -341,6 +491,22 @@ class MitreAttackData:
             a mapping of campaign_id => {technique, relationship} for each technique used by the campaign
         """
         return self.get_related(self.src, "campaign", "uses", "attack-pattern")
+
+    def get_techniques_used_by_campaign_with_id(self, stix_id: str) -> list:
+        """Get all techniques used by a single campaign
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the campaign
+
+        Returns
+        -------
+        list
+            a list of {technique, relationship} for each technique used by the campaign
+        """
+        techniques_used_by_campaigns = self.get_techniques_used_by_campaigns()
+        return techniques_used_by_campaigns[stix_id] if stix_id in techniques_used_by_campaigns else []
 
     def get_campaigns_using_techniques(self) -> dict:
         """Get campaigns using techniques
@@ -352,7 +518,26 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "campaign", "uses", "attack-pattern", reverse=True)
 
-    # technique:software
+    def get_campaigns_using_technique_with_id(self, stix_id: str) -> list:
+        """Get all campaigns using a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {campaign, relationship} for each campaign using the technique
+        """
+        campaigns_using_techniques = self.get_campaigns_using_techniques()
+        return campaigns_using_techniques[stix_id] if stix_id in campaigns_using_techniques else []
+
+    ###################################
+    # Technique/Software Relationships
+    ###################################
+
     def get_techniques_used_by_software(self) -> dict:
         """Get techniques used by software
 
@@ -364,6 +549,22 @@ class MitreAttackData:
         techniques_by_tool = self.get_related(self.src, "tool", "uses", "attack-pattern")
         techniques_by_malware = self.get_related(self.src, "malware", "uses", "attack-pattern")
         return {**techniques_by_tool, **techniques_by_malware}
+
+    def get_techniques_used_by_software_with_id(self, stix_id: str) -> list:
+        """Get all techniques used by a single software
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the software
+
+        Returns
+        -------
+        list
+            a list of {technique, relationship} for each technique used by the software
+        """
+        techniques_used_by_software = self.get_techniques_used_by_software()
+        return techniques_used_by_software[stix_id] if stix_id in techniques_used_by_software else []
 
     def get_software_using_techniques(self) -> dict:
         """Get software using technique
@@ -377,16 +578,25 @@ class MitreAttackData:
         malware_by_technique_id = self.get_related(self.src, "malware", "uses", "attack-pattern", reverse=True)
         return {**tools_by_technique_id, **malware_by_technique_id}
 
-    # technique:mitigation
-    def get_mitigations_mitigate_techniques(self) -> dict:
-        """Get mitigations that mitigate techniques
+    def get_software_using_technique_with_id(self, stix_id: str) -> list:
+        """Get all software using a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
 
         Returns
         -------
-        dict
-            a mapping of mitigation_id => {technique, relationship} for each technique mitigated by the mitigation
+        list
+            a list of {software, relationship} for each software using the technique
         """
-        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=False)
+        software_using_techniques = self.get_software_using_techniques()
+        return software_using_techniques[stix_id] if stix_id in software_using_techniques else []
+
+    ###################################
+    # Technique/Mitigation Relationships
+    ###################################
 
     def get_techniques_mitigated_by_mitigations(self) -> dict:
         """Get techniques mitigated by mitigations
@@ -394,23 +604,56 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of technique_id => {mitigation, relationship} for each mitigation of the technique
+            a mapping of mitigation_id => {technique, relationship} for each technique mitigated by the mitigation
         """
-        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=True)
+        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern")
+    
+    def get_techniques_mitigated_by_mitigation_with_id(self, stix_id: str) -> list:
+        """Get all techniques being mitigated by a single mitigation
 
-    # technique:sub-technique
-    def get_subtechniques_of(self) -> dict:
-        """Get technique subtechniques
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the mitigation
+
+        Returns
+        -------
+        list
+            a list of {technique, relationship} for each technique mitigated by the mitigation
+        """
+        techniques_mitigated_by_mitigations = self.get_techniques_mitigated_by_mitigations()
+        return techniques_mitigated_by_mitigations[stix_id] if stix_id in techniques_mitigated_by_mitigations else []
+
+    def get_mitigations_mitigating_techniques(self) -> dict:
+        """Get mitigations mitigating techniques
 
         Returns
         -------
         dict
-            a mapping of technique_id => {subtechnique, relationship} for each subtechnique of the technique
+            a mapping of technique_id => {mitigation, relationship} for each mitigation mitigating the technique
         """
-        return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern", reverse=True)
+        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=True)
 
-    def get_parent_technique_of(self) -> dict:
-        """Get parent technique of subtechniques
+    def get_mitigations_mitigating_technique_with_id(self, stix_id: str) -> list:
+        """Get all mitigations mitigating a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {mitigation, relationship} for each mitigation mitigating the technique
+        """
+
+    ###################################
+    # Technique/Subtechnique Relationships
+    ###################################
+
+    def get_parent_technique_of_subtechniques(self) -> dict:
+        """Get parent techniques of subtechniques
 
         Returns
         -------
@@ -419,18 +662,79 @@ class MitreAttackData:
         """
         return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern")[0]
 
-    # technique:data-component
-    def get_datacomponents_detect_techniques(self) -> dict:
-        """Get data components that detect techniques
+    def get_parent_technique_of_subtechnique_with_id(self, stix_id: str) -> dict:
+        """Get the parent technique of a single subtechnique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the subtechnique
+
         Returns
         -------
         dict
-            a mapping of datacomponent_id => {technique, relationship} describing the detections of each data component
+            {parent technique, relationship} describing the parent technique of the subtechnique
         """
-        return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern")
+        parent_techniques_of_subtechniques = self.get_parent_technique_of_subtechniques()
+        return parent_techniques_of_subtechniques[stix_id] if stix_id in parent_techniques_of_subtechniques else []
+
+    def get_subtechniques_of_techniques(self) -> dict:
+        """Get subtechniques of techniques
+
+        Returns
+        -------
+        dict
+            a mapping of technique_id => {subtechnique, relationship} for each subtechnique of the technique
+        """
+        return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern", reverse=True)
+
+    def get_subtechniques_of_technique_with_id(self, stix_id: str) -> list:
+        """Get all subtechniques of a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {subtechnique, relationship} for each subtechnique of the technique
+        """
+        subtechniques_of_techniques = self.get_subtechniques_of_techniques()
+        return subtechniques_of_techniques[stix_id] if stix_id in subtechniques_of_techniques else []
+
+    ###################################
+    # Technique/Data Component Relationships
+    ###################################
 
     def get_techniques_detected_by_datacomponents(self) -> dict:
         """Get techniques detected by data components
+        Returns
+        -------
+        dict
+            a mapping of datacomponent_id => {technique, relationship} describing the detections of the data component
+        """
+        return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern")
+    
+    def get_techniques_detected_by_datacomponent_with_id(self, stix_id: str) -> list:
+        """Get all techniques detected by a single data component
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the data component
+
+        Returns
+        -------
+        list
+            a list of {technique, relationship} describing the detections of the data component
+        """
+        techniques_detected_by_datacomponents = self.get_techniques_detected_by_datacomponents()
+        return techniques_detected_by_datacomponents[stix_id] if stix_id in techniques_detected_by_datacomponents else []
+
+    def get_datacomponents_detecting_techniques(self) -> dict:
+        """Get data components detecting techniques
 
         Returns
         -------
@@ -438,3 +742,19 @@ class MitreAttackData:
             a mapping of technique_id => {datacomponent, relationship} describing the data components that can detect the technique
         """
         return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern", reverse=True)
+
+    def get_datacomponents_detecting_technique_with_id(self, stix_id: str) -> list:
+        """Get all data components detecting a single technique
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {datacomponent, relationship} describing the data components that can detect the technique
+        """
+        datacomponents_detecting_techniques = self.get_datacomponents_detecting_techniques()
+        return datacomponents_detecting_techniques[stix_id] if stix_id in datacomponents_detecting_techniques else []
