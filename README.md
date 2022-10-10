@@ -5,7 +5,7 @@ see [the documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDo
 
 ## Install
 
-To use this package, simply install the mitreattack-python library:
+To use this package, install the mitreattack-python library with [pip](https://pip.pypa.io/en/stable/):
 
 ```shell
 pip install mitreattack-python
@@ -15,12 +15,11 @@ Note: the library requires [python3](https://www.python.org/).
 
 ## Additional Modules
 
-More detailed information about the specific usage of the modules in this package,
-with examples, can be found in the individual README files for each module.
+More detailed information and examples about the specific usage of the additional modules in this package can be found in the individual README files for each module linked below.
 
-| module name | description | documentation |
+| module | description | documentation |
 |:------------|:------------|:--------------|
-| [navlayers](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/navlayers) | A collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. Provides the ability to import, export, and manipulate layers. These layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images. | Further documentation can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).|
+| [navlayers](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/navlayers) | A collection of utilities for working with [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator) layers. Provides the ability to import, export, and manipulate layers. Layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images. | Further documentation can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md).|
 | [attackToExcel](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/attackToExcel) | A collection of utilities for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets. It also provides access to [Pandas](https://pandas.pydata.org/) DataFrames representing the dataset for use in data analysis. | Further documentation can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md).|
 | [collections](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/collections) | A set of utilities for working with [ATT&CK Collections and Collection Indexes](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md). Provides functionalities for converting and summarizing data in collections and collection indexes, as well as generating a collection from a raw stix bundle input. | Further documentation can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/README.md).|
 | [diffStix](https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/diffStix) | Create markdown, HTML, JSON and/or ATT&CK Navigator layers reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content. Run `diff_stix -h` for full usage instructions. | Further documentation can be found [here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/diffStix/README.md).|
