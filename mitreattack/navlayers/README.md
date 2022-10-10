@@ -435,3 +435,87 @@ x.generate_layer(layers_type=object_type_name)
 
 The `generate_layer` function generates a collection of layers, each customized to one instance of the input `object_type_name`.
 Valid types include `group`, `mitigation`, `software`, and `datasource`.
+
+## layerExporter_cli.py
+
+This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
+layer file to either an svg image or excel file using the functionality provided by the navlayers module.
+Details about the SVG configuration json mentioned below can be found in the
+[SVGConfig](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig)
+entry within the navlayers module documentation.
+
+```commandline
+C:\Users\attack>layerExporter_cli -h
+usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local,remote}]
+                            [--resource RESOURCE] -o OUTPUT [OUTPUT ...]
+                            [-l LOAD_SETTINGS] [-d WIDTH HEIGHT]
+                            input [input ...]
+
+Export an ATT&CK Navigator layer as a svg image or excel file
+
+positional arguments:
+  input                 Path(s) to the file to export
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m {svg,excel}, --mode {svg,excel}
+                        The form to export the layers in
+  -s {taxii,local,remote}, --source {taxii,local,remote}
+                        What source to utilize when building the matrix
+  --resource RESOURCE   Path to the local resource if --source=local, or url
+                        of an ATT&CK Workbench instance if --source=remote
+  -o OUTPUT [OUTPUT ...], --output OUTPUT [OUTPUT ...]
+                        Path(s) to the exported svg/xlsx file
+  -l LOAD_SETTINGS, --load_settings LOAD_SETTINGS
+                        [SVG Only] Path to a SVG configuration json to use
+                        when rendering
+  -d WIDTH HEIGHT, --size WIDTH HEIGHT
+                        [SVG Only] X and Y size values (in inches) for SVG
+                        export (use -l for other settings)
+                        
+C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json       
+```
+
+## layerGenerator_cli.py
+
+This command line tool allows users to generate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator)
+layer files from either a specific group, software, or mitigation. Alternatively, users can generate a layer file with a
+mapping to all associated groups, software, or mitigations across the techniques within ATT&CK.
+
+```commandline
+C:\Users\attack>layerGenerator_cli -h
+usage: layerGenerator_cli [-h]
+                             (--overview-type {group,software,mitigation,datasource} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation,datasource})
+                             [-o OUTPUT] [--domain {enterprise,mobile,ics}]
+                             [--source {taxii,local,remote}]
+                             [--resource RESOURCE]
+
+Generate an ATT&CK Navigator layer
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --overview-type {group,software,mitigation,datasource}
+                        Output a layer file where the target type is
+                        summarized across the entire dataset.
+  --mapped-to MAPPED_TO
+                        Output layer file with techniques mapped to the given
+                        group, software, mitigation, or data component. Argument 
+                        can be name, associated group/software, or ATT&CK ID.
+  --batch-type {group,software,mitigation,datasource}
+                        Output a collection of layer files to the specified
+                        folder, each one representing a different instance of
+                        the target type.
+  -o OUTPUT, --output OUTPUT
+                        Path to the output layer file/directory
+  --domain {enterprise,mobile,ics}
+                        Which domain to build off of
+  --source {taxii,local,remote}
+                        What source to utilize when building the layer files
+  --resource RESOURCE   Path to the local resource if --source=local, or url
+                        of an ATT&CK Workbench instance if --source=remote
+  
+C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
+C:\Users\attack>layerGenerator_cli --domain mobile --source taxii --overview-type mitigation --output generated_layer2.json
+C:\Users\attack>layerGenerator_cli --domain ics --source taxii --batch-type software
+C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --overview-type datasource --output generated_layer3.json
+```
