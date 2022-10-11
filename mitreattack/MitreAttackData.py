@@ -1,5 +1,6 @@
 """ MitreAttackData Library """
 
+from itertools import chain
 from stix2 import MemoryStore, Filter
 
 class InvalidInput(Exception):
@@ -22,6 +23,10 @@ class MitreAttackData:
         self.src = MemoryStore()
         self.src.load_from_file(stix_file)
 
+    ###################################
+    # STIX Objects Section
+    ###################################
+
     def remove_revoked_deprecated(self, stix_objects: list) -> list:
         """Remove revoked or deprecated objects from queries made to the data source
 
@@ -39,13 +44,131 @@ class MitreAttackData:
         # if the property is not set.
         return list(
             filter(
-                lambda x: x.get("x_mitre_deprecated", False) is False and x.get("revoked", False) is False,
+                lambda x: x.get('x_mitre_deprecated', False) is False and x.get('revoked', False) is False,
                 stix_objects
             )
         )
 
     ###################################
-    # Relationship section
+    # Get STIX Object by Value
+    ###################################
+
+    def get_object_by_stix_id(self, stix_id: str) -> object:
+        """Retrieve a single object by STIX ID.
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the object to retrieve
+
+        Returns
+        -------
+        stix2.v20.sdo._DomainObject
+            the STIX Domain Object specified by the STIX ID
+        """
+        return self.src.get(stix_id)
+
+    def get_object_by_attack_id(self, attack_id: str) -> object:
+        """Retrieve a single object by its ATT&CK ID
+
+        Parameters
+        ----------
+        attack_id : str
+            the ATT&CK ID of the object to retrieve
+
+        Returns
+        -------
+        stix2.v20.sdo._DomainObject
+            the STIX Domain Object specified by the ATT&CK ID
+        """
+        self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
+
+    def get_object_by_name(self, name: str, type: str) -> object:
+        """Retrieve an object by name
+
+        Parameters
+        ----------
+        name : str
+            the name of the object to retrieve
+        type : str
+            the STIX Domain Object type (e.g. attack-pattern)
+
+        Returns
+        -------
+        stix2.v20.sdo._DomainObject
+            the STIX Domain Object specified by the name and type
+        """
+        filter = [
+            Filter('type', '=', type),
+            Filter('name', '=', name)
+        ]
+        return self.src.query(filter)
+
+    def get_group_by_alias(self, alias: str) -> object:
+        """Retrieve the group corresponding to a given alias
+
+        Parameters
+        ----------
+        alias : str
+            the alias of the group
+
+        Returns
+        -------
+        stix2.v20.sdo.IntrusionSet
+            the IntrusionSet object corresponding to the alias
+        """
+        filter = [
+            Filter('type', '=', 'intrusion-set'),
+            Filter('aliases', 'contains', alias)
+        ]
+        return self.src.query(filter)[0]
+
+    def get_campaign_by_alias(self, alias: str) -> object:
+        """Retrieve the campaign corresponding to a given alias
+
+        Parameters
+        ----------
+        alias : str
+            the alias of the campaign
+
+        Returns
+        -------
+        stix2.v20.sdo.Campaign
+            the Campaign object corresponding to the alias
+        """
+        filter = [
+            Filter('type', '=', 'campaign'),
+            Filter('aliases', 'contains', alias)
+        ]
+        return self.src.query(filter)[0]
+
+    def get_software_by_alias(self, alias: str) -> object:
+        """Retrieve the software corresponding to a given alias
+
+        Parameters
+        ----------
+        alias : str
+            the alias of the software
+
+        Returns
+        -------
+        stix2.v20.sdo.Tool | stix2.v20.sdo.Malware
+            the Tool or Malware object corresponding to the alias
+        """
+        filter_tools = [
+            Filter('type', '=', 'tool'),
+            Filter('x_mitre_aliases', 'contains', alias)
+        ]
+        filter_malware = [
+            Filter('type', '=', 'malware'),
+            Filter('x_mitre_aliases', 'contains', alias)
+        ]
+        return list(chain.from_iterable(
+            self.src.query(filter) for f in [filter_tools, filter_malware]
+        ))[0]
+
+    ###################################
+    # Relationship Section
     ###################################
 
     def get_related(self, source_type: str, relationship_type: str, target_type: str, reverse: bool = False) -> dict:
@@ -54,11 +177,11 @@ class MitreAttackData:
         Parameters
         ----------
         source_type : str
-            source type for the relationships, e.g. "attack-pattern"
+            source type for the relationships, e.g. 'attack-pattern'
         relationship_type : str
-            relationship type for the relationships, e.g. "uses"
+            relationship type for the relationships, e.g. 'uses'
         target_type : str
-            target type for the relationships, e.g. "intrusion-set"
+            target type for the relationships, e.g. 'intrusion-set'
         reverse : bool, optional
             build reverse mapping of target to source, by default False
 
@@ -85,25 +208,25 @@ class MitreAttackData:
                     # append to existing entry
                     if not reverse:
                         id_to_related[relationship.source_ref].append({
-                            "relationship": relationship,
-                            "id": relationship.target_ref
+                            'relationship': relationship,
+                            'id': relationship.target_ref
                         })
                     else:
                         id_to_related[relationship.target_ref].append({
-                            "relationship": relationship,
-                            "id": relationship.source_ref
+                            'relationship': relationship,
+                            'id': relationship.source_ref
                         })
                 else:
                     # create a new entry
                     if not reverse:
                         id_to_related[relationship.source_ref] = [{
-                            "relationship": relationship,
-                            "id": relationship.target_ref
+                            'relationship': relationship,
+                            'id': relationship.target_ref
                         }]
                     else:
                         id_to_related[relationship.target_ref] = [{
-                            "relationship": relationship,
-                            "id": relationship.source_ref
+                            'relationship': relationship,
+                            'id': relationship.source_ref
                         }]
 
         # all objects of relevant type
@@ -128,11 +251,11 @@ class MitreAttackData:
         for stix_id in id_to_related:
             value = []
             for related in id_to_related[stix_id]:
-                if not related["id"] in id_to_target:
+                if not related['id'] in id_to_target:
                     continue  # targeting a revoked object
                 value.append({
-                    "object": id_to_target[related["id"]],
-                    "relationship": related["relationship"]
+                    'object': id_to_target[related['id']],
+                    'relationship': related['relationship']
                 })
             output[stix_id] = value
         return output
@@ -151,30 +274,30 @@ class MitreAttackData:
             by campaigns attributed to the group
         """
         # get all software used by groups
-        tools_used_by_group = self.get_related(self.src, "intrusion-set", "uses", "tool")
-        malware_used_by_group = self.get_related(self.src, "intrusion-set", "uses", "malware")
+        tools_used_by_group = self.get_related(self.src, 'intrusion-set', 'uses', 'tool')
+        malware_used_by_group = self.get_related(self.src, 'intrusion-set', 'uses', 'malware')
         software_used_by_group = {**tools_used_by_group, **malware_used_by_group} # group_id -> {software, relationship}
 
         # get groups attributing to campaigns and all software used by campaigns
-        software_used_by_campaign = self.get_related(self.src, "campaign", "uses", "tool")
-        malware_used_by_campaign = self.get_related(self.src, "campaign", "uses", "malware")
+        software_used_by_campaign = self.get_related(self.src, 'campaign', 'uses', 'tool')
+        malware_used_by_campaign = self.get_related(self.src, 'campaign', 'uses', 'malware')
         for id in malware_used_by_campaign:
             if id in software_used_by_campaign:
                 software_used_by_campaign[id].extend(malware_used_by_campaign[id])
             else:
                 software_used_by_campaign[id] = malware_used_by_campaign[id]
         campaigns_attributed_to_group = {
-            "campaigns": self.get_related(self.src, "campaign", "attributed-to", "intrusion-set", reverse=True), # group_id => {campaign, relationship}
-            "software": software_used_by_campaign # campaign_id => {software, relationship}
+            'campaigns': self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set', reverse=True), # group_id => {campaign, relationship}
+            'software': software_used_by_campaign # campaign_id => {software, relationship}
         }
 
-        for group_id in campaigns_attributed_to_group["campaigns"]:
+        for group_id in campaigns_attributed_to_group['campaigns']:
             software_used_by_campaigns = []
             # check if attributed campaign is using software
-            for campaign in campaigns_attributed_to_group["campaigns"][group_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in campaigns_attributed_to_group["software"]:
-                    software_used_by_campaigns.extend(campaigns_attributed_to_group["software"][campaign_id])
+            for campaign in campaigns_attributed_to_group['campaigns'][group_id]:
+                campaign_id = campaign['object']['id']
+                if campaign_id in campaigns_attributed_to_group['software']:
+                    software_used_by_campaigns.extend(campaigns_attributed_to_group['software'][campaign_id])
             
             # update software used by group to include software used by a groups attributed campaign
             if group_id in software_used_by_group:
@@ -210,30 +333,30 @@ class MitreAttackData:
             using the software
         """
         # get all groups using software
-        groups_using_tool = self.get_related(self.src, "intrusion-set", "uses", "tool", reverse=True)
-        groups_using_malware = self.get_related(self.src, "intrusion-set", "uses", "malware", reverse=True)
+        groups_using_tool = self.get_related(self.src, 'intrusion-set', 'uses', 'tool', reverse=True)
+        groups_using_malware = self.get_related(self.src, 'intrusion-set', 'uses', 'malware', reverse=True)
         groups_using_software = {**groups_using_tool, **groups_using_malware} # software_id => {group, relationship}
 
         # get campaigns attributed to groups and all campaigns using software
-        campaigns_using_software = self.get_related(self.src, "campaign", "uses", "tool", reverse=True)
-        campaigns_using_malware = self.get_related(self.src, "campaign", "uses", "malware", reverse=True)
+        campaigns_using_software = self.get_related(self.src, 'campaign', 'uses', 'tool', reverse=True)
+        campaigns_using_malware = self.get_related(self.src, 'campaign', 'uses', 'malware', reverse=True)
         for id in campaigns_using_malware:
             if id in campaigns_using_software:
                 campaigns_using_software[id].extend(campaigns_using_malware[id])
             else:
                 campaigns_using_software[id] = campaigns_using_malware[id]
         groups_attributing_to_campaigns = {
-            "campaigns": campaigns_using_software,# software_id => {campaign, relationship}
-            "groups": self.get_related(self.src, "campaign", "attributed-to", "intrusion-set") # campaign_id => {group, relationship}
+            'campaigns': campaigns_using_software,# software_id => {campaign, relationship}
+            'groups': self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set') # campaign_id => {group, relationship}
         }
 
-        for software_id in groups_attributing_to_campaigns["campaigns"]:
+        for software_id in groups_attributing_to_campaigns['campaigns']:
             groups_attributed_to_campaigns = []
             # check if campaign is attributed to group
-            for campaign in groups_attributing_to_campaigns["campaigns"][software_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in groups_attributing_to_campaigns["groups"]:
-                    groups_attributed_to_campaigns.extend(groups_attributing_to_campaigns["groups"][campaign_id])
+            for campaign in groups_attributing_to_campaigns['campaigns'][software_id]:
+                campaign_id = campaign['object']['id']
+                if campaign_id in groups_attributing_to_campaigns['groups']:
+                    groups_attributed_to_campaigns.extend(groups_attributing_to_campaigns['groups'][campaign_id])
             
             # update groups using software to include software used by a groups attributed campaign
             if software_id in groups_using_software:
@@ -271,8 +394,8 @@ class MitreAttackData:
         dict
             a mapping of campaign_id => {software, relationship} for each software used by the campaign
         """
-        tools_used_by_campaign = self.get_related(self.src, "campaign", "uses", "tool")
-        malware_used_by_campaign = self.get_related(self.src, "campaign", "uses", "malware")
+        tools_used_by_campaign = self.get_related(self.src, 'campaign', 'uses', 'tool')
+        malware_used_by_campaign = self.get_related(self.src, 'campaign', 'uses', 'malware')
         return {**tools_used_by_campaign, **malware_used_by_campaign}
 
     def get_software_used_by_campaigns_with_id(self, stix_id: str) -> list:
@@ -299,8 +422,8 @@ class MitreAttackData:
         dict
             a mapping of software_id => {campaign, relationship} for each campaign using the software
         """
-        campaigns_using_tool = self.get_related(self.src, "campaign", "uses", "tool", reverse=True)
-        campaigns_using_malware = self.get_related(self.src, "campaign", "uses", "malware", reverse=True)
+        campaigns_using_tool = self.get_related(self.src, 'campaign', 'uses', 'tool', reverse=True)
+        campaigns_using_malware = self.get_related(self.src, 'campaign', 'uses', 'malware', reverse=True)
         return {**campaigns_using_tool, **campaigns_using_malware}
 
     def get_campaigns_using_software_with_id(self, stix_id: str) -> list:
@@ -332,7 +455,7 @@ class MitreAttackData:
         dict
             a mapping of campaign_id => {group, relationship} for each group attributing to the campaign
         """
-        return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set")
+        return self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set')
     
     def get_groups_attributing_to_campaign_with_id(self, stix_id: str) -> list:
         """Get all groups attributing to a single campaign
@@ -358,7 +481,7 @@ class MitreAttackData:
         dict
             a mapping of group_id => {campaign, relationship} for each campaign attributed to the group
         """
-        return self.get_related(self.src, "campaign", "attributed-to", "intrusion-set", reverse=True)
+        return self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set', reverse=True)
 
     def get_campaigns_attributed_to_group_with_id(self, stix_id: str) -> list:
         """Get all campaigns attributed to a single group
@@ -388,21 +511,21 @@ class MitreAttackData:
             each technique used by campaigns attributed to the group
         """
         # get all techniques used by groups
-        techniques_used_by_groups = self.get_related(self.src, "intrusion-set", "uses", "attack-pattern") # group_id => {technique, relationship}
+        techniques_used_by_groups = self.get_related(self.src, 'intrusion-set', 'uses', 'attack-pattern') # group_id => {technique, relationship}
 
         # get groups attributing to campaigns and all techniques used by campaigns
         campaigns_attributed_to_group = {
-            "campaigns": self.get_related(self.src, "campaign", "attributed-to", "intrusion-set", reverse=True), # group_id => {campaign, relationship}
-            "techniques": self.get_related(self.src, "campaign", "uses", "attack-pattern") # campaign_id => {technique, relationship}
+            'campaigns': self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set', reverse=True), # group_id => {campaign, relationship}
+            'techniques': self.get_related(self.src, 'campaign', 'uses', 'attack-pattern') # campaign_id => {technique, relationship}
         }
 
-        for group_id in campaigns_attributed_to_group["campaigns"]:
+        for group_id in campaigns_attributed_to_group['campaigns']:
             techniques_used_by_campaigns = []
             # check if attributed campaign is using technique
-            for campaign in campaigns_attributed_to_group["campaigns"][group_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in campaigns_attributed_to_group["techniques"]:
-                    techniques_used_by_campaigns.extend(campaigns_attributed_to_group["techniques"][campaign_id])
+            for campaign in campaigns_attributed_to_group['campaigns'][group_id]:
+                campaign_id = campaign['object']['id']
+                if campaign_id in campaigns_attributed_to_group['techniques']:
+                    techniques_used_by_campaigns.extend(campaigns_attributed_to_group['techniques'][campaign_id])
 
             # update techniques used by groups to include techniques used by a groups attributed campaign
             if group_id in techniques_used_by_groups:
@@ -438,21 +561,21 @@ class MitreAttackData:
             groups using the technique
         """
         # get all groups using techniques
-        groups_using_techniques = self.get_related(self.src, "intrusion-set", "uses", "attack-pattern", reverse=True) # technique_id => {group, relationship}
+        groups_using_techniques = self.get_related(self.src, 'intrusion-set', 'uses', 'attack-pattern', reverse=True) # technique_id => {group, relationship}
 
         # get campaigns attributed to groups and all campaigns using techniques
         groups_attributing_to_campaigns = {
-            "campaigns": self.get_related(self.src, "campaign", "uses", "attack-pattern", reverse=True), # technique_id => {campaign, relationship}
-            "groups": self.get_related(self.src, "campaign", "attributed-to", "intrusion-set") # campaign_id => {group, relationship}
+            'campaigns': self.get_related(self.src, 'campaign', 'uses', 'attack-pattern', reverse=True), # technique_id => {campaign, relationship}
+            'groups': self.get_related(self.src, 'campaign', 'attributed-to', 'intrusion-set') # campaign_id => {group, relationship}
         }
 
-        for technique_id in groups_attributing_to_campaigns["campaigns"]:
+        for technique_id in groups_attributing_to_campaigns['campaigns']:
             campaigns_attributed_to_group = []
             # check if campaign is attributed to group
-            for campaign in groups_attributing_to_campaigns["campaigns"][technique_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in groups_attributing_to_campaigns["groups"]:
-                    campaigns_attributed_to_group.extend(groups_attributing_to_campaigns["groups"][campaign_id])
+            for campaign in groups_attributing_to_campaigns['campaigns'][technique_id]:
+                campaign_id = campaign['object']['id']
+                if campaign_id in groups_attributing_to_campaigns['groups']:
+                    campaigns_attributed_to_group.extend(groups_attributing_to_campaigns['groups'][campaign_id])
             
             # update groups using techniques to include techniques used by a groups attributed campaign
             if technique_id in groups_using_techniques:
@@ -490,7 +613,7 @@ class MitreAttackData:
         dict
             a mapping of campaign_id => {technique, relationship} for each technique used by the campaign
         """
-        return self.get_related(self.src, "campaign", "uses", "attack-pattern")
+        return self.get_related(self.src, 'campaign', 'uses', 'attack-pattern')
 
     def get_techniques_used_by_campaign_with_id(self, stix_id: str) -> list:
         """Get all techniques used by a single campaign
@@ -516,7 +639,7 @@ class MitreAttackData:
         dict
             a mapping of technique_id => {campaign, relationship} for each campaign using the technique
         """
-        return self.get_related(self.src, "campaign", "uses", "attack-pattern", reverse=True)
+        return self.get_related(self.src, 'campaign', 'uses', 'attack-pattern', reverse=True)
 
     def get_campaigns_using_technique_with_id(self, stix_id: str) -> list:
         """Get all campaigns using a single technique
@@ -546,8 +669,8 @@ class MitreAttackData:
         dict
             a mapping of software_id => {technique, relationship} for each technique used by the software
         """
-        techniques_by_tool = self.get_related(self.src, "tool", "uses", "attack-pattern")
-        techniques_by_malware = self.get_related(self.src, "malware", "uses", "attack-pattern")
+        techniques_by_tool = self.get_related(self.src, 'tool', 'uses', 'attack-pattern')
+        techniques_by_malware = self.get_related(self.src, 'malware', 'uses', 'attack-pattern')
         return {**techniques_by_tool, **techniques_by_malware}
 
     def get_techniques_used_by_software_with_id(self, stix_id: str) -> list:
@@ -574,8 +697,8 @@ class MitreAttackData:
         dict
             a mapping of technique_id => {software, relationship} for each software using the technique
         """
-        tools_by_technique_id = self.get_related(self.src, "tool", "uses", "attack-pattern", reverse=True)
-        malware_by_technique_id = self.get_related(self.src, "malware", "uses", "attack-pattern", reverse=True)
+        tools_by_technique_id = self.get_related(self.src, 'tool', 'uses', 'attack-pattern', reverse=True)
+        malware_by_technique_id = self.get_related(self.src, 'malware', 'uses', 'attack-pattern', reverse=True)
         return {**tools_by_technique_id, **malware_by_technique_id}
 
     def get_software_using_technique_with_id(self, stix_id: str) -> list:
@@ -606,7 +729,7 @@ class MitreAttackData:
         dict
             a mapping of mitigation_id => {technique, relationship} for each technique mitigated by the mitigation
         """
-        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern")
+        return self.get_related(self.src, 'course-of-action', 'mitigates', 'attack-pattern')
     
     def get_techniques_mitigated_by_mitigation_with_id(self, stix_id: str) -> list:
         """Get all techniques being mitigated by a single mitigation
@@ -632,7 +755,7 @@ class MitreAttackData:
         dict
             a mapping of technique_id => {mitigation, relationship} for each mitigation mitigating the technique
         """
-        return self.get_related(self.src, "course-of-action", "mitigates", "attack-pattern", reverse=True)
+        return self.get_related(self.src, 'course-of-action', 'mitigates', 'attack-pattern', reverse=True)
 
     def get_mitigations_mitigating_technique_with_id(self, stix_id: str) -> list:
         """Get all mitigations mitigating a single technique
@@ -660,7 +783,7 @@ class MitreAttackData:
         dict
             a mapping of subtechnique_id => {technique, relationship} describing the parent technique of the subtechnique
         """
-        return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern")[0]
+        return self.get_related(self.src, 'attack-pattern', 'subtechnique-of', 'attack-pattern')[0]
 
     def get_parent_technique_of_subtechnique_with_id(self, stix_id: str) -> dict:
         """Get the parent technique of a single subtechnique
@@ -686,7 +809,7 @@ class MitreAttackData:
         dict
             a mapping of technique_id => {subtechnique, relationship} for each subtechnique of the technique
         """
-        return self.get_related(self.src, "attack-pattern", "subtechnique-of", "attack-pattern", reverse=True)
+        return self.get_related(self.src, 'attack-pattern', 'subtechnique-of', 'attack-pattern', reverse=True)
 
     def get_subtechniques_of_technique_with_id(self, stix_id: str) -> list:
         """Get all subtechniques of a single technique
@@ -715,7 +838,7 @@ class MitreAttackData:
         dict
             a mapping of datacomponent_id => {technique, relationship} describing the detections of the data component
         """
-        return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern")
+        return self.get_related(self.src, 'x-mitre-data-component', 'detects', 'attack-pattern')
     
     def get_techniques_detected_by_datacomponent_with_id(self, stix_id: str) -> list:
         """Get all techniques detected by a single data component
@@ -741,7 +864,7 @@ class MitreAttackData:
         dict
             a mapping of technique_id => {datacomponent, relationship} describing the data components that can detect the technique
         """
-        return self.get_related(self.src, "x-mitre-data-component", "detects", "attack-pattern", reverse=True)
+        return self.get_related(self.src, 'x-mitre-data-component', 'detects', 'attack-pattern', reverse=True)
 
     def get_datacomponents_detecting_technique_with_id(self, stix_id: str) -> list:
         """Get all data components detecting a single technique
