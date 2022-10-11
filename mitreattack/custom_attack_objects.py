@@ -1,3 +1,4 @@
+from symbol import classdef
 from stix2 import CustomObject, ExternalReference
 from stix2.properties import StringProperty, ListProperty, TypeProperty, IDProperty, ReferenceProperty, TimestampProperty, BooleanProperty
 
@@ -11,6 +12,31 @@ class StixObject(object):
             the object version
         """
         return self.x_mitre_version
+
+def StixObjectFactory(data: dict) -> object:
+    """Factory method to convert STIX 2 content into a STIX object
+
+    Parameters
+    ----------
+    data : dict
+        the STIX 2 object content to instantiate, typically
+        the result of a stix2 query
+
+    Returns
+    -------
+    StixObject | stix2.v20.sdo._DomainObject
+        an instantiated Python STIX object
+    """
+    stix_type_to_custom_class = {
+        'x-mitre-matrix': Matrix,
+        'x-mitre-tactic': Tactic,
+        'x-mitre-data-source': DataSource,
+        'x-mitre-data-component': DataComponent
+    }
+ 
+    if 'type' in data and data['type'] in stix_type_to_custom_class:
+        return stix_type_to_custom_class[data['type']](**data)
+    return data
 
 @CustomObject('x-mitre-matrix', [
     # SDO Common Properties
@@ -48,6 +74,7 @@ class Matrix(StixObject, object):
     ('description', StringProperty()),
     ('x_mitre_domains', ListProperty(StringProperty())),
     ('x_mitre_shortname', StringProperty()),
+    ('x_mitre_modified_by_ref', ReferenceProperty(valid_types='identity', spec_version='2.0')),
     ('x_mitre_version', StringProperty()),
     ('x_mitre_attack_spec_version', StringProperty())
 ])
