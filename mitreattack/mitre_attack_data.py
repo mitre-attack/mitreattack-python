@@ -2,6 +2,7 @@
 
 from itertools import chain
 from stix2 import MemoryStore, Filter
+from mitreattack.custom_attack_objects import Matrix, Tactic, DataSource, DataComponent
 
 class InvalidInput(Exception):
     pass
@@ -49,6 +50,102 @@ class MitreAttackData:
             )
         )
 
+    def get_matrices(self) -> list:
+        """Retrieve all matrix objects
+
+        Returns
+        -------
+        list
+            a list of Matrix objects
+        """
+        matrices = self.src.query([ Filter('type', '=', 'x-mitre-matrix') ])
+        # since Matrix is a custom object, we need to reconstruct the query results
+        return [Matrix(**m, allow_custom=True) for m in matrices]
+
+    def get_tactics(self) -> list:
+        """Retrieve all tactic objects
+
+        Returns
+        -------
+        list
+            a list of Tactic objects
+        """
+        tactics = self.src.query([ Filter('type', '=', 'x-mitre-tactic') ])
+        # since Tactic is a custom object, we need to reconstruct the query results
+        return [Tactic(**t, allow_custom=True) for t in tactics]
+
+    def get_techniques(self) -> list:
+        """Retrieve all technique objects
+
+        Returns
+        -------
+        list
+            a list of AttackPattern objects
+        """
+        return self.src.query([ Filter('type', '=', 'attack-pattern') ])
+
+    def get_mitigations(self) -> list:
+        """Retrieve all mitigation objects
+
+        Returns
+        -------
+        list
+            a list of CourseOfAction objects
+        """
+        return self.src.query([ Filter('type', '=', 'x-mitre-tactic') ])
+    
+    def get_groups(self) -> list:
+        """Retrieve all group objects
+
+        Returns
+        -------
+        list
+            a list of IntrusionSet objects
+        """
+        return self.src.query([ Filter('type', '=', 'intrusion-set') ])
+
+    def get_software(self) -> list:
+        """Retrieve all software objects
+
+        Returns
+        -------
+        list
+            a list of Tool and Malware objects
+        """
+        return list(chain.from_iterable(
+            self.src.query(f) for f in [
+                Filter('type', '=', 'tool'), 
+                Filter('type', '=', 'malware')
+            ]
+        ))
+    
+    def get_campaigns(self) -> list:
+        """Retrieve all campaign objects
+
+        Returns
+        -------
+        list
+            a list of Campaign objects
+        """
+        return self.src.query([ Filter('type', '=', 'campaign') ])
+
+    def get_datasources(self) -> list:
+        """Retrieve all data source objects
+
+        Returns
+        -------
+        list
+            a list of DataSource objects
+        """
+        datasources = self.src.query([ Filter('type', '=', 'x-mitre-data-source') ])
+        # since DataSource is a custom object, we need to reconstruct the query results
+        return [DataSource(**ds, allow_custom=True) for ds in datasources]
+
+    def get_datacomponents(self) -> list:
+        datacomponents = self.src.query([ Filter('type', '=', 'x-mitre-data-component') ])
+        # since DataComponent is a custom object, we need to reconstruct the query results
+        return [DataComponent(**dc, allow_custom=True) for dc in datacomponents]
+
     ###################################
     # Get STIX Object by Value
     ###################################
@@ -81,7 +178,7 @@ class MitreAttackData:
         stix2.v20.sdo._DomainObject
             the STIX Domain Object specified by the ATT&CK ID
         """
-        self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
+        return self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
 
     def get_object_by_name(self, name: str, type: str) -> object:
         """Retrieve an object by name
