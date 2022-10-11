@@ -1,8 +1,7 @@
-from symbol import classdef
 from stix2 import CustomObject, ExternalReference
 from stix2.properties import StringProperty, ListProperty, TypeProperty, IDProperty, ReferenceProperty, TimestampProperty, BooleanProperty
 
-class StixObject(object):
+class CustomStixObject(object):
     def get_version(self) -> str:
         """Get the version of the object
 
@@ -56,7 +55,7 @@ def StixObjectFactory(data: dict) -> object:
     ('x_mitre_version', StringProperty()),
     ('x_mitre_attack_spec_version', StringProperty())
 ])
-class Matrix(StixObject, object):
+class Matrix(CustomStixObject, object):
     pass
 
 @CustomObject('x-mitre-tactic', [
@@ -78,7 +77,7 @@ class Matrix(StixObject, object):
     ('x_mitre_version', StringProperty()),
     ('x_mitre_attack_spec_version', StringProperty())
 ])
-class Tactic(StixObject, object):
+class Tactic(CustomStixObject, object):
     def get_shortname(self) -> str:
         """Get the tactic shortname
 
@@ -110,7 +109,7 @@ class Tactic(StixObject, object):
     ('x_mitre_version', StringProperty()),
     ('x_mitre_attack_spec_version', StringProperty())
 ])
-class DataSource(StixObject, object):
+class DataSource(CustomStixObject, object):
     pass
 
 @CustomObject('x-mitre-data-component', [
@@ -131,5 +130,5 @@ class DataSource(StixObject, object):
     ('x_mitre_version', StringProperty()),
     ('x_mitre_attack_spec_version', StringProperty())
 ])
-class DataComponent(StixObject, object):
+class DataComponent(CustomStixObject, object):
     pass

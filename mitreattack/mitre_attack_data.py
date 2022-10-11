@@ -2,7 +2,7 @@
 
 from itertools import chain
 from stix2 import MemoryStore, Filter
-from mitreattack.custom_attack_objects import Matrix, Tactic, DataSource, DataComponent
+from mitreattack.custom_attack_objects import StixObjectFactory, Matrix, Tactic, DataSource, DataComponent
 
 class InvalidInput(Exception):
     pass
@@ -142,6 +142,13 @@ class MitreAttackData:
         return [DataSource(**ds, allow_custom=True) for ds in datasources]
 
     def get_datacomponents(self) -> list:
+        """Retrieve all data component objects
+
+        Returns
+        -------
+        list
+            a list of DataComponent objects
+        """
         datacomponents = self.src.query([ Filter('type', '=', 'x-mitre-data-component') ])
         # since DataComponent is a custom object, we need to reconstruct the query results
         return [DataComponent(**dc, allow_custom=True) for dc in datacomponents]
@@ -160,10 +167,11 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject
+        stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the STIX ID
         """
-        return self.src.get(stix_id)
+        object = self.src.get(stix_id)
+        return StixObjectFactory(object)
 
     def get_object_by_attack_id(self, attack_id: str) -> object:
         """Retrieve a single object by its ATT&CK ID
@@ -175,10 +183,11 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject
+        stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the ATT&CK ID
         """
-        return self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
+        object = self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
+        return StixObjectFactory(object)
 
     def get_object_by_name(self, name: str, type: str) -> object:
         """Retrieve an object by name
@@ -192,14 +201,15 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject
+        stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the name and type
         """
         filter = [
             Filter('type', '=', type),
             Filter('name', '=', name)
         ]
-        return self.src.query(filter)
+        object = self.src.query(filter)
+        return StixObjectFactory(object)
 
     def get_group_by_alias(self, alias: str) -> object:
         """Retrieve the group corresponding to a given alias
