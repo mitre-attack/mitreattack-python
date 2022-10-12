@@ -1,3 +1,9 @@
+# v2.0.0
+
+## Improvements
+
+- Added a new library module, `MitreAttackData`, for working with ATT&CK data, including the functions and relationships microlibrary from the [CTI USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md).
+
 # v1.6.2 9/7/2022
 
 ## Fixes
