@@ -64,7 +64,7 @@ One-off scripts and code examples you can use as inspiration for how to work wit
 ## Contributing
 
 To contribute to this project, either through a bug report, feature request, or merge request,
-please see the [Contributors guide](https://github.com/mitre-attack/mitreattack-python/blob/master/docs/CONTRIBUTING.md).
+please see the [Contributors Guide](https://github.com/mitre-attack/mitreattack-python/blob/master/docs/CONTRIBUTING.md).
 
 ## Notice
 

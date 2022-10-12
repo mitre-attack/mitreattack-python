@@ -7,7 +7,7 @@ from mitreattack.custom_attack_objects import StixObjectFactory, Matrix, Tactic,
 class MitreAttackData:
     """ MitreAttackData object """
 
-    def __init__(self, stix_file: str):
+    def __init__(self, stix_filepath: str):
         """Initialize a MitreAttackData object
 
         Parameters
@@ -15,11 +15,11 @@ class MitreAttackData:
         stix_file : str
             Filepath to a STIX 2.0 bundle
         """
-        if not isinstance(stix_file, str):
-            raise TypeError(f"Argument stix_file must be of type str, not {type(stix_file)}")
+        if not isinstance(stix_filepath, str):
+            raise TypeError(f"Argument stix_filepath must be of type str, not {type(stix_filepath)}")
 
         self.src = MemoryStore()
-        self.src.load_from_file(stix_file)
+        self.src.load_from_file(stix_filepath)
 
     ###################################
     # STIX Objects Section
