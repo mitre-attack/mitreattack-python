@@ -10,7 +10,15 @@ content.
 
    installation
    mitre_attack_data
-   additional_modules
    related_work
    contributing
    notice
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Additional Modules
+
+   additional_modules/navlayers
+   additional_modules/attackToExcel
+   additional_modules/collections
+   additional_modules/diffStix
