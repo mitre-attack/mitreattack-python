@@ -5,10 +5,10 @@ mitreattack-python library
 content.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Contents:
 
-   usage
+   installation
    mitre_attack_data
    additional_modules
    related_work
