@@ -10,7 +10,7 @@ content.
 
    usage
    mitre_attack_data
-   modules
+   additional_modules
    related_work
    contributing
    notice
