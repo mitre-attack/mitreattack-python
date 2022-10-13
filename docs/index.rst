@@ -6,13 +6,19 @@ content.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Overview
 
    installation
-   mitre_attack_data
    related_work
    contributing
    notice
+
+.. toctree::
+   :maxdepth: 1
+   :caption: MITRE ATT&CK Data Library
+
+   mitre_attack_data/mitre_attack_data
+   mitre_attack_data/custom_objects
 
 .. toctree::
    :maxdepth: 1
