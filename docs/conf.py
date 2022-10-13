@@ -2,6 +2,10 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 # -- Project information -----------------------------------------------------
 project = 'mitreattack-python'
 copyright = '2022, The MITRE Corporation'
@@ -9,9 +13,15 @@ version = '2.0.0'
 release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
-extensions = []
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.napoleon'
+]
+autosummary_generate = True
+autodoc_default_options = {"members": True}
 add_module_names = True
-show_authors = True
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
