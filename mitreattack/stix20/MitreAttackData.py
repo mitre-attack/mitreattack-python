@@ -2,7 +2,7 @@
 
 from itertools import chain
 from stix2 import MemoryStore, Filter
-from mitreattack.custom_attack_objects import StixObjectFactory, Matrix, Tactic, DataSource, DataComponent
+from mitreattack.stix20.custom_attack_objects import StixObjectFactory, Matrix, Tactic, DataSource, DataComponent
 
 class MitreAttackData:
     """ MitreAttackData object """
@@ -201,7 +201,6 @@ class MitreAttackData:
         stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the name and type
         """
-        # TODO: if type = software
         filter = [
             Filter('type', '=', type),
             Filter('name', '=', name)
