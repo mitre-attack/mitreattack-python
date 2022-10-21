@@ -27,6 +27,7 @@ attackTypeToStixFilter = {
     "technique": [Filter("type", "=", "attack-pattern")],
     "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
     "group": [Filter("type", "=", "intrusion-set")],
+    "campaign": [Filter("type", "=", "campaign")],
     "mitigation": [Filter("type", "=", "course-of-action")],
     "datasource": [
         Filter("type", "=", "x-mitre-data-source"),
@@ -40,6 +41,7 @@ attackTypeToTitle = {
     "malware": "Malware",
     "software": "Software",
     "group": "Groups",
+    "campaign": "Campaigns",
     "mitigation": "Mitigations",
     "datasource": "Data Sources and/or Components",
 }
@@ -49,17 +51,18 @@ attackTypeToSectionName = {
     "malware": "Malware",
     "software": "Software",
     "group": "Group",
+    "campaign": "Campaign",
     "mitigation": "Mitigation",
     "datasource": "Data Source and/or Component",
 }
 # how we want to format headers for each section
 sectionNameToSectionHeaders = {
     "additions": "New {obj_type}",
-    "changes": "{obj_type} changes",
-    "minor_changes": "Minor {obj_type} changes",
-    "deprecations": "{obj_type} deprecations",
-    "revocations": "{obj_type} revocations",
-    "deletions": "{obj_type} deletions",
+    "changes": "{obj_type} Changes",
+    "minor_changes": "Minor {obj_type} Changes",
+    "deprecations": "{obj_type} Deprecations",
+    "revocations": "{obj_type} Revocations",
+    "deletions": "{obj_type} Deletions",
     "unchanged": "Unchanged {obj_type}",
 }
 # color key for layers
@@ -107,7 +110,7 @@ class DiffStix(object):
         old="old",
         show_key=False,
         site_prefix="",
-        types=["technique", "software", "group", "mitigation", "datasource"],
+        types=["technique", "software", "group", "campaign", "mitigation", "datasource"],
         use_taxii=False,
         use_mitre_cti=False,
         verbose=False,
@@ -826,12 +829,11 @@ class DiffStix(object):
                         )
 
             logger.debug(f"finished getting section list for {obj_type}/{section}")
-            # logger.debug(sectionString)
             return sectionString
 
         def getContributorSection():
             # Get contributors markdown
-            contribSection = "### Contributors to this release\n\n"
+            contribSection = "## Contributors to this release\n\n"
             sorted_contributors = sorted(
                 self.release_contributors, key=lambda v: v.lower()
             )
@@ -850,13 +852,14 @@ class DiffStix(object):
                 logger.debug(
                     f"==== Generating markdown for domain: {domainToDomainLabel[domain]} --- {obj_type} ===="
                 )
-                domains += f"#### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
-                # Skip mobile sections for data sources
-                if domain == "mobile-attack" and obj_type == "datasource":
+                domains += f"### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
+                # Skip mobile and ics sections for data sources
+                if domain in ["mobile-attack", "ics-attack"] and obj_type == "datasource":
+                    domainName = 'Mobile' if domain == 'mobile-attack' else 'ICS'
                     logger.debug(
-                        f"Skipping - ATT&CK for Mobile does not support data sources"
+                        f"Skipping - ATT&CK for {domainName} does not support data sources"
                     )
-                    domains += "ATT&CK for Mobile does not support data sources\n\n"
+                    domains += f"ATT&CK for {domainName} does not support data sources\n\n"
                     continue
                 domain_sections = ""
                 for section, values in self.data[obj_type][domain].items():
@@ -869,7 +872,7 @@ class DiffStix(object):
                     else:  # no items in section
                         section_items = "* No changes\n"
 
-                    header = sectionNameToSectionHeaders[section] + ":"
+                    header = f"#### {sectionNameToSectionHeaders[section]}"
 
                     if "{obj_type}" in header:
                         if section == "additions":
@@ -888,7 +891,7 @@ class DiffStix(object):
                 domains += f"{domain_sections}"
 
             # e.g "techniques"
-            content += f"### {attackTypeToTitle[obj_type]}\n\n{domains}"
+            content += f"## {attackTypeToTitle[obj_type]}\n\n{domains}"
 
         if self.show_key:
             key_content = self.get_md_key()
@@ -1129,8 +1132,8 @@ def get_parsed_args():
         type=str,
         nargs="+",
         metavar=("OBJ_TYPE", "OBJ_TYPE"),
-        choices=["technique", "software", "group", "mitigation", "datasource"],
-        default=["technique", "software", "group", "mitigation", "datasource"],
+        choices=["technique", "software", "group", "campaign", "mitigation", "datasource"],
+        default=["technique", "software", "group", "campaign", "mitigation", "datasource"],
         help="which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
     parser.add_argument(
@@ -1274,7 +1277,7 @@ def get_new_changelog_md(
     old: str = None,
     show_key: bool = False,
     site_prefix: str = "",
-    types: List[str] = ["technique", "software", "group", "mitigation", "datasource"],
+    types: List[str] = ["technique", "software", "group", "campaign", "mitigation", "datasource"],
     use_taxii: bool = False,
     use_mitre_cti: bool = False,
     verbose: bool = False,
