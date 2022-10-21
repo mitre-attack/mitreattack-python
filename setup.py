@@ -45,6 +45,7 @@ setuptools.setup(
         'numpy',
         'openpyxl',
         'pandas',
+        'python-dateutil',
         'Pillow',
         'requests',
         'stix2',
