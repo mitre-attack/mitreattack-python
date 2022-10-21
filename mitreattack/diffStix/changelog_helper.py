@@ -896,12 +896,11 @@ class DiffStix(object):
                 )
                 domains += f"### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
                 # Skip mobile and ics sections for data sources
-                if domain in ["mobile-attack", "ics-attack"] and obj_type == "datasource":
-                    domainName = 'Mobile' if domain == 'mobile-attack' else 'ICS'
+                if domain == "mobile-attack" and obj_type == "datasource":
                     logger.debug(
-                        f"Skipping - ATT&CK for {domainName} does not support data sources"
+                        f"Skipping - ATT&CK for Mobile does not support data sources"
                     )
-                    domains += f"ATT&CK for {domainName} does not support data sources\n\n"
+                    domains += f"ATT&CK for Mobile does not support data sources\n\n"
                     continue
                 domain_sections = ""
                 for section, values in self.data[obj_type][domain].items():
