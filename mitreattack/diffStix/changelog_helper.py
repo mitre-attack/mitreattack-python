@@ -838,11 +838,11 @@ class DiffStix(object):
             def version(item, section):
                 if section in ['additions', 'deprecations', 'revocations']:
                     # only display current version
-                    color = "#929393" if self.version_increment_is_valid(None, item['x_mitre_version'], section) else "#e32a4c"
+                    color = "#929393" if self.version_increment_is_valid(None, item['x_mitre_version'], section) else "#eb6635"
                     return f"<small style=\"color:{color}\">(v{item['x_mitre_version']})</small>"
                 else:
                     # display previous and current version
-                    color = "#929393" if self.version_increment_is_valid(item['previous_version'], item['x_mitre_version'], section) else "#e32a4c"
+                    color = "#929393" if self.version_increment_is_valid(item['previous_version'], item['x_mitre_version'], section) else "#eb6635"
                     return f"<small style=\"color:{color}\">(v{item['previous_version']}&#8594;v{item['x_mitre_version']})</small>"
 
             groupings = self.get_groupings(
