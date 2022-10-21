@@ -140,3 +140,5 @@ class DataComponent(CustomStixObject, object):
     """Custom DataComponent object of type stix2.CustomObject
     """
     pass
+
+# TODO do we need to register these? stix2.registration._register_object(CustomObject2, version="2.0")

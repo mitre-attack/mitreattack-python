@@ -59,7 +59,7 @@ class MitreAttackData:
         # since Matrix is a custom object, we need to reconstruct the query results
         return [Matrix(**m, allow_custom=True) for m in matrices]
 
-    def get_tactics(self) -> list:
+    def get_tactics(self) -> list: # TODO optional flag to remove revoked/deprecated objects
         """Retrieve all tactic objects
 
         Returns
@@ -150,6 +150,35 @@ class MitreAttackData:
         # since DataComponent is a custom object, we need to reconstruct the query results
         return [DataComponent(**dc, allow_custom=True) for dc in datacomponents]
 
+    def get_objects_by_content(self, content: str) -> list:
+        """Retrieve objects by the content of their description
+
+        Parameters
+        ----------
+        content : str
+            the content string to search for
+
+        Returns
+        -------
+        list
+            a list of objects where the given content string appears in the description
+        """
+        return list(filter(lambda t: content.lower() in t.description.lower(), self.src))
+
+    def get_techniques_by_platform(self, platform) -> list:
+        filter = [
+            Filter('type', '=', 'attack-pattern'),
+            Filter('x_mitre_platforms', '=', platform)
+        ]
+        return self.src.query(filter)
+
+    def get_datasources_by_platform(self, platform) -> list:
+        filter = [
+            Filter('type', '=', 'x-mitre-data-source'),
+            Filter('x_mitre_platforms', '=', platform)
+        ]
+        return self.src.query(filter)
+    
     ###################################
     # Get STIX Object by Value
     ###################################
@@ -201,6 +230,7 @@ class MitreAttackData:
         stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the name and type
         """
+        # TODO: if type = software (tool/malware)
         filter = [
             Filter('type', '=', type),
             Filter('name', '=', name)
@@ -356,7 +386,7 @@ class MitreAttackData:
                 if not related['id'] in id_to_target:
                     continue  # targeting a revoked object
                 value.append({
-                    'object': id_to_target[related['id']],
+                    'object': id_to_target[related['id']], # BUG w/ retrieving data component objects here
                     'relationship': related['relationship']
                 })
             output[stix_id] = value
