@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import math
 import json
 import os
 from itertools import chain
@@ -27,6 +28,7 @@ attackTypeToStixFilter = {
     "technique": [Filter("type", "=", "attack-pattern")],
     "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
     "group": [Filter("type", "=", "intrusion-set")],
+    "campaign": [Filter("type", "=", "campaign")],
     "mitigation": [Filter("type", "=", "course-of-action")],
     "datasource": [
         Filter("type", "=", "x-mitre-data-source"),
@@ -40,6 +42,7 @@ attackTypeToTitle = {
     "malware": "Malware",
     "software": "Software",
     "group": "Groups",
+    "campaign": "Campaigns",
     "mitigation": "Mitigations",
     "datasource": "Data Sources and/or Components",
 }
@@ -49,17 +52,18 @@ attackTypeToSectionName = {
     "malware": "Malware",
     "software": "Software",
     "group": "Group",
+    "campaign": "Campaign",
     "mitigation": "Mitigation",
     "datasource": "Data Source and/or Component",
 }
 # how we want to format headers for each section
 sectionNameToSectionHeaders = {
     "additions": "New {obj_type}",
-    "changes": "{obj_type} changes",
-    "minor_changes": "Minor {obj_type} changes",
-    "deprecations": "{obj_type} deprecations",
-    "revocations": "{obj_type} revocations",
-    "deletions": "{obj_type} deletions",
+    "changes": "{obj_type} Changes",
+    "minor_changes": "Minor {obj_type} Changes",
+    "deprecations": "{obj_type} Deprecations",
+    "revocations": "{obj_type} Revocations",
+    "deletions": "{obj_type} Deletions",
     "unchanged": "Unchanged {obj_type}",
 }
 # color key for layers
@@ -107,7 +111,7 @@ class DiffStix(object):
         old="old",
         show_key=False,
         site_prefix="",
-        types=["technique", "software", "group", "mitigation", "datasource"],
+        types=["technique", "software", "group", "campaign", "mitigation", "datasource"],
         use_taxii=False,
         use_mitre_cti=False,
         verbose=False,
@@ -488,9 +492,16 @@ class DiffStix(object):
                         )
 
                         # check for changes
+                        new["id_to_obj"][key]["previous_version"] = old_version # store previous version for display
                         if new_version > old_version:
                             # an update has occurred to this object
                             changes.add(key)
+
+                            # verify version change
+                            if not self.version_increment_is_valid(str(old_version), str(new_version), 'changes'):
+                                logger.warning(
+                                    f"WARN: version incremented from {old_version} to {new_version} for object: {key}"
+                                )
                         else:
                             # check for minor change; modification date increased but not version
                             old_date = dateparser.parse(
@@ -507,6 +518,11 @@ class DiffStix(object):
                 # Add contributions from additions
                 for key in additions:
                     update_contributors(None, new["id_to_obj"][key])
+                    # verify version is 1.0
+                    if not self.version_increment_is_valid(None, new["id_to_obj"][key]["x_mitre_version"], 'additions'):
+                        logger.warning(
+                            f"WARNING: new object has version {new['id_to_obj'][key]['x_mitre_version']}: {key}, expected 1.0"
+                        )
 
                 # set data
                 if obj_type not in self.data:
@@ -543,6 +559,25 @@ class DiffStix(object):
                 logger.debug(f"Loaded:  [{domain:17}]/{obj_type}")
                 pbar.update(1)
         pbar.close()
+
+    def version_increment_is_valid(self, old_version, new_version, section):
+        """Validates version increment between new and old object"""
+        if section in ['revocations', 'deprecations']:
+            return True # skip
+        if section == 'additions':
+            if new_version != "1.0": return False
+            return True
+
+        old_version = float(old_version)
+        new_version = float(new_version)
+        
+        # get next major version change
+        next_major = float(math.floor(old_version + 1))
+        # get difference between versions
+        diff = round(new_version - old_version, 1)
+        if next_major != new_version and diff != 0.1:
+            return False
+        return True
 
     def get_md_key(self):
         """Create string describing each type of difference (change, addition, etc).
@@ -800,6 +835,16 @@ class DiffStix(object):
                             return f"[{item['name']}]({self.site_prefix}/{self.getDataComponentUrl(id_to_datasource[parentID], item)})"
                     return f"[{item['name']}]({self.site_prefix}/{self.getUrlFromStix(item, is_subtechnique)})"
 
+            def version(item, section):
+                if section in ['additions', 'deprecations', 'revocations']:
+                    # only display current version
+                    color = "#929393" if self.version_increment_is_valid(None, item['x_mitre_version'], section) else "#eb6635"
+                    return f"<small style=\"color:{color}\">(v{item['x_mitre_version']})</small>"
+                else:
+                    # display previous and current version
+                    color = "#929393" if self.version_increment_is_valid(item['previous_version'], item['x_mitre_version'], section) else "#eb6635"
+                    return f"<small style=\"color:{color}\">(v{item['previous_version']}&#8594;v{item['x_mitre_version']})</small>"
+
             groupings = self.get_groupings(
                 obj_type=obj_type,
                 items=items,
@@ -813,25 +858,24 @@ class DiffStix(object):
             sectionString = ""
             for grouping in groupings:
                 if grouping["parentInSection"]:
-                    sectionString += f"* { placard(grouping['parent']) }\n"
+                    sectionString += f"* { placard(grouping['parent']) } { version(grouping['parent'], section) }\n"
 
                 for child in sorted(
                     grouping["children"], key=lambda child: child["name"]
                 ):
                     if grouping["parentInSection"]:
-                        sectionString += f"  * {placard(child) }\n"
+                        sectionString += f"  * { placard(child) } { version(child, section) }\n"
                     else:
                         sectionString += (
-                            f"* {grouping['parent']['name']}: { placard(child) }\n"
+                            f"* {grouping['parent']['name']}: { placard(child) } { version(child, section) }\n"
                         )
 
             logger.debug(f"finished getting section list for {obj_type}/{section}")
-            # logger.debug(sectionString)
             return sectionString
 
         def getContributorSection():
             # Get contributors markdown
-            contribSection = "### Contributors to this release\n\n"
+            contribSection = "## Contributors to this release\n\n"
             sorted_contributors = sorted(
                 self.release_contributors, key=lambda v: v.lower()
             )
@@ -850,13 +894,13 @@ class DiffStix(object):
                 logger.debug(
                     f"==== Generating markdown for domain: {domainToDomainLabel[domain]} --- {obj_type} ===="
                 )
-                domains += f"#### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
-                # Skip mobile sections for data sources
+                domains += f"### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
+                # Skip mobile and ics sections for data sources
                 if domain == "mobile-attack" and obj_type == "datasource":
                     logger.debug(
                         f"Skipping - ATT&CK for Mobile does not support data sources"
                     )
-                    domains += "ATT&CK for Mobile does not support data sources\n\n"
+                    domains += f"ATT&CK for Mobile does not support data sources\n\n"
                     continue
                 domain_sections = ""
                 for section, values in self.data[obj_type][domain].items():
@@ -869,7 +913,7 @@ class DiffStix(object):
                     else:  # no items in section
                         section_items = "* No changes\n"
 
-                    header = sectionNameToSectionHeaders[section] + ":"
+                    header = f"#### {sectionNameToSectionHeaders[section]}"
 
                     if "{obj_type}" in header:
                         if section == "additions":
@@ -888,7 +932,7 @@ class DiffStix(object):
                 domains += f"{domain_sections}"
 
             # e.g "techniques"
-            content += f"### {attackTypeToTitle[obj_type]}\n\n{domains}"
+            content += f"## {attackTypeToTitle[obj_type]}\n\n{domains}"
 
         if self.show_key:
             key_content = self.get_md_key()
@@ -1129,8 +1173,8 @@ def get_parsed_args():
         type=str,
         nargs="+",
         metavar=("OBJ_TYPE", "OBJ_TYPE"),
-        choices=["technique", "software", "group", "mitigation", "datasource"],
-        default=["technique", "software", "group", "mitigation", "datasource"],
+        choices=["technique", "software", "group", "campaign", "mitigation", "datasource"],
+        default=["technique", "software", "group", "campaign", "mitigation", "datasource"],
         help="which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
     parser.add_argument(
@@ -1274,7 +1318,7 @@ def get_new_changelog_md(
     old: str = None,
     show_key: bool = False,
     site_prefix: str = "",
-    types: List[str] = ["technique", "software", "group", "mitigation", "datasource"],
+    types: List[str] = ["technique", "software", "group", "campaign", "mitigation", "datasource"],
     use_taxii: bool = False,
     use_mitre_cti: bool = False,
     verbose: bool = False,
