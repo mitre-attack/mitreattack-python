@@ -18,7 +18,8 @@ In order to release a new version of mitreattack-python, follow the process outl
 5. [Optional, but recommended] Build the python library for pip locally:
    1. Remove older built pacakges - `rm -rf dist/`.
    2. Build the package - `python setup.py sdist bdist_wheel`.
-   3. Install the package locally using pip, and import it in a python session to validate the build.
+   3. Lint the wheel contents with [check-wheel-contents](https://github.com/jwodder/check-wheel-contents) - `check-wheel-contents dist/`
+   4. Install the package locally using pip, and import it in a python session to validate the build.
 6. Tag the release:
    1. Tag the `master` branch with the version number - `git tag -a "vA.B.C" -m "mitreattack-python version A.B.C"`
    2. Push both the commit and the tag - `git push`/`git push --tags`

@@ -1,3 +1,9 @@
+# v1.7.0 10/21/2022
+
+## Improvements
+
+- Add support for campaigns to the diffStix changelog script [#93](https://github.com/mitre-attack/mitreattack-python/pull/93)
+
 # v1.6.2 9/7/2022
 
 ## Fixes
