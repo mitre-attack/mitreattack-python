@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import math
 import json
 import os
 from itertools import chain
@@ -491,9 +492,16 @@ class DiffStix(object):
                         )
 
                         # check for changes
+                        new["id_to_obj"][key]["previous_version"] = old_version # store previous version for display
                         if new_version > old_version:
                             # an update has occurred to this object
                             changes.add(key)
+
+                            # verify version change
+                            if not self.version_increment_is_valid(str(old_version), str(new_version), 'changes'):
+                                logger.warning(
+                                    f"WARN: version incremented from {old_version} to {new_version} for object: {key}"
+                                )
                         else:
                             # check for minor change; modification date increased but not version
                             old_date = dateparser.parse(
@@ -510,6 +518,11 @@ class DiffStix(object):
                 # Add contributions from additions
                 for key in additions:
                     update_contributors(None, new["id_to_obj"][key])
+                    # verify version is 1.0
+                    if not self.version_increment_is_valid(None, new["id_to_obj"][key]["x_mitre_version"], 'additions'):
+                        logger.warning(
+                            f"WARNING: new object has version {new['id_to_obj'][key]['x_mitre_version']}: {key}, expected 1.0"
+                        )
 
                 # set data
                 if obj_type not in self.data:
@@ -546,6 +559,25 @@ class DiffStix(object):
                 logger.debug(f"Loaded:  [{domain:17}]/{obj_type}")
                 pbar.update(1)
         pbar.close()
+
+    def version_increment_is_valid(self, old_version, new_version, section):
+        """Validates version increment between new and old object"""
+        if section in ['revocations', 'deprecations']:
+            return True # skip
+        if section == 'additions':
+            if new_version != "1.0": return False
+            return True
+
+        old_version = float(old_version)
+        new_version = float(new_version)
+        
+        # get next major version change
+        next_major = float(math.floor(old_version + 1))
+        # get difference between versions
+        diff = round(new_version - old_version, 1)
+        if next_major != new_version and diff != 0.1:
+            return False
+        return True
 
     def get_md_key(self):
         """Create string describing each type of difference (change, addition, etc).
@@ -803,6 +835,16 @@ class DiffStix(object):
                             return f"[{item['name']}]({self.site_prefix}/{self.getDataComponentUrl(id_to_datasource[parentID], item)})"
                     return f"[{item['name']}]({self.site_prefix}/{self.getUrlFromStix(item, is_subtechnique)})"
 
+            def version(item, section):
+                if section in ['additions', 'deprecations', 'revocations']:
+                    # only display current version
+                    color = "#929393" if self.version_increment_is_valid(None, item['x_mitre_version'], section) else "#e32a4c"
+                    return f"<small style=\"color:{color}\">(v{item['x_mitre_version']})</small>"
+                else:
+                    # display previous and current version
+                    color = "#929393" if self.version_increment_is_valid(item['previous_version'], item['x_mitre_version'], section) else "#e32a4c"
+                    return f"<small style=\"color:{color}\">(v{item['previous_version']}&#8594;v{item['x_mitre_version']})</small>"
+
             groupings = self.get_groupings(
                 obj_type=obj_type,
                 items=items,
@@ -816,16 +858,16 @@ class DiffStix(object):
             sectionString = ""
             for grouping in groupings:
                 if grouping["parentInSection"]:
-                    sectionString += f"* { placard(grouping['parent']) }\n"
+                    sectionString += f"* { placard(grouping['parent']) } { version(grouping['parent'], section) }\n"
 
                 for child in sorted(
                     grouping["children"], key=lambda child: child["name"]
                 ):
                     if grouping["parentInSection"]:
-                        sectionString += f"  * {placard(child) }\n"
+                        sectionString += f"  * { placard(child) } { version(child, section) }\n"
                     else:
                         sectionString += (
-                            f"* {grouping['parent']['name']}: { placard(child) }\n"
+                            f"* {grouping['parent']['name']}: { placard(child) } { version(child, section) }\n"
                         )
 
             logger.debug(f"finished getting section list for {obj_type}/{section}")
