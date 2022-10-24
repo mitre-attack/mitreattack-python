@@ -1,3 +1,9 @@
+# v1.7.1 10/23/2022
+
+## Fixes
+
+- Fix JSON support for diffStix changelog script
+
 # v1.7.0 10/21/2022
 
 ## Improvements
