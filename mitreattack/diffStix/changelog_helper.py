@@ -475,10 +475,13 @@ class DiffStix(object):
                 # Add contributions from additions
                 for stix_id in additions:
                     new_stix_obj = new["id_to_obj"][stix_id]
+                    if new_stix_obj["type"] == "x-mitre-data-component":
+                        attack_id = None
+                    else:
+                        attack_id = new_stix_obj["external_references"][0]["external_id"]
                     update_contributors(None, new_stix_obj)
                     # verify version is 1.0
                     if not self.version_increment_is_valid(None, new_stix_obj["x_mitre_version"], "additions"):
-                        attack_id = new_stix_obj["external_references"][0]["external_id"]
                         logger.warning(
                             f"{stix_id} - Unexpected version. [{attack_id}] {new_stix_obj['name']} is new and has version {new_stix_obj['x_mitre_version']}. Expected 1.0"
                         )
