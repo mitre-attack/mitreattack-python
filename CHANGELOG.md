@@ -1,3 +1,9 @@
+# v1.7.2 10/24/2022
+
+## Fixes
+
+- Fix data component parsing in diffStix changelog script
+
 # v1.7.1 10/23/2022
 
 ## Fixes
