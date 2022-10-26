@@ -4,6 +4,24 @@
 
 - Added a new library module, `MitreAttackData`, for working with ATT&CK data, including the functions and relationships microlibrary from the [CTI USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md).
 
+# v1.7.2 10/24/2022
+
+## Fixes
+
+- Fix data component parsing in diffStix changelog script
+
+# v1.7.1 10/23/2022
+
+## Fixes
+
+- Fix JSON support for diffStix changelog script
+
+# v1.7.0 10/21/2022
+
+## Improvements
+
+- Add support for campaigns to the diffStix changelog script [#93](https://github.com/mitre-attack/mitreattack-python/pull/93)
+
 # v1.6.2 9/7/2022
 
 ## Fixes
