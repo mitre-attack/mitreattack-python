@@ -2,7 +2,7 @@ Examples
 ==============================================
 
 The following are links to scripts of examples on how to use the
-MitreAttackData library. See the examples_ directory for more details.
+``MitreAttackData`` library. See the examples_ directory for more details.
 
 .. _examples: https://github.com/mitre-attack/mitreattack-python/tree/master/examples/
 

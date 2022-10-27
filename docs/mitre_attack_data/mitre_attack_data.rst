@@ -3,7 +3,7 @@
 MitreAttackData
 ==============================================
 
-The MitreAttackData library is used to read in and work with MITRE ATT&CK STIX 2.0 content.
+The ``MitreAttackData`` library is used to read in and work with MITRE ATT&CK STIX 2.0 content.
 The latest MITRE ATT&CK STIX 2.0 files can be found here:
 
 * `Enterprise ATT&CK`_
