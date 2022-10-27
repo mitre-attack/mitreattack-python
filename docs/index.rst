@@ -18,6 +18,7 @@ content.
    :caption: MITRE ATT&CK Data Library
 
    mitre_attack_data/mitre_attack_data
+   mitre_attack_data/examples
    mitre_attack_data/custom_objects
 
 .. toctree::
