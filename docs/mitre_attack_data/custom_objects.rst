@@ -6,9 +6,8 @@ who want a more advanced understanding of how this library is implemented.
 
 ATT&CK uses a mix of predefined and custom STIX objects to implement ATT&CK concepts. More 
 information about the mapping of ATT&CK concepts to STIX 2.0 objects can be found in the the 
-`ATT&CK Data Model documentation`_.
-
-The ``MitreAttackData`` library implements the following `custom STIX object types`_:
+`ATT&CK Data Model documentation`_. The ``MitreAttackData`` library implements the following 
+`custom STIX object types`_:
 
 .. autoclass:: mitreattack.stix20.Matrix
 
