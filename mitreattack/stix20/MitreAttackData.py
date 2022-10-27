@@ -2,6 +2,7 @@
 
 from itertools import chain
 from stix2 import MemoryStore, Filter
+from stix2.utils import get_type_from_id
 from mitreattack.stix20.custom_attack_objects import StixObjectFactory, Matrix, Tactic, DataSource, DataComponent
 
 class MitreAttackData:
@@ -374,6 +375,42 @@ class MitreAttackData:
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
         return objects
+
+    def get_techniques_used_by_group_software(self, group_stix_id: str) -> list:
+        """Get techniques used by a group's software.
+        
+        Because a group uses software, and software uses techniques, groups can be considered indirect users 
+        of techniques used by their software. These techniques are oftentimes distinct from the techniques 
+        used directly by a group, although there are occasionally intersections in these two sets of techniques.
+
+        Parameters
+        ----------
+        group_stix_id : str
+            the STIX ID of the group object
+
+        Returns
+        -------
+        list
+            a list of AttackPattern objects used by the group's software.
+        """
+        # get the malware, tools that the group uses
+        group_uses = [
+            r for r in self.src.relationships(group_stix_id, 'uses', source_only=True)
+            if get_type_from_id(r.target_ref) in ['malware', 'tool']
+        ]
+
+        # get the technique stix ids that the malware, tools use
+        software_uses = self.src.query([
+            Filter('type', '=', 'relationship'),
+            Filter('relationship_type', '=', 'uses'),
+            Filter('source_ref', 'in', [r.source_ref for r in group_uses])
+        ])
+
+        # get the techniques themselves
+        return self.src.query([
+            Filter('type', '=', 'attack-pattern'),
+            Filter('id', 'in', [r.target_ref for r in software_uses])
+        ])
         
     ###################################
     # Get STIX Object by Value
@@ -498,6 +535,21 @@ class MitreAttackData:
             Filter('x_mitre_aliases', 'contains', alias)
         ])
         return tools[0] or malware[0]
+
+    def get_object_type(self, stix_id: str) -> str:
+        """Get the object type by STIX ID
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the object
+
+        Returns
+        -------
+        str
+            the type of the object
+        """
+        return get_type_from_id(stix_id)
 
     ###################################
     # Relationship Section
@@ -1213,3 +1265,26 @@ class MitreAttackData:
         """
         datacomponents_detecting_techniques = self.get_datacomponents_detecting_techniques()
         return datacomponents_detecting_techniques[stix_id] if stix_id in datacomponents_detecting_techniques else []
+
+    def get_revoked_by(self, stix_id: str) -> object:
+        """Retrieve the revoking object.
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the object that has been revoked
+
+        Returns
+        -------
+        object
+            the object that the given object was revoked by
+        """
+        relations = self.src.relationships(stix_id, 'revoked-by', source_only=True)
+        revoked_by = self.src.query([
+            Filter('id', 'in', [r.target_ref for r in relations]),
+            Filter('revoked', '=', False)
+        ])
+        if revoked_by is not None:
+            revoked_by = revoked_by[0]
+
+        return revoked_by
