@@ -236,13 +236,16 @@ class MitreAttackData:
     # Get STIX Objects by Value
     ###################################
 
-    def get_objects_by_content(self, content: str, remove_revoked_deprecated=False) -> list:
+    def get_objects_by_content(self, content: str, object_type: str=None, remove_revoked_deprecated=False) -> list:
         """Retrieve objects by the content of their description.
 
         Parameters
         ----------
         content : str
             the content string to search for
+        object_type : str, optional
+            the object type (must be 'technique', 'malware', 'tool', 'group', 
+            'campaign', 'mitigation', 'matrix', 'tactic', 'data-source', 'data-component')
         remove_revoked_deprecated : bool, optional
             remove revoked or deprecated objects from the query, by default False
 
@@ -251,7 +254,16 @@ class MitreAttackData:
         list
             a list of objects where the given content string appears in the description
         """
-        objects = list(filter(lambda t: content.lower() in t.description.lower(), self.src))
+        objects = self.src
+        if object_type:
+            if object_type not in self.type_to_stix_type.keys():
+                # invalid object type
+                raise ValueError(f"object_type must be one of {self.type_to_stix_type.keys()}")
+            else:
+                # filter for objects of given type
+                objects = self.src.query([ Filter('type', '=', self.type_to_stix_type[object_type]) ])
+
+        objects = list(filter(lambda t: content.lower() in t.description.lower(), objects))
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
         return objects
@@ -448,15 +460,15 @@ class MitreAttackData:
         object = self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
         return StixObjectFactory(object)
 
-    def get_object_by_name(self, name: str, stix_type: str) -> object:
+    def get_object_by_name(self, name: str, object_type: str) -> object:
         """Retrieve an object by name
 
         Parameters
         ----------
         name : str
             the name of the object to retrieve
-        stix_type : str
-            the STIX Domain Object type (must be 'technique', 'malware', 'tool', 'group', 
+        object_type : str
+            the object type (must be 'technique', 'malware', 'tool', 'group', 
             'campaign', 'mitigation', 'matrix', 'tactic', 'data-source', 'data-component')
 
         Returns
@@ -465,11 +477,11 @@ class MitreAttackData:
             the STIX Domain Object specified by the name and type
         """
         # validate type
-        if stix_type not in self.type_to_stix_type.keys():
-            raise ValueError(f"stix_type must be one of {self.type_to_stix_type.keys()}")
+        if object_type not in self.type_to_stix_type.keys():
+            raise ValueError(f"object_type must be one of {self.type_to_stix_type.keys()}")
 
         filter = [
-            Filter('type', '=', stix_type),
+            Filter('type', '=', self.type_to_stix_type[object_type]),
             Filter('name', '=', name)
         ]
         object = self.src.query(filter)
