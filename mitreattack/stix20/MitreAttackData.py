@@ -7,8 +7,21 @@ from mitreattack.stix20.custom_attack_objects import StixObjectFactory, Matrix, 
 class MitreAttackData:
     """ MitreAttackData object """
 
+    type_to_stix_type = {
+        'technique': 'attack-pattern',
+        'malware': 'malware',
+        'tool': 'tool',
+        'group': 'intrusion-set',
+        'campaign': 'campaign',
+        'mitigation': 'course-of-action',
+        'matrix': 'x-mitre-matrix',
+        'tactic': 'x-mitre-tactic',
+        'data-source': 'x-mitre-data-source',
+        'data-component': 'x-mitre-data-component'
+    }
+
     def __init__(self, stix_filepath: str):
-        """Initialize a MitreAttackData object
+        """Initialize a MitreAttackData object.
 
         Parameters
         ----------
@@ -26,7 +39,7 @@ class MitreAttackData:
     ###################################
 
     def remove_revoked_deprecated(self, stix_objects: list) -> list:
-        """Remove revoked or deprecated objects from queries made to the data source
+        """Remove revoked or deprecated objects from queries made to the data source.
 
         Parameters
         ----------
@@ -47,8 +60,13 @@ class MitreAttackData:
             )
         )
 
-    def get_matrices(self) -> list:
-        """Retrieve all matrix objects
+    def get_matrices(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all matrix objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
@@ -56,11 +74,18 @@ class MitreAttackData:
             a list of Matrix objects
         """
         matrices = self.src.query([ Filter('type', '=', 'x-mitre-matrix') ])
+        if remove_revoked_deprecated:
+            matrices = self.remove_revoked_deprecated(matrices)
         # since Matrix is a custom object, we need to reconstruct the query results
         return [Matrix(**m, allow_custom=True) for m in matrices]
 
-    def get_tactics(self) -> list: # TODO optional flag to remove revoked/deprecated objects
-        """Retrieve all tactic objects
+    def get_tactics(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all tactic objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
@@ -68,66 +93,113 @@ class MitreAttackData:
             a list of Tactic objects
         """
         tactics = self.src.query([ Filter('type', '=', 'x-mitre-tactic') ])
+        if remove_revoked_deprecated:
+            tactics = self.remove_revoked_deprecated(tactics)
         # since Tactic is a custom object, we need to reconstruct the query results
         return [Tactic(**t, allow_custom=True) for t in tactics]
 
-    def get_techniques(self) -> list:
-        """Retrieve all technique objects
+    def get_techniques(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all technique objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of AttackPattern objects
         """
-        return self.src.query([ Filter('type', '=', 'attack-pattern') ])
+        techniques = self.src.query([ Filter('type', '=', 'attack-pattern') ])
+        if remove_revoked_deprecated:
+            techniques = self.remove_revoked_deprecated(techniques)
+        return techniques
 
-    def get_mitigations(self) -> list:
-        """Retrieve all mitigation objects
+    def get_mitigations(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all mitigation objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of CourseOfAction objects
         """
-        return self.src.query([ Filter('type', '=', 'x-mitre-tactic') ])
+        mitigations = self.src.query([ Filter('type', '=', 'course-of-action') ])
+        if remove_revoked_deprecated:
+            mitigations = self.remove_revoked_deprecated(mitigations)
+        return mitigations
     
-    def get_groups(self) -> list:
-        """Retrieve all group objects
+    def get_groups(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all group objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of IntrusionSet objects
         """
-        return self.src.query([ Filter('type', '=', 'intrusion-set') ])
+        groups = self.src.query([ Filter('type', '=', 'intrusion-set') ])
+        if remove_revoked_deprecated:
+            groups = self.remove_revoked_deprecated(groups)
+        return groups
 
-    def get_software(self) -> list:
-        """Retrieve all software objects
+    def get_software(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all software objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of Tool and Malware objects
         """
-        return list(chain.from_iterable(
+        software = list(chain.from_iterable(
             self.src.query(f) for f in [
                 Filter('type', '=', 'tool'), 
                 Filter('type', '=', 'malware')
             ]
         ))
+        if remove_revoked_deprecated:
+            software = self.remove_revoked_deprecated(software)
+        return software
     
-    def get_campaigns(self) -> list:
-        """Retrieve all campaign objects
+    def get_campaigns(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all campaign objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of Campaign objects
         """
-        return self.src.query([ Filter('type', '=', 'campaign') ])
+        campaigns = self.src.query([ Filter('type', '=', 'campaign') ])
+        if remove_revoked_deprecated:
+            campaigns = self.remove_revoked_deprecated(campaigns)
+        return campaigns
 
-    def get_datasources(self) -> list:
-        """Retrieve all data source objects
+    def get_datasources(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all data source objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
@@ -135,11 +207,18 @@ class MitreAttackData:
             a list of DataSource objects
         """
         datasources = self.src.query([ Filter('type', '=', 'x-mitre-data-source') ])
+        if remove_revoked_deprecated:
+            datasources = self.remove_revoked_deprecated(datasources)
         # since DataSource is a custom object, we need to reconstruct the query results
         return [DataSource(**ds, allow_custom=True) for ds in datasources]
 
-    def get_datacomponents(self) -> list:
-        """Retrieve all data component objects
+    def get_datacomponents(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all data component objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
@@ -147,38 +226,155 @@ class MitreAttackData:
             a list of DataComponent objects
         """
         datacomponents = self.src.query([ Filter('type', '=', 'x-mitre-data-component') ])
+        if remove_revoked_deprecated:
+            datacomponents = self.remove_revoked_deprecated(datacomponents)
         # since DataComponent is a custom object, we need to reconstruct the query results
         return [DataComponent(**dc, allow_custom=True) for dc in datacomponents]
 
-    def get_objects_by_content(self, content: str) -> list:
-        """Retrieve objects by the content of their description
+    ###################################
+    # Get STIX Objects by Value
+    ###################################
+
+    def get_objects_by_content(self, content: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve objects by the content of their description.
 
         Parameters
         ----------
         content : str
             the content string to search for
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
 
         Returns
         -------
         list
             a list of objects where the given content string appears in the description
         """
-        return list(filter(lambda t: content.lower() in t.description.lower(), self.src))
+        objects = list(filter(lambda t: content.lower() in t.description.lower(), self.src))
+        if remove_revoked_deprecated:
+            objects = self.remove_revoked_deprecated(objects)
+        return objects
 
-    def get_techniques_by_platform(self, platform) -> list:
+    def get_techniques_by_platform(self, platform: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve techniques under a specific platform.
+
+        Parameters
+        ----------
+        platform : str
+            platform to search
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of AttackPattern objects under the given platform
+        """
         filter = [
             Filter('type', '=', 'attack-pattern'),
-            Filter('x_mitre_platforms', '=', platform)
+            Filter('x_mitre_platforms', 'contains', platform)
         ]
-        return self.src.query(filter)
+        techniques = self.src.query(filter)
+        if remove_revoked_deprecated:
+            techniques = self.remove_revoked_deprecated(techniques)
+        return techniques
 
-    def get_datasources_by_platform(self, platform) -> list:
-        filter = [
-            Filter('type', '=', 'x-mitre-data-source'),
-            Filter('x_mitre_platforms', '=', platform)
-        ]
-        return self.src.query(filter)
-    
+    def get_techniques_by_tactic(self, tactic_shortname: str, domain: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve techniques by tactic.
+
+        Parameters
+        ----------
+        tactic_shortname : str
+            the x_mitre_shortname of the tactic (e.g. 'defense-evasion')
+        domain : str
+            domain of the tactic (must be 'enterprise-attack', 'mobile-attack', or 'ics-attack')
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of AttackPattern objects under the given tactic
+        """
+        # validate domain input
+        domain_to_kill_chain = {
+            "enterprise-attack": "mitre-attack",
+            "mobile-attack": "mitre-mobile-attack",
+            "ics-attack": "mitre-ics-attack"
+        }
+        if domain not in domain_to_kill_chain.keys():
+            raise ValueError(f"domain must be one of {domain_to_kill_chain.keys()}")
+
+        # query techniques by tactic/domain; kill_chain_name differs by domain
+        techniques = self.src.query([
+            Filter('type', '=', 'attack-pattern'),
+            Filter('kill_chain_phases.phase_name', '=', tactic_shortname),
+            Filter('kill_chain_phases.kill_chain_name', '=', domain_to_kill_chain[domain]),
+        ])
+        if remove_revoked_deprecated:
+            techniques = self.remove_revoked_deprecated(techniques)
+        return techniques
+
+    def get_tactics_by_matrix(self) -> dict:
+        """Retrieve the structured list of tactics within each matrix. The order of the tactics in
+        the list matches the ordering of tactics in that matrix.
+
+        Returns
+        -------
+        dict
+            a list of tactics for each matrix
+        """
+        tactics = {}
+        matrices = self.src.query([
+            Filter('type', '=', 'x-mitre-matrix'),
+        ])
+        for i in range(len(matrices)):
+            tactics[matrices[i]['name']] = []
+            for tactic_id in matrices[i]['tactic_refs']:
+                tactics[matrices[i]['name']].append(self.src.get(tactic_id))
+        
+        return tactics
+
+    def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve objects which have been created after a given time.
+
+        Parameters
+        ----------
+        timestamp : str
+            timestamp to search (e.g. "2018-10-01T00:14:20.652Z")
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects created after the given time
+        """
+        objects = self.src.query([ Filter('created', '>', timestamp) ])
+        if remove_revoked_deprecated:
+            objects = self.remove_revoked_deprecated(objects)
+        return objects
+
+    def get_objects_modified_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve objects which have been modified after a given time.
+
+        Parameters
+        ----------
+        timestamp : str
+            timestamp to search (e.g. "2018-10-01T00:14:20.652Z")
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects created after the given time
+        """
+        objects = self.src.query([ Filter('modified', '>', timestamp) ])
+        if remove_revoked_deprecated:
+            objects = self.remove_revoked_deprecated(objects)
+        return objects
+        
     ###################################
     # Get STIX Object by Value
     ###################################
@@ -215,24 +411,28 @@ class MitreAttackData:
         object = self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
         return StixObjectFactory(object)
 
-    def get_object_by_name(self, name: str, type: str) -> object:
+    def get_object_by_name(self, name: str, stix_type: str) -> object:
         """Retrieve an object by name
 
         Parameters
         ----------
         name : str
             the name of the object to retrieve
-        type : str
-            the STIX Domain Object type (e.g. attack-pattern)
+        stix_type : str
+            the STIX Domain Object type (must be 'technique', 'malware', 'tool', 'group', 
+            'campaign', 'mitigation', 'matrix', 'tactic', 'data-source', 'data-component')
 
         Returns
         -------
         stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the name and type
         """
-        # TODO: if type = software (tool/malware)
+        # validate type
+        if stix_type not in self.type_to_stix_type.keys():
+            raise ValueError(f"stix_type must be one of {self.type_to_stix_type.keys()}")
+
         filter = [
-            Filter('type', '=', type),
+            Filter('type', '=', stix_type),
             Filter('name', '=', name)
         ]
         object = self.src.query(filter)
@@ -386,7 +586,7 @@ class MitreAttackData:
                 if not related['id'] in id_to_target:
                     continue  # targeting a revoked object
                 value.append({
-                    'object': id_to_target[related['id']], # BUG w/ retrieving data component objects here
+                    'object': id_to_target[related['id']],
                     'relationship': related['relationship']
                 })
             output[stix_id] = value
