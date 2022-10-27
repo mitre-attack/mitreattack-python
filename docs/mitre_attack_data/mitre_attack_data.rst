@@ -4,19 +4,20 @@ MitreAttackData
 ==============================================
 
 The MitreAttackData library is used to read in and work with MITRE ATT&CK STIX 2.0 content.
-You can find the latest MITRE ATT&CK STIX 2.0 files here:
+The latest MITRE ATT&CK STIX 2.0 files can be found here:
 
 * `Enterprise ATT&CK`_
 * `Mobile ATT&CK`_
 * `ICS ATT&CK`_
 
-*Note*: this library currently only supports STIX 2.0
-
 .. _Enterprise ATT&CK: https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
 .. _Mobile ATT&CK: https://raw.githubusercontent.com/mitre/cti/master/mobile-attack/mobile-attack.json
 .. _ICS ATT&CK: https://raw.githubusercontent.com/mitre/cti/master/ics-attack/ics-attack.json
 
-This library provides the ability to query the dataset for objects and their related objects. 
+This library provides the ability to query the dataset for objects and their related objects. When working with 
+queries to return objects based on a set of characteristics, it is likely that a few objects will be returned 
+which are no longer maintained by ATT&CK. These are objects marked as deprecated or revoked. We recommend filtering 
+out revoked and deprecated objects whenever possible since they are no longer maintained by ATT&CK.
 
 .. code-block:: python
 
@@ -49,6 +50,8 @@ a lookup table of STIX ID to related objects and relationships.
 
 Please refer to the `STIX2 Python API Documentation`_ for more information on how to work with 
 STIX programmatically.
+
+*Note*: this library currently only supports STIX 2.0
 
 
 API Reference

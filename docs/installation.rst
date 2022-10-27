@@ -7,7 +7,7 @@ To use this package, install the mitreattack-python library with `pip`_:
 
    pip install mitreattack-python
 
-*Note*: the library requires `python3`_.
+*Note*: this library requires `python3`_.
 
 The main content of this library is in :ref:`MitreAttackData ref`, you can read more about
 other modules in this library under "Additional Modules".
