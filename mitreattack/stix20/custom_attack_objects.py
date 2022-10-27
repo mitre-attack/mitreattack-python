@@ -47,16 +47,21 @@ def StixObjectFactory(data: dict) -> object:
     ('revoked', BooleanProperty(default=lambda: False)),
     ('external_references', ListProperty(ExternalReference)),
     ('object_marking_refs', ListProperty(ReferenceProperty(valid_types='marking-definition', spec_version='2.0'))),
-    # Matrix Properties
     ('name', StringProperty(required=True)),
     ('description', StringProperty()),
-    ('tactic_refs', ListProperty(ReferenceProperty(valid_types='x-mitre-tactic', spec_version='2.0'))),
     ('x_mitre_modified_by_ref', ReferenceProperty(valid_types='identity', spec_version='2.0')),
     ('x_mitre_version', StringProperty()),
-    ('x_mitre_attack_spec_version', StringProperty())
+    ('x_mitre_attack_spec_version', StringProperty()),
+    # Matrix Properties
+    ('tactic_refs', ListProperty(ReferenceProperty(valid_types='x-mitre-tactic', spec_version='2.0')))
 ])
+
 class Matrix(CustomStixObject, object):
     """Custom Matrix object of type stix2.CustomObject
+
+    Custom Properties
+    -----------------
+    tactic_refs: list[str]
     """
     pass
 
@@ -70,17 +75,21 @@ class Matrix(CustomStixObject, object):
     ('revoked', BooleanProperty(default=lambda: False)),
     ('external_references', ListProperty(ExternalReference)),
     ('object_marking_refs', ListProperty(ReferenceProperty(valid_types='marking-definition', spec_version='2.0'))),
-    # Tactic Properties
     ('name', StringProperty(required=True)),
     ('description', StringProperty()),
     ('x_mitre_domains', ListProperty(StringProperty())),
-    ('x_mitre_shortname', StringProperty()),
     ('x_mitre_modified_by_ref', ReferenceProperty(valid_types='identity', spec_version='2.0')),
     ('x_mitre_version', StringProperty()),
-    ('x_mitre_attack_spec_version', StringProperty())
+    ('x_mitre_attack_spec_version', StringProperty()),
+    # Tactic Properties
+    ('x_mitre_shortname', StringProperty())
 ])
 class Tactic(CustomStixObject, object):
     """Custom Tactic object of type stix2.CustomObject
+
+    Custom Properties
+    -----------------
+    x_mitre_shortname: str
     """
     def get_shortname(self) -> str:
         """Get the tactic shortname
@@ -102,19 +111,24 @@ class Tactic(CustomStixObject, object):
     ('revoked', BooleanProperty(default=lambda: False)),
     ('external_references', ListProperty(ExternalReference)),
     ('object_marking_refs', ListProperty(ReferenceProperty(valid_types='marking-definition', spec_version='2.0'))),
-    # Data Source Properties
     ('name', StringProperty(required=True)),
     ('description', StringProperty()),
-    ('x_mitre_platforms', ListProperty(StringProperty())),
     ('x_mitre_domains', ListProperty(StringProperty())),
-    ('x_mitre_collection_layers', ListProperty(StringProperty())),
     ('x_mitre_contributors', ListProperty(StringProperty())),
     ('x_mitre_modified_by_ref', ReferenceProperty(valid_types='identity', spec_version='2.0')),
     ('x_mitre_version', StringProperty()),
-    ('x_mitre_attack_spec_version', StringProperty())
+    ('x_mitre_attack_spec_version', StringProperty()),
+    # Data Source Properties
+    ('x_mitre_platforms', ListProperty(StringProperty())),
+    ('x_mitre_collection_layers', ListProperty(StringProperty()))
 ])
 class DataSource(CustomStixObject, object):
     """Custom DataSource object of type stix2.CustomObject
+
+    Custom Properties
+    -----------------
+    x_mitre_platforms: list[str]
+    x_mitre_collection_layers: list[str]
     """
     pass
 
@@ -128,17 +142,19 @@ class DataSource(CustomStixObject, object):
     ('revoked', BooleanProperty(default=lambda: False)),
     ('external_references', ListProperty(ExternalReference)),
     ('object_marking_refs', ListProperty(ReferenceProperty(valid_types='marking-definition', spec_version='2.0'))),
-    # Data Component Properties
     ('name', StringProperty(required=True)),
     ('description', StringProperty()),
-    ('x_mitre_data_source_ref', ReferenceProperty(valid_types='x-mitre-data-source', spec_version='2.0')),
     ('x_mitre_modified_by_ref', ReferenceProperty(valid_types='identity', spec_version='2.0')),
     ('x_mitre_version', StringProperty()),
-    ('x_mitre_attack_spec_version', StringProperty())
+    ('x_mitre_attack_spec_version', StringProperty()),
+    # Data Component Properties
+    ('x_mitre_data_source_ref', ReferenceProperty(valid_types='x-mitre-data-source', spec_version='2.0'))
 ])
 class DataComponent(CustomStixObject, object):
     """Custom DataComponent object of type stix2.CustomObject
+
+    Custom Properties
+    -----------------
+    x_mitre_data_source_ref: str
     """
     pass
-
-# TODO do we need to register these? stix2.registration._register_object(CustomObject2, version="2.0")
