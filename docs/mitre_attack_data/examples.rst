@@ -65,8 +65,24 @@ Technique:Data Component Relationships
 Software:Group Relationships
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* `get_groups_using_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_using_software.py>`_
+* `get_groups_using_software_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_using_software_with_id.py>`_
+* `get_software_used_by_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_groups.py>`_
+* `get_software_used_by_groups_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_groups_with_id.py>`_
+
 Software:Campaign Relationships
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* `get_campaigns_using_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_software.py>`_
+* `get_campaigns_using_software_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_software_with_id.py>`_
+* `get_software_used_by_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_campaigns.py>`_
+* `get_software_used_by_campaign_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_campaign_with_id.py>`_
+
 Campaign:Group Relationships
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* `get_groups_attributing_to_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_attributing_to_campaigns.py>`_
+* `get_groups_attributing_to_campaigns_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_attributing_to_campaigns_with_id.py>`_
+* `get_campaigns_attributed_to_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_attributed_to_groups.py>`_
+* `get_campaigns_attributed_to_groups_with_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_attributed_to_groups_with_id.py>`_
+
