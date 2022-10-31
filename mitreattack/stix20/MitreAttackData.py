@@ -8,18 +8,18 @@ from mitreattack.stix20.custom_attack_objects import StixObjectFactory, Matrix, 
 class MitreAttackData:
     """ MitreAttackData object """
 
-    type_to_stix_type = {
-        'technique': 'attack-pattern',
-        'malware': 'malware',
-        'tool': 'tool',
-        'group': 'intrusion-set',
-        'campaign': 'campaign',
-        'mitigation': 'course-of-action',
-        'matrix': 'x-mitre-matrix',
-        'tactic': 'x-mitre-tactic',
-        'data-source': 'x-mitre-data-source',
-        'data-component': 'x-mitre-data-component'
-    }
+    stix_types = [
+        'attack-pattern',
+        'malware',
+        'tool',
+        'intrusion-set',
+        'campaign',
+        'course-of-action',
+        'x-mitre-matrix',
+        'x-mitre-tactic',
+        'x-mitre-data-source',
+        'x-mitre-data-component'
+    ]
 
     def __init__(self, stix_filepath: str):
         """Initialize a MitreAttackData object.
@@ -244,8 +244,9 @@ class MitreAttackData:
         content : str
             the content string to search for
         object_type : str, optional
-            the object type (must be 'technique', 'malware', 'tool', 'group', 
-            'campaign', 'mitigation', 'matrix', 'tactic', 'data-source', 'data-component')
+            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
+            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
+            'x-mitre-data-source', or 'x-mitre-data-component')
         remove_revoked_deprecated : bool, optional
             remove revoked or deprecated objects from the query, by default False
 
@@ -256,12 +257,12 @@ class MitreAttackData:
         """
         objects = self.src
         if object_type:
-            if object_type not in self.type_to_stix_type.keys():
+            if object_type not in self.stix_types:
                 # invalid object type
-                raise ValueError(f"object_type must be one of {self.type_to_stix_type.keys()}")
+                raise ValueError(f"object_type must be one of {self.stix_types}")
             else:
                 # filter for objects of given type
-                objects = self.src.query([ Filter('type', '=', self.type_to_stix_type[object_type]) ])
+                objects = self.src.query([ Filter('type', '=', object_type) ])
 
         objects = list(filter(lambda t: content.lower() in t.description.lower(), objects))
         if remove_revoked_deprecated:
@@ -446,20 +447,31 @@ class MitreAttackData:
         object = self.src.get(stix_id)
         return StixObjectFactory(object)
 
-    def get_object_by_attack_id(self, attack_id: str) -> object:
+    def get_object_by_attack_id(self, attack_id: str, object_type: str) -> object:
         """Retrieve a single object by its ATT&CK ID
 
         Parameters
         ----------
         attack_id : str
             the ATT&CK ID of the object to retrieve
+        object_type : str
+            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
+            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
+            'x-mitre-data-source', or 'x-mitre-data-component')
 
         Returns
         -------
         stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the ATT&CK ID
         """
-        object = self.src.query([ Filter('external_references.external_id', '=', attack_id) ])[0]
+        # validate type
+        if object_type not in self.stix_types:
+            raise ValueError(f"object_type must be one of {self.stix_types}")
+        
+        object = self.src.query([
+            Filter('external_references.external_id', '=', attack_id),
+            Filter('type', '=', object_type),
+        ])[0]
         return StixObjectFactory(object)
 
     def get_object_by_name(self, name: str, object_type: str) -> object:
@@ -470,8 +482,9 @@ class MitreAttackData:
         name : str
             the name of the object to retrieve
         object_type : str
-            the object type (must be 'technique', 'malware', 'tool', 'group', 
-            'campaign', 'mitigation', 'matrix', 'tactic', 'data-source', 'data-component')
+            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
+            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
+            'x-mitre-data-source', or 'x-mitre-data-component')
 
         Returns
         -------
@@ -479,11 +492,11 @@ class MitreAttackData:
             the STIX Domain Object specified by the name and type
         """
         # validate type
-        if object_type not in self.type_to_stix_type.keys():
-            raise ValueError(f"object_type must be one of {self.type_to_stix_type.keys()}")
+        if object_type not in self.stix_types:
+            raise ValueError(f"object_type must be one of {self.stix_types}")
 
         filter = [
-            Filter('type', '=', self.type_to_stix_type[object_type]),
+            Filter('type', '=', object_type),
             Filter('name', '=', name)
         ]
         object = self.src.query(filter)
