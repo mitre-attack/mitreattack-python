@@ -9,21 +9,25 @@ The following are links to scripts of examples on how to use the
 ATT&CK Objects
 ------------------------------
 
-* Get all Matrix objects (`get_all_matrices.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_matrices.py>`_)
-* Get all Tactic objects (`get_all_tactics.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_tactics.py>`_)
-* Get all Technique objects (`get_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques.py>`_)
-* Get all Mitigation objects (`get_all_mitigations.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_mitigations.py>`_)
-* Get all Group objects (`get_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_groups.py>`_)
-* Get all Software objects (`get_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_software.py>`_)
-* Get all Campaign objects (`get_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_campaigns.py>`_)
-* Get all Data Source objects (`get_all_datasources.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_datasources.py>`_)
-* Get all Data Component objects (`get_all_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_datacomponents.py>`_)
+* `get_all_matrices.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_matrices.py>`_
+* `get_all_tactics.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_tactics.py>`_
+* `get_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques.py>`_
+* `get_all_mitigations.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_mitigations.py>`_
+* `get_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_groups.py>`_
+* `get_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_software.py>`_
+* `get_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_campaigns.py>`_
+* `get_all_datasources.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_datasources.py>`_
+* `get_all_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_datacomponents.py>`_
 
-ATT&CK Objects by Criteria
+ATT&CK Objects by Value
 ------------------------------
 
-ATT&CK Object by Value
---------------------------
+* `get_tactics_by_matrix.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_tactics_by_matrix.py>`_
+* `get_techniques_by_tactic.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_by_tactic.py>`_
+* `get_techniques_by_platform.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_by_platform.py>`_
+* `get_techniques_used_by_group_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_group_software.py>`_
+* `get_objects_by_content.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_objects_by_content.py>`_
+* `get_objects_created_after.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_objects_created_after.py>`_
 
 Related Objects
 -------------------

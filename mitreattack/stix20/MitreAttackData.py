@@ -412,16 +412,18 @@ class MitreAttackData:
         ]
 
         # get the technique stix ids that the malware, tools use
+        source_refs = [r.target_ref for r in group_uses]
         software_uses = self.src.query([
             Filter('type', '=', 'relationship'),
             Filter('relationship_type', '=', 'uses'),
-            Filter('source_ref', 'in', [r.source_ref for r in group_uses])
+            Filter('source_ref', 'in', source_refs)
         ])
 
         # get the techniques themselves
+        technique_ids = [r.target_ref for r in software_uses]
         return self.src.query([
             Filter('type', '=', 'attack-pattern'),
-            Filter('id', 'in', [r.target_ref for r in software_uses])
+            Filter('id', 'in', technique_ids)
         ])
         
     ###################################
