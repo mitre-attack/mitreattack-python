@@ -702,6 +702,28 @@ class MitreAttackData:
             output[stix_id] = value
         return output
 
+    def merge(self, map_a: dict, map_b: dict) -> dict:
+        """Merge two relationship mappings resulting from `get_related()`
+
+        Parameters
+        ----------
+        map_a : dict
+            the first relationship mapping
+        map_b : dict
+            the second relationship mapping
+
+        Returns
+        -------
+        dict
+            the merged relationship mapping
+        """
+        for id in map_b:
+            if id in map_a:
+                map_a[id].extend(map_b[id])
+            else:
+                map_a[id] = map_b[id]
+        return map_a
+
     ###################################
     # Software/Group Relationships
     ###################################
@@ -718,16 +740,13 @@ class MitreAttackData:
         # get all software used by groups
         tools_used_by_group = self.get_related('intrusion-set', 'uses', 'tool')
         malware_used_by_group = self.get_related('intrusion-set', 'uses', 'malware')
-        software_used_by_group = {**tools_used_by_group, **malware_used_by_group} # group_id -> {software, relationship}
+        software_used_by_group = self.merge(tools_used_by_group, malware_used_by_group) # group_id -> {software, relationship}
 
         # get groups attributing to campaigns and all software used by campaigns
-        software_used_by_campaign = self.get_related('campaign', 'uses', 'tool')
+        tools_used_by_campaign = self.get_related('campaign', 'uses', 'tool')
         malware_used_by_campaign = self.get_related('campaign', 'uses', 'malware')
-        for id in malware_used_by_campaign:
-            if id in software_used_by_campaign:
-                software_used_by_campaign[id].extend(malware_used_by_campaign[id])
-            else:
-                software_used_by_campaign[id] = malware_used_by_campaign[id]
+        software_used_by_campaign = self.merge(tools_used_by_campaign, malware_used_by_campaign) # campaign_id => {software, relationship}
+
         campaigns_attributed_to_group = {
             'campaigns': self.get_related('campaign', 'attributed-to', 'intrusion-set', reverse=True), # group_id => {campaign, relationship}
             'software': software_used_by_campaign # campaign_id => {software, relationship}
@@ -777,18 +796,15 @@ class MitreAttackData:
         # get all groups using software
         groups_using_tool = self.get_related('intrusion-set', 'uses', 'tool', reverse=True)
         groups_using_malware = self.get_related('intrusion-set', 'uses', 'malware', reverse=True)
-        groups_using_software = {**groups_using_tool, **groups_using_malware} # software_id => {group, relationship}
+        groups_using_software = self.merge(groups_using_tool, groups_using_malware) # software_id => {group, relationship}
 
         # get campaigns attributed to groups and all campaigns using software
-        campaigns_using_software = self.get_related('campaign', 'uses', 'tool', reverse=True)
+        campaigns_using_tools = self.get_related('campaign', 'uses', 'tool', reverse=True)
         campaigns_using_malware = self.get_related('campaign', 'uses', 'malware', reverse=True)
-        for id in campaigns_using_malware:
-            if id in campaigns_using_software:
-                campaigns_using_software[id].extend(campaigns_using_malware[id])
-            else:
-                campaigns_using_software[id] = campaigns_using_malware[id]
+        campaigns_using_software = self.merge(campaigns_using_tools, campaigns_using_malware) # software_id => {campaign, relationship}
+
         groups_attributing_to_campaigns = {
-            'campaigns': campaigns_using_software,# software_id => {campaign, relationship}
+            'campaigns': campaigns_using_software, # software_id => {campaign, relationship}
             'groups': self.get_related('campaign', 'attributed-to', 'intrusion-set') # campaign_id => {group, relationship}
         }
 
@@ -838,9 +854,10 @@ class MitreAttackData:
         """
         tools_used_by_campaign = self.get_related('campaign', 'uses', 'tool')
         malware_used_by_campaign = self.get_related('campaign', 'uses', 'malware')
-        return {**tools_used_by_campaign, **malware_used_by_campaign}
+        software_used_by_campaign = self.merge(tools_used_by_campaign, malware_used_by_campaign)
+        return software_used_by_campaign
 
-    def get_software_used_by_campaigns_with_id(self, stix_id: str) -> list:
+    def get_software_used_by_campaign_with_id(self, stix_id: str) -> list:
         """Get all software used by a single campaign
 
         Parameters
@@ -866,7 +883,8 @@ class MitreAttackData:
         """
         campaigns_using_tool = self.get_related('campaign', 'uses', 'tool', reverse=True)
         campaigns_using_malware = self.get_related('campaign', 'uses', 'malware', reverse=True)
-        return {**campaigns_using_tool, **campaigns_using_malware}
+        campaigns_using_software = self.merge(campaigns_using_tool, campaigns_using_malware)
+        return campaigns_using_software
 
     def get_campaigns_using_software_with_id(self, stix_id: str) -> list:
         """Get all campaigns using a single software
@@ -938,6 +956,8 @@ class MitreAttackData:
         list
             a list of {campaign, relationship} for each campaign attributed to the group
         """
+        campaigns_attributed_to_groups = self.get_campaigns_attributed_to_groups()
+        return campaigns_attributed_to_groups[stix_id] if stix_id in campaigns_attributed_to_groups else []
 
     ###################################
     # Technique/Group Relationships
