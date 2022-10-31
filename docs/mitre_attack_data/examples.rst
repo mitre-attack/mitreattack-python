@@ -15,6 +15,7 @@ Getting An ATT&CK Object
 * `get_group_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_group_by_alias.py>`_
 * `get_software_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_by_alias.py>`_
 * `get_object_type.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_object_type.py>`_
+* `get_attack_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_attack_id.py>`_
 
 Getting ATT&CK Objects by Type
 ------------------------------
@@ -35,7 +36,6 @@ Getting Multiple ATT&CK Objects
 * `get_tactics_by_matrix.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_tactics_by_matrix.py>`_
 * `get_techniques_by_tactic.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_by_tactic.py>`_
 * `get_techniques_by_platform.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_by_platform.py>`_
-* `get_techniques_used_by_group_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_group_software.py>`_
 * `get_objects_by_content.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_objects_by_content.py>`_
 * `get_objects_created_after.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_objects_created_after.py>`_
 
@@ -44,6 +44,8 @@ Related Objects
 
 Technique:Group Relationships
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* `get_techniques_used_by_group_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_group_software.py>`_
 
 Technique:Campaign Relationships
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

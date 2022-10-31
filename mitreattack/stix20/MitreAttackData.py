@@ -569,6 +569,31 @@ class MitreAttackData:
         ))[0]
         return software
 
+    ###################################
+    # Get Object Information
+    ###################################
+
+    def get_attack_id(self, stix_id: str) -> str:
+        """Get the ATT&CK ID of the object with the given STIX ID
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the object
+
+        Returns
+        -------
+        str
+            the ATT&CK ID of the object
+        """
+        obj = self.get_object_by_stix_id(stix_id)
+        external_references = obj.get('external_references')
+        if external_references:
+            attack_source = external_references[0]
+            if attack_source.get('external_id') and attack_source.get('source_name') == 'mitre-attack':
+                return attack_source['external_id']
+        return None
+
     def get_object_type(self, stix_id: str) -> str:
         """Get the object type by STIX ID
 
