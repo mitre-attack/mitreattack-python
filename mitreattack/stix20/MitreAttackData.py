@@ -499,7 +499,7 @@ class MitreAttackData:
             Filter('type', '=', object_type),
             Filter('name', '=', name)
         ]
-        object = self.src.query(filter)
+        object = self.src.query(filter)[0]
         return StixObjectFactory(object)
 
     def get_group_by_alias(self, alias: str) -> object:
@@ -553,15 +553,21 @@ class MitreAttackData:
         stix2.v20.sdo.Tool | stix2.v20.sdo.Malware
             the Tool or Malware object corresponding to the alias
         """
-        tools = self.src.query([
-            Filter('type', '=', 'tool'),
-            Filter('x_mitre_aliases', 'contains', alias)
-        ])
-        malware = self.src.query([
+        malware_filter = [
             Filter('type', '=', 'malware'),
             Filter('x_mitre_aliases', 'contains', alias)
-        ])
-        return tools[0] or malware[0]
+        ]
+        tool_filter = [
+            Filter('type', '=', 'tool'),
+            Filter('x_mitre_aliases', 'contains', alias)
+        ]
+        software = list(chain.from_iterable(
+            self.src.query(f) for f in [
+                malware_filter,
+                tool_filter
+            ]
+        ))[0]
+        return software
 
     def get_object_type(self, stix_id: str) -> str:
         """Get the object type by STIX ID
