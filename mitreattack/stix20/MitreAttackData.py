@@ -1349,7 +1349,7 @@ class MitreAttackData:
     # Technique/Subtechnique Relationships
     ###################################
 
-    def get_parent_technique_of_subtechniques(self) -> dict:
+    def get_parent_techniques_of_subtechniques(self) -> dict:
         """Get parent techniques of subtechniques
 
         Returns
@@ -1357,7 +1357,7 @@ class MitreAttackData:
         dict
             a mapping of subtechnique_id => {technique, relationship} describing the parent technique of the subtechnique
         """
-        return self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern')[0]
+        return self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern')
 
     def get_parent_technique_of_subtechnique_with_id(self, stix_id: str) -> dict:
         """Get the parent technique of a single subtechnique
@@ -1380,7 +1380,7 @@ class MitreAttackData:
         dict
             {parent technique, relationship} describing the parent technique of the subtechnique
         """
-        parent_techniques_of_subtechniques = self.get_parent_technique_of_subtechniques()
+        parent_techniques_of_subtechniques = self.get_parent_techniques_of_subtechniques()
         return parent_techniques_of_subtechniques[stix_id] if stix_id in parent_techniques_of_subtechniques else []
 
     def get_subtechniques_of_techniques(self) -> dict:
