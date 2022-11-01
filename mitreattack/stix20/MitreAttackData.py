@@ -770,6 +770,14 @@ class MitreAttackData:
     def get_software_used_by_group_with_id(self, stix_id: str) -> list:
         """Get all software used by a single group
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_software_used_by_groups()` directly,
+        then access the data from the dictionary result:
+        
+            software_used = get_software_used_by_groups()
+
+            software_used[group_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -826,6 +834,14 @@ class MitreAttackData:
     def get_groups_using_software_with_id(self, stix_id: str) -> list:
         """Get all groups using a single software
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_groups_using_software()` directly,
+        then access the data from the dictionary result:
+        
+            groups_using_software = get_groups_using_software()
+            
+            groups_using_software[software_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -860,6 +876,14 @@ class MitreAttackData:
     def get_software_used_by_campaign_with_id(self, stix_id: str) -> list:
         """Get all software used by a single campaign
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_software_used_by_campaigns()` directly,
+        then access the data from the dictionary result:
+        
+            software_used = get_software_used_by_campaigns()
+            
+            software_used[campaign_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -888,6 +912,14 @@ class MitreAttackData:
 
     def get_campaigns_using_software_with_id(self, stix_id: str) -> list:
         """Get all campaigns using a single software
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_campaigns_using_software()` directly,
+        then access the data from the dictionary result:
+        
+            campaigns_using_software = get_campaigns_using_software()
+            
+            campaigns_using_software[software_stix_id]
 
         Parameters
         ----------
@@ -920,6 +952,14 @@ class MitreAttackData:
     def get_groups_attributing_to_campaign_with_id(self, stix_id: str) -> list:
         """Get all groups attributing to a single campaign
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_groups_attributing_to_campaigns()` directly,
+        then access the data from the dictionary result:
+        
+            groups_attributing = get_groups_attributing_to_campaigns()
+            
+            groups_attributing[campaign_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -945,6 +985,14 @@ class MitreAttackData:
 
     def get_campaigns_attributed_to_group_with_id(self, stix_id: str) -> list:
         """Get all campaigns attributed to a single group
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_campaigns_attributed_to_groups()` directly,
+        then access the data from the dictionary result:
+        
+            campaigns_attributed = get_campaigns_attributed_to_groups()
+            
+            campaigns_attributed[group_stix_id]
 
         Parameters
         ----------
@@ -999,6 +1047,14 @@ class MitreAttackData:
     def get_techniques_used_by_group_with_id(self, stix_id: str) -> list:
         """Get all techniques used by a single group
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_techniques_used_by_groups()` directly,
+        then access the data from the dictionary result:
+        
+            techniques_used = get_techniques_used_by_groups()
+            
+            techniques_used[group_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1049,6 +1105,14 @@ class MitreAttackData:
     def get_groups_using_technique_with_id(self, stix_id: str) -> list:
         """Get all groups using a single technique
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_groups_using_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            groups_using_techniques = get_groups_using_techniques()
+            
+            groups_using_techniques[technique_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1080,6 +1144,14 @@ class MitreAttackData:
     def get_techniques_used_by_campaign_with_id(self, stix_id: str) -> list:
         """Get all techniques used by a single campaign
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_techniques_used_by_campaigns()` directly,
+        then access the data from the dictionary result:
+        
+            techniques_used = get_techniques_used_by_campaigns()
+            
+            techniques_used[campaign_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1105,6 +1177,14 @@ class MitreAttackData:
 
     def get_campaigns_using_technique_with_id(self, stix_id: str) -> list:
         """Get all campaigns using a single technique
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_campaigns_using_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            campaigns_using_techniques = get_campaigns_using_techniques()
+            
+            campaigns_using_techniques[technique_stix_id]
 
         Parameters
         ----------
@@ -1138,6 +1218,14 @@ class MitreAttackData:
     def get_techniques_used_by_software_with_id(self, stix_id: str) -> list:
         """Get all techniques used by a single software
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_techniques_used_by_software()` directly,
+        then access the data from the dictionary result:
+        
+            techniques_used = get_techniques_used_by_software()
+            
+            techniques_used[software_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1165,6 +1253,14 @@ class MitreAttackData:
 
     def get_software_using_technique_with_id(self, stix_id: str) -> list:
         """Get all software using a single technique
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_software_using_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            software_using_techniques = get_software_using_techniques()
+            
+            software_using_techniques[technique_stix_id]
 
         Parameters
         ----------
@@ -1196,6 +1292,14 @@ class MitreAttackData:
     def get_techniques_mitigated_by_mitigation_with_id(self, stix_id: str) -> list:
         """Get all techniques being mitigated by a single mitigation
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_techniques_mitigated_by_mitigations()` directly,
+        then access the data from the dictionary result:
+        
+            techniques_mitigated = get_techniques_mitigated_by_mitigations()
+            
+            techniques_mitigated[mitigation_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1221,6 +1325,14 @@ class MitreAttackData:
 
     def get_mitigations_mitigating_technique_with_id(self, stix_id: str) -> list:
         """Get all mitigations mitigating a single technique
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_mitigations_mitigating_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            mitigations_mitigating = get_mitigations_mitigating_techniques()
+            
+            mitigations_mitigating[technique_stix_id]
 
         Parameters
         ----------
@@ -1250,6 +1362,14 @@ class MitreAttackData:
     def get_parent_technique_of_subtechnique_with_id(self, stix_id: str) -> dict:
         """Get the parent technique of a single subtechnique
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_parent_technique_of_subtechniques()` directly,
+        then access the data from the dictionary result:
+        
+            parent_techniques = get_parent_technique_of_subtechniques()
+            
+            parent_techniques[subtechnique_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1275,6 +1395,14 @@ class MitreAttackData:
 
     def get_subtechniques_of_technique_with_id(self, stix_id: str) -> list:
         """Get all subtechniques of a single technique
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_subtechniques_of_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            subtechniques = get_subtechniques_of_techniques()
+            
+            subtechniques[technique_stix_id]
 
         Parameters
         ----------
@@ -1305,6 +1433,14 @@ class MitreAttackData:
     def get_techniques_detected_by_datacomponent_with_id(self, stix_id: str) -> list:
         """Get all techniques detected by a single data component
 
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_techniques_detected_by_datacomponents()` directly,
+        then access the data from the dictionary result:
+        
+            techniques_detected = get_techniques_detected_by_datacomponents()
+            
+            techniques_detected[datacomponent_stix_id]
+
         Parameters
         ----------
         stix_id : str
@@ -1330,6 +1466,14 @@ class MitreAttackData:
 
     def get_datacomponents_detecting_technique_with_id(self, stix_id: str) -> list:
         """Get all data components detecting a single technique
+
+        Note: this method is not recommended for retrieving large numbers of related objects.
+        If retrieving a large number of objects, call `get_datacomponents_detecting_techniques()` directly,
+        then access the data from the dictionary result:
+        
+            datacomponents_detecting = get_datacomponents_detecting_techniques()
+            
+            datacomponents_detecting[technique_stix_id]
 
         Parameters
         ----------
