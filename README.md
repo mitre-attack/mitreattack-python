@@ -1,7 +1,7 @@
 # mitreattack-python
 
 This repository contains a library of Python tools and utilities for working with ATT&CK data. For more information,
-see [the documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDocs.
+see the [full documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDocs.
 
 ## Install
 
@@ -12,6 +12,12 @@ pip install mitreattack-python
 ```
 
 Note: the library requires [python3](https://www.python.org/).
+
+## MitreAttackData Library
+
+The ``MitreAttackData`` library is used to read in and work with MITRE ATT&CK STIX 2.0 content. This library provides 
+the ability to query the dataset for objects and their related objects. This is the main content of mitreattack-python;
+you can read more about other modules in this library under "Additional Modules".
 
 ## Additional Modules
 
