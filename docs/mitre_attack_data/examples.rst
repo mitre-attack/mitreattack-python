@@ -1,8 +1,10 @@
+.. _Examples ref:
+
 Examples
 ==============================================
 
-The following are links to scripts of examples on how to use the
-``MitreAttackData`` library. See the examples_ directory for more details.
+The following are links to scripts of examples on how to use the ``MitreAttackData`` 
+library. See the examples_ directory in the repository for more details.
 
 .. _examples: https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/
 
@@ -50,7 +52,7 @@ Technique:Group Relationships
 
 Technique:Campaign Relationships
 
-* `get_techniques_used_by_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_groups.py>`_
+* `get_techniques_used_by_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_campaigns.py>`_
 * `get_campaigns_using_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_techniques.py>`_
 
 Technique:Software Relationships
@@ -69,6 +71,9 @@ Technique:Sub-technique Relationships
 * `get_subtechniques_of_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_subtechniques_of_techniques.py>`_
 
 Technique:Data Component Relationships
+
+* `get_datacomponents_detecting_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_datacomponents_detecting_techniques.py>`_
+* `get_techniques_detected_by_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_detected_by_datacomponents.py>`_
 
 Software:Group Relationships
 

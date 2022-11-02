@@ -686,7 +686,7 @@ class MitreAttackData:
         # build lookup of stixID to stix object
         id_to_target = {}
         for target in targets:
-            id_to_target[target.id] = target
+            id_to_target[target['id']] = target
 
         # build final output mappings
         output = {}
@@ -696,7 +696,7 @@ class MitreAttackData:
                 if not related['id'] in id_to_target:
                     continue  # targeting a revoked object
                 value.append({
-                    'object': id_to_target[related['id']],
+                    'object': StixObjectFactory(id_to_target[related['id']]),
                     'relationship': related['relationship']
                 })
             output[stix_id] = value
