@@ -2,14 +2,10 @@ version: 2
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    - requirements: requirements-dev.txt
     - method: pip
       path: .
-      extra_requirements:
-        - docs
-    - method: pip
-      path: another/package
   system_packages: true
 
 sphinx:
-  configuration: docs/source/conf.py
+  configuration: docs/conf.py
