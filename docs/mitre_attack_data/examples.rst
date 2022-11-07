@@ -16,8 +16,9 @@ Getting An ATT&CK Object
 * `get_object_by_name.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_object_by_name.py>`_
 * `get_group_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_group_by_alias.py>`_
 * `get_software_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_by_alias.py>`_
-* `get_object_type.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_object_type.py>`_
+* `get_stix_type.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_stix_type.py>`_
 * `get_attack_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_attack_id.py>`_
+* `get_name.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_name.py>`_
 
 Getting ATT&CK Objects by Type
 ------------------------------

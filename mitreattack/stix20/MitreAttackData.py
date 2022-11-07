@@ -574,7 +574,7 @@ class MitreAttackData:
     ###################################
 
     def get_attack_id(self, stix_id: str) -> str:
-        """Get the ATT&CK ID of the object with the given STIX ID
+        """Get the object's ATT&CK ID
 
         Parameters
         ----------
@@ -594,8 +594,8 @@ class MitreAttackData:
                 return attack_source['external_id']
         return None
 
-    def get_object_type(self, stix_id: str) -> str:
-        """Get the object type by STIX ID
+    def get_stix_type(self, stix_id: str) -> str:
+        """Get the object's STIX type
 
         Parameters
         ----------
@@ -605,9 +605,25 @@ class MitreAttackData:
         Returns
         -------
         str
-            the type of the object
+            the STIX type of the object
         """
         return get_type_from_id(stix_id)
+
+    def get_name(self, stix_id: str) -> str:
+        """Get the object's name
+
+        Parameters
+        ----------
+        stix_id : str
+            the STIX ID of the object
+
+        Returns
+        -------
+        str
+            the name of the object
+        """
+        obj = self.get_object_by_stix_id(stix_id)
+        return obj.get('name') if obj.get('name') else None
 
     ###################################
     # Relationship Section
