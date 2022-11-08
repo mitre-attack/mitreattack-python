@@ -1,7 +1,7 @@
 from mitreattack.stix20 import MitreAttackData
 
 def main():
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
 
     G0016 = mitre_attack_data.get_group_by_alias('Cozy Bear')
     print(G0016.serialize(pretty=True))

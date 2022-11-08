@@ -1,7 +1,7 @@
 from mitreattack.stix20 import MitreAttackData
 
 def main():
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
 
     # get all software related to campaigns
     software_used_by_campaigns = mitre_attack_data.get_software_used_by_campaigns()

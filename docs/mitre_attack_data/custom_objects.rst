@@ -59,7 +59,7 @@ a stix2 Domain Object:
     from mitreattack.stix20 import MitreAttackData
 
     # build the source data
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
 
     # retrieve group G0019 by STIX ID (stix2 Domain Object)
     group = mitre_attack_data.get_object_by_stix_id("intrusion-set--2a158b0a-7ef8-43cb-9985-bf34d1e12050") # G0019

@@ -1,7 +1,7 @@
 from mitreattack.stix20 import MitreAttackData
 
 def main():
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
 
     # get subtechniques of techniques
     subtechniques = mitre_attack_data.get_subtechniques_of_techniques()

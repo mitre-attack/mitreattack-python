@@ -28,7 +28,7 @@ examples of retrieving data by STIX ID, ATT&CK ID, type, etc. can be found in th
 
     from mitreattack.stix20 import MitreAttackData
 
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
     technique = mitre_attack_data.get_object_by_attack_id('T1134', 'attack-pattern')
 
 **Example: Retrieving all group objects**
@@ -37,7 +37,7 @@ examples of retrieving data by STIX ID, ATT&CK ID, type, etc. can be found in th
 
     from mitreattack.stix20 import MitreAttackData
 
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
     groups = mitre_attack_data.get_groups() 
 
 A large part of working with ATT&CK revolves around parsing relationships between objects. It is 
@@ -51,7 +51,7 @@ a lookup table of STIX ID to related objects and relationships.
 
     from mitreattack.stix20 import MitreAttackData
 
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
     group_id_to_software = mitre_attack_data.get_software_used_by_groups()
     print(group_id_to_software["intrusion-set--2a158b0a-7ef8-43cb-9985-bf34d1e12050"])  # G0019
     # [
@@ -75,7 +75,7 @@ by ATT&CK.
 
     from mitreattack.stix20 import MitreAttackData
 
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
     mitigations = mitre_attack_data.get_mitigations(remove_revoked_deprecated=True)
 
 
@@ -86,7 +86,7 @@ automatically remove revoked and deprecated objects:
 
     from mitreattack.stix20 import MitreAttackData
 
-    mitre_attack_data = MitreAttackData("path/to/enterprise-attack.json")
+    mitre_attack_data = MitreAttackData("enterprise-attack.json")
     mitigations = mitre_attack_data.get_mitigations()
     mitigations = mitre_attack_data.remove_revoked_deprecated(mitigations)
 
