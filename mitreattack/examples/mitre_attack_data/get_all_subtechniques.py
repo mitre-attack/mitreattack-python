@@ -3,9 +3,9 @@ from mitreattack.stix20 import MitreAttackData
 def main():
     mitre_attack_data = MitreAttackData("enterprise-attack.json")
 
-    datacomponents = mitre_attack_data.get_datacomponents(remove_revoked_deprecated=True)
+    subtechniques = mitre_attack_data.get_subtechniques(remove_revoked_deprecated=True)
     
-    print(f"Retrieved {len(datacomponents)} ATT&CK data components.")
+    print(f"Retrieved {len(subtechniques)} ATT&CK sub-techniques.")
 
 if __name__ == "__main__":
     main()

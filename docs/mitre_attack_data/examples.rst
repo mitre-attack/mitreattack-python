@@ -47,47 +47,65 @@ Related Objects
 
 Technique:Group Relationships
 
-* `get_groups_using_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_using_techniques.py>`_
-* `get_techniques_used_by_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_groups.py>`_
+* `get_all_groups_using_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_groups_using_all_techniques.py>`_
+* `get_groups_using_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_using_technique.py>`_
+* `get_all_techniques_used_by_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques_used_by_all_groups.py>`_
+* `get_techniques_used_by_group.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_group.py>`_
 * `get_techniques_used_by_group_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_group_software.py>`_
 
 Technique:Campaign Relationships
 
-* `get_techniques_used_by_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_campaigns.py>`_
-* `get_campaigns_using_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_techniques.py>`_
+* `get_all_techniques_used_by_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques_used_by_all_campaigns.py>`_
+* `get_techniques_used_by_campaign.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_campaign.py>`_
+* `get_all_campaigns_using_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_campaigns_using_all_techniques.py>`_
+* `get_campaigns_using_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_technique.py>`_
 
 Technique:Software Relationships
 
+* `get_all_techniques_used_by_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques_used_by_all_software.py>`_
 * `get_techniques_used_by_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_used_by_software.py>`_
-* `get_software_using_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_using_techniques.py>`_
+* `get_all_software_using_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_software_using_all_techniques.py>`_
+* `get_software_using_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_using_technique.py>`_
 
 Technique:Mitigation Relationships
 
-* `get_techniques_mitigated_by_mitigations.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_mitigated_by_mitigations.py>`_
-* `get_mitigations_mitigating_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_mitigations_mitigating_techniques.py>`_
+* `get_all_techniques_mitigated_by_all_mitigations.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques_mitigated_by_all_mitigations.py>`_
+* `get_techniques_mitigated_by_mitigation.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_mitigated_by_mitigation.py>`_
+* `get_all_mitigations_mitigating_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_mitigations_mitigating_all_techniques.py>`_
+* `get_mitigations_mitigating_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_mitigations_mitigating_technique.py>`_
 
 Technique:Sub-technique Relationships
 
-* `get_parent_techniques_of_subtechniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_parent_techniques_of_subtechniques.py>`_
-* `get_subtechniques_of_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_subtechniques_of_techniques.py>`_
+* `get_all_parent_techniques_of_all_subtechniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_parent_techniques_of_all_subtechniques.py>`_
+* `get_parent_technique_of_subtechnique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_parent_technique_of_subtechnique.py>`_
+* `get_all_subtechniques_of_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_subtechniques_of_all_techniques.py>`_
+* `get_subtechniques_of_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_subtechniques_of_technique.py>`_
 
 Technique:Data Component Relationships
 
-* `get_datacomponents_detecting_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_datacomponents_detecting_techniques.py>`_
-* `get_techniques_detected_by_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_detected_by_datacomponents.py>`_
+* `get_all_datacomponents_detecting_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_datacomponents_detecting_all_techniques.py>`_
+* `get_datacomponents_detecting_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_datacomponents_detecting_technique.py>`_
+* `get_all_techniques_detected_by_all_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_techniques_detected_by_all_datacomponents.py>`_
+* `get_techniques_detected_by_datacomponent.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_techniques_detected_by_datacomponent.py>`_
 
 Software:Group Relationships
 
+* `get_all_groups_using_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_groups_using_all_software.py>`_
 * `get_groups_using_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_using_software.py>`_
-* `get_software_used_by_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_groups.py>`_
+* `get_all_software_used_by_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_software_used_by_all_groups.py>`_
+* `get_software_used_by_group.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_group.py>`_
 
 Software:Campaign Relationships
 
+* `get_all_campaigns_using_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_campaigns_using_all_software.py>`_
 * `get_campaigns_using_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_using_software.py>`_
-* `get_software_used_by_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_campaigns.py>`_
+* `get_all_software_used_by_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_software_used_by_all_campaigns.py>`_
+* `get_software_used_by_campaign.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_software_used_by_campaign.py>`_
 
 Campaign:Group Relationships
 
-* `get_groups_attributing_to_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_attributing_to_campaigns.py>`_
-* `get_campaigns_attributed_to_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_attributed_to_groups.py>`_
+* `get_all_groups_attributing_to_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_groups_attributing_to_all_campaigns.py>`_
+* `get_groups_attributing_to_campaign.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_groups_attributing_to_campaign.py>`_
+* `get_all_campaigns_attributed_to_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_all_campaigns_attributed_to_all_groups.py>`_
+* `get_campaigns_attributed_to_group.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/mitre_attack_data/get_campaigns_attributed_to_group.py>`_
 
