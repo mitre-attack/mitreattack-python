@@ -1,9 +1,10 @@
 """ MitreAttackData Library """
 
+from dateutil import parser
 from itertools import chain
 from stix2 import MemoryStore, Filter
 from stix2.utils import get_type_from_id
-from mitreattack.stix20.custom_attack_objects import StixObjectFactory, Matrix, Tactic, DataSource, DataComponent
+from mitreattack.stix20.custom_attack_objects import StixObjectFactory
 
 class MitreAttackData:
     """ MitreAttackData object """
@@ -21,6 +22,34 @@ class MitreAttackData:
         'x-mitre-data-component'
     ]
 
+    # software:group
+    all_software_used_by_all_groups = None
+    all_groups_using_all_software = None
+    # software:campaign
+    all_software_used_by_all_campaigns = None
+    all_campaigns_using_all_software = None
+    # group:campaign
+    all_groups_attributing_to_all_campaigns = None
+    all_campaigns_attributed_to_all_groups = None
+    # technique:group
+    all_techniques_used_by_all_groups = None
+    all_groups_using_all_techniques = None
+    # technique:campaign
+    all_techniques_used_by_all_campaigns = None
+    all_campaigns_using_all_techniques = None
+    # technique:software
+    all_techniques_used_by_all_software = None
+    all_software_using_all_techniques = None
+    # technique:mitigation
+    all_techniques_mitigated_by_all_mitigations = None
+    all_mitigations_mitigating_all_techniques = None
+    # technique:subtechnique
+    all_parent_techniques_of_all_subtechniques = None
+    all_subtechniques_of_all_techniques = None
+    # technique:data-component
+    all_techniques_detected_by_all_datacomponents = None
+    all_datacomponents_detecting_all_techniques = None
+
     def __init__(self, stix_filepath: str):
         """Initialize a MitreAttackData object.
 
@@ -34,6 +63,22 @@ class MitreAttackData:
 
         self.src = MemoryStore()
         self.src.load_from_file(stix_filepath)
+
+    ###################################
+    # Utilities
+    ###################################
+
+    def print_stix_object(self, object: object, pretty=True):
+        """Print a STIX object.
+
+        Parameters
+        ----------
+        object : object
+            the object to print
+        pretty : bool, optional
+            pretty print the object, by default True
+        """
+        print(object.serialize(pretty))
 
     ###################################
     # STIX Objects Section
@@ -74,11 +119,7 @@ class MitreAttackData:
         list
             a list of Matrix objects
         """
-        matrices = self.src.query([ Filter('type', '=', 'x-mitre-matrix') ])
-        if remove_revoked_deprecated:
-            matrices = self.remove_revoked_deprecated(matrices)
-        # since Matrix is a custom object, we need to reconstruct the query results
-        return [Matrix(**m, allow_custom=True) for m in matrices]
+        return self.get_objects_by_type('x-mitre-matrix', remove_revoked_deprecated)
 
     def get_tactics(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all tactic objects.
@@ -93,14 +134,37 @@ class MitreAttackData:
         list
             a list of Tactic objects
         """
-        tactics = self.src.query([ Filter('type', '=', 'x-mitre-tactic') ])
-        if remove_revoked_deprecated:
-            tactics = self.remove_revoked_deprecated(tactics)
-        # since Tactic is a custom object, we need to reconstruct the query results
-        return [Tactic(**t, allow_custom=True) for t in tactics]
+        return self.get_objects_by_type('x-mitre-tactic', remove_revoked_deprecated)
 
-    def get_techniques(self, remove_revoked_deprecated=False) -> list:
+    def get_techniques(self, include_subtechniques=True, remove_revoked_deprecated=False) -> list:
         """Retrieve all technique objects.
+
+        Parameters
+        ----------
+        include_subtechniques : bool, optional
+            include sub-techniques in the result, by default True
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of AttackPattern objects
+        """
+        filters = [ Filter('type', '=', 'attack-pattern') ]
+        if not include_subtechniques:
+            # filter out sub-techniques
+            filters.append(Filter('x_mitre_is_subtechnique', '=', False))
+
+        techniques = self.src.query(filters)
+
+        if remove_revoked_deprecated:
+            techniques = self.remove_revoked_deprecated(techniques)
+
+        return techniques
+
+    def get_subtechniques(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all sub-technique objects.
 
         Parameters
         ----------
@@ -112,10 +176,15 @@ class MitreAttackData:
         list
             a list of AttackPattern objects
         """
-        techniques = self.src.query([ Filter('type', '=', 'attack-pattern') ])
+        subtechniques = self.src.query([
+            Filter('type', '=', 'attack-pattern'),
+            Filter('x_mitre_is_subtechnique', '=', True)
+        ])
+
         if remove_revoked_deprecated:
-            techniques = self.remove_revoked_deprecated(techniques)
-        return techniques
+            subtechniques = self.remove_revoked_deprecated(subtechniques)
+        
+        return subtechniques
 
     def get_mitigations(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all mitigation objects.
@@ -130,10 +199,7 @@ class MitreAttackData:
         list
             a list of CourseOfAction objects
         """
-        mitigations = self.src.query([ Filter('type', '=', 'course-of-action') ])
-        if remove_revoked_deprecated:
-            mitigations = self.remove_revoked_deprecated(mitigations)
-        return mitigations
+        return self.get_objects_by_type('course-of-action', remove_revoked_deprecated)
     
     def get_groups(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all group objects.
@@ -148,10 +214,7 @@ class MitreAttackData:
         list
             a list of IntrusionSet objects
         """
-        groups = self.src.query([ Filter('type', '=', 'intrusion-set') ])
-        if remove_revoked_deprecated:
-            groups = self.remove_revoked_deprecated(groups)
-        return groups
+        return self.get_objects_by_type('intrusion-set', remove_revoked_deprecated)
 
     def get_software(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all software objects.
@@ -166,14 +229,9 @@ class MitreAttackData:
         list
             a list of Tool and Malware objects
         """
-        software = list(chain.from_iterable(
-            self.src.query(f) for f in [
-                Filter('type', '=', 'tool'), 
-                Filter('type', '=', 'malware')
-            ]
-        ))
-        if remove_revoked_deprecated:
-            software = self.remove_revoked_deprecated(software)
+        software = self.get_objects_by_type('tool', remove_revoked_deprecated)
+        malware = self.get_objects_by_type('malware', remove_revoked_deprecated)
+        software.extend(malware)
         return software
     
     def get_campaigns(self, remove_revoked_deprecated=False) -> list:
@@ -189,10 +247,7 @@ class MitreAttackData:
         list
             a list of Campaign objects
         """
-        campaigns = self.src.query([ Filter('type', '=', 'campaign') ])
-        if remove_revoked_deprecated:
-            campaigns = self.remove_revoked_deprecated(campaigns)
-        return campaigns
+        return self.get_objects_by_type('campaign', remove_revoked_deprecated)
 
     def get_datasources(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all data source objects.
@@ -207,11 +262,7 @@ class MitreAttackData:
         list
             a list of DataSource objects
         """
-        datasources = self.src.query([ Filter('type', '=', 'x-mitre-data-source') ])
-        if remove_revoked_deprecated:
-            datasources = self.remove_revoked_deprecated(datasources)
-        # since DataSource is a custom object, we need to reconstruct the query results
-        return [DataSource(**ds, allow_custom=True) for ds in datasources]
+        return self.get_objects_by_type('x-mitre-data-source', remove_revoked_deprecated)
 
     def get_datacomponents(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all data component objects.
@@ -226,15 +277,34 @@ class MitreAttackData:
         list
             a list of DataComponent objects
         """
-        datacomponents = self.src.query([ Filter('type', '=', 'x-mitre-data-component') ])
-        if remove_revoked_deprecated:
-            datacomponents = self.remove_revoked_deprecated(datacomponents)
-        # since DataComponent is a custom object, we need to reconstruct the query results
-        return [DataComponent(**dc, allow_custom=True) for dc in datacomponents]
+        return self.get_objects_by_type('x-mitre-data-component', remove_revoked_deprecated)
 
     ###################################
     # Get STIX Objects by Value
     ###################################
+
+    def get_objects_by_type(self, stix_type: str, remove_revoked_deprecated=False) -> list:
+        """Retrieve objects by STIX type
+
+        Parameters
+        ----------
+        stix_type : str
+            the STIX type of the objects to retrieve
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects
+        """
+        objects = self.src.query([ Filter("type", "=", stix_type) ])
+
+        if remove_revoked_deprecated:
+            objects = self.remove_revoked_deprecated(objects)
+        
+        # since ATT&CK has custom objects, we need to reconstruct the query results
+        return [StixObjectFactory(o) for o in objects]
 
     def get_objects_by_content(self, content: str, object_type: str=None, remove_revoked_deprecated=False) -> list:
         """Retrieve objects by the content of their description.
@@ -336,7 +406,7 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a list of tactics for each matrix
+            a mapping of tactics to matrices {matrix_name: [Tactics]}
         """
         tactics = {}
         matrices = self.src.query([
@@ -369,13 +439,13 @@ class MitreAttackData:
             objects = self.remove_revoked_deprecated(objects)
         return objects
 
-    def get_objects_modified_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
+    def get_objects_modified_after(self, date: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been modified after a given time.
 
         Parameters
         ----------
-        timestamp : str
-            timestamp to search (e.g. "2018-10-01T00:14:20.652Z")
+        date : str
+            date to search (e.g. "2022-10-01", "2022-10-01T00:00:00.000Z", "October 1, 2022", etc.)
         remove_revoked_deprecated : bool, optional
             remove revoked or deprecated objects from the query, by default False
 
@@ -384,7 +454,11 @@ class MitreAttackData:
         list
             a list of stix2.v20.sdo._DomainObject or CustomStixObject objects created after the given time
         """
-        objects = self.src.query([ Filter('modified', '>', timestamp) ])
+        date_parser = parser.parse(date)
+        date_parser = date_parser.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        objects = self.src.query([ Filter('modified', '>', date_parser) ])
+
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
         return objects
@@ -447,15 +521,20 @@ class MitreAttackData:
         object = self.src.get(stix_id)
         return StixObjectFactory(object)
 
-    def get_object_by_attack_id(self, attack_id: str, object_type: str) -> object:
+    def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> object:
         """Retrieve a single object by its ATT&CK ID
+
+        Note: in prior versions of ATT&CK, mitigations had 1:1 relationships with techniques and shared their
+        technique's ID. Searching by ATT&CK ID alone does not work properly for techniques since
+        technique ATT&CK IDs are not truly unique. The STIX type must be specified when searching by ATT&CK
+        ID to avoid this issue.
 
         Parameters
         ----------
         attack_id : str
             the ATT&CK ID of the object to retrieve
-        object_type : str
-            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
+        stix_type : str
+            the object STIX type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
             'x-mitre-data-source', or 'x-mitre-data-component')
 
@@ -465,23 +544,23 @@ class MitreAttackData:
             the STIX Domain Object specified by the ATT&CK ID
         """
         # validate type
-        if object_type not in self.stix_types:
-            raise ValueError(f"object_type must be one of {self.stix_types}")
+        if stix_type not in self.stix_types:
+            raise ValueError(f"stix_type must be one of {self.stix_types}")
         
         object = self.src.query([
-            Filter('external_references.external_id', '=', attack_id),
-            Filter('type', '=', object_type),
+            Filter('external_references.external_id', '=', attack_id.upper()),
+            Filter('type', '=', stix_type),
         ])[0]
         return StixObjectFactory(object)
 
-    def get_object_by_name(self, name: str, object_type: str) -> object:
+    def get_object_by_name(self, name: str, stix_type: str) -> object:
         """Retrieve an object by name
 
         Parameters
         ----------
         name : str
             the name of the object to retrieve
-        object_type : str
+        stix_type : str
             the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
             'x-mitre-data-source', or 'x-mitre-data-component')
@@ -492,11 +571,11 @@ class MitreAttackData:
             the STIX Domain Object specified by the name and type
         """
         # validate type
-        if object_type not in self.stix_types:
-            raise ValueError(f"object_type must be one of {self.stix_types}")
+        if stix_type not in self.stix_types:
+            raise ValueError(f"stix_type must be one of {self.stix_types}")
 
         filter = [
-            Filter('type', '=', object_type),
+            Filter('type', '=', stix_type),
             Filter('name', '=', name)
         ]
         object = self.src.query(filter)[0]
@@ -744,15 +823,19 @@ class MitreAttackData:
     # Software/Group Relationships
     ###################################
 
-    def get_software_used_by_groups(self) -> dict:
-        """Get software used by groups
+    def get_all_software_used_by_all_groups(self) -> dict:
+        """Retrieve all software used by all groups.
 
         Returns
         -------
         dict
-            a mapping of group_id => {software, relationship} for each software used by the group and each software used 
+            a mapping of group_stix_id => [{'object': Software, 'relationship': Relationship}] for each software used by the group and each software used 
             by campaigns attributed to the group
         """
+        # return data if it has already been fetched
+        if self.all_software_used_by_all_groups:
+            return self.get_all_software_used_by_all_groups
+
         # get all software used by groups
         tools_used_by_group = self.get_related('intrusion-set', 'uses', 'tool')
         malware_used_by_group = self.get_related('intrusion-set', 'uses', 'malware')
@@ -781,22 +864,16 @@ class MitreAttackData:
                 software_used_by_group[group_id].extend(software_used_by_campaigns)
             else:
                 software_used_by_group[group_id] = software_used_by_campaigns
+
+        self.all_software_used_by_all_groups = software_used_by_group
         return software_used_by_group
 
-    def get_software_used_by_group_with_id(self, stix_id: str) -> list:
-        """Get all software used by a single group
-
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_software_used_by_groups()` directly,
-        then access the data from the dictionary result:
-        
-            software_used = get_software_used_by_groups()
-
-            software_used[group_stix_id]
+    def get_software_used_by_group(self, group_stix_id: str) -> list:
+        """Get all software used by a group.
 
         Parameters
         ----------
-        stix_id : str
+        group_stix_id : str
             the STIX ID of the group
 
         Returns
@@ -805,18 +882,22 @@ class MitreAttackData:
             a list of {software, relationship} for each software used by the group and each software used 
             by campaigns attributed to the group
         """
-        software_used_by_groups = self.get_software_used_by_groups()
-        return software_used_by_groups[stix_id] if stix_id in software_used_by_groups else []
+        software_used_by_groups = self.get_all_software_used_by_all_groups()
+        return software_used_by_groups[group_stix_id] if group_stix_id in software_used_by_groups else []
 
-    def get_groups_using_software(self) -> dict:
-        """Get groups using software
+    def get_all_groups_using_all_software(self) -> dict:
+        """Get all groups using all software
 
         Returns
         -------
         dict
-            a mapping of software_id => {group, relationship} for each group using the software and each attributed campaign
+            a mapping of software_stix_id => [{'object': Group, 'relationship': Relationship}] for each group using the software and each attributed campaign
             using the software
         """
+        # return data if it has already been fetched
+        if self.all_groups_using_all_software:
+            return self.all_groups_using_all_software
+
         # get all groups using software
         groups_using_tool = self.get_related('intrusion-set', 'uses', 'tool', reverse=True)
         groups_using_malware = self.get_related('intrusion-set', 'uses', 'malware', reverse=True)
@@ -845,18 +926,12 @@ class MitreAttackData:
                 groups_using_software[software_id].extend(groups_attributed_to_campaigns)
             else:
                 groups_using_software[software_id] = groups_attributed_to_campaigns
+
+        self.all_groups_using_all_software = groups_using_software
         return groups_using_software
 
-    def get_groups_using_software_with_id(self, stix_id: str) -> list:
-        """Get all groups using a single software
-
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_groups_using_software()` directly,
-        then access the data from the dictionary result:
-        
-            groups_using_software = get_groups_using_software()
-            
-            groups_using_software[software_stix_id]
+    def get_groups_using_software(self, software_stix_id: str) -> list:
+        """Get all groups using a software.
 
         Parameters
         ----------
@@ -869,40 +944,37 @@ class MitreAttackData:
             a list of {group, relationship} for each group using the software and each attributed campaign
             using the software
         """
-        groups_using_software = self.get_groups_using_software()
-        return groups_using_software[stix_id] if stix_id in groups_using_software else []
+        groups_using_software = self.get_all_groups_using_all_software()
+        return groups_using_software[software_stix_id] if software_stix_id in groups_using_software else []
 
     ###################################
     # Software/Campaign Relationships
     ###################################
 
-    def get_software_used_by_campaigns(self) -> dict:
-        """Get software used by campaigns
+    def get_all_software_used_by_all_campaigns(self) -> dict:
+        """Get all software used by all campaigns.
 
         Returns
         -------
         dict
-            a mapping of campaign_id => {software, relationship} for each software used by the campaign
+            a mapping of campaign_stix_id => [{'object': Software, 'relationship': Relationship}] for each software used by the campaign
         """
+        # return data if it has already been fetched
+        if self.all_software_used_by_all_campaigns:
+            return self.all_software_used_by_all_campaigns
+
         tools_used_by_campaign = self.get_related('campaign', 'uses', 'tool')
         malware_used_by_campaign = self.get_related('campaign', 'uses', 'malware')
-        software_used_by_campaign = self.merge(tools_used_by_campaign, malware_used_by_campaign)
-        return software_used_by_campaign
+        self.all_software_used_by_all_campaigns = self.merge(tools_used_by_campaign, malware_used_by_campaign)
 
-    def get_software_used_by_campaign_with_id(self, stix_id: str) -> list:
-        """Get all software used by a single campaign
+        return self.all_software_used_by_all_campaigns
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_software_used_by_campaigns()` directly,
-        then access the data from the dictionary result:
-        
-            software_used = get_software_used_by_campaigns()
-            
-            software_used[campaign_stix_id]
+    def get_software_used_by_campaign(self, campaign_stix_id: str) -> list:
+        """Get all software used by a campaign.
 
         Parameters
         ----------
-        stix_id : str
+        campaign_stix_id : str
             the STIX ID of the campaign
 
         Returns
@@ -910,36 +982,33 @@ class MitreAttackData:
         list
             a list of {software, relationship} for each software used by the campaign
         """
-        software_used_by_campaigns = self.get_software_used_by_campaigns()
-        return software_used_by_campaigns[stix_id] if stix_id in software_used_by_campaigns else []
+        software_used_by_campaigns = self.get_all_software_used_by_all_campaigns()
+        return software_used_by_campaigns[campaign_stix_id] if campaign_stix_id in software_used_by_campaigns else []
 
-    def get_campaigns_using_software(self) -> dict:
-        """Get campaigns using software
+    def get_all_campaigns_using_all_software(self) -> dict:
+        """Get all campaigns using all software
 
         Returns
         -------
         dict
-            a mapping of software_id => {campaign, relationship} for each campaign using the software
+            a mapping of software_stix_id => [{'object': Campaign, 'relationship': Relationship}] for each campaign using the software
         """
+        # return data if it has already been fetched
+        if self.all_campaigns_using_all_software:
+            return self.all_campaigns_using_all_software
+
         campaigns_using_tool = self.get_related('campaign', 'uses', 'tool', reverse=True)
         campaigns_using_malware = self.get_related('campaign', 'uses', 'malware', reverse=True)
-        campaigns_using_software = self.merge(campaigns_using_tool, campaigns_using_malware)
-        return campaigns_using_software
+        self.all_campaigns_using_all_software = self.merge(campaigns_using_tool, campaigns_using_malware)
 
-    def get_campaigns_using_software_with_id(self, stix_id: str) -> list:
-        """Get all campaigns using a single software
+        return self.all_campaigns_using_all_software
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_campaigns_using_software()` directly,
-        then access the data from the dictionary result:
-        
-            campaigns_using_software = get_campaigns_using_software()
-            
-            campaigns_using_software[software_stix_id]
+    def get_campaigns_using_software(self, software_stix_id: str) -> list:
+        """Get all campaigns using a software.
 
         Parameters
         ----------
-        stix_id : str
+        software_stix_id : str
             the STIX ID of the software
 
         Returns
@@ -947,38 +1016,36 @@ class MitreAttackData:
         list
             a list of {campaign, relationship} for each campaign using the software
         """
-        campaigns_using_software = self.get_campaigns_using_software()
-        return campaigns_using_software[stix_id] if stix_id in campaigns_using_software else []
+        campaigns_using_software = self.get_all_campaigns_using_all_software()
+        return campaigns_using_software[software_stix_id] if software_stix_id in campaigns_using_software else []
 
 
     ###################################
     # Campaign/Group Relationships
     ###################################
 
-    def get_groups_attributing_to_campaigns(self) -> dict:
-        """Get groups attributing to campaigns
+    def get_all_groups_attributing_to_all_campaigns(self) -> dict:
+        """Get all groups attributing to all campaigns.
 
         Returns
         -------
         dict
-            a mapping of campaign_id => {group, relationship} for each group attributing to the campaign
+            a mapping of campaign_stix_id => [{'object': Group, 'relationship': Relationship}] for each group attributing to the campaign
         """
-        return self.get_related('campaign', 'attributed-to', 'intrusion-set')
-    
-    def get_groups_attributing_to_campaign_with_id(self, stix_id: str) -> list:
-        """Get all groups attributing to a single campaign
+        # return data if it has already been fetched
+        if self.all_groups_attributing_to_all_campaigns:
+            return self.all_groups_attributing_to_all_campaigns
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_groups_attributing_to_campaigns()` directly,
-        then access the data from the dictionary result:
-        
-            groups_attributing = get_groups_attributing_to_campaigns()
-            
-            groups_attributing[campaign_stix_id]
+        self.all_groups_attributing_to_all_campaigns = self.get_related('campaign', 'attributed-to', 'intrusion-set')
+
+        return self.all_groups_attributing_to_all_campaigns
+    
+    def get_groups_attributing_to_campaign(self, campaign_stix_id: str) -> list:
+        """Get all groups attributing to a campaign.
 
         Parameters
         ----------
-        stix_id : str
+        campaign_stix_id : str
             the STIX ID of the campaign
 
         Returns
@@ -986,33 +1053,31 @@ class MitreAttackData:
         list
             a list of {group, relationship} for each group attributing to the campaign
         """
-        groups_attributing_to_campaigns = self.get_groups_attributing_to_campaigns()
-        return groups_attributing_to_campaigns[stix_id] if stix_id in groups_attributing_to_campaigns else []
+        groups_attributing_to_campaigns = self.get_all_groups_attributing_to_all_campaigns()
+        return groups_attributing_to_campaigns[campaign_stix_id] if campaign_stix_id in groups_attributing_to_campaigns else []
 
-    def get_campaigns_attributed_to_groups(self) -> dict:
-        """Get campaigns attributed to groups
+    def get_all_campaigns_attributed_to_all_groups(self) -> dict:
+        """Get all campaigns attributed to all groups.
 
         Returns
         -------
         dict
-            a mapping of group_id => {campaign, relationship} for each campaign attributed to the group
+            a mapping of group_stix_id => [{'object': Campaign, 'relationship': Relationship}] for each campaign attributed to the group
         """
-        return self.get_related('campaign', 'attributed-to', 'intrusion-set', reverse=True)
-
-    def get_campaigns_attributed_to_group_with_id(self, stix_id: str) -> list:
-        """Get all campaigns attributed to a single group
-
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_campaigns_attributed_to_groups()` directly,
-        then access the data from the dictionary result:
+        # return data if it has already been fetched
+        if self.all_campaigns_attributed_to_all_groups:
+            return self.all_campaigns_attributed_to_all_groups
         
-            campaigns_attributed = get_campaigns_attributed_to_groups()
-            
-            campaigns_attributed[group_stix_id]
+        self.all_campaigns_attributed_to_all_groups = self.get_related('campaign', 'attributed-to', 'intrusion-set', reverse=True)
+
+        return self.all_campaigns_attributed_to_all_groups
+
+    def get_campaigns_attributed_to_group(self, group_stix_id: str) -> list:
+        """Get all campaigns attributed to a group.
 
         Parameters
         ----------
-        stix_id : str
+        group_stix_id : str
             the STIX ID of the group
 
         Returns
@@ -1020,22 +1085,26 @@ class MitreAttackData:
         list
             a list of {campaign, relationship} for each campaign attributed to the group
         """
-        campaigns_attributed_to_groups = self.get_campaigns_attributed_to_groups()
-        return campaigns_attributed_to_groups[stix_id] if stix_id in campaigns_attributed_to_groups else []
+        campaigns_attributed_to_groups = self.get_all_campaigns_attributed_to_all_groups()
+        return campaigns_attributed_to_groups[group_stix_id] if group_stix_id in campaigns_attributed_to_groups else []
 
     ###################################
     # Technique/Group Relationships
     ###################################
 
-    def get_techniques_used_by_groups(self) -> dict:
-        """Get techniques used by groups
+    def get_all_techniques_used_by_all_groups(self) -> dict:
+        """Get all techniques used by all groups.
 
         Returns
         -------
         dict
-            a mapping of group_id => {technique, relationship} for each technique used by the group and 
+            a mapping of group_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique used by the group and 
             each technique used by campaigns attributed to the group
         """
+        # return data if it has already been fetched
+        if self.all_techniques_used_by_all_groups:
+            return self.all_techniques_used_by_all_groups
+
         # get all techniques used by groups
         techniques_used_by_groups = self.get_related('intrusion-set', 'uses', 'attack-pattern') # group_id => {technique, relationship}
 
@@ -1058,22 +1127,16 @@ class MitreAttackData:
                 techniques_used_by_groups[group_id].extend(techniques_used_by_campaigns)
             else:
                 techniques_used_by_groups[group_id] = techniques_used_by_campaigns
+
+        self.all_techniques_used_by_all_groups = techniques_used_by_groups
         return techniques_used_by_groups
 
-    def get_techniques_used_by_group_with_id(self, stix_id: str) -> list:
-        """Get all techniques used by a single group
-
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_techniques_used_by_groups()` directly,
-        then access the data from the dictionary result:
-        
-            techniques_used = get_techniques_used_by_groups()
-            
-            techniques_used[group_stix_id]
+    def get_techniques_used_by_group(self, group_stix_id: str) -> list:
+        """Get all techniques used by a group.
 
         Parameters
         ----------
-        stix_id : str
+        group_stix_id : str
             the STIX ID of the group
 
         Returns
@@ -1082,11 +1145,11 @@ class MitreAttackData:
             a list of {technique, relationship} for each technique used by the group and 
             each technique used by campaigns attributed to the group
         """
-        techniques_used_by_groups = self.get_techniques_used_by_groups()
-        return techniques_used_by_groups[stix_id] if stix_id in techniques_used_by_groups else []
+        techniques_used_by_groups = self.get_all_techniques_used_by_all_groups()
+        return techniques_used_by_groups[group_stix_id] if group_stix_id in techniques_used_by_groups else []
 
-    def get_groups_using_techniques(self) -> dict:
-        """Get groups using techniques
+    def get_all_groups_using_all_techniques(self) -> dict:
+        """Get all groups using all techniques.
 
         Returns
         -------
@@ -1094,6 +1157,10 @@ class MitreAttackData:
             a mapping of technique_id => {group, relationship} for each group using the technique and each campaign attributed to 
             groups using the technique
         """
+        # return data if it has already been fetched
+        if self.all_groups_using_all_techniques:
+            return self.all_groups_using_all_techniques
+
         # get all groups using techniques
         groups_using_techniques = self.get_related('intrusion-set', 'uses', 'attack-pattern', reverse=True) # technique_id => {group, relationship}
 
@@ -1116,22 +1183,16 @@ class MitreAttackData:
                 groups_using_techniques[technique_id].extend(campaigns_attributed_to_group)
             else:
                 groups_using_techniques[technique_id] = campaigns_attributed_to_group
+
+        self.all_groups_using_all_techniques = groups_using_techniques
         return groups_using_techniques
 
-    def get_groups_using_technique_with_id(self, stix_id: str) -> list:
-        """Get all groups using a single technique
-
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_groups_using_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            groups_using_techniques = get_groups_using_techniques()
-            
-            groups_using_techniques[technique_stix_id]
+    def get_groups_using_technique(self, technique_stix_id: str) -> list:
+        """Get all groups using a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1140,37 +1201,36 @@ class MitreAttackData:
             a list of {group, relationship} for each group using the technique and each campaign attributed to 
             groups using the technique
         """
-        groups_using_techniques = self.get_groups_using_techniques()
-        return groups_using_techniques[stix_id] if stix_id in groups_using_techniques else []
+        groups_using_techniques = self.get_all_groups_using_all_techniques()
+        return groups_using_techniques[technique_stix_id] if technique_stix_id in groups_using_techniques else []
 
     ###################################
     # Technique/Campaign Relationships
     ###################################
 
-    def get_techniques_used_by_campaigns(self) -> dict:
-        """Get techniques used by campaigns
+    def get_all_techniques_used_by_all_campaigns(self) -> dict:
+        """Get all techniques used by all campaigns.
 
         Returns
         -------
         dict
-            a mapping of campaign_id => {technique, relationship} for each technique used by the campaign
+            a mapping of campaign_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique used by the campaign
         """
-        return self.get_related('campaign', 'uses', 'attack-pattern')
+        # return data if it has already been fetched
+        if self.all_techniques_used_by_all_campaigns:
+            return self.all_techniques_used_by_all_campaigns
 
-    def get_techniques_used_by_campaign_with_id(self, stix_id: str) -> list:
-        """Get all techniques used by a single campaign
+        self.all_techniques_used_by_all_campaigns = self.get_related('campaign', 'uses', 'attack-pattern')
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_techniques_used_by_campaigns()` directly,
-        then access the data from the dictionary result:
-        
-            techniques_used = get_techniques_used_by_campaigns()
-            
-            techniques_used[campaign_stix_id]
+        return self.all_techniques_used_by_all_campaigns
+
+
+    def get_techniques_used_by_campaign(self, campaign_stix_id: str) -> list:
+        """Get all techniques used by a campaign.
 
         Parameters
         ----------
-        stix_id : str
+        campaign_stix_id : str
             the STIX ID of the campaign
 
         Returns
@@ -1178,33 +1238,31 @@ class MitreAttackData:
         list
             a list of {technique, relationship} for each technique used by the campaign
         """
-        techniques_used_by_campaigns = self.get_techniques_used_by_campaigns()
-        return techniques_used_by_campaigns[stix_id] if stix_id in techniques_used_by_campaigns else []
+        techniques_used_by_campaigns = self.get_all_techniques_used_by_all_campaigns()
+        return techniques_used_by_campaigns[campaign_stix_id] if campaign_stix_id in techniques_used_by_campaigns else []
 
-    def get_campaigns_using_techniques(self) -> dict:
-        """Get campaigns using techniques
+    def get_all_campaigns_using_all_techniques(self) -> dict:
+        """Get all campaigns using all techniques.
 
         Returns
         -------
         dict
-            a mapping of technique_id => {campaign, relationship} for each campaign using the technique
+            a mapping of technique_stix_id => [{'object': Campaign, 'relationship': Relationship}] for each campaign using the technique
         """
-        return self.get_related('campaign', 'uses', 'attack-pattern', reverse=True)
+        # return data if it has already been fetched
+        if self.all_campaigns_using_all_techniques:
+            return self.all_campaigns_using_all_techniques
 
-    def get_campaigns_using_technique_with_id(self, stix_id: str) -> list:
-        """Get all campaigns using a single technique
+        self.all_campaigns_using_all_techniques = self.get_related('campaign', 'uses', 'attack-pattern', reverse=True)
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_campaigns_using_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            campaigns_using_techniques = get_campaigns_using_techniques()
-            
-            campaigns_using_techniques[technique_stix_id]
+        return self.all_campaigns_using_all_techniques
+
+    def get_campaigns_using_technique(self, technique_stix_id: str) -> list:
+        """Get all campaigns using a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1212,39 +1270,37 @@ class MitreAttackData:
         list
             a list of {campaign, relationship} for each campaign using the technique
         """
-        campaigns_using_techniques = self.get_campaigns_using_techniques()
-        return campaigns_using_techniques[stix_id] if stix_id in campaigns_using_techniques else []
+        campaigns_using_techniques = self.get_all_campaigns_using_all_techniques()
+        return campaigns_using_techniques[technique_stix_id] if technique_stix_id in campaigns_using_techniques else []
 
     ###################################
     # Technique/Software Relationships
     ###################################
 
-    def get_techniques_used_by_software(self) -> dict:
-        """Get techniques used by software
+    def get_all_techniques_used_by_all_software(self) -> dict:
+        """Get all techniques used by all software.
 
         Returns
         -------
         dict
-            a mapping of software_id => {technique, relationship} for each technique used by the software
+            a mapping of software_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique used by the software
         """
+        # return data if it has already been fetched
+        if self.all_techniques_used_by_all_software:
+            return self.all_techniques_used_by_all_software
+
         techniques_by_tool = self.get_related('tool', 'uses', 'attack-pattern')
         techniques_by_malware = self.get_related('malware', 'uses', 'attack-pattern')
-        return {**techniques_by_tool, **techniques_by_malware}
+        self.all_techniques_used_by_all_software = self.merge(techniques_by_tool, techniques_by_malware)
 
-    def get_techniques_used_by_software_with_id(self, stix_id: str) -> list:
-        """Get all techniques used by a single software
+        return self.all_techniques_used_by_all_software
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_techniques_used_by_software()` directly,
-        then access the data from the dictionary result:
-        
-            techniques_used = get_techniques_used_by_software()
-            
-            techniques_used[software_stix_id]
+    def get_techniques_used_by_software(self, software_stix_id: str) -> list:
+        """Get all techniques used by a software.
 
         Parameters
         ----------
-        stix_id : str
+        software_stix_id : str
             the STIX ID of the software
 
         Returns
@@ -1252,35 +1308,33 @@ class MitreAttackData:
         list
             a list of {technique, relationship} for each technique used by the software
         """
-        techniques_used_by_software = self.get_techniques_used_by_software()
-        return techniques_used_by_software[stix_id] if stix_id in techniques_used_by_software else []
+        techniques_used_by_software = self.get_all_techniques_used_by_all_software()
+        return techniques_used_by_software[software_stix_id] if software_stix_id in techniques_used_by_software else []
 
-    def get_software_using_techniques(self) -> dict:
-        """Get software using technique
+    def get_all_software_using_all_techniques(self) -> dict:
+        """Get all software using all techniques.
 
         Returns
         -------
         dict
-            a mapping of technique_id => {software, relationship} for each software using the technique
+            a mapping of technique_stix_id => [{'object': Software, 'relationship': Relationship}] for each software using the technique
         """
-        tools_by_technique_id = self.get_related('tool', 'uses', 'attack-pattern', reverse=True)
-        malware_by_technique_id = self.get_related('malware', 'uses', 'attack-pattern', reverse=True)
-        return {**tools_by_technique_id, **malware_by_technique_id}
+        # return data if it has already been fetched
+        if self.all_software_using_all_techniques:
+            return self.all_software_using_all_techniques
 
-    def get_software_using_technique_with_id(self, stix_id: str) -> list:
-        """Get all software using a single technique
+        tools_using_techniques = self.get_related('tool', 'uses', 'attack-pattern', reverse=True)
+        malware_using_techniques = self.get_related('malware', 'uses', 'attack-pattern', reverse=True)
+        self.all_software_using_all_techniques = self.merge(tools_using_techniques, malware_using_techniques)
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_software_using_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            software_using_techniques = get_software_using_techniques()
-            
-            software_using_techniques[technique_stix_id]
+        return self.all_software_using_all_techniques
+
+    def get_software_using_technique(self, technique_stix_id: str) -> list:
+        """Get all software using a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1288,37 +1342,35 @@ class MitreAttackData:
         list
             a list of {software, relationship} for each software using the technique
         """
-        software_using_techniques = self.get_software_using_techniques()
-        return software_using_techniques[stix_id] if stix_id in software_using_techniques else []
+        software_using_techniques = self.get_all_software_using_all_techniques()
+        return software_using_techniques[technique_stix_id] if technique_stix_id in software_using_techniques else []
 
     ###################################
     # Technique/Mitigation Relationships
     ###################################
 
-    def get_techniques_mitigated_by_mitigations(self) -> dict:
-        """Get techniques mitigated by mitigations
+    def get_all_techniques_mitigated_by_all_mitigations(self) -> dict:
+        """Get all techniques mitigated by all mitigations.
 
         Returns
         -------
         dict
-            a mapping of mitigation_id => {technique, relationship} for each technique mitigated by the mitigation
+            a mapping of mitigation_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique mitigated by the mitigation
         """
-        return self.get_related('course-of-action', 'mitigates', 'attack-pattern')
-    
-    def get_techniques_mitigated_by_mitigation_with_id(self, stix_id: str) -> list:
-        """Get all techniques being mitigated by a single mitigation
+        # return data if it has already been fetched
+        if self.all_techniques_mitigated_by_all_mitigations:
+            return self.all_techniques_mitigated_by_all_mitigations
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_techniques_mitigated_by_mitigations()` directly,
-        then access the data from the dictionary result:
-        
-            techniques_mitigated = get_techniques_mitigated_by_mitigations()
-            
-            techniques_mitigated[mitigation_stix_id]
+        self.all_techniques_mitigated_by_all_mitigations = self.get_related('course-of-action', 'mitigates', 'attack-pattern')
+
+        return self.all_techniques_mitigated_by_all_mitigations
+    
+    def get_techniques_mitigated_by_mitigation(self, mitigation_stix_id: str) -> list:
+        """Get all techniques being mitigated by a mitigation.
 
         Parameters
         ----------
-        stix_id : str
+        mitigation_stix_id : str
             the STIX ID of the mitigation
 
         Returns
@@ -1326,33 +1378,31 @@ class MitreAttackData:
         list
             a list of {technique, relationship} for each technique mitigated by the mitigation
         """
-        techniques_mitigated_by_mitigations = self.get_techniques_mitigated_by_mitigations()
-        return techniques_mitigated_by_mitigations[stix_id] if stix_id in techniques_mitigated_by_mitigations else []
+        techniques_mitigated_by_mitigations = self.get_all_techniques_mitigated_by_all_mitigations()
+        return techniques_mitigated_by_mitigations[mitigation_stix_id] if mitigation_stix_id in techniques_mitigated_by_mitigations else []
 
-    def get_mitigations_mitigating_techniques(self) -> dict:
-        """Get mitigations mitigating techniques
+    def get_all_mitigations_mitigating_all_techniques(self) -> dict:
+        """Get all mitigations mitigating all techniques.
 
         Returns
         -------
         dict
-            a mapping of technique_id => {mitigation, relationship} for each mitigation mitigating the technique
+            a mapping of technique_stix_id => [{'object': Mitigation, 'relationship': Relationship}] for each mitigation mitigating the technique
         """
-        return self.get_related('course-of-action', 'mitigates', 'attack-pattern', reverse=True)
+        # return data if it has already been fetched
+        if self.all_mitigations_mitigating_all_techniques:
+            return self.all_mitigations_mitigating_all_techniques
 
-    def get_mitigations_mitigating_technique_with_id(self, stix_id: str) -> list:
-        """Get all mitigations mitigating a single technique
+        self.all_mitigations_mitigating_all_techniques = self.get_related('course-of-action', 'mitigates', 'attack-pattern', reverse=True)
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_mitigations_mitigating_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            mitigations_mitigating = get_mitigations_mitigating_techniques()
-            
-            mitigations_mitigating[technique_stix_id]
+        return self.all_mitigations_mitigating_all_techniques
+
+    def get_mitigations_mitigating_technique(self, technique_stix_id: str) -> list:
+        """Get all mitigations mitigating a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1360,69 +1410,67 @@ class MitreAttackData:
         list
             a list of {mitigation, relationship} for each mitigation mitigating the technique
         """
+        mitigations_mitigating_techniques = self.get_all_mitigations_mitigating_all_techniques()
+        return mitigations_mitigating_techniques[technique_stix_id] if technique_stix_id in mitigations_mitigating_techniques else []
 
     ###################################
     # Technique/Subtechnique Relationships
     ###################################
 
-    def get_parent_techniques_of_subtechniques(self) -> dict:
-        """Get parent techniques of subtechniques
+    def get_all_parent_techniques_of_all_subtechniques(self) -> dict:
+        """Get all parent techniques of all sub-techniques.
 
         Returns
         -------
         dict
-            a mapping of subtechnique_id => {technique, relationship} describing the parent technique of the subtechnique
+            a mapping of subtechnique_stix_id => [{'object': Technique, 'relationship': Relationship}] describing the parent technique of the subtechnique
         """
-        return self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern')
+        # return data if it has already been fetched
+        if self.all_parent_techniques_of_all_subtechniques:
+            return self.all_parent_techniques_of_all_subtechniques
 
-    def get_parent_technique_of_subtechnique_with_id(self, stix_id: str) -> dict:
-        """Get the parent technique of a single subtechnique
+        self.all_parent_techniques_of_all_subtechniques = self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern')
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_parent_technique_of_subtechniques()` directly,
-        then access the data from the dictionary result:
-        
-            parent_techniques = get_parent_technique_of_subtechniques()
-            
-            parent_techniques[subtechnique_stix_id]
+        return self.all_parent_techniques_of_all_subtechniques
+
+    def get_parent_technique_of_subtechnique(self, subtechnique_stix_id: str) -> dict:
+        """Get the parent technique of a sub-technique.
 
         Parameters
         ----------
-        stix_id : str
-            the STIX ID of the subtechnique
+        subtechnique_stix_id : str
+            the STIX ID of the sub-technique
 
         Returns
         -------
         dict
-            {parent technique, relationship} describing the parent technique of the subtechnique
+            {parent technique, relationship} describing the parent technique of the sub-technique
         """
-        parent_techniques_of_subtechniques = self.get_parent_techniques_of_subtechniques()
-        return parent_techniques_of_subtechniques[stix_id] if stix_id in parent_techniques_of_subtechniques else []
+        parent_techniques_of_subtechniques = self.get_all_parent_techniques_of_all_subtechniques()
+        return parent_techniques_of_subtechniques[subtechnique_stix_id] if subtechnique_stix_id in parent_techniques_of_subtechniques else []
 
-    def get_subtechniques_of_techniques(self) -> dict:
-        """Get subtechniques of techniques
+    def get_all_subtechniques_of_all_techniques(self) -> dict:
+        """Get all subtechniques of all parent techniques.
 
         Returns
         -------
         dict
-            a mapping of technique_id => {subtechnique, relationship} for each subtechnique of the technique
+            a mapping of technique_stix_id => [{'object': Subtechnique, 'relationship': Relationship}] for each subtechnique of the technique
         """
-        return self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern', reverse=True)
+        # return data if it has already been fetched
+        if self.all_subtechniques_of_all_techniques:
+            return self.all_subtechniques_of_all_techniques
 
-    def get_subtechniques_of_technique_with_id(self, stix_id: str) -> list:
-        """Get all subtechniques of a single technique
+        self.all_subtechniques_of_all_techniques = self.get_related('attack-pattern', 'subtechnique-of', 'attack-pattern', reverse=True)
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_subtechniques_of_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            subtechniques = get_subtechniques_of_techniques()
-            
-            subtechniques[technique_stix_id]
+        return self.all_subtechniques_of_all_techniques
+
+    def get_subtechniques_of_technique(self, technique_stix_id: str) -> list:
+        """Get all subtechniques of a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1430,36 +1478,35 @@ class MitreAttackData:
         list
             a list of {subtechnique, relationship} for each subtechnique of the technique
         """
-        subtechniques_of_techniques = self.get_subtechniques_of_techniques()
-        return subtechniques_of_techniques[stix_id] if stix_id in subtechniques_of_techniques else []
+        subtechniques_of_techniques = self.get_all_subtechniques_of_all_techniques()
+        return subtechniques_of_techniques[technique_stix_id] if technique_stix_id in subtechniques_of_techniques else []
 
     ###################################
     # Technique/Data Component Relationships
     ###################################
 
-    def get_techniques_detected_by_datacomponents(self) -> dict:
-        """Get techniques detected by data components
+    def get_all_techniques_detected_by_all_datacomponents(self) -> dict:
+        """Get all techniques detected by all data components.
+
         Returns
         -------
         dict
-            a mapping of datacomponent_id => {technique, relationship} describing the detections of the data component
+            a mapping of datacomponent_stix_id => [{'object': Technique, 'relationship': Relationship}] describing the detections of the data component
         """
-        return self.get_related('x-mitre-data-component', 'detects', 'attack-pattern')
-    
-    def get_techniques_detected_by_datacomponent_with_id(self, stix_id: str) -> list:
-        """Get all techniques detected by a single data component
+        # return data if it has already been fetched
+        if self.all_techniques_detected_by_all_datacomponents:
+            return self.all_techniques_detected_by_all_datacomponents
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_techniques_detected_by_datacomponents()` directly,
-        then access the data from the dictionary result:
-        
-            techniques_detected = get_techniques_detected_by_datacomponents()
-            
-            techniques_detected[datacomponent_stix_id]
+        self.all_techniques_detected_by_all_datacomponents = self.get_related('x-mitre-data-component', 'detects', 'attack-pattern')
+
+        return self.all_techniques_detected_by_all_datacomponents
+    
+    def get_techniques_detected_by_datacomponent(self, datacomponent_stix_id: str) -> list:
+        """Get all techniques detected by a data component.
 
         Parameters
         ----------
-        stix_id : str
+        datacomponent_stix_id : str
             the STIX ID of the data component
 
         Returns
@@ -1467,33 +1514,31 @@ class MitreAttackData:
         list
             a list of {technique, relationship} describing the detections of the data component
         """
-        techniques_detected_by_datacomponents = self.get_techniques_detected_by_datacomponents()
-        return techniques_detected_by_datacomponents[stix_id] if stix_id in techniques_detected_by_datacomponents else []
+        techniques_detected_by_datacomponents = self.get_all_techniques_detected_by_all_datacomponents()
+        return techniques_detected_by_datacomponents[datacomponent_stix_id] if datacomponent_stix_id in techniques_detected_by_datacomponents else []
 
-    def get_datacomponents_detecting_techniques(self) -> dict:
-        """Get data components detecting techniques
+    def get_all_datacomponents_detecting_all_techniques(self) -> dict:
+        """Get all data components detecting all techniques.
 
         Returns
         -------
         dict
-            a mapping of technique_id => {datacomponent, relationship} describing the data components that can detect the technique
+            a mapping of technique_stix_id => [{'object': Datacomponent, 'relationship': Relationship}] describing the data components that can detect the technique
         """
-        return self.get_related('x-mitre-data-component', 'detects', 'attack-pattern', reverse=True)
+        # return data if it has already been fetched
+        if self.all_datacomponents_detecting_all_techniques:
+            return self.all_datacomponents_detecting_all_techniques
 
-    def get_datacomponents_detecting_technique_with_id(self, stix_id: str) -> list:
-        """Get all data components detecting a single technique
+        self.all_datacomponents_detecting_all_techniques = self.get_related('x-mitre-data-component', 'detects', 'attack-pattern', reverse=True)
 
-        Note: this method is not recommended for retrieving large numbers of related objects.
-        If retrieving a large number of objects, call `get_datacomponents_detecting_techniques()` directly,
-        then access the data from the dictionary result:
-        
-            datacomponents_detecting = get_datacomponents_detecting_techniques()
-            
-            datacomponents_detecting[technique_stix_id]
+        return self.all_datacomponents_detecting_all_techniques
+
+    def get_datacomponents_detecting_technique(self, technique_stix_id: str) -> list:
+        """Get all data components detecting a technique.
 
         Parameters
         ----------
-        stix_id : str
+        technique_stix_id : str
             the STIX ID of the technique
 
         Returns
@@ -1501,23 +1546,23 @@ class MitreAttackData:
         list
             a list of {datacomponent, relationship} describing the data components that can detect the technique
         """
-        datacomponents_detecting_techniques = self.get_datacomponents_detecting_techniques()
-        return datacomponents_detecting_techniques[stix_id] if stix_id in datacomponents_detecting_techniques else []
+        datacomponents_detecting_techniques = self.get_all_datacomponents_detecting_all_techniques()
+        return datacomponents_detecting_techniques[technique_stix_id] if technique_stix_id in datacomponents_detecting_techniques else []
 
-    def get_revoked_by(self, stix_id: str) -> object:
-        """Retrieve the revoking object.
+    def get_revoking_object(self, revoked_stix_id: str="") -> object:
+        """Given the STIX ID of a revoked object, retrieve the STIX object that replaced ("revoked") it
 
         Parameters
         ----------
-        stix_id : str
+        revoked_stix_id : str
             the STIX ID of the object that has been revoked
 
         Returns
         -------
         object
-            the object that the given object was revoked by
+            the object that replaced ("revoked") it
         """
-        relations = self.src.relationships(stix_id, 'revoked-by', source_only=True)
+        relations = self.src.relationships(revoked_stix_id, 'revoked-by', source_only=True)
         revoked_by = self.src.query([
             Filter('id', 'in', [r.target_ref for r in relations]),
             Filter('revoked', '=', False)
