@@ -90,8 +90,6 @@ class SvgTemplates:
                 if self.lhandle.layout.showAggregateScores:
                     showAgg = True
                     header_count += 1
-                if config.showFilters:
-                    header_count -= 1
 
             operation_x = (max_x - border) - (1.5 * border * (header_count - 1)) - border
             if header_count > 0:
