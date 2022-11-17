@@ -171,18 +171,24 @@ class SvgTemplates:
                     bA.append(gA)
                     psych += 1
                 if config.showLegend:
-                    colors = []
+                    # get all gradient colors
+                    gradient_colors = []
                     if gradient is not False:
                         gr = gradient
                         if gr is None:
                             gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
                         div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
                         for i in range(0, len(gr.colors) * 2 - 1):
-                            colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
-                        colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
+                            gradient_colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
+                        gradient_colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
+                    
+                    # get all legend colors
+                    legend_colors = []
                     if legend:
                         for l in legend:
-                            colors.append((l.color, l.label))
+                            legend_colors.append((l.color, l.label))
+
+                    # build gradient/legend
                     if config.legendDocked:
                         b3 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
                         g3 = SVG_HeaderBlock().build(
@@ -190,7 +196,8 @@ class SvgTemplates:
                             width=header_width,
                             label="legend",
                             variant="graphic",
-                            colors=colors,
+                            gradient_colors=gradient_colors,
+                            legend_colors=legend_colors,
                             config=config,
                         )
                         header.append(b3)
@@ -204,7 +211,8 @@ class SvgTemplates:
                             width=adjusted_width,
                             label="legend",
                             variant="graphic",
-                            colors=colors,
+                            gradient_colors=gradient_colors,
+                            legend_colors=legend_colors,
                             config=config,
                         )
                         lx = convertToPx(config.legendX, config.unit)

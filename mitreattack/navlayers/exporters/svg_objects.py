@@ -259,7 +259,7 @@ class SVG_HeaderBlock:
     """SVG_HeaderBlock class."""
 
     @staticmethod
-    def build(height, width, label, config, variant="text", t1text=None, t2text=None, colors=[]):
+    def build(height, width, label, config, variant="text", t1text=None, t2text=None, gradient_colors=[], legend_colors=[]):
         """Build a single SVG Header Block object.
 
         :param height: Height of the block
@@ -269,7 +269,8 @@ class SVG_HeaderBlock:
         :param variant: text or graphic - the type of header block to build
         :param t1text: upper text
         :param t2text: lower text
-        :param colors: array of tuple (color, score value) for the graphic variant
+        :param gradient_colors: array of tuple (color, score value) for the gradient graphic
+        :param legend_colors: array of tuple (color, label) for the legend item graphic
         :return:
         """
         g = G(ty=5)
@@ -321,18 +322,19 @@ class SVG_HeaderBlock:
                     t2 = Text(adju, fs, "", x=4, y=y)
                     lower.append(t2)
                     internal.append(lower)
-        else:
-            if len(colors):
-                usable = width - 10
-                block_width = usable / len(colors)
-                sub1 = G(ty=5)
+        elif variant == "graphic":
+            usable = width - 10
+            sub1 = G(ty=5)
+            internal.append(sub1)
+
+            if len(gradient_colors):
                 sub2 = G(ty=5)
-                internal.append(sub1)
                 sub1.append(sub2)
-                cells = G(ctype="legendCells")
-                sub2.append(cells)
+                gradient_cells = G(ctype="legendCells")
+                sub2.append(gradient_cells)
                 offset = 0
-                for entry in colors:
+                block_width = usable / len(gradient_colors)
+                for entry in gradient_colors:
                     cell = G(ctype="cell", tx=offset)
                     conv = entry[0]
                     if conv.startswith("#"):
@@ -340,14 +342,39 @@ class SVG_HeaderBlock:
                     block = Swatch(15, block_width, tuple(int(conv[i: i + 2], 16) for i in (0, 2, 4)))
                     offset += block_width
                     cell.append(block)
-                    cells.append(cell)
+                    gradient_cells.append(cell)
                     tblob = str(entry[1])
                     off = (block_width - (5 * (1 + len(tblob)))) / 2
                     if off < 0:
                         off = 0
-                    fs, _ = _optimalFontSize("0", width / len(colors), height)
+                    fs, _ = _optimalFontSize("0", width / len(gradient_colors), height)
                     label = Text(tblob, fs, ctype="label", ty=25, tx=off)
                     cell.append(label)
+            if len(legend_colors):
+                sub3 = None
+                if len(gradient_colors):
+                    sub3 = G(ty=35)
+                else:
+                    sub3 = G(ty=5)
+                sub1.append(sub3)
+                legend_cells = G(ctype="legendCells")
+                sub3.append(legend_cells)
+                offset = 0
+                block_width = usable / len(legend_colors)
+                for entry in legend_colors:
+                    cell = G(ctype="cell", tx=offset)
+                    color = entry[0]
+                    if color.startswith("#"): color = color[1:]
+                    block = Swatch(15, block_width, tuple(int(color[i: i+2], 16) for i in (0, 2, 4)))
+                    offset += block_width
+                    cell.append(block)
+                    legend_cells.append(cell)
+                    legendLabel = str(entry[1])
+                    off = (block_width - (5 * (1 + len(legendLabel)))) / 2
+                    if off < 0: off = 0
+                    fs, _ = _optimalFontSize("0", width / len(legend_colors), height)
+                    textLabel = Text(legendLabel, fs, ctype="label", ty=25, tx=off)
+                    cell.append(textLabel)
         return g
 
 
