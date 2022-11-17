@@ -537,7 +537,7 @@ class ToSvg:
             subtechs=included_subs,
             colors=colors,
             exclude=excluded,
-            lhandle=layer.layer,
+            layer=layer.layer,
             config=self.config,
         )
         d.saveSvg(filepath)

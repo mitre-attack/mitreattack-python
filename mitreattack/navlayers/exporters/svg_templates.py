@@ -217,9 +217,7 @@ class SvgTemplates:
             d.append(root)
         return d, psych, overlay
 
-    def get_tactic(
-        self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)
-    ):
+    def get_tactic(self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)):
         """Build a 'tactic column' svg object.
 
         :param tactic: The corresponding tactic for this column
@@ -233,39 +231,44 @@ class SvgTemplates:
         :param mode: Tuple describing text for techniques (Show Name, Show ID)
         :return: Instantiated tactic column (or none if no techniques were found)
         """
-        offset = 0
+        # create tactic column
         column = G(ty=2)
-        for a in tactic.subtechniques:
-            self._copy_scores(tactic.subtechniques[a], scores, tactic.tactic.name, exclude)
-        for x in tactic.techniques:
-            if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in exclude):
+    
+        # copy scores to SVG
+        offset = 0
+        for id in tactic.subtechniques:
+            self._copy_scores(tactic.subtechniques[id], scores, tactic.tactic.name, exclude)
+
+        # 
+        for technique in tactic.techniques:
+            if any(technique.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in exclude):
                 continue
-            self._copy_scores([x], scores, tactic.tactic.name, exclude)
-            if any(x.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in subtechs):
+            self._copy_scores([technique], scores, tactic.tactic.name, exclude)
+            if any(technique.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in subtechs):
                 a, offset = self.get_tech(
                     offset,
                     mode,
-                    x,
+                    technique,
                     tactic=self.h.convert(tactic.tactic.name),
-                    subtechniques=tactic.subtechniques.get(x.id, []),
+                    subtechniques=tactic.subtechniques.get(technique.id, []),
                     colors=colors,
                     config=config,
                     height=height,
                     width=width,
-                    subscores=tactic.subtechniques.get(x.id, []),
+                    subscores=tactic.subtechniques.get(technique.id, []),
                 )
             else:
                 a, offset = self.get_tech(
                     offset,
                     mode,
-                    x,
+                    technique,
                     tactic=self.h.convert(tactic.tactic.name),
                     subtechniques=[],
                     colors=colors,
                     config=config,
                     height=height,
                     width=width,
-                    subscores=tactic.subtechniques.get(x.id, []),
+                    subscores=tactic.subtechniques.get(technique.id, []),
                 )
             column.append(a)
         if len(column.children) == 0:
@@ -307,12 +310,12 @@ class SvgTemplates:
         )
         return a, b
 
-    def export(self, showName, showID, lhandle, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[]):
+    def export(self, showName, showID, layer, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[]):
         """Export a layer object to an SVG object.
 
         :param showName: Boolean of whether or not to show names
         :param showID:  Boolean of whether or not to show IDs
-        :param lhandle: The layer object being exported
+        :param layer: The layer object being exported
         :param config: A SVG Config object
         :param sort: The sort mode
         :param scores: List of tactic scores
@@ -321,59 +324,87 @@ class SvgTemplates:
         :param exclude: List of excluded techniques
         :return:
         """
-        self.codex = self.h.get_matrix(self.mode, filters=lhandle.filters)
-        grad = False
+        # get the matrix list of tactics
+        self.matrix = self.h.get_matrix(self.mode, filters=layer.filters)
+
+        # check for a gradient
+        gradient = False
         if len(scores):
-            grad = lhandle.gradient
-        self.lhandle = lhandle
-        d, presence, overlay = self._build_headers(
-            lhandle.name, config, lhandle.domain, lhandle.versions.attack, lhandle.description, lhandle.filters, grad
+            gradient = layer.gradient
+        self.lhandle = layer
+
+        # build SVG headers
+        drawing, presence, overlay = self._build_headers(
+            layer.name, config, layer.domain, layer.versions.attack, layer.description, layer.filters, gradient
         )
-        self.codex = self.h._adjust_ordering(self.codex, sort, scores)
-        index = 0
+
+        # sort matrix by the given sort mode
+        self.matrix = self.h._adjust_ordering(self.matrix, sort, scores)
+
+        # count number of included techniques for each tactic
         lengths = []
+        for tactic in self.matrix:
+            num_techniques = len(tactic.techniques)
+
+            tactic_technique_ids = [technique.id for technique in tactic.techniques]
+            for technique_id, shortname in exclude:
+                if technique_id in tactic_technique_ids:
+                    if self.h.convert(shortname) == tactic.tactic.name or shortname is False:
+                        num_techniques -= 1
+
+            subtech_ids = [subtechnique[0] for subtechnique in subtechs]
+            for subtechnique in tactic.subtechniques:
+                if subtechnique in subtech_ids:
+                    num_techniques += len(tactic.subtechniques[subtechnique])
+
+            lengths.append(num_techniques)
+
+        # calculate border
         border = convertToPx(config.border, config.unit)
-        glob = G(tx=border)
-        for x in self.codex:
-            su = len(x.techniques)
-            for enum in exclude:
-                if enum[0] in [y.id for y in x.techniques]:
-                    if self.h.convert(enum[1]) == x.tactic.name or enum[1] is False:
-                        su -= 1
-            for y in x.subtechniques:
-                if y in [z[0] for z in subtechs]:
-                    su += len(x.subtechniques[y])
-            lengths.append(su)
-        tech_width = (
-            (convertToPx(config.width, config.unit) - 2.2 * border) / sum([1 for x in lengths if x > 0])
-        ) - border
+
+        # calculate technique width
+        technique_width = (convertToPx(config.width, config.unit) - 2.2 * border) / sum([1 for x in lengths if x > 0])
+        technique_width -= border
+
+        # calculate header offset
         header_offset = convertToPx(config.headerHeight, config.unit)
         if presence == 0:
             header_offset = 0
         header_offset += 2.5 * border
-        tech_height = (
-            convertToPx(config.height, config.unit) - header_offset - convertToPx(config.border, config.unit)
-        ) / (max(lengths) + 1)
-        incre = tech_width + 1.1 * border
-        for x in self.codex:
-            disp = ""
+
+        # calculate technique height
+        technique_height = convertToPx(config.height, config.unit) - header_offset - border
+        technique_height /= (max(lengths) + 1)
+
+        # create SVG
+        svg_glob = G(tx=border)
+
+        # build SVG
+        index = 0
+        incre = technique_width + 1.1 * border
+        for tactic in self.matrix:
+            # get tactic display string
+            displayStr = ""
             if showName and showID:
-                disp = x.tactic.id + ": " + x.tactic.name
+                displayStr = tactic.tactic.id + ": " + tactic.tactic.name
             elif showName:
-                disp = x.tactic.name
+                displayStr = tactic.tactic.name
             elif showID:
-                disp = x.tactic.id
+                displayStr = tactic.tactic.id
 
-            g = G(tx=index, ty=header_offset)
+            # create header text
+            header_glob = G(tx=index, ty=header_offset)
+            text_glob = G(tx=technique_width / 2, ty=technique_height / 2)
+            font_size, _ = _optimalFontSize(displayStr, technique_width, technique_height, maxFontSize=28)
+            text = Text(ctype="TacticName", font_size=font_size, text=displayStr, position="middle")
+            text_glob.append(text)
+            header_glob.append(text_glob)
 
-            fs, _ = _optimalFontSize(disp, tech_width, tech_height, maxFontSize=28)
-            tx = Text(ctype="TacticName", font_size=fs, text=disp, position="middle")
-            gt = G(tx=tech_width / 2, ty=tech_height / 2)
-            gt.append(tx)
-            a = self.get_tactic(
-                x,
-                tech_height,
-                tech_width,
+            # get tactic column
+            tactic_col_svg = self.get_tactic(
+                tactic,
+                technique_height,
+                technique_width,
                 colors=colors,
                 subtechs=subtechs,
                 exclude=exclude,
@@ -381,17 +412,23 @@ class SvgTemplates:
                 scores=scores,
                 config=config,
             )
-            b = G(ty=tech_height)
-            g.append(gt)
-            b.append(a)
-            g.append(b)
-            if a:
-                glob.append(g)
+
+            # build tactic column svg
+            tactic_col_glob = G(ty=technique_height)
+            tactic_col_glob.append(tactic_col_svg)
+            header_glob.append(tactic_col_glob)
+
+            if tactic_col_svg:
+                svg_glob.append(header_glob)
                 index += incre
-        d.append(glob)
+
+        drawing.append(svg_glob)
+
+        # add overlay, if applicable
         if overlay:
-            d.append(overlay)
-        return d
+            drawing.append(overlay)
+
+        return drawing
 
     def _copy_scores(self, listing, scores, tactic_name, exclude):
         """Move scores over from the input object (scores) to the one used to build the svg (listing).
