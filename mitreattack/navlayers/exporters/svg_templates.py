@@ -48,7 +48,7 @@ class SvgTemplates:
         else:
             raise BadTemplateException
 
-    def _build_headers(self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None):
+    def _build_headers(self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None, legend=[]):
         """Build the header blocks for the svg.
 
         :param name: The name of the layer being exported
@@ -58,6 +58,7 @@ class SvgTemplates:
         :param desc: Description of the layer being exported
         :param filters: Any filters applied to the layer being exported
         :param gradient: Gradient information included with the layer
+        :param legend: List of legend items
         :return: Instantiated SVG header
         """
         max_x = convertToPx(config.width, config.unit)
@@ -84,7 +85,7 @@ class SvgTemplates:
                 header_count += 1
             if config.showDomain:
                 header_count += 1
-            if config.showLegend and gradient is not False and config.legendDocked:
+            if config.showLegend and config.legendDocked and (gradient is not False or legend):
                 header_count += 1
             if self.lhandle.layout:
                 if self.lhandle.layout.showAggregateScores:
@@ -169,15 +170,19 @@ class SvgTemplates:
                     header.append(bA)
                     bA.append(gA)
                     psych += 1
-                if config.showLegend and gradient is not False:
-                    gr = gradient
-                    if gr is None:
-                        gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
+                if config.showLegend:
                     colors = []
-                    div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
-                    for i in range(0, len(gr.colors) * 2 - 1):
-                        colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
-                    colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
+                    if gradient is not False:
+                        gr = gradient
+                        if gr is None:
+                            gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
+                        div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
+                        for i in range(0, len(gr.colors) * 2 - 1):
+                            colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
+                        colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
+                    if legend:
+                        for l in legend:
+                            colors.append((l.color, l.label))
                     if config.legendDocked:
                         b3 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
                         g3 = SVG_HeaderBlock().build(
@@ -314,7 +319,7 @@ class SvgTemplates:
         )
         return a, b
 
-    def export(self, showName, showID, layer, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[]):
+    def export(self, showName, showID, layer, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[], legend=[]):
         """Export a layer object to an SVG object.
 
         :param showName: Boolean of whether or not to show names
@@ -326,6 +331,7 @@ class SvgTemplates:
         :param colors: List of tactic default colors
         :param subtechs: List of visible subtechniques
         :param exclude: List of excluded techniques
+        :param legend: List of legend items
         :return:
         """
         # get the matrix list of tactics
@@ -339,7 +345,7 @@ class SvgTemplates:
 
         # build SVG headers
         drawing, presence, overlay = self._build_headers(
-            layer.name, config, layer.domain, layer.versions.attack, layer.description, layer.filters, gradient
+            layer.name, config, layer.domain, layer.versions.attack, layer.description, layer.filters, gradient, legend
         )
 
         # sort matrix by the given sort mode

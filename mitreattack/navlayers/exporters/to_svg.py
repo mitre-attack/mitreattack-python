@@ -533,6 +533,8 @@ class ToSvg:
             sID = layer.layer.layout.showID
         if layer.layer.sorting:
             sort = layer.layer.sorting
+        if layer.layer.legendItems:
+            legend = layer.layer.legendItems
         d = self.raw_handle.export(
             showName=sName,
             showID=sID,
@@ -542,6 +544,7 @@ class ToSvg:
             colors=colors,
             exclude=excluded,
             layer=layer.layer,
+            legend=legend,
             config=self.config,
         )
         d.saveSvg(filepath)
