@@ -48,30 +48,24 @@ class Link:
 class LinkDiv:
     """A LinkDiv object."""
 
-    def __init__(self, active):
+    def __init__(self, divider):
         """Initialize - Creates a Link object divider."""
-        self.__name = "DIVIDER"
-        self.__value = active
-
-    @property
-    def name(self):
-        """Getter for name."""
-        return self.__name
+        self.__divider = divider
 
     @property
     def state(self):
         """Getter for state."""
-        return self.__value
+        return self.__divider
 
     @state.setter
     def state(self, state):
         """Setter for state."""
         typeChecker(type(self).__name__, state, bool, "state")
-        self.__value = state
+        self.__divider = state
 
     def get_dict(self):
         """Convert the currently loaded data into a dict.
 
         :returns: A dict representation of the local metadata object
         """
-        return dict(name=self.__name, value=self.__value)
+        return dict(divider=self.__divider)
