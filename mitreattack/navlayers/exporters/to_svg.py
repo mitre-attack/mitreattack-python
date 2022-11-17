@@ -486,11 +486,15 @@ class ToSvg:
             for entry in layer.layer.techniques:
                 if self.config.showSubtechniques == "expanded":
                     if entry.showSubtechniques:
+                        if not entry.enabled:
+                            continue
                         if entry.tactic:
                             included_subs.append((entry.techniqueID, entry.tactic))
                         else:
                             included_subs.append((entry.techniqueID, False))
                 elif self.config.showSubtechniques == "all":
+                    if not entry.enabled:
+                        continue
                     if entry.tactic:
                         included_subs.append((entry.techniqueID, entry.tactic))
                     else:

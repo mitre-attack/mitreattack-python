@@ -233,24 +233,27 @@ class SvgTemplates:
         """
         # create tactic column
         column = G(ty=2)
+        tactic_name = tactic.tactic.name
+        excluded_ids = [str(t[0]) + str(t[1]) for t in exclude]
+        subtech_ids = [str(s[0]) + str(s[1]) for s in subtechs]
     
         # copy scores to SVG
         offset = 0
         for id in tactic.subtechniques:
-            self._copy_scores(tactic.subtechniques[id], scores, tactic.tactic.name, exclude)
+            self._copy_scores(tactic.subtechniques[id], scores, tactic_name, exclude)
 
-        # 
         for technique in tactic.techniques:
-            if any(technique.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in exclude):
+            if (str(technique.id) + str(self.h.convert(tactic_name))) in excluded_ids:
                 continue
-            self._copy_scores([technique], scores, tactic.tactic.name, exclude)
-            if any(technique.id == y[0] and (y[1] == self.h.convert(tactic.tactic.name) or not y[1]) for y in subtechs):
-                a, offset = self.get_tech(
+            self._copy_scores([technique], scores, tactic_name, exclude)
+            if (str(technique.id) + str(self.h.convert(tactic_name))) in subtech_ids:
+                technique_svg, offset = self.get_tech(
                     offset,
                     mode,
                     technique,
-                    tactic=self.h.convert(tactic.tactic.name),
+                    tactic=self.h.convert(tactic_name),
                     subtechniques=tactic.subtechniques.get(technique.id, []),
+                    exclude=exclude,
                     colors=colors,
                     config=config,
                     height=height,
@@ -258,25 +261,26 @@ class SvgTemplates:
                     subscores=tactic.subtechniques.get(technique.id, []),
                 )
             else:
-                a, offset = self.get_tech(
+                technique_svg, offset = self.get_tech(
                     offset,
                     mode,
                     technique,
-                    tactic=self.h.convert(tactic.tactic.name),
+                    tactic=self.h.convert(tactic_name),
                     subtechniques=[],
+                    exclude=exclude,
                     colors=colors,
                     config=config,
                     height=height,
                     width=width,
                     subscores=tactic.subtechniques.get(technique.id, []),
                 )
-            column.append(a)
+            column.append(technique_svg)
         if len(column.children) == 0:
             return None
         return column
 
     def get_tech(
-        self, offset, mode, technique, tactic, config, height, width, subtechniques=[], colors=[], subscores=[]
+        self, offset, mode, technique, tactic, config, height, width, subtechniques=[], exclude=[], colors=[], subscores=[]
     ):
         """Retrieve a svg object for a single technique.
 
@@ -288,6 +292,7 @@ class SvgTemplates:
         :param height: The allocated height of a technique block
         :param width: The allocated width of a technique block
         :param subtechniques: A list of all visible subtechniques, some of which may apply to this one
+        :param exclude: List of excluded techniques
         :param colors: A list of all color overrides in the event of no score, which may apply
         :param subscores: List of all subtechniques for the (visible or not) [includes scores]
         :return: Tuple (SVG block, new offset)
@@ -303,6 +308,7 @@ class SvgTemplates:
             height,
             width,
             subtechniques=subtechniques,
+            exclude=exclude,
             mode=mode,
             tactic=tactic,
             colors=colors,
@@ -438,8 +444,9 @@ class SvgTemplates:
         :param exclude: List of excluded techniques
         :return: None - operates on the raw object itself
         """
+        excluded_ids = [str(t[0]) + str(t[1]) for t in exclude]
         for b in listing:
-            if b in exclude:
+            if (str(b.id) + str(tactic_name)) in excluded_ids:
                 b.score = None
                 continue
             found = False

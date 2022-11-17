@@ -360,7 +360,7 @@ class SVG_Technique:
             self.grade = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
 
     def build(
-        self, offset, technique, height, width, tBC, subtechniques=[], mode=(True, False), tactic=None, colors=[]
+        self, offset, technique, height, width, tBC, subtechniques=[], exclude=[], mode=(True, False), tactic=None, colors=[]
     ):
         """Build a SVG Technique block.
 
@@ -370,6 +370,7 @@ class SVG_Technique:
         :param width: The width of the technique block
         :param tBC: The hex code of the technique block's border
         :param subtechniques: List of any visible subtechniques for this technique
+        :param exclude: List of excluded techniques
         :param mode: Display mode (Show Name, Show ID)
         :param tactic: The corresponding tactic
         :param colors: List of all default color values if no score can be found
@@ -386,7 +387,12 @@ class SVG_Technique:
         g.append(tech)
         g.append(text)
         new_offset = height
+        excluded_ids = [str(t[0]) + str(t[1]) for t in exclude]
+        count = 0
         for entry in subtechniques:
+            if (str(entry.id) + str(tactic)) in excluded_ids:
+                continue
+            count += 1
             gp = G(tx=width / 5, ty=new_offset)
             g.append(gp)
             c = self._com_color(entry, tactic, colors)
@@ -399,7 +405,7 @@ class SVG_Technique:
             gp.append(subtech)
             gp.append(subtext)
             new_offset = new_offset + height
-        if len(subtechniques):
+        if count > 0:
             g.append(
                 drawSvg.Lines(
                     width / 16,
@@ -407,9 +413,9 @@ class SVG_Technique:
                     width / 8,
                     -height * 2,
                     width / 8,
-                    -height * (len(subtechniques) + 1),
+                    -height * (count + 1),
                     width / 5,
-                    -height * (len(subtechniques) + 1),
+                    -height * (count + 1),
                     width / 5,
                     -height,
                     close=True,
