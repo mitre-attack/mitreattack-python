@@ -1,3 +1,11 @@
+# v1.7.3
+
+## Fixes
+
+- Fixed SVG export to hide disabled techniques when hideDisabled is True [#89](https://github.com/mitre-attack/mitreattack-python/issues/89)
+- Fixed SVG export to display platforms and legend items, if defined
+
+
 # v1.7.2 10/24/2022
 
 ## Fixes
