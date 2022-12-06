@@ -153,9 +153,9 @@ class TestLayers:
     @staticmethod
     def test_direct_link():
         layer_technique = Technique(tID="T1003")
-        layer_technique.links = [Link(label="test", url="127.0.0.1"), LinkDiv(active=True)]
+        layer_technique.links = [Link(label="test", url="127.0.0.1"), LinkDiv(divider=True)]
         layer_technique2 = Technique(tID="T1004")
-        layer_technique2.links = [dict(label="test", url="127.0.0.1"), dict(name="DIVIDER", value=True)]
+        layer_technique2.links = [dict(label="test", url="127.0.0.1"), dict(divider=True)]
         assert layer_technique.links[0].get_dict() == layer_technique2.links[0].get_dict()
         assert layer_technique.links[1].get_dict() == layer_technique2.links[1].get_dict()
 

@@ -1,3 +1,12 @@
+# v1.7.3
+
+## Fixes
+
+- Fix SVG export to hide disabled techniques when hideDisabled is True [#89](https://github.com/mitre-attack/mitreattack-python/issues/89)
+- Fix SVG export to display platforms and legend items
+- Fix parsing of link dividers in layer files [#94](https://github.com/mitre-attack/mitreattack-python/issues/94)
+- Fix issue with retrieving technique ATT&CK IDs when generating a Navigator layer from the taxii server [#82](https://github.com/mitre-attack/mitreattack-python/issues/82)
+
 # v1.7.2 10/24/2022
 
 ## Fixes
