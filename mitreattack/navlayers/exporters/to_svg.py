@@ -528,6 +528,7 @@ class ToSvg:
         sName = True
         sID = False
         sort = 0
+        legend = None
         if layer.layer.layout:
             sName = layer.layer.layout.showName
             sID = layer.layer.layout.showID
