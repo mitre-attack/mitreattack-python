@@ -1567,7 +1567,7 @@ class MitreAttackData:
             Filter('id', 'in', [r.target_ref for r in relations]),
             Filter('revoked', '=', False)
         ])
-        if revoked_by is not None:
+        if revoked_by is not None and len(revoked_by):
             revoked_by = revoked_by[0]
 
         return revoked_by
