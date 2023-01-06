@@ -1,5 +1,6 @@
 black>=22.3.0
 colour>=0.1.5
+deepdiff==6.2.2
 drawSvg>=1.6.0
 isort>=5.10.1
 loguru>=0.6.0
@@ -9,6 +10,7 @@ openpyxl>=3.0.3
 pandas>=1.1.5
 Pillow>=7.1.2
 requests>=2.21.0
+rich==12.6.0
 stix2>=3.0.1
 stix2-elevator>=4.0.1
 tabulate>=0.8.9
