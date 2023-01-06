@@ -39,6 +39,7 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         'colour',
+        'deepdiff',
         'drawSvg',
         'loguru',
         'Markdown',
@@ -48,6 +49,7 @@ setuptools.setup(
         'python-dateutil',
         'Pillow',
         'requests',
+        'rich',
         'stix2',
         'stix2-elevator',
         'tabulate',

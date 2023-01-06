@@ -1,91 +1,29 @@
 import argparse
 import datetime
-import math
+import difflib
 import json
+import math
 import os
+import re
+import sys
+import textwrap
+from pprint import pformat
 from itertools import chain
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import markdown
 import requests
-import urllib3
 from dateutil import parser as dateparser
+from deepdiff import DeepDiff
 from loguru import logger
-from stix2 import Filter, MemoryStore, TAXIICollectionSource
-from taxii2client.v20 import Collection
+from rich.progress import track
+from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
-# helper maps
-domainToDomainLabel = {"enterprise-attack": "Enterprise", "mobile-attack": "Mobile", "ics-attack": "ICS"}
-domainToTaxiiCollectionId = {
-    "enterprise-attack": "95ecc380-afe9-11e4-9b6c-751b66dd541e",
-    "mobile-attack": "2f669986-b40b-4423-b720-4396ca6a462b",
-    "ics-attack": "02c3ef24-9cd4-48f3-a99f-b74ce24f1d34",
-}
-# stix filters for querying for each type of data
-attackTypeToStixFilter = {
-    "technique": [Filter("type", "=", "attack-pattern")],
-    "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
-    "group": [Filter("type", "=", "intrusion-set")],
-    "campaign": [Filter("type", "=", "campaign")],
-    "mitigation": [Filter("type", "=", "course-of-action")],
-    "datasource": [
-        Filter("type", "=", "x-mitre-data-source"),
-        Filter("type", "=", "x-mitre-data-component"),
-    ],
-    "datasource-only": [Filter("type", "=", "x-mitre-data-source")],
-}
-# ATT&CK type to Title
-attackTypeToTitle = {
-    "technique": "Techniques",
-    "malware": "Malware",
-    "software": "Software",
-    "group": "Groups",
-    "campaign": "Campaigns",
-    "mitigation": "Mitigations",
-    "datasource": "Data Sources and/or Components",
-}
-# ATT&CK type to section name
-attackTypeToSectionName = {
-    "technique": "Technique",
-    "malware": "Malware",
-    "software": "Software",
-    "group": "Group",
-    "campaign": "Campaign",
-    "mitigation": "Mitigation",
-    "datasource": "Data Source and/or Component",
-}
-# how we want to format headers for each section
-sectionNameToSectionHeaders = {
-    "additions": "New {obj_type}",
-    "changes": "{obj_type} Changes",
-    "minor_changes": "Minor {obj_type} Changes",
-    "deprecations": "{obj_type} Deprecations",
-    "revocations": "{obj_type} Revocations",
-    "deletions": "{obj_type} Deletions",
-    "unchanged": "Unchanged {obj_type}",
-}
-# color key for layers
-statusToColor = {
-    "additions": "#a1d99b",
-    "changes": "#fcf3a2",
-    "minor_changes": "#c7c4e0",
-    "deletions": "#ff00e1",  # this will probably never show up but just in case
-    "revocations": "#ff9000",
-    "deprecations": "#ff6363",
-    "unchanged": "#ffffff",
-}
+from mitreattack import release_info
+
 # explanation of modification types to data objects for legend in layer files
-statusDescriptions = {
-    "additions": "objects which are present in the new data and not the old",
-    "changes": "objects which have a newer version number in the new data compared to the old",
-    "minor_changes": "objects which have a newer last edit date in the new data than in the old, but the same version number",
-    "revocations": "objects which are revoked in the new data but not in the old",
-    "deprecations": "objects which are deprecated in the new data but not in the old",
-    "deletions": "objects which are present in the old data but not the new",
-    "unchanged": "objects which did not change between the two versions",
-}
 date = datetime.datetime.today()
 this_month = date.strftime("%B_%Y")
 layer_defaults = [
@@ -94,298 +32,316 @@ layer_defaults = [
     os.path.join("output", f"{this_month}_Updates_ICS.json"),
     os.path.join("output", f"{this_month}_Updates_Pre.json"),
 ]
-md_default = os.path.join("output", f"updates-{this_month.lower()}.md")
-json_default = os.path.join("output", f"updates-{this_month.lower()}.json")
 
+# →
 
 class DiffStix(object):
     """Utilities for detecting and summarizing differences between two versions of the ATT&CK content."""
 
     def __init__(
         self,
-        domains=["enterprise-attack", "mobile-attack", "ics-attack"],
-        layers=None,
-        markdown=None,
-        minor_changes=False,
-        unchanged=False,
-        new="new",
-        old="old",
-        show_key=False,
-        site_prefix="",
-        types=["technique", "software", "group", "campaign", "mitigation", "datasource"],
-        use_taxii=False,
-        use_mitre_cti=False,
-        verbose=False,
-        include_contributors=False,
-        release_contributors={},
+        domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
+        layers: List[str] = None,
+        unchanged: bool = False,
+        old: str = "old",
+        new: str = "new",
+        show_key: bool = False,
+        site_prefix: str = "",
+        types: List[str] = ["technique", "software", "group", "campaign", "mitigation", "datasource"],
+        use_mitre_cti: bool = False,
+        verbose: bool = False,
+        include_contributors: bool = False,
     ):
         """Construct a new DiffStix object.
 
-        params:
-            domains: list of domains to parse, e.g. enterprise-attack, mobile-attack
-            layers: array of output filenames for layer files, e.g. ['enterprise.json', 'mobile.json', 'pre.json']
-            markdown: output filename for markdown content to be written to
-            minor_changes: if true, also report minor changes section (changes which didn't increment version)
-            new: directory to load for new stix version
-            old: directory to load for old stix version
-            show_key: if true, output key to markdown file
-            site_prefix: prefix links in markdown output
-            types: which types of objects to report on, e.g technique, software
-            verbose: if true, print progress bar and status messages to stdout
+        Parameters
+        ----------
+        domains : List[str], optional
+            List of domains to parse, by default ["enterprise-attack", "mobile-attack", "ics-attack"]
+        layers : List[str], optional
+            Array of output filenames for layer files, by default None
+        unchanged : bool, optional
+            Include unchanged ATT&CK objects in diff comparison, by default False
+        old : str, optional
+            Directory to load old STIX data from, by default "old"
+        new : str, optional
+            Directory to load new STIX data from, by default "new"
+        show_key : bool, optional
+            Output key to markdown file, by default False
+        site_prefix : str, optional
+            Prefix links in markdown output, by default ""
+        types : List[str], optional
+            Which types of objects to report on, by default ["technique", "software", "group", "campaign", "mitigation", "datasource"]
+        use_mitre_cti : bool, optional
+            Use https://github.com/mitre/cti for loading old STIX data, by default False
+        verbose : bool, optional
+            Print progress bar and status messages to stdout, by default False
+        include_contributors : bool, optional
+            Include contributor information for new contributors, by default False
         """
         self.domains = domains
         self.layers = layers
-        self.markdown = markdown
-        self.minor_changes = minor_changes
         self.unchanged = unchanged
-        self.new = new
         self.old = old
+        self.new = new
         self.show_key = show_key
         self.site_prefix = site_prefix
         self.types = types
-        self.use_taxii = use_taxii
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
         self.include_contributors = include_contributors
+
+        self.domain_to_domain_label = {
+            "enterprise-attack": "Enterprise",
+            "mobile-attack": "Mobile",
+            "ics-attack": "ICS",
+        }
+        self.attack_type_to_section_name = {
+            "technique": "Technique",
+            "malware": "Malware",
+            "software": "Software",
+            "group": "Group",
+            "campaign": "Campaign",
+            "mitigation": "Mitigation",
+            "datasource": "Data Source/Data Component",
+        }
+        self.attack_type_to_title = {
+            "technique": "Techniques",
+            "malware": "Malware",
+            "software": "Software",
+            "group": "Groups",
+            "campaign": "Campaigns",
+            "mitigation": "Mitigations",
+            "datasource": "Data Sources/Data Components",
+        }
+
+        self.section_descriptions = {
+            "additions": "ATT&CK objects which are present in the new STIX data but not the old.",
+            "major_version_changes": "ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0)",
+            "minor_version_changes": "ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1)",
+            "other_version_changes": "ATT&CK objects that have an unexpected version change. (e.g. 1.0 → 1.3)",
+            "metadata_changes": "ATT&CK objects that have at least one field changed, but not the version.",
+            "unknown_changes": "ATT&CK objects that have changed while the modified time stayed the same.",
+            "revocations": "ATT&CK objects which are revoked by a different object.",
+            "deprecations": "ATT&CK objects which are deprecated and no longer in use, and not replaced.",
+            "deletions": "ATT&CK objects which are no longer found in the STIX data.",
+            "unchanged": "ATT&CK objects which did not change between the two versions.",
+        }
+
+        self.section_headers = {}
+        for object_type in self.types:
+            self.section_headers[object_type] = {
+                "additions": f"New {self.attack_type_to_title[object_type]}",
+                "major_version_changes": f"Major Version Changes",
+                "minor_version_changes": f"Minor Version Changes",
+                "other_version_changes": f"Other Version Changes",
+                "metadata_changes": f"Metadata-only Changes",
+                "unknown_changes": f"Unknown Changes",
+                "deprecations": f"Deprecations",
+                "revocations": f"Revocations",
+                "deletions": f"Deletions",
+                "unchanged": f"Unchanged",
+            }
+
         # will hold information of contributors of the new release {... {"contributor_credit/name_as_key": counter]} ...}
         self.release_contributors = {}
 
-        # data gets load into here in the load() function. All other functionalities rely on this data structure
+        # data gets loaded into here in the load_data() function. All other functionalities rely on this data structure
         self.data = {
-            # {
-            #   technique: {
-            #     enterprise-attack: {
-            #       additions: [],
-            #       deletions: [],
-            #       changes: [],
-            #       minor_changes: [],
-            #       revocations: [],
-            #       deprecations: [],
-            #       unchanged: [],
-            #     },
-            #     mobile-attack: {...},
-            #   },
-            #   software: {...},
-            # }
+            "old": {
+                "attack_release_versions": {},
+                "stix_datastores": {},
+                "attack_objects": {},
+                "datasources": {},
+                "datacomponents": {},
+                "techniques": {},
+                "relationships": {
+                    "subtechniques": {},
+                    "revoked-by": {},
+                },
+            },
+            "new": {
+                "attack_release_versions": {},
+                "stix_datastores": {},
+                "attack_objects": {},
+                "datasources": {},
+                "datacomponents": {},
+                "techniques": {},
+                "relationships": {
+                    "subtechniques": {},
+                    "revoked-by": {},
+                },
+            },
+            # changes are dynamic based on what object types and domains are requested
+            "changes": {
+                # "technique": {
+                #     "enterprise-attack": {
+                #         "additions": [],
+                #         "deletions": [],
+                #         "major_version_changes": [],
+                #         "minor_version_changes": [],
+                #         "other_version_changes": [],
+                #         "metadata_changes": [],
+                #         "unknown_changes": [],
+                #         "revocations": [],
+                #         "deprecations": [],
+                #         "unchanged": [],
+                #     },
+                #     "mobile-attack": {...},
+                # },
+                # "software": {...},
+            },
         }
 
-        # stixID to object name
-        self.stixIDToName = {}
+        for domain in self.domains:
+            self.data["old"]["attack_objects"][domain] = {}
+            self.data["new"]["attack_objects"][domain] = {}
+            for _type in types:
+                self.data["old"]["attack_objects"][domain][_type] = {}
+                self.data["new"]["attack_objects"][domain][_type] = {}
 
-        # all subtechnique-of relationships in the new/old data
-        self.new_subtechnique_of_rels = []
-        self.old_subtechnique_of_rels = []
-
-        # all data components in the new/old data
-        self.new_datacomponents = []
-        self.old_datacomponents = []
-
-        # stixID => technique for every technique in the new/old data
-        self.new_id_to_technique = {}
-        self.old_id_to_technique = {}
-
-        # stixID => data source for every data source in the new/old data
-        self.new_id_to_datasource = {}
-        self.old_id_to_datasource = {}
-
-        # build the bove data structures
         self.load_data()
 
-        logger.info("removing duplicate relationships")
-        self.new_subtechnique_of_rels = [
-            i for n, i in enumerate(self.new_subtechnique_of_rels) if i not in self.new_subtechnique_of_rels[n + 1 :]
-        ]
-        self.old_subtechnique_of_rels = [
-            i for n, i in enumerate(self.old_subtechnique_of_rels) if i not in self.old_subtechnique_of_rels[n + 1 :]
-        ]
+    def load_domain(self, domain):
+        """Load data from directory according to domain"""
+        for datastore_version in ["old", "new"]:
+            # only allow github.com/mitre/cti to be used for the old STIX domain
+            if self.use_mitre_cti and datastore_version == "old":
+                data_store = self.get_datastore_from_mitre_cti(domain=domain, datastore_version=datastore_version)
+            else:
+                directory = self.old if datastore_version == "old" else self.new
+                stix_file = os.path.join(directory, f"{domain}.json")
 
-        logger.info("removing duplicate data components")
-        self.new_datacomponents = [
-            i for n, i in enumerate(self.new_datacomponents) if i not in self.new_datacomponents[n + 1 :]
-        ]
-        self.old_datacomponents = [
-            i for n, i in enumerate(self.old_datacomponents) if i not in self.old_datacomponents[n + 1 :]
-        ]
+                attack_version = release_info.get_attack_version(domain=domain, stix_file=stix_file)
+                self.data[datastore_version]["attack_release_versions"][domain] = attack_version
 
-    def getUrlFromStix(self, datum, is_subtechnique=False):
-        """
-        Parse the website url from a stix object.
-        """
-        if datum.get("external_references"):
-            url = datum["external_references"][0]["url"]
-            split_url = url.split("/")
-            splitfrom = -3 if is_subtechnique else -2
-            link = "/".join(split_url[splitfrom:])
-            return link
-        return None
+                data_store = MemoryStore()
+                data_store.load_from_file(stix_file)
 
-    def getDataComponentUrl(self, datasource, datacomponent):
-        """Create url of data component with parent data source"""
-        return f"{self.getUrlFromStix(datasource)}/#{'%20'.join(datacomponent['name'].split(' '))}"
+            self.data[datastore_version]["stix_datastores"][domain] = data_store
+            self.parse_extra_data(data_store=data_store, datastore_version=datastore_version)
+            self.load_attack_objects(data_store=data_store, domain=domain, datastore_version=datastore_version)
 
-    def deep_copy_stix(self, objects):
-        """Transform stix to dict and deep copy the dict."""
-        result = []
-        for obj in objects:
-            # TODO: serialize the STIX objects instead of casting them to dict
-            # more details here: https://github.com/mitre/cti/issues/17#issuecomment-395768815
-            obj = dict(obj)
-            if "external_references" in obj:
-                for i in range(len(obj["external_references"])):
-                    obj["external_references"][i] = dict(obj["external_references"][i])
-            if "kill_chain_phases" in obj:
-                for i in range(len(obj["kill_chain_phases"])):
-                    obj["kill_chain_phases"][i] = dict(obj["kill_chain_phases"][i])
+    def get_datastore_from_mitre_cti(self, domain, datastore_version):
+        """Load data from MITRE CTI repo according to domain"""
+        error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
+        try:
+            stix_response = requests.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
+        except requests.exceptions.ContentDecodingError:
+            logger.error(error_message)
+            sys.exit(1)
+        if stix_response.status_code == 200:
+            stix_json = stix_response.json()
 
-            if "modified" in obj:
-                obj["modified"] = str(obj["modified"])
-            if "first_seen" in obj:
-                obj["first_seen"] = str(obj["first_seen"])
-            if "last_seen" in obj:
-                obj["last_seen"] = str(obj["last_seen"])
+            attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
+            self.data[datastore_version]["attack_release_versions"][domain] = attack_version
 
-            if "definition" in obj:
-                obj["definition"] = dict(obj["definition"])
-            obj["created"] = str(obj["created"])
-            result.append(obj)
-        return result
+            data_store = MemoryStore(stix_data=stix_json["objects"])
+            return data_store
+        logger.error(error_message)
+        sys.exit(1)
 
-    # load data into data structure
+    def parse_extra_data(self, data_store, datastore_version: str):
+        """Parse dataStore sub-technique-of relationships"""
+        all_techniques = list(data_store.query([Filter("type", "=", "attack-pattern")]))
+        all_datasources = list(data_store.query([Filter("type", "=", "x-mitre-data-source")]))
+        all_datacomponents = list(data_store.query([Filter("type", "=", "x-mitre-data-component")]))
+        subtechnique_relationships = list(
+            data_store.query(
+                [
+                    Filter("type", "=", "relationship"),
+                    Filter("relationship_type", "=", "subtechnique-of"),
+                ]
+            )
+        )
+        revoked_by_relationships = list(
+            data_store.query(
+                [
+                    Filter("type", "=", "relationship"),
+                    Filter("relationship_type", "=", "revoked-by"),
+                ]
+            )
+        )
+
+        for technique in all_techniques:
+            self.data[datastore_version]["techniques"][technique["id"]] = technique
+        for datasource in all_datasources:
+            self.data[datastore_version]["datasources"][datasource["id"]] = datasource
+        for datacomponent in all_datacomponents:
+            self.data[datastore_version]["datacomponents"][datacomponent["id"]] = datacomponent
+        for relationship in subtechnique_relationships:
+            self.data[datastore_version]["relationships"]["subtechniques"][relationship["id"]] = relationship
+
+        # use list in case STIX object was revoked more than once
+        for relationship in revoked_by_relationships:
+            source_id = relationship["source_ref"]
+            if source_id not in self.data[datastore_version]["relationships"]["revoked-by"]:
+                self.data[datastore_version]["relationships"]["revoked-by"][source_id] = []
+            self.data[datastore_version]["relationships"]["revoked-by"][source_id].append(relationship)
+
+    def load_attack_objects(self, data_store, domain, datastore_version: str):
+        """Handle data loaded from a directory"""
+        attack_type_to_stix_filter = {
+            "technique": [Filter("type", "=", "attack-pattern")],
+            "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
+            "group": [Filter("type", "=", "intrusion-set")],
+            "campaign": [Filter("type", "=", "campaign")],
+            "mitigation": [Filter("type", "=", "course-of-action")],
+            "datasource": [
+                Filter("type", "=", "x-mitre-data-source"),
+                Filter("type", "=", "x-mitre-data-component"),
+            ],
+        }
+        for obj_type in self.types:
+            raw_data = list(chain.from_iterable(data_store.query(f) for f in attack_type_to_stix_filter[obj_type]))
+            raw_data = deep_copy_stix(raw_data)
+
+            self.data[datastore_version]["attack_objects"][domain][obj_type] = {item["id"]: item for item in raw_data}
+
+    def update_contributors(self, old_object, new_object):
+        """Update contributors list if new object has contributors"""
+        if new_object.get("x_mitre_contributors"):
+            new_object_contributors = set(new_object["x_mitre_contributors"])
+
+            # Check if old objects had contributors
+            if old_object is None or not old_object.get("x_mitre_contributors"):
+                old_object_contributors = set()
+            else:
+                old_object_contributors = set(old_object["x_mitre_contributors"])
+
+            # Remove old contributors from showing up
+            # if contributors are the same the result will be empty
+            new_contributors = new_object_contributors - old_object_contributors
+
+            # Update counter of contributor to track contributions
+            for new_contributor in new_contributors:
+                if self.release_contributors.get(new_contributor):
+                    self.release_contributors[new_contributor] += 1
+                else:
+                    self.release_contributors[new_contributor] = 1
+
     def load_data(self):
         """Load data from files into data dict."""
-        pbar = tqdm(
-            total=len(self.types) * len(self.domains),
-            desc="loading data",
-            bar_format="{l_bar}{bar}| [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
-        )
-        for obj_type in self.types:
+        for domain in track(self.domains, description="Loading domains"):
+            self.load_domain(domain=domain)
+
+        for obj_type in track(self.types, description="Finding changes"):
             for domain in self.domains:
-
-                def load_datastore(data_store):
-                    """Handle data loaded from either a directory or the TAXII server"""
-                    raw_data = list(chain.from_iterable(data_store.query(f) for f in attackTypeToStixFilter[obj_type]))
-                    raw_data = self.deep_copy_stix(raw_data)
-                    id_to_obj = {item["id"]: item for item in raw_data}
-
-                    return {
-                        "id_to_obj": id_to_obj,
-                        "keys": set(id_to_obj.keys()),
-                        "data_store": data_store,
-                    }
-
-                def parse_subtechniques(data_store, new=False):
-                    """Parse dataStore sub-technique-of relationships"""
-                    if new:
-                        for technique in list(data_store.query(attackTypeToStixFilter["technique"])):
-                            self.new_id_to_technique[technique["id"]] = technique
-                        self.new_subtechnique_of_rels += list(
-                            data_store.query(
-                                [
-                                    Filter("type", "=", "relationship"),
-                                    Filter("relationship_type", "=", "subtechnique-of"),
-                                ]
-                            )
-                        )
-                    else:
-                        for technique in list(data_store.query(attackTypeToStixFilter["technique"])):
-                            self.old_id_to_technique[technique["id"]] = technique
-                        self.old_subtechnique_of_rels += list(
-                            data_store.query(
-                                [
-                                    Filter("type", "=", "relationship"),
-                                    Filter("relationship_type", "=", "subtechnique-of"),
-                                ]
-                            )
-                        )
-
-                def parse_datacomponents(data_store, new=False):
-                    """Parse dataStore x-mitre-data-components"""
-                    if new:
-                        for datasource in list(data_store.query(attackTypeToStixFilter["datasource-only"])):
-                            self.new_id_to_datasource[datasource["id"]] = datasource
-                        self.new_datacomponents += list(
-                            data_store.query([Filter("type", "=", "x-mitre-data-component")])
-                        )
-                    else:
-                        for datasource in list(data_store.query(attackTypeToStixFilter["datasource-only"])):
-                            self.old_id_to_datasource[datasource["id"]] = datasource
-                        self.old_datacomponents += list(
-                            data_store.query([Filter("type", "=", "x-mitre-data-component")])
-                        )
-
-                def update_contributors(old_object, new_object):
-                    """Update contributors list if new object has contributors"""
-                    if new_object.get("x_mitre_contributors"):
-                        new_object_contributors = set(new_object["x_mitre_contributors"])
-
-                        # Check if old objects had contributors
-                        if old_object is None or not old_object.get("x_mitre_contributors"):
-                            old_object_contributors = set()
-                        else:
-                            old_object_contributors = set(old_object["x_mitre_contributors"])
-
-                        # Remove old contributors from showing up
-                        # if contributors are the same the result will be empty
-                        new_contributors = new_object_contributors - old_object_contributors
-
-                        # Update counter of contributor to track contributions
-                        for new_contributor in new_contributors:
-                            if self.release_contributors.get(new_contributor):
-                                self.release_contributors[new_contributor] += 1
-                            else:
-                                self.release_contributors[new_contributor] = 1
-
-                def load_dir(dir, new=False):
-                    """Load data from directory according to domain"""
-                    data_store = MemoryStore()
-                    datafile = os.path.join(dir, domain + ".json")
-                    data_store.load_from_file(datafile)
-                    parse_subtechniques(data_store, new)
-                    parse_datacomponents(data_store, new)
-                    return load_datastore(data_store)
-
-                def load_taxii(new=False):
-                    """Load data from TAXII server according to domain"""
-                    collection = Collection(
-                        "https://cti-taxii.mitre.org/stix/collections/" + domainToTaxiiCollectionId[domain]
-                    )
-                    data_store = TAXIICollectionSource(collection)
-                    parse_subtechniques(data_store, new)
-                    parse_datacomponents(data_store, new)
-                    return load_datastore(data_store)
-
-                def load_mitre_cti(new=False):
-                    """Load data from MITRE CTI repo according to domain"""
-                    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-                    stix_json = requests.get(
-                        f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json",
-                        verify=False,
-                    )
-                    if stix_json.status_code == 200:
-                        stix_json = stix_json.json()
-                        data_store = MemoryStore(stix_data=stix_json["objects"])
-                        parse_subtechniques(data_store, new)
-                        parse_datacomponents(data_store, new)
-                        return load_datastore(data_store)
-                    exit(f"\n{domain} stix bundle download was unsuccessful")
-
                 logger.debug(f"Loading: [{domain:17}]/{obj_type}")
 
-                if self.use_taxii:
-                    old = load_taxii(False)
-                elif self.use_mitre_cti:
-                    old = load_mitre_cti(False)
-                else:
-                    old = load_dir(self.old, False)
-                new = load_dir(self.new, True)
+                old_attack_objects = self.data["old"]["attack_objects"][domain][obj_type]
+                new_attack_objects = self.data["new"]["attack_objects"][domain][obj_type]
 
-                intersection = old["keys"] & new["keys"]
-                additions = new["keys"] - old["keys"]
-                deletions = old["keys"] - new["keys"]
+                intersection = old_attack_objects.keys() & new_attack_objects.keys()
+                additions = new_attack_objects.keys() - old_attack_objects.keys()
+                deletions = old_attack_objects.keys() - new_attack_objects.keys()
 
                 # sets to store the ids of objects for each section
-                changes = set()
-                minor_changes = set()
+                major_version_changes = set()
+                minor_version_changes = set()
+                other_version_changes = set()
+                metadata_changes = set()
+                unknown_changes = set()
                 revocations = set()
                 deprecations = set()
                 unchanged = set()
@@ -393,462 +349,438 @@ class DiffStix(object):
                 # find changes, revocations and deprecations
                 for stix_id in intersection:
 
-                    old_stix_obj = old["id_to_obj"][stix_id]
-                    new_stix_obj = new["id_to_obj"][stix_id]
-                    if new_stix_obj["type"] == "x-mitre-data-component":
-                        attack_id = None
-                    else:
-                        attack_id = new_stix_obj["external_references"][0]["external_id"]
+                    old_stix_obj = old_attack_objects[stix_id]
+                    new_stix_obj = new_attack_objects[stix_id]
+                    attack_id = get_attack_id(new_stix_obj)
 
-                    # find revoked objects in the new bundle
-                    if "revoked" in new_stix_obj and new_stix_obj["revoked"]:
+                    ddiff = DeepDiff(old_stix_obj, new_stix_obj, verbose_level=2)
+                    detailed_diff = ddiff.to_json()
+                    new_stix_obj["detailed_diff"] = detailed_diff
+
+                    ########################################
+                    # Newly revoked objects
+                    ########################################
+                    if new_stix_obj.get("revoked"):
                         # only work with newly revoked objects
-                        if not "revoked" in old_stix_obj or not old_stix_obj["revoked"]:
-                            # store the revoking object
-                            revoked_by_key = new["data_store"].query(
-                                [
-                                    Filter("type", "=", "relationship"),
-                                    Filter("relationship_type", "=", "revoked-by"),
-                                    Filter("source_ref", "=", stix_id),
-                                ]
-                            )
-                            if len(revoked_by_key) == 0:
+                        if not old_stix_obj.get("revoked"):
+                            if stix_id not in self.data["new"]["relationships"]["revoked-by"]:
                                 logger.error(f"[{stix_id}] revoked object has no revoked-by relationship")
                                 continue
-                            else:
-                                revoked_by_key = revoked_by_key[0]["target_ref"]
 
-                            if revoked_by_key not in new["id_to_obj"]:
+                            revoked_by_key = self.data["new"]["relationships"]["revoked-by"][stix_id][0]["target_ref"]
+                            if revoked_by_key not in new_attack_objects:
                                 logger.error(
                                     f"{stix_id} revoked by {revoked_by_key}, but {revoked_by_key} not found in new STIX bundle!!"
                                 )
                                 continue
 
-                            new_stix_obj["revoked_by"] = new["id_to_obj"][revoked_by_key]
+                            revoking_object = new_attack_objects[revoked_by_key]
+                            new_stix_obj["revoked_by"] = revoking_object
 
                             revocations.add(stix_id)
-                        # else it was already revoked, and not a change; do nothing with it
 
-                    # find deprecated objects
-                    elif "x_mitre_deprecated" in new_stix_obj and new_stix_obj["x_mitre_deprecated"]:
+                    ##########################
+                    # Newly deprecated objects
+                    ##########################
+                    elif new_stix_obj.get("x_mitre_deprecated"):
                         # if previously deprecated, not a change
                         if not "x_mitre_deprecated" in old_stix_obj:
                             deprecations.add(stix_id)
 
-                    # find all other changed objects
+                    #############################################################
+                    # Objects shared between old and new STIX bundles by STIX IDs
+                    #############################################################
                     else:
-                        # try getting version numbers; should only lack version numbers if something has gone
-                        # horribly wrong or a revoked object has slipped through
-                        try:
-                            old_version = float(old_stix_obj["x_mitre_version"])
-                        except ValueError:
-                            logger.error(f"ERROR: cannot get old version for object: {stix_id}")
-
-                        try:
-                            new_version = float(new_stix_obj["x_mitre_version"])
-                        except ValueError:
-                            logger.error(f"ERROR: cannot get new version for object: {stix_id}")
+                        old_version = get_attack_object_version(old_stix_obj)
+                        new_version = get_attack_object_version(new_stix_obj)
 
                         # Verify if there are new contributors on the object
-                        update_contributors(old_stix_obj, new_stix_obj)
-
-                        # check for changes, store previous version for display
+                        self.update_contributors(old_object=old_stix_obj, new_object=new_stix_obj)
                         new_stix_obj["previous_version"] = old_version
-                        if new_version > old_version:
-                            # an update has occurred to this object
-                            changes.add(stix_id)
 
-                            # verify version change
-                            if not self.version_increment_is_valid(str(old_version), str(new_version), "changes"):
-                                logger.warning(
-                                    f"{stix_id} - Unexpected version. [{attack_id}] {new_stix_obj['name']} incremented from {old_version} to {new_version}"
-                                )
-                        else:
+                        # Version number didn't change
+                        ##############################
+                        if new_version == old_version:
                             # check for minor change; modification date increased but not version
                             old_date = dateparser.parse(old_stix_obj["modified"])
                             new_date = dateparser.parse(new_stix_obj["modified"])
-                            if new_date > old_date:
-                                minor_changes.add(stix_id)
+                            if new_date != old_date:
+                                metadata_changes.add(stix_id)
                             else:
                                 unchanged.add(stix_id)
 
-                # Add contributions from additions
+                        # Version number changed
+                        ########################
+                        else:
+                            if is_major_version_change(old_version=old_version, new_version=new_version):
+                                major_version_changes.add(stix_id)
+                            elif is_minor_version_change(old_version=old_version, new_version=new_version):
+                                minor_version_changes.add(stix_id)
+                            else:
+                                other_version_changes.add(stix_id)
+                                logger.warning(
+                                    f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_stix_obj['name']}"
+                                )
+
+                            new_stix_obj["version_change"] = f"{old_version} → {new_version}"
+
+                        # Description changes
+                        #####################
+                        old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
+                        new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
+
+                        df = [x for x in old_lines if x not in new_lines]
+                        df1 = [x for x in new_lines if x not in old_lines]
+
+                        if df != [] or df1 != []:
+                            if (
+                                (stix_id not in major_version_changes)
+                                and (stix_id not in minor_version_changes)
+                                and (stix_id not in metadata_changes)
+                                and (stix_id not in other_version_changes)
+                            ):
+                                logger.error(
+                                    f"{stix_id} - Somehow {attack_id} has a description change "
+                                    "without the version being incremented or the last modified date changing"
+                                )
+                                unknown_changes.add(stix_id)
+
+                            html_diff = difflib.HtmlDiff(wrapcolumn=60)
+                            html_diff._legend = ""
+
+                            delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
+                            new_stix_obj["description_change_table"] = delta
+
+                #############
+                # New objects
+                #############
                 for stix_id in additions:
-                    new_stix_obj = new["id_to_obj"][stix_id]
-                    if new_stix_obj["type"] == "x-mitre-data-component":
-                        attack_id = None
-                    else:
-                        attack_id = new_stix_obj["external_references"][0]["external_id"]
-                    update_contributors(None, new_stix_obj)
+                    new_stix_obj = new_attack_objects[stix_id]
+                    attack_id = get_attack_id(new_stix_obj)
+
+                    # Add contributions from additions
+                    self.update_contributors(old_object=None, new_object=new_stix_obj)
+
                     # verify version is 1.0
-                    if not self.version_increment_is_valid(None, new_stix_obj["x_mitre_version"], "additions"):
+                    x_mitre_version = new_stix_obj.get("x_mitre_version")
+                    if not version_increment_is_valid(None, x_mitre_version, "additions"):
                         logger.warning(
-                            f"{stix_id} - Unexpected version. [{attack_id}] {new_stix_obj['name']} is new and has version {new_stix_obj['x_mitre_version']}. Expected 1.0"
+                            f"{stix_id} - Unexpected new version. Expected 1.0, but is {x_mitre_version}. [{attack_id}] {new_stix_obj['name']}"
                         )
 
-                # set data
-                if obj_type not in self.data:
-                    self.data[obj_type] = {}
-                self.data[obj_type][domain] = {
-                    "additions": [new["id_to_obj"][key] for key in additions],
-                    "changes": [new["id_to_obj"][key] for key in changes],
+                #################
+                # Deleted objects
+                #################
+                for stix_id in deletions:
+                    old_stix_obj = old_attack_objects[stix_id]
+                    attack_id = get_attack_id(old_stix_obj)
+
+                #############################
+                # Create self.data["changes"]
+                #############################
+                if obj_type not in self.data["changes"]:
+                    self.data["changes"][obj_type] = {}
+
+                # sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
+                # sorted(additions, key=lambda stix_object: stix_object["name"])
+
+                self.data["changes"][obj_type][domain] = {
+                    "additions": sorted(
+                        [new_attack_objects[stix_id] for stix_id in additions],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "major_version_changes": sorted(
+                        [new_attack_objects[stix_id] for stix_id in major_version_changes],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "minor_version_changes": sorted(
+                        [new_attack_objects[stix_id] for stix_id in minor_version_changes],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "other_version_changes": sorted(
+                        [new_attack_objects[stix_id] for stix_id in other_version_changes],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "metadata_changes": sorted(
+                        [new_attack_objects[stix_id] for stix_id in metadata_changes],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "unknown_changes": sorted(
+                        [new_attack_objects[stix_id] for stix_id in unknown_changes],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "revocations": sorted(
+                        [new_attack_objects[stix_id] for stix_id in revocations],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "deprecations": sorted(
+                        [new_attack_objects[stix_id] for stix_id in deprecations],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
+                    "deletions": sorted(
+                        [old_attack_objects[stix_id] for stix_id in deletions],
+                        key=lambda stix_object: stix_object["name"],
+                    ),
                 }
-                # only create minor_changes data if we want to display it later
-                if self.minor_changes:
-                    self.data[obj_type][domain]["minor_changes"] = [new["id_to_obj"][key] for key in minor_changes]
 
-                # ditto for unchanged
+                # only create unchanged data if we want to display it later
                 if self.unchanged:
-                    self.data[obj_type][domain]["unchanged"] = [new["id_to_obj"][key] for key in unchanged]
-
-                self.data[obj_type][domain]["revocations"] = [new["id_to_obj"][key] for key in revocations]
-                self.data[obj_type][domain]["deprecations"] = [new["id_to_obj"][key] for key in deprecations]
-
-                # only show deletions if objects were deleted
-                if len(deletions) > 0:
-                    self.data[obj_type][domain]["deletions"] = [old["id_to_obj"][key] for key in deletions]
+                    self.data["changes"][obj_type][domain]["unchanged"] = [
+                        new_attack_objects[stix_id] for stix_id in unchanged
+                    ]
 
                 logger.debug(f"Loaded:  [{domain:17}]/{obj_type}")
-                pbar.update(1)
-        pbar.close()
-
-    def version_increment_is_valid(self, old_version: str, new_version: str, section: str) -> bool:
-        """Validate version increment between old and new STIX objects."""
-        if section in ["revocations", "deprecations"]:
-            return True
-        if section == "additions":
-            if new_version != "1.0":
-                return False
-            return True
-
-        old_version = float(old_version)
-        new_version = float(new_version)
-
-        # get next major version change
-        next_major = float(math.floor(old_version + 1))
-        # get difference between versions
-        diff = round(new_version - old_version, 1)
-        if next_major != new_version and diff != 0.1:
-            return False
-        return True
-
-    def get_md_key(self):
-        """Create string describing each type of difference (change, addition, etc).
-
-        Used in get_markdown_string.
-
-        Includes minor changes if the DiffStix instance was instantiated with the minor_changes argument.
-
-        Includes deletions if the changes include deletions.
-        """
-
-        have_deletions = False
-        for types in self.data.keys():
-            for domain in self.data[types].keys():
-                if "deletions" in self.data[types][domain].keys():
-                    have_deletions = True
-
-        key = "#### Key\n\n"
-        key += (
-            "* New objects: " + statusDescriptions["additions"] + "\n"
-            "* Object changes: " + statusDescriptions["changes"] + "\n"
-        )
-        if self.minor_changes:
-            key += "* Minor object changes: " + statusDescriptions["minor_changes"] + "\n"
-        if self.unchanged:
-            key += "* Unchanged objects: " + statusDescriptions["unchanged"] + "\n"
-        key += (
-            "* Object revocations: " + statusDescriptions["revocations"] + "\n"
-            "* Object deprecations: " + statusDescriptions["deprecations"]
-        )
-        if have_deletions:
-            key += "\n" + "* Object deletions: " + statusDescriptions["deletions"]
-        return key
-
-    def has_subtechniques(self, sdo, new=False):
-        """Return true or false depending on whether the SDO has sub-techniques.
-
-        new determines whether to parse from the new or old data"""
-        if new:
-            return (
-                len(
-                    list(
-                        filter(
-                            lambda rel: rel["target_ref"] == sdo["id"],
-                            self.new_subtechnique_of_rels,
-                        )
-                    )
-                )
-                > 0
-            )
-        else:
-            return (
-                len(
-                    list(
-                        filter(
-                            lambda rel: rel["target_ref"] == sdo["id"],
-                            self.old_subtechnique_of_rels,
-                        )
-                    )
-                )
-                > 0
-            )
 
     def get_groupings(
         self,
-        obj_type,
-        items,
-        subtechnique_of_rels,
-        id_to_technique,
-        datacomponents,
-        id_to_datasource,
+        object_type,
+        stix_objects,
+        section,
     ):
+        datastore_version = "old" if section == "deletions" else "new"
+        subtechnique_relationships = self.data[datastore_version]["relationships"]["subtechniques"]
+        techniques = self.data[datastore_version]["techniques"]
+        datacomponents = self.data[datastore_version]["datacomponents"]
+        datasources = self.data[datastore_version]["datasources"]
+
+        childless = []
+        parents = []
+        children = {}
         # get parents which have children
-        if obj_type != "datasource":
-            childless = list(
-                filter(
-                    lambda item: not self.has_subtechniques(item, True)
-                    and not ("x_mitre_is_subtechnique" in item and item["x_mitre_is_subtechnique"]),
-                    items,
-                )
-            )
-            parents = list(
-                filter(
-                    lambda item: self.has_subtechniques(item, True)
-                    and not ("x_mitre_is_subtechnique" in item and item["x_mitre_is_subtechnique"]),
-                    items,
-                )
-            )
-            children = {
-                item["id"]: item
-                for item in filter(
-                    lambda item: ("x_mitre_is_subtechnique") in item and (item["x_mitre_is_subtechnique"]),
-                    items,
-                )
-            }
+        if object_type == "datasource":
+            for stix_object in stix_objects:
+                if stix_object.get("x_mitre_data_source_ref"):
+                    children[stix_object["id"]] = stix_object
+                else:
+                    parents.append(stix_object)
         else:
-            childless = []  # all data sources should have data components, i.e., should have children
-            parents = list(
-                filter(
-                    lambda item: not ("x_mitre_data_source_ref" in item and item["x_mitre_data_source_ref"]),
-                    items,
-                )
-            )
-            children = {
-                item["id"]: item
-                for item in filter(
-                    lambda item: ("x_mitre_data_source_ref") in item and (item["x_mitre_data_source_ref"]),
-                    items,
-                )
-            }
+            for stix_object in stix_objects:
+                is_subtechnique = stix_object.get("x_mitre_is_subtechnique")
 
-        # stixID => [ children ]
+                if is_subtechnique:
+                    children[stix_object["id"]] = stix_object
+                elif has_subtechniques(stix_object=stix_object, subtechnique_relationships=subtechnique_relationships):
+                    parents.append(stix_object)
+                else:
+                    childless.append(stix_object)
+
         parentToChildren = {}
-        for relationship in subtechnique_of_rels:
-            if relationship["target_ref"] in parentToChildren:
-                if relationship["source_ref"] in children:
-                    parentToChildren[relationship["target_ref"]].append(children[relationship["source_ref"]])
-            else:
-                if relationship["source_ref"] in children:
-                    parentToChildren[relationship["target_ref"]] = [children[relationship["source_ref"]]]
+        # subtechniques
+        for relationship in subtechnique_relationships.values():
+            if not relationship["source_ref"] in children:
+                continue
 
-        for datacomponent in datacomponents:
-            if datacomponent["x_mitre_data_source_ref"] in parentToChildren:
-                if datacomponent["id"] in children:
-                    parentToChildren[datacomponent["x_mitre_data_source_ref"]].append(children[datacomponent["id"]])
-            else:
-                if datacomponent["id"] in children:
-                    parentToChildren[datacomponent["x_mitre_data_source_ref"]] = [children[datacomponent["id"]]]
+            parent_technique_stix_id = relationship["target_ref"]
+            the_subtechnique = children[relationship["source_ref"]]
+            if not parent_technique_stix_id in parentToChildren:
+                parentToChildren[parent_technique_stix_id] = []
+            parentToChildren[parent_technique_stix_id].append(the_subtechnique)
+
+        # datacomponents
+        for datacomponent in datacomponents.values():
+            if not datacomponent["id"] in children:
+                continue
+
+            parent_datasource_id = datacomponent["x_mitre_data_source_ref"]
+            the_datacomponent = children[datacomponent["id"]]
+            if not parent_datasource_id in parentToChildren:
+                parentToChildren[parent_datasource_id] = []
+            parentToChildren[parent_datasource_id].append(the_datacomponent)
 
         # now group parents and children
         groupings = []
-        for parent in childless + parents:
-            parent_children = parentToChildren.pop(parent["id"]) if parent["id"] in parentToChildren else []
+        for parent_stix_object in childless + parents:
+            child_objects = (
+                parentToChildren.pop(parent_stix_object["id"]) if parent_stix_object["id"] in parentToChildren else []
+            )
             groupings.append(
                 {
-                    "parent": parent,
+                    "parent": parent_stix_object,
                     "parentInSection": True,
-                    "children": parent_children,
+                    "children": child_objects,
                 }
             )
 
-        for parentID in parentToChildren:
-            if id_to_technique.get(parentID):
-                parentObj = id_to_technique[parentID]
-            elif id_to_datasource.get(parentID):
-                parentObj = id_to_datasource[parentID]
+        for parent_stix_id, child_objects in parentToChildren.items():
+            parent_stix_object = None
+            if parent_stix_id in techniques:
+                parent_stix_object = techniques[parent_stix_id]
+            elif parent_stix_id in datasources:
+                parent_stix_object = datasources[parent_stix_id]
 
-            if parentObj:
+            if parent_stix_object:
                 groupings.append(
                     {
-                        "parent": parentObj,
+                        "parent": parent_stix_object,
                         "parentInSection": False,
-                        "children": parentToChildren[parentID],
+                        "children": child_objects,
                     }
                 )
 
         groupings = sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
         return groupings
 
+    def get_contributor_section(self):
+        # Get contributors markdown
+        contribSection = "## Contributors to this release\n\n"
+        sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
+
+        for contributor in sorted_contributors:
+            if contributor == "ATT&CK":
+                continue  # do not include ATT&CK as contributor
+            contribSection += f"* {contributor}\n"
+
+        return contribSection
+
+    def get_parent_stix_object(self, stix_object, datastore_version: str):
+        subtechnique_relationships = self.data[datastore_version]["relationships"]["subtechniques"]
+        techniques = self.data[datastore_version]["techniques"]
+        datasources = self.data[datastore_version]["datasources"]
+
+        if stix_object.get("x_mitre_is_subtechnique"):
+            for subtechnique_relationship in subtechnique_relationships.values():
+                if subtechnique_relationship["source_ref"] == stix_object["id"]:
+                    parent_id = subtechnique_relationship["target_ref"]
+                    return techniques[parent_id]
+        elif stix_object["type"] == "x-mitre-data-component":
+            return datasources[stix_object.get("x_mitre_data_source_ref")]
+
+        # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
+        return {}
+
+    def placard(self, stix_object, section):
+        """Get a section list item for the given SDO according to section type"""
+        datastore_version = "old" if section == "deletions" else "new"
+
+        if section == "deletions":
+            placard_string = stix_object["name"]
+
+        elif section == "revocations":
+            revoker = stix_object["revoked_by"]
+
+            if revoker.get("x_mitre_is_subtechnique"):
+                parent_object = self.get_parent_stix_object(stix_object=revoker, datastore_version=datastore_version)
+                parent_name = parent_object.get("name", default="ERROR NO PARENT")
+                relative_url = get_relative_url_from_stix(stix_object=revoker)
+                revoker_link = f"{self.site_prefix}/{relative_url}"
+                placard_string = (
+                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                )
+
+            elif revoker["type"] == "x-mitre-data-component":
+                parent_object = self.get_parent_stix_object(stix_object=revoker, datastore_version=datastore_version)
+                parent_name = parent_object.get("name", default="ERROR NO PARENT")
+                relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
+                revoker_link = f"{self.site_prefix}/{relative_url}"
+                placard_string = (
+                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                )
+
+            else:
+                relative_url = get_relative_url_from_stix(stix_object=revoker)
+                revoker_link = f"{self.site_prefix}/{relative_url}"
+                placard_string = f"{stix_object['name']} (revoked by [{revoker['name']}]({revoker_link}))"
+
+        else:
+            if stix_object["type"] == "x-mitre-data-component":
+                parent_object = self.get_parent_stix_object(
+                    stix_object=stix_object, datastore_version=datastore_version
+                )
+                if parent_object:
+                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
+                    placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+
+            else:
+                relative_url = get_relative_url_from_stix(stix_object=stix_object)
+                placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+
+        version_string = get_placard_version_string(stix_object=stix_object, section=section)
+        full_placard_string = f"{placard_string} {version_string}"
+        return full_placard_string
+
+    def get_markdown_section_data(self, groupings, section):
+        """Parse a list of STIX objects in a section and return a string for the whole section."""
+        sectionString = ""
+        for grouping in groupings:
+            if grouping["parentInSection"]:
+                placard_string = self.placard(stix_object=grouping["parent"], section=section)
+                sectionString += f"* {placard_string}\n"
+
+            for child in sorted(grouping["children"], key=lambda child: child["name"]):
+                placard_string = self.placard(stix_object=child, section=section)
+
+                if grouping["parentInSection"]:
+                    sectionString += f"    * {placard_string}\n"
+                else:
+                    sectionString += f"* {grouping['parent']['name']}: {placard_string}\n"
+
+        return sectionString
+
+    def get_md_key(self):
+        """Create string describing each type of difference (change, addition, etc).
+
+        Used in get_markdown_string.
+        """
+        # end first line with \ to avoid the empty line from dedent()
+        key = textwrap.dedent(
+            f"""\
+            ## Key
+
+            * New objects: {self.section_descriptions["additions"]}
+            * Major version changes: {self.section_descriptions["major_version_changes"]}
+            * Minor version changes: {self.section_descriptions["minor_version_changes"]}
+            * Other version changes: {self.section_descriptions["other_version_changes"]}
+            * Metadata changes: {self.section_descriptions["metadata_changes"]}
+            * Unknown changes: {self.section_descriptions["unknown_changes"]}
+            * Object revocations: {self.section_descriptions["revocations"]}
+            * Object deprecations: {self.section_descriptions["deprecations"]}
+            * Object deletions: {self.section_descriptions["deletions"]}
+            """
+        )
+
+        return key
+
     def get_markdown_string(self):
         """Return a markdown string summarizing detected differences."""
-
-        def getSectionList(items, obj_type, section):
-            """Parse a list of items in a section and return a string for the items."""
-            logger.debug(f"getting section list for {obj_type}/{section}")
-
-            if section == "deletions":
-                subtechnique_of_rels = self.old_subtechnique_of_rels
-                id_to_technique = self.old_id_to_technique
-                datacomponents = self.old_datacomponents
-                id_to_datasource = self.old_id_to_datasource
-            else:
-                subtechnique_of_rels = self.new_subtechnique_of_rels
-                id_to_technique = self.new_id_to_technique
-                datacomponents = self.new_datacomponents
-                id_to_datasource = self.new_id_to_datasource
-
-            def placard(item):
-                """Get a section list item for the given SDO according to section type"""
-                if section == "revocations":
-                    revoker = item["revoked_by"]
-                    if "x_mitre_is_subtechnique" in revoker and revoker["x_mitre_is_subtechnique"]:
-                        # get revoking technique's parent for display
-                        parentID = list(filter(lambda rel: rel["source_ref"] == revoker["id"], subtechnique_of_rels,))[
-                            0
-                        ]["target_ref"]
-                        parentName = (
-                            id_to_technique[parentID]["name"] if parentID in id_to_technique else "ERROR NO PARENT"
-                        )
-                        return f"{item['name']} (revoked by { parentName}: [{revoker['name']}]({self.site_prefix}/{self.getUrlFromStix(revoker, True)}))"
-                    elif "x_mitre_data_source_ref" in revoker and revoker["x_mitre_data_source_ref"]:
-                        # get revoking technique's parent for display
-                        parentID = list(filter(lambda rel: rel["id"] == revoker["id"], datacomponents))[0][
-                            "x_mitre_data_source_ref"
-                        ]
-                        parentName = (
-                            id_to_datasource[parentID]["name"] if parentID in id_to_datasource else "ERROR NO PARENT"
-                        )
-                        return f"{item['name']} (revoked by { parentName}: [{revoker['name']}]({self.site_prefix}/{self.getDataComponentUrl(id_to_datasource[parentID], item)}))"
-                    else:
-                        return f"{item['name']} (revoked by [{revoker['name']}]({self.site_prefix}/{self.getUrlFromStix(revoker)}))"
-                elif section == "deletions":
-                    return f"{item['name']}"
-                else:
-                    is_subtechnique = (
-                        item["type"] == "attack-pattern"
-                        and "x_mitre_is_subtechnique" in item
-                        and item["x_mitre_is_subtechnique"]
-                    )
-                    if item["type"] == "x-mitre-data-component":
-                        parentID = item["x_mitre_data_source_ref"]
-                        if id_to_datasource.get(parentID):
-                            return f"[{item['name']}]({self.site_prefix}/{self.getDataComponentUrl(id_to_datasource[parentID], item)})"
-                    return f"[{item['name']}]({self.site_prefix}/{self.getUrlFromStix(item, is_subtechnique)})"
-
-            def version(item, section):
-                if section in ["additions", "deprecations", "revocations"]:
-                    # only display current version
-                    color = (
-                        "#929393"
-                        if self.version_increment_is_valid(None, item["x_mitre_version"], section)
-                        else "#eb6635"
-                    )
-                    return f"<small style=\"color:{color}\">(v{item['x_mitre_version']})</small>"
-                else:
-                    # display previous and current version
-                    color = (
-                        "#929393"
-                        if self.version_increment_is_valid(item["previous_version"], item["x_mitre_version"], section)
-                        else "#eb6635"
-                    )
-                    return f"<small style=\"color:{color}\">(v{item['previous_version']}&#8594;v{item['x_mitre_version']})</small>"
-
-            groupings = self.get_groupings(
-                obj_type=obj_type,
-                items=items,
-                subtechnique_of_rels=subtechnique_of_rels,
-                id_to_technique=id_to_technique,
-                datacomponents=datacomponents,
-                id_to_datasource=id_to_datasource,
-            )
-
-            # build sectionList string
-            sectionString = ""
-            for grouping in groupings:
-                if grouping["parentInSection"]:
-                    sectionString += f"* { placard(grouping['parent']) } { version(grouping['parent'], section) }\n"
-
-                for child in sorted(grouping["children"], key=lambda child: child["name"]):
-                    if grouping["parentInSection"]:
-                        sectionString += f"  * { placard(child) } { version(child, section) }\n"
-                    else:
-                        sectionString += (
-                            f"* {grouping['parent']['name']}: { placard(child) } { version(child, section) }\n"
-                        )
-
-            logger.debug(f"finished getting section list for {obj_type}/{section}")
-            return sectionString
-
-        def getContributorSection():
-            # Get contributors markdown
-            contribSection = "## Contributors to this release\n\n"
-            sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
-
-            for contributor in sorted_contributors:
-                if contributor == "ATT&CK":
-                    continue  # do not include ATT&CK as contributor
-                contribSection += f"* {contributor}\n"
-
-            return contribSection
-
-        logger.info("generating markdown string")
+        logger.info("Generating markdown output")
         content = ""
-        for obj_type in self.data.keys():
+
+        if self.show_key:
+            key_content = self.get_md_key()
+            content = f"{key_content}\n\n"
+
+        for object_type in self.types:
             domains = ""
-            for domain in self.data[obj_type]:
-                logger.debug(f"==== Generating markdown for domain: {domainToDomainLabel[domain]} --- {obj_type} ====")
-                domains += f"### {domainToDomainLabel[domain]}\n\n"  # e.g "Enterprise"
-                # Skip mobile and ics sections for data sources
-                if domain == "mobile-attack" and obj_type == "datasource":
+
+            for domain in self.data["changes"][object_type]:
+                # e.g "Enterprise"
+                domains += f"### {self.domain_to_domain_label[domain]}\n\n"
+                # Skip mobile section for data sources
+                if domain == "mobile-attack" and object_type == "datasource":
                     logger.debug(f"Skipping - ATT&CK for Mobile does not support data sources")
                     domains += f"ATT&CK for Mobile does not support data sources\n\n"
                     continue
                 domain_sections = ""
-                for section, values in self.data[obj_type][domain].items():
-                    logger.debug(f"{section}: {len(values)}")
-
-                    if values:  # if there are items in the section
-                        section_items = getSectionList(items=values, obj_type=obj_type, section=section)
-                    else:  # no items in section
-                        section_items = "* No changes\n"
-
-                    header = f"#### {sectionNameToSectionHeaders[section]}"
-
-                    if "{obj_type}" in header:
-                        if section == "additions":
-                            header = header.replace("{obj_type}", attackTypeToTitle[obj_type])
-                        else:
-                            header = header.replace("{obj_type}", attackTypeToSectionName[obj_type])
-
-                    # e.g "added techniques:"
-                    domain_sections += f"{header}\n\n{section_items}\n"
+                for section, stix_objects in self.data["changes"][object_type][domain].items():
+                    header = f"#### {self.section_headers[object_type][section]}"
+                    if stix_objects:
+                        groupings = self.get_groupings(
+                            object_type=object_type,
+                            stix_objects=stix_objects,
+                            section=section,
+                        )
+                        section_items = self.get_markdown_section_data(groupings=groupings, section=section)
+                        domain_sections += f"{header}\n\n{section_items}\n"
 
                 # add domain sections
                 domains += f"{domain_sections}"
 
             # e.g "techniques"
-            content += f"## {attackTypeToTitle[obj_type]}\n\n{domains}"
-
-        if self.show_key:
-            key_content = self.get_md_key()
-            content = f"{key_content}\n\n{content}"
+            content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
 
         # Add contributors if requested by argument
         if self.include_contributors:
-            content += getContributorSection()
-
-        logger.info("finished generating markdown string")
+            content += self.get_contributor_section()
 
         return content
 
@@ -857,21 +789,33 @@ class DiffStix(object):
 
         Returns a dict mapping domain to its layer dict.
         """
-        logger.info("generating layers dict")
+        logger.info("Generating ATT&CK Navigator layers")
+
+        colors = {
+            "additions": "#a1d99b",  # granny smith apple
+            "major_version_changes": "#fcf3a2",  # yellow-ish
+            "minor_version_changes": "#c7c4e0",  # light periwinkle
+            "other_version_changes": "#B5E5CF",  # mint
+            "metadata_changes": "#B99095",  # mauve
+            "unknown_changes": "#3D5B59",  # teal green
+            "deletions": "#ff00e1",  # hot magenta
+            "revocations": "#ff9000",  # dark orange
+            "deprecations": "#ff6363",  # bittersweet red
+            "unchanged": "#ffffff",  # white
+        }
 
         layers = {}
         thedate = datetime.datetime.today().strftime("%B %Y")
         # for each layer file in the domains mapping
         for domain in self.domains:
-            logger.debug(f"===== Generating layer for domain: {domain} =====")
+            logger.debug(f"Generating ATT&CK Navigator layer for domain: {domain}")
             # build techniques list
             techniques = []
-            used_statuses = set()
-            for status in self.data["technique"][domain]:
-                logger.debug(f"Parsing: {status}")
-                if status == "revocations" or status == "deprecations":
+            for section, technique_stix_objects in self.data["changes"]["technique"][domain].items():
+                if section == "revocations" or section == "deprecations":
                     continue
-                for technique in self.data["technique"][domain][status]:
+
+                for technique in technique_stix_objects:
                     problem_detected = False
                     if "kill_chain_phases" not in technique:
                         logger.error(f"{technique['id']}: technique missing a tactic!! {technique['name']}")
@@ -889,28 +833,25 @@ class DiffStix(object):
                                 "techniqueID": technique["external_references"][0]["external_id"],
                                 "tactic": phase["phase_name"],
                                 "enabled": True,
-                                "color": statusToColor[status],
-                                "comment": status[:-1] if status != "unchanged" else status,  # trim s off end of word
+                                "color": colors[section],
+                                # trim the 's' off end of word
+                                "comment": section[:-1] if section != "unchanged" else section,
                             }
                         )
-                        used_statuses.add(status)
 
-            # build legend based off used_statuses
-            legendItems = list(
-                map(
-                    lambda status: {
-                        "color": statusToColor[status],
-                        "label": status + ": " + statusDescriptions[status],
-                    },
-                    used_statuses,
-                )
-            )
+            legendItems = []
+            for section, description in self.section_descriptions.items():
+                legendItems.append({"color": colors[section], "label": f"{section}: {description}"})
 
             # build layer structure
             layer_json = {
-                "versions": {"layer": "4.1", "navigator": "4.1"},
-                "name": f"{thedate} {domainToDomainLabel[domain]} Updates",
-                "description": f"{domainToDomainLabel[domain]} updates for the {thedate} release of ATT&CK",
+                "versions": {
+                    "layer": "4.4",
+                    "navigator": "4.8.0",
+                    "attack": self.data["new"]["attack_release_versions"][domain],
+                },
+                "name": f"{thedate} {self.domain_to_domain_label[domain]} Updates",
+                "description": f"{self.domain_to_domain_label[domain]} updates for the {thedate} release of ATT&CK",
                 "domain": domain,
                 "techniques": techniques,
                 "sorting": 0,
@@ -922,96 +863,246 @@ class DiffStix(object):
             }
             layers[domain] = layer_json
 
-        logger.info("finished generating layers dict")
         return layers
 
     def get_changes_dict(self):
         """Return dict format summarizing detected differences."""
-        logger.info("generating changes dict")
-
-        def cleanup_values(items, obj_type, section):
-            if section == "deletions":
-                subtechnique_of_rels = self.old_subtechnique_of_rels
-                id_to_technique = self.old_id_to_technique
-                datacomponents = self.old_datacomponents
-                id_to_datasource = self.old_id_to_datasource
-            else:
-                subtechnique_of_rels = self.new_subtechnique_of_rels
-                id_to_technique = self.new_id_to_technique
-                datacomponents = self.new_datacomponents
-                id_to_datasource = self.new_id_to_datasource
-
-            groupings = self.get_groupings(
-                obj_type=obj_type,
-                items=items,
-                subtechnique_of_rels=subtechnique_of_rels,
-                id_to_technique=id_to_technique,
-                datacomponents=datacomponents,
-                id_to_datasource=id_to_datasource,
-            )
-
-            new_values = []
-            for grouping in groupings:
-                if grouping["parentInSection"]:
-                    new_values.append(grouping["parent"])
-
-                for child in sorted(grouping["children"], key=lambda child: child["name"]):
-                    new_values.append(child)
-
-            return new_values
+        logger.info("Generating changes info")
 
         changes_dict = {}
         for domain in self.domains:
             changes_dict[domain] = {}
 
-        for obj_type, domains in self.data.items():
+        for object_type, domains in self.data["changes"].items():
             for domain, sections in domains.items():
-                logger.debug(f"===== Generating domain: {domainToDomainLabel[domain]} --- {obj_type} =====")
-                changes_dict[domain][obj_type] = {}
+                changes_dict[domain][object_type] = {}
 
-                for section, values in sections.items():
+                for section, stix_objects in sections.items():
+                    groupings = self.get_groupings(
+                        object_type=object_type,
+                        stix_objects=stix_objects,
+                        section=section,
+                    )
                     # new_values includes parents & children mixed (e.g. techniques/sub-techniques, data sources/components)
-                    new_values = cleanup_values(items=values, obj_type=obj_type, section=section)
-                    changes_dict[domain][obj_type][section] = new_values
+                    new_values = cleanup_values(groupings=groupings)
+                    changes_dict[domain][object_type][section] = new_values
 
         # always add contributors
         changes_dict["new-contributors"] = []
         sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
         for contributor in sorted_contributors:
+            # do not include ATT&CK as contributor
             if contributor == "ATT&CK":
-                continue  # do not include ATT&CK as contributor
+                continue
             changes_dict["new-contributors"].append(contributor)
 
-        logger.info("finished generating changes dict")
         return changes_dict
 
 
-def markdown_to_index_html(markdown_outfile, content):
+def has_subtechniques(stix_object, subtechnique_relationships):
+    """Return true or false depending on whether the SDO has sub-techniques."""
+    # for relationship in self.data[datastore_version]["relationships"]["subtechniques"].values():
+    for relationship in subtechnique_relationships.values():
+        if relationship["target_ref"] == stix_object["id"]:
+            return True
+
+    return False
+
+
+def get_placard_version_string(stix_object, section):
+    gray = "#929393"
+    red = "#eb6635"
+    color = gray
+
+    object_version = get_attack_object_version(stix_obj=stix_object)
+    version_display = f"(v{object_version})"
+
+    if section in ["additions", "deprecations", "revocations"]:
+        # only display current version
+        if not version_increment_is_valid(old_version=None, new_version=str(object_version), section=section):
+            color = red
+
+    elif section == "deletions":
+        color = red
+
+    # nothing needs to be added to this statement - it just needs to skip the 'else' clause
+    elif section == "metadata_changes":
+        pass
+
+    else:
+        # the "previous_version" key was added in the load_data() function
+        old_version = stix_object.get("previous_version")
+        if not version_increment_is_valid(old_version=old_version, new_version=str(object_version), section=section):
+            color = red
+        version_display = f"(v{old_version}&#8594;v{object_version})"
+
+    return f'<small style="color:{color}">{version_display}</small>'
+
+
+def cleanup_values(groupings):
+    new_values = []
+    for grouping in groupings:
+        if grouping["parentInSection"]:
+            new_values.append(grouping["parent"])
+
+        for child in sorted(grouping["children"], key=lambda child: child["name"]):
+            new_values.append(child)
+
+    return new_values
+
+
+def version_increment_is_valid(old_version: str, new_version: str, section: str) -> bool:
+    """Validate version increment between old and new STIX objects."""
+    if section in ["revocations", "deprecations"]:
+        return True
+    if section == "additions":
+        if new_version != "1.0":
+            return False
+        return True
+    if not (old_version and new_version):
+        return False
+
+    old_version = float(old_version)
+    new_version = float(new_version)
+    major_change = is_major_version_change(old_version=old_version, new_version=new_version)
+    minor_change = is_minor_version_change(old_version=old_version, new_version=new_version)
+
+    if major_change or minor_change:
+        return True
+    return False
+
+
+def is_major_version_change(old_version: float, new_version: float) -> bool:
+    """Determine if the new version is a major change or not."""
+    next_major = float(math.floor(old_version + 1))
+    if next_major == new_version:
+        return True
+    return False
+
+
+def is_minor_version_change(old_version: float, new_version: float) -> bool:
+    """Determine if the new version is a minor change or not."""
+    diff = round(new_version - old_version, 1)
+    if diff == 0.1:
+        return True
+    return False
+
+
+def get_relative_url_from_stix(stix_object):
+    """Parse the website url from a stix object."""
+    is_subtechnique = stix_object["type"] == "attack-pattern" and stix_object.get("x_mitre_is_subtechnique")
+
+    if stix_object.get("external_references"):
+        url = stix_object["external_references"][0]["url"]
+        split_url = url.split("/")
+        splitfrom = -3 if is_subtechnique else -2
+        link = "/".join(split_url[splitfrom:])
+        return link
+    return None
+
+
+def get_relative_data_component_url(datasource, datacomponent):
+    """Create url of data component with parent data source"""
+    return f"{get_relative_url_from_stix(stix_object=datasource)}/#{'%20'.join(datacomponent['name'].split(' '))}"
+
+
+def deep_copy_stix(stix_objects):
+    """Transform stix to dict and deep copy the dict."""
+    result = []
+    for stix_object in stix_objects:
+        # TODO: serialize the STIX objects instead of casting them to dict
+        # more details here: https://github.com/mitre/cti/issues/17#issuecomment-395768815
+        stix_object = dict(stix_object)
+        if "external_references" in stix_object:
+            for i in range(len(stix_object["external_references"])):
+                stix_object["external_references"][i] = dict(stix_object["external_references"][i])
+        if "kill_chain_phases" in stix_object:
+            for i in range(len(stix_object["kill_chain_phases"])):
+                stix_object["kill_chain_phases"][i] = dict(stix_object["kill_chain_phases"][i])
+
+        if "modified" in stix_object:
+            stix_object["modified"] = str(stix_object["modified"])
+        if "first_seen" in stix_object:
+            stix_object["first_seen"] = str(stix_object["first_seen"])
+        if "last_seen" in stix_object:
+            stix_object["last_seen"] = str(stix_object["last_seen"])
+
+        if "definition" in stix_object:
+            stix_object["definition"] = dict(stix_object["definition"])
+        stix_object["created"] = str(stix_object["created"])
+        result.append(stix_object)
+    return result
+
+
+def get_attack_id(stix_obj) -> Optional[str]:
+    """Get the object's ATT&CK ID.
+
+    Parameters
+    ----------
+    stix_obj :
+        The STIX object
+
+    Returns
+    -------
+    str (optional)
+        The ATT&CK ID of the object. Returns None if not found
+    """
+    attack_id = None
+    external_references = stix_obj.get("external_references")
+    if external_references:
+        attack_source = external_references[0]
+        if attack_source.get("external_id") and attack_source.get("source_name") in [
+            "mitre-attack",
+            "mitre-mobile-attack",
+            "mitre-ics-attack",
+        ]:
+            attack_id = attack_source["external_id"]
+    return attack_id
+
+
+def get_attack_object_version(stix_obj) -> Optional[float]:
+    """Get the object's ATT&CK version.
+
+    Parameters
+    ----------
+    stix_obj :
+        The STIX object
+
+    Returns
+    -------
+    Optional[float]
+        The object version of the ATT&CK object. Defaults to 0.0
+    """
+    # ICS objects didn't have x_mitre_version until v11.0, so pretend they were version 0.0
+    version = stix_obj.get("x_mitre_version", 0)
+    return float(version)
+
+
+def markdown_to_html(outfile, content, diffStix):
     """Convert the markdown string passed in to HTML and store in index.html
     of indicated output file path"""
-    logger.info("writing HTML to file")
-
-    # get output file path
-    outputfile_path = os.path.split(markdown_outfile)[0]
-    outfile = os.path.join(outputfile_path, "index.html")
+    logger.info("Writing HTML to file")
+    old_version = diffStix.data["old"]["attack_release_versions"]["enterprise-attack"]
+    new_version = diffStix.data["new"]["attack_release_versions"]["enterprise-attack"]
+    if new_version:
+        header = f"<h1 style='text-align:center;'>ATT&CK Changes Between v{old_version} and v{new_version}</h1>"
+    else:
+        header = f"<h1 style='text-align:center;'>ATT&CK Changes Between v{old_version} and new content</h1>"
 
     # Center content
     html_string = """<div style='max-width: 55em;margin: auto;margin-top:20px;font-family: "Roboto", sans-serif;'>"""
     html_string += "<meta charset='utf-8'>"
-    html_string += "<h1 style='text-align:center;'>Changes between ATT&CK STIX bundles</h1>"
+    html_string += header
     html_string += markdown.markdown(content)
     html_string += "</div>"
 
-    outfile = open(outfile, "w", encoding="utf-8")
-    outfile.write(html_string)
-    outfile.close()
-
-    logger.info("finished writing HTML to file")
+    with open(outfile, "w", encoding="utf-8") as outputfile:
+        outputfile.write(html_string)
 
 
 def layers_dict_to_files(outfiles, layers):
     """Print the layers dict passed in to layer files."""
-    logger.info("writing layers dict to layer files")
+    logger.info("Writing ATT&CK Navigator layers to JSON files")
 
     # write each layer to separate files
     if "enterprise-attack" in layers:
@@ -1029,13 +1120,239 @@ def layers_dict_to_files(outfiles, layers):
         Path(ics_attack_layer_file).parent.mkdir(parents=True, exist_ok=True)
         json.dump(layers["ics-attack"], open(ics_attack_layer_file, "w"), indent=4)
 
-    logger.info("finished writing layers dict to layer files")
+
+def write_detailed_html(html_file_detailed, diffStix):
+    old_version = diffStix.data["old"]["attack_release_versions"]["enterprise-attack"]
+    new_version = diffStix.data["new"]["attack_release_versions"]["enterprise-attack"]
+
+    if new_version:
+        header = f"<h1>ATT&CK Changes Between v{old_version} and v{new_version}</h1>"
+    else:
+        header = f"<h1>ATT&CK Changes Between v{old_version} and new content</h1>"
+
+    frontmatter = [
+        textwrap.dedent(
+            """\
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>ATT&CK Changes</title>
+                <style type="text/css">
+                    table.diff {font-family:Courier; border:medium;}
+                    .diff_header {background-color:#e0e0e0}
+                    td.diff_header {text-align:right}
+                    .diff_next {background-color:#c0c0c0}
+                    .diff_add {background-color:#aaffaa}
+                    .diff_chg {background-color:#ffff77}
+                    .diff_sub {background-color:#ffaaaa}
+                </style>
+            </head>
+            <body>
+        """
+        ),
+        header,
+        markdown.markdown(diffStix.get_md_key()),
+        textwrap.dedent(
+            """\
+        <table class=diff summary=Legends>
+            <tr>
+                <td>
+                    <table border= summary=Colors>
+                        <tr><th>Colors for description field</th></tr>
+                        <tr><td class=diff_add>Added</td></tr>
+                        <tr><td class=diff_chg>Changed</td></tr>
+                        <tr><td class=diff_sub>Deleted</td></tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <h2>Additional formats</h2>
+        <p>These ATT&CK Navigator layer files can be uploaded to ATT&CK Navigator manually.</p>
+        <ul>
+            <li><a href="layer-enterprise.json">Enterprise changes</a></li>
+            <li><a href="layer-mobile.json">Mobile changes</a></li>
+            <li><a href="layer-ics.json">ICS changes</a></li>
+        </ul>
+        <p>This JSON file contains the machine readble output used to create this page: <a href="changelog.json">changelog.json</a></p>
+        """
+        ),
+    ]
+
+    with open(html_file_detailed, "w") as file:
+        file.writelines(frontmatter)
+        lines = []
+        for object_type, domain_data in diffStix.data["changes"].items():
+
+            # this is an obnoxious way of determining if there are changes in any of the sections for any of the domains
+            if sum([sum(change_types.values(), []) for change_types in domain_data.values()], []):
+                lines.append(f"<h2>{diffStix.attack_type_to_title[object_type]}</h2>")
+            else:
+                continue
+
+            for domain, change_types in domain_data.items():
+                if sum(change_types.values(), []):
+                    lines.append(f"<h3>{domain}</h3>")
+                else:
+                    continue
+
+                for change_type, change_data in change_types.items():
+                    if change_type == "unchanged":
+                        # Not reporting on unchanged STIX objects for detailed changelog
+                        continue
+
+                    datastore_version = "old" if change_type == "deletions" else "new"
+
+                    if change_data:
+                        lines.append("<details>")
+                        lines.append(f"<summary>{diffStix.section_headers[object_type][change_type]}</summary>")
+
+                    for stix_object in change_data:
+                        attack_id = get_attack_id(stix_object)
+                        object_version = get_attack_object_version(stix_obj=stix_object)
+
+                        if stix_object["type"] == "x-mitre-data-component" or stix_object.get(
+                            "x_mitre_is_subtechnique"
+                        ):
+                            parent_object = diffStix.get_parent_stix_object(
+                                stix_object=stix_object, datastore_version=datastore_version
+                            )
+                            if parent_object:
+                                nameplate = f"{parent_object.get('name')}: {stix_object['name']}"
+                            else:
+                                logger.warning(f"[{stix_object['id']}] {attack_id} has no parent!")
+                                nameplate = f"{stix_object['name']} (No parent object identified. It is likely revoked or deprecated)"
+                        else:
+                            nameplate = stix_object["name"]
+
+                        if attack_id:
+                            nameplate = f"[{attack_id}] {nameplate}"
+                        else:
+                            if stix_object["type"] != "x-mitre-data-component":
+                                logger.warning(f"{stix_object['id']} does not have an ATT&CK ID")
+
+                        lines.append("<hr>")
+                        lines.append(f"<h4>{nameplate}</h4>")
+
+                        if object_version:
+                            lines.append(f"<p><b>Current version</b>: {object_version}</p>")
+
+                        if change_type in ["additions", "revocations", "deprecations", "deletions"]:
+                            if stix_object.get("description"):
+                                lines.append(f"<p><b>Description</b>: {stix_object['description']}</p>")
+
+                        if change_type == "revocations":
+                            revoked_by_id = get_attack_id(stix_object["revoked_by"])
+                            revoked_by_name = stix_object["revoked_by"]["name"]
+                            revoked_by_description = stix_object["revoked_by"]["description"]
+                            lines.append("<font color=blue>")
+                            lines.append(f"<p>This object has been revoked by [{revoked_by_id}] {revoked_by_name}</p>")
+                            lines.append("</font>")
+                            if revoked_by_description:
+                                lines.append(f"<p><b>Description for [{revoked_by_id}] {revoked_by_name}</b>: {revoked_by_description}</p>")
+
+                        version_change = stix_object.get("version_change")
+                        if version_change:
+                            lines.append(f"<p><b>Version changed from</b>: {version_change}</p>")
+
+                        description_change_table = stix_object.get("description_change_table")
+                        if description_change_table:
+                            lines.append(description_change_table)
+
+                        detailed_diff = json.loads(stix_object.get("detailed_diff", "{}"))
+                        if detailed_diff:
+                            lines.append("<details>")
+                            lines.append(f"<summary>Details</summary>")
+                            table_inline_css = "style='border: 1px solid black;border-collapse: collapse;'"
+
+                            # the deepdiff library displays differences with a prefix of: root['<top-level-key-we-care-about>']
+                            regex = r"^root\['(?P<top_stix_key>[^\']*)'\](?P<the_rest>.*)$"
+                            for detailed_change_type, detailed_changes in detailed_diff.items():
+
+                                lines.append(f"<table {table_inline_css}>")
+                                lines.append(f"<caption>{detailed_change_type}</caption>")
+                                lines.append("<thead><tr>")
+                                lines.append(f"<th {table_inline_css}>STIX Field</th>")
+                                lines.append(f"<th {table_inline_css}>Old value</th>")
+                                lines.append(f"<th {table_inline_css}>New Value</th>")
+                                lines.append("</tr></thead>")
+                                lines.append("<tbody>")
+
+                                if detailed_change_type == "values_changed":
+                                    for detailed_change, values in detailed_changes.items():
+                                        matches = re.search(regex, detailed_change)
+                                        top_stix_key = matches.group("top_stix_key")
+                                        the_rest = matches.group("the_rest")
+                                        stix_field = f"{top_stix_key}{the_rest}"
+
+                                        old_value = values["old_value"]
+                                        new_value = values["new_value"]
+                                        lines.append("<tr>")
+                                        lines.append(f"<td {table_inline_css}>{stix_field}</td>")
+                                        lines.append(f"<td {table_inline_css}>{old_value}</td>")
+                                        lines.append(f"<td {table_inline_css}>{new_value}</td>")
+                                        lines.append("</tr>")
+
+                                elif detailed_change_type == "iterable_item_added":
+                                    for detailed_change, new_value in detailed_changes.items():
+                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        lines.append("<tr>")
+                                        lines.append(f"<td {table_inline_css}>{stix_field}</td>")
+                                        lines.append(f"<td {table_inline_css}></td>")
+                                        lines.append(f"<td {table_inline_css}>{new_value}</td>")
+                                        lines.append("</tr>")
+
+                                elif detailed_change_type == "iterable_item_removed":
+                                    for detailed_change, old_value in detailed_changes.items():
+                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        lines.append("<tr>")
+                                        lines.append(f"<td {table_inline_css}>{stix_field}</td>")
+                                        lines.append(f"<td {table_inline_css}>{old_value}</td>")
+                                        lines.append(f"<td {table_inline_css}></td>")
+                                        lines.append("</tr>")
+
+                                elif detailed_change_type == "dictionary_item_added":
+                                    for detailed_change, new_value in detailed_changes.items():
+                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        lines.append("<tr>")
+                                        lines.append(f"<td {table_inline_css}>{stix_field}</td>")
+                                        lines.append(f"<td {table_inline_css}></td>")
+                                        lines.append(f"<td {table_inline_css}>{new_value}</td>")
+                                        lines.append("</tr>")
+
+                                elif detailed_change_type == "dictionary_item_removed":
+                                    for detailed_change, old_value in detailed_changes.items():
+                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        lines.append("<tr>")
+                                        lines.append(f"<td {table_inline_css}>{stix_field}</td>")
+                                        lines.append(f"<td {table_inline_css}>{old_value}</td>")
+                                        lines.append(f"<td {table_inline_css}></td>")
+                                        lines.append("</tr>")
+
+                                else:
+                                    lines.append(f"<h5>{detailed_change_type}</h5>")
+                                    lines.append("<ul>")
+                                    for detailed_change in detailed_changes:
+                                        lines.append(f"<li>{detailed_change}</li>")
+                                    lines.append("</ul>")
+
+                                lines.append("</tbody></table>")
+                            lines.append("</details>")
+
+                    if change_data:
+                        lines.append("</details>")
+
+        lines.append(
+            """
+            </body>
+        </html>
+        """
+        )
+
+        file.writelines(lines)
 
 
 def get_parsed_args():
-    """Create argument parser and parse arguments"""
-    old_dir_default = "old"
-
+    """Create argument parser and parse arguments."""
     parser = argparse.ArgumentParser(
         description=(
             "Create -markdown and/or -layers reporting on the changes between two versions of the ATT&CK content. "
@@ -1047,68 +1364,64 @@ def get_parsed_args():
     parser.add_argument(
         "-old",
         type=str,
-        metavar="OLD_DIR",
-        help=f"the directory of the old content. Default is '{old_dir_default}'",
+        default="old",
+        help=f"Directory to load old STIX data from.",
     )
 
     parser.add_argument(
         "-new",
         type=str,
-        metavar="NEW_DIR",
         default="new",
-        help="the directory of the new content. Default is '%(default)s'",
+        help="Directory to load new STIX data from.",
     )
 
     parser.add_argument(
         "-types",
         type=str,
         nargs="+",
-        metavar=("OBJ_TYPE", "OBJ_TYPE"),
         choices=["technique", "software", "group", "campaign", "mitigation", "datasource"],
         default=["technique", "software", "group", "campaign", "mitigation", "datasource"],
-        help="which types of objects to report on. Choices (and defaults) are %(choices)s",
+        help="Which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
     parser.add_argument(
         "-domains",
         type=str,
         nargs="+",
-        metavar="DOMAIN",
         choices=["enterprise-attack", "mobile-attack", "ics-attack"],
         default=["enterprise-attack", "mobile-attack", "ics-attack"],
-        help="which domains to report on. Choices (and defaults) are %(choices)s",
+        help="Which domains to report on. Choices (and defaults) are %(choices)s",
     )
 
     parser.add_argument(
-        "-markdown",
+        "--markdown-file",
         type=str,
-        nargs="?",
-        metavar="MARKDOWN_FILE",
-        const=md_default,
-        help="create a markdown file reporting changes. If value is unspecified, defaults to %(const)s",
+        help="Create a markdown file reporting changes.",
     )
 
     parser.add_argument(
-        "-json-output",
+        "--html-file",
         type=str,
-        nargs="?",
-        metavar="JSON_FILE",
-        const=json_default,
-        help="create a JSON file reporting changes. If value is unspecified, defaults to %(const)s",
+        help="Create HTML page from markdown content.",
     )
 
     parser.add_argument(
-        "--create-html",
-        action="store_true",
-        help="create index.html page of markdown file that reported changes. Does not do anything unless -markdown is provided",
+        "--html-file-detailed",
+        type=str,
+        help="Create an HTML file reporting detailed changes.",
+    )
+
+    parser.add_argument(
+        "--json-file",
+        type=str,
+        help="Create a JSON file reporting changes.",
     )
 
     parser.add_argument(
         "-layers",
         type=str,
         nargs="*",
-        # metavar=("ENTERPRISE", "MOBILE", "PRE"),
         help=f"""
-            create layer files showing changes in each domain
+            Create layer files showing changes in each domain
             expected order of filenames is 'enterprise', 'mobile', 'ics', 'pre attack'.
             If values are unspecified, defaults to {", ".join(layer_defaults)}
             """,
@@ -1118,32 +1431,20 @@ def get_parsed_args():
         "-site_prefix",
         type=str,
         default="",
-        help="prefix links in markdown output, e.g. [prefix]/techniques/T1484",
+        help="Prefix links in markdown output, e.g. [prefix]/techniques/T1484",
     )
 
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="print status messages",
-    )
-
-    parser.add_argument(
-        "--minor-changes",
-        action="store_true",
-        help="show changes to objects which didn't increment the version number",
+        help="Print status messages",
     )
 
     parser.add_argument(
         "--unchanged",
         action="store_true",
-        help="show objects without changes in the markdown output",
-    )
-
-    parser.add_argument(
-        "--use-taxii",
-        action="store_true",
-        help="Use content from the ATT&CK TAXII server for the -old data",
+        help="Show objects without changes in the markdown output",
     )
 
     parser.add_argument(
@@ -1161,8 +1462,15 @@ def get_parsed_args():
     parser.add_argument(
         "--contributors",
         action="store_true",
-        help="show new contributors between releases",
+        help="Show new contributors between releases",
     )
+    parser.add_argument(
+        "--no-contributors",
+        dest="contributors",
+        action="store_false",
+        help="Do not show new contributors between releases",
+    )
+    parser.set_defaults(contributors=True)
 
     args = parser.parse_args()
 
@@ -1173,19 +1481,8 @@ def get_parsed_args():
     else:
         logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True, level="INFO")
 
-    if args.use_taxii and args.old is not None:
-        parser.error("--use-taxii and -old cannot be used together")
-
-    if args.use_mitre_cti and args.old is not None:
+    if args.use_mitre_cti and args.old:
         parser.error("--use-mitre-cti and -old cannot be used together")
-
-    if not args.markdown and args.layers is None:
-        logger.error("Script doesn't output anything unless -markdown and/or -layers are specified.")
-        logger.error("Run 'python3 diff_stix.py -h' for usage instructions")
-        exit()
-
-    if args.old is None:
-        args.old = old_dir_default
 
     if args.layers is not None:
         if len(args.layers) not in [0, 3]:
@@ -1194,25 +1491,65 @@ def get_parsed_args():
     return args
 
 
-# Used by attack-website script to generate changelog
 def get_new_changelog_md(
     domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
     layers: List[str] = layer_defaults,
-    markdown_file: str = md_default,
-    minor_changes: bool = False,
     unchanged: bool = False,
-    new: str = "new",
     old: str = None,
+    new: str = "new",
     show_key: bool = False,
     site_prefix: str = "",
     types: List[str] = ["technique", "software", "group", "campaign", "mitigation", "datasource"],
-    use_taxii: bool = False,
     use_mitre_cti: bool = False,
     verbose: bool = False,
     include_contributors: bool = False,
-    create_html: bool = False,
-    json_output: str = json_default,
-):
+    markdown_file: Optional[str] = None,
+    html_file: Optional[str] = None,
+    html_file_detailed: Optional[str] = None,
+    json_file: Optional[str] = None,
+) -> str:
+    """Get a Markdown string representation of differences between two ATT&CK versions.
+
+    Additionally, if you want to save HTML, JSON, or detailed output you can do that with this function as well.
+
+    Parameters
+    ----------
+    domains : List[str], optional
+        List of domains to parse, by default ["enterprise-attack", "mobile-attack", "ics-attack"]
+    layers : List[str], optional
+        Array of output filenames for layer files, by default layer_defaults
+    unchanged : bool, optional
+        Include unchanged ATT&CK objects in diff comparison, by default False
+    old : str, optional
+        Directory to load old STIX data from, by default None
+    new : str, optional
+        Directory to load new STIX data from, by default "new"
+    show_key : bool, optional
+        Output key to markdown file, by default False
+    site_prefix : str, optional
+        Prefix links in markdown output, by default ""
+    types : List[str], optional
+        Which types of objects to report on, by default ["technique", "software", "group", "campaign", "mitigation", "datasource"]
+    use_mitre_cti : bool, optional
+        Use https://github.com/mitre/cti for loading old STIX data, by default False
+    verbose : bool, optional
+        Print progress bar and status messages to stdout, by default False
+    include_contributors : bool, optional
+        Include contributor information for new contributors, by default False
+    markdown_file : str, optional
+        If set, writes a markdown file, by default None
+    html_file : str, optional
+        If set, writes an HTML file from the parsed markdown, by default None
+    html_file_detailed : str, optional
+        If set, writes a more detailed HTML page, by default None
+    json_file : str, optional
+        If set, writes JSON file of the changes, by default None
+
+    Returns
+    -------
+    str
+        A Markdown string representation of differences between two ATT&CK versions.
+    """
     # the default loguru logger logs up to Debug by default
     logger.remove()
     if verbose:
@@ -1220,41 +1557,42 @@ def get_new_changelog_md(
     else:
         logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True, level="INFO")
 
-    # if old:
-    #     if use_mitre_cti or use_taxii:
-    #         logger.error("Multiple sources selected as base STIX to compare against.")
-    #         logger.error("When calling get_new_changelog_md(), 'old' is mutually exclusive with 'use_taxii' and 'use_mitre_cti'")
-    #         return ""
+    if old and use_mitre_cti:
+        logger.error("Multiple sources selected as base STIX to compare against.")
+        logger.error("When calling get_new_changelog_md(), 'old' is mutually exclusive with 'use_mitre_cti'")
+        return ""
 
     diffStix = DiffStix(
         domains=domains,
         layers=layers,
-        markdown=markdown_file,
-        minor_changes=minor_changes,
         unchanged=unchanged,
-        new=new,
         old=old,
+        new=new,
         show_key=show_key,
         site_prefix=site_prefix,
         types=types,
-        use_taxii=use_taxii,
         use_mitre_cti=use_mitre_cti,
         verbose=verbose,
         include_contributors=include_contributors,
     )
 
     md_string = None
-    if markdown_file:
+    if markdown_file or html_file:
         md_string = diffStix.get_markdown_string()
 
-        logger.info("writing markdown to file")
+    if markdown_file:
+        logger.info("Writing markdown to file")
         Path(markdown_file).parent.mkdir(parents=True, exist_ok=True)
         with open(markdown_file, "w") as file:
             file.write(md_string)
-        logger.info("finished writing markdown to file")
 
-        if create_html:
-            markdown_to_index_html(markdown_file, md_string)
+    if html_file:
+        markdown_to_html(outfile=html_file, content=md_string, diffStix=diffStix)
+
+    if html_file_detailed:
+        Path(html_file_detailed).parent.mkdir(parents=True, exist_ok=True)
+        logger.info("Writing detailed updates to file")
+        write_detailed_html(html_file_detailed=html_file_detailed, diffStix=diffStix)
 
     if layers:
         if len(layers) == 0:
@@ -1269,13 +1607,12 @@ def get_new_changelog_md(
         layers_dict = diffStix.get_layers_dict()
         layers_dict_to_files(outfiles=layers, layers=layers_dict)
 
-    if json_output:
+    if json_file:
         changes_dict = diffStix.get_changes_dict()
 
-        logger.info("writing JSON updates to file")
-        Path(json_output).parent.mkdir(parents=True, exist_ok=True)
-        json.dump(changes_dict, open(json_output, "w"), indent=4)
-        logger.info("finished writing JSON updates to file")
+        logger.info("Writing JSON updates to file")
+        Path(json_file).parent.mkdir(parents=True, exist_ok=True)
+        json.dump(changes_dict, open(json_file, "w"), indent=4)
 
     return md_string
 
@@ -1286,20 +1623,19 @@ def main():
     get_new_changelog_md(
         domains=args.domains,
         layers=args.layers,
-        markdown_file=args.markdown,
-        minor_changes=args.minor_changes,
         unchanged=args.unchanged,
-        new=args.new,
         old=args.old,
+        new=args.new,
         show_key=args.show_key,
         site_prefix=args.site_prefix,
         types=args.types,
-        use_taxii=args.use_taxii,
         use_mitre_cti=args.use_mitre_cti,
         verbose=args.verbose,
         include_contributors=args.contributors,
-        create_html=args.create_html,
-        json_output=args.json_output,
+        markdown_file=args.markdown_file,
+        html_file=args.html_file,
+        html_file_detailed=args.html_file_detailed,
+        json_file=args.json_file,
     )
 
 
