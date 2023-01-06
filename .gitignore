@@ -2,6 +2,11 @@
 output/
 attack-releases/
 
+# STIX bundles
+enterprise-attack.json
+mobile-attack.json
+ics-attack.json
+
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos
 

@@ -1,3 +1,5 @@
+"""Helper functions to convert STIX to pandas dataframes."""
+
 import copy
 import datetime
 import re
@@ -8,6 +10,9 @@ import pandas as pd
 from loguru import logger
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
+
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
+
 
 # Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
 #   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
@@ -75,7 +80,7 @@ def format_date(date):
     """Given a date string, return it formatted as %d %B %Y."""
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return "{} {} {}".format(date.strftime("%d"), date.strftime("%B"), date.strftime("%Y"))
+    return f"{date.strftime('%d')} {date.strftime('%B')} {date.strftime('%Y')}"
 
 
 def get_citations(objects):
@@ -106,11 +111,7 @@ def parseBaseStix(sdo):
     row = {}
     url = None
     if sdo.get("external_references"):
-        if sdo["external_references"][0]["source_name"] in [
-            "mitre-attack",
-            "mitre-mobile-attack",
-            "mitre-ics-attack",
-        ]:
+        if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
             row["ID"] = sdo["external_references"][0]["external_id"]
             url = sdo["external_references"][0]["url"]
     if "name" in sdo:
@@ -161,7 +162,9 @@ def techniquesToDf(src, domain):
 
         # sub-technique properties
         if "kill_chain_phases" not in technique:
-            logger.error(f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases")
+            logger.error(
+                f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases"
+            )
             continue
         tactic_shortnames = list(map(lambda kcp: kcp["phase_name"], technique["kill_chain_phases"]))
         tactics = list(
@@ -238,7 +241,7 @@ def techniquesToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="technique")
     dataframes.update(codex)
     # add relationship references
-    dataframes["techniques"][f"relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
+    dataframes["techniques"]["relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -251,11 +254,10 @@ def techniquesToDf(src, domain):
     return dataframes
 
 
-def tacticsToDf(src, domain):
+def tacticsToDf(src):
     """Parse STIX tactics from the given data and return corresponding pandas dataframes.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     tactics = src.query([Filter("type", "=", "x-mitre-tactic")])
@@ -275,11 +277,10 @@ def tacticsToDf(src, domain):
     return dataframes
 
 
-def sourcesToDf(src, domain):
+def datasourcesToDf(src):
     """Parse STIX Data Sources and their Data components from the given data and return corresponding pandas dataframes.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     data = list(
@@ -291,6 +292,7 @@ def sourcesToDf(src, domain):
             ]
         )
     )
+    dataframes = {}
     if data:
         refined = remove_revoked_deprecated(data)
         data_object_rows = []
@@ -319,23 +321,21 @@ def sourcesToDf(src, domain):
 
         citations = get_citations(refined)
         tempa = pd.DataFrame(data_object_rows).sort_values("name")
-        dataframes = {
-            "datasources": tempa.reindex(
-                columns=[
-                    "name",
-                    "ID",
-                    "description",
-                    "collection layers",
-                    "platforms",
-                    "created",
-                    "modified",
-                    "type",
-                    "version",
-                    "url",
-                    "contributors",
-                ]
-            ),
-        }
+        dataframes["datasources"] = tempa.reindex(
+            columns=[
+                "name",
+                "ID",
+                "description",
+                "collection layers",
+                "platforms",
+                "created",
+                "modified",
+                "type",
+                "version",
+                "url",
+                "contributors",
+            ]
+        )
         # add relationships
         dataframes.update(relationshipsToDf(src, relatedType="datasource"))
         # add/merge citations
@@ -346,17 +346,16 @@ def sourcesToDf(src, domain):
                 dataframes["citations"] = citations
 
             dataframes["citations"].sort_values("reference")
-
-        return dataframes
     else:
-        print(f"[WARNING] (sourceToDf) - No data components or data sources found for domain {domain}. Skipping...")
+        logger.warning("No data components or data sources found - nothing to parse")
+
+    return dataframes
 
 
-def softwareToDf(src, domain):
+def softwareToDf(src):
     """Parse STIX software from the given data and return corresponding pandas dataframes.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     software = list(
@@ -386,7 +385,7 @@ def softwareToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="software")
     dataframes.update(codex)
     # add relationship references
-    dataframes["software"][f"relationship citations"] = _get_relationship_citations(dataframes["software"], codex)
+    dataframes["software"]["relationship citations"] = _get_relationship_citations(dataframes["software"], codex)
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -399,11 +398,10 @@ def softwareToDf(src, domain):
     return dataframes
 
 
-def groupsToDf(src, domain):
+def groupsToDf(src):
     """Parse STIX groups from the given data and return corresponding pandas dataframes.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     groups = src.query([Filter("type", "=", "intrusion-set")])
@@ -411,6 +409,7 @@ def groupsToDf(src, domain):
     group_rows = []
     for group in tqdm(groups, desc="parsing groups"):
         row = parseBaseStix(group)
+
         # add group aliases
         if "aliases" in group:
             associated_groups = []
@@ -436,10 +435,11 @@ def groupsToDf(src, domain):
     codex = relationshipsToDf(src, relatedType="group")
     dataframes.update(codex)
     # add relationship references
-    dataframes["groups"][f"relationship citations"] = _get_relationship_citations(dataframes["groups"], codex)
+    dataframes["groups"]["relationship citations"] = _get_relationship_citations(dataframes["groups"], codex)
     # add/merge citations
     if not citations.empty:
-        if "citations" in dataframes:  # append to existing citations from references
+        # append to existing citations from references
+        if "citations" in dataframes:
             dataframes["citations"] = pd.concat([dataframes["citations"], citations])
         else:  # add citations
             dataframes["citations"] = citations
@@ -449,11 +449,68 @@ def groupsToDf(src, domain):
     return dataframes
 
 
-def mitigationsToDf(src, domain):
+def campaignsToDf(src):
+    """Parse STIX campaigns from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    campaigns = src.query([Filter("type", "=", "campaign")])
+    campaigns = remove_revoked_deprecated(campaigns)
+
+    dataframes = {}
+    if campaigns:
+        campaign_rows = []
+        for campaign in tqdm(campaigns, desc="parsing campaigns"):
+            row = parseBaseStix(campaign)
+
+            # add group aliases
+            if "aliases" in campaign:
+                associated_campaigns = []
+                associated_campaign_citations = []
+                for alias in sorted(campaign["aliases"][1:]):
+                    # find the reference for the alias
+                    associated_campaigns.append(alias)
+                    for ref in campaign["external_references"]:
+                        if ref["source_name"] == alias:
+                            associated_campaign_citations.append(ref["description"])
+                            break
+                            # aliases.append(alias)
+                row["associated campaigns"] = ", ".join(associated_campaigns)
+                row["associated campaigns citations"] = ", ".join(associated_campaign_citations)
+
+            campaign_rows.append(row)
+
+        citations = get_citations(campaigns)
+        dataframes = {
+            "campaigns": pd.DataFrame(campaign_rows).sort_values("name"),
+        }
+        # add relationships
+        codex = relationshipsToDf(src, relatedType="campaign")
+        dataframes.update(codex)
+
+        # add relationship references
+        dataframes["campaigns"]["relationship citations"] = _get_relationship_citations(dataframes["campaigns"], codex)
+
+        # add/merge citations
+        if not citations.empty:
+            # append to existing citations from references
+            if "citations" in dataframes:
+                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
+            else:
+                dataframes["citations"] = citations
+
+            dataframes["citations"].sort_values("reference")
+    else:
+        logger.warning("No campaigns found - nothing to parse")
+
+    return dataframes
+
+
+def mitigationsToDf(src):
     """Parse STIX mitigations from the given data and return corresponding pandas dataframes.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
-    :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     mitigations = src.query([Filter("type", "=", "course-of-action")])
@@ -513,7 +570,9 @@ class CellRange:
         return "".join(result) + str(row)
 
 
-def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name):
+def build_technique_and_sub_columns(
+    src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name, platform=None
+):
     """Build technique and subtechnique columns for a given matrix and attach them to the appropriate object listings.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
@@ -523,6 +582,8 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
     :param matrix_grid_handle: Handle to the 2D grid array being constructed for the matrix (technique and subtechnique
                                 columns will be appended here)
     :param tactic_name: The name of the corresponding tactic for this column
+    :param platform: [Optional] The name of a platform to filter subtechniques by
+
     :return: Nothing (meta - modifies the passed in merge_data_handle and matrix_grid_handle objects)
     """
     techniques_column = []
@@ -538,12 +599,22 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
 
     for technique in techniques:
         techniques_column.append(technique["name"])
+
         # sub-technique relationships
         subtechnique_ofs = all_sub_techniques.query([Filter("target_ref", "=", technique["id"])])
-        if len(subtechnique_ofs) > 0:  # if there are sub-techniques on the tactic
-            technique_top = len(techniques_column) + 1  # top of row range to merge
-            # get sub-techniques
+
+        # if there are sub-techniques on the tactic
+        if len(subtechnique_ofs) > 0:
+            # top of row range to merge
+            technique_top = len(techniques_column) + 1
+
             subtechniques = [src.get(rel["source_ref"]) for rel in subtechnique_ofs]
+            if platform:
+                subtechniques = filter_platforms(
+                    subtechniques,
+                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
+                )
+
             subtechniques = remove_revoked_deprecated(subtechniques)
             subtechniques = sorted(subtechniques, key=lambda x: x["name"])
             for i in range(len(subtechniques)):  # for each sub-technique
@@ -569,16 +640,25 @@ def build_technique_and_sub_columns(src, techniques, columns, merge_data_handle,
                         },
                     )
                 )
-        else:  # no sub-techniques; add empty cell parallel to technique
+
+        # no sub-techniques; add empty cell parallel to technique
+        else:
             subtechniques_column.append("")
     # end adding techniques and sub-techniques to column
 
-    matrix_grid_handle.append(techniques_column)  # add technique column to grid
+    # add technique column to grid
+    matrix_grid_handle.append(techniques_column)
 
-    if len(list(filter(lambda x: x != "", subtechniques_column))) > 0:  # if there are sub-techniques for the tactic
-        matrix_grid_handle.append(subtechniques_column)  # add sub-technique sub-column
-        columns.append("")  # add empty tactic header for the sub-column
-        merge_data_handle.append(  # merge tactic column header with the sub-column header that was just appended
+    # if there are sub-techniques for the tactic
+    if len(list(filter(lambda x: x != "", subtechniques_column))) > 0:
+        # add sub-technique sub-column
+        matrix_grid_handle.append(subtechniques_column)
+
+        # add empty tactic header for the sub-column
+        columns.append("")
+
+        # merge tactic column header with the sub-column header that was just appended
+        merge_data_handle.append(
             CellRange(
                 len(columns) - 1,
                 len(columns),
@@ -627,7 +707,7 @@ def build_parsed_DF_matrix(matrix_grid, columns, merge, parsed_dict):
 
 
 def matricesToDf(src, domain):
-    """Parse STIX matrices from the given data and return parsed matrix structures
+    """Parse STIX matrices from the given data and return parsed matrix structures.
 
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :param domain: domain of ATT&CK src corresponds to, e.g "enterprise-attack"
@@ -684,7 +764,14 @@ def matricesToDf(src, domain):
             techniques = remove_revoked_deprecated(techniques)
             techniques = sorted(techniques, key=lambda x: x["name"])
             # add techniques
-            build_technique_and_sub_columns(src, techniques, columns, merge, matrix_grid, tactic["name"])
+            build_technique_and_sub_columns(
+                src=src,
+                techniques=techniques,
+                columns=columns,
+                merge_data_handle=merge,
+                matrix_grid_handle=matrix_grid,
+                tactic_name=tactic["name"],
+            )
 
             for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
                 # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
@@ -692,17 +779,18 @@ def matricesToDf(src, domain):
                 # platform will be.
                 a_techs = filter_platforms(
                     techniques,
-                    [platform] if platform not in MATRIX_PLATFORMS_LOOKUP else MATRIX_PLATFORMS_LOOKUP[platform],
+                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
                 )
                 if a_techs:
                     sub_matrices_columns[platform].append(tactic["name"])
                     build_technique_and_sub_columns(
-                        src,
-                        a_techs,
-                        sub_matrices_columns[platform],
-                        sub_matrices_merges[platform],
-                        sub_matrices_grid[platform],
-                        tactic["name"],
+                        src=src,
+                        techniques=a_techs,
+                        columns=sub_matrices_columns[platform],
+                        merge_data_handle=sub_matrices_merges[platform],
+                        matrix_grid_handle=sub_matrices_grid[platform],
+                        tactic_name=tactic["name"],
+                        platform=platform,
                     )
 
         # square the grid because pandas doesn't like jagged columns
@@ -755,6 +843,7 @@ def relationshipsToDf(src, relatedType=None):
         "tactic": ["x-mitre-tactic"],
         "software": ["tool", "malware"],
         "group": ["intrusion-set"],
+        "campaign": ["campaign"],
         "mitigation": ["course-of-action"],
         "matrix": ["x-mitre-matrix"],
         "datasource": ["x-mitre-data-component"],
@@ -769,6 +858,7 @@ def relationshipsToDf(src, relatedType=None):
         "x-mitre-matrix": "matrix",
         "x-mitre-data-component": "datacomponent",
         "x-mitre-data-source": "datasource",
+        "campaign": "campaign",
     }
 
     # get master list of relationships
@@ -796,14 +886,17 @@ def relationshipsToDf(src, relatedType=None):
         # filter out relationships not with relatedType
         if relatedType:
             related = False
-            for stixTerm in attackToStixTerm[relatedType]:  # try all stix types for the ATT&CK type
-                if (
-                    source["type"] == stixTerm or target["type"] == stixTerm
-                ):  # if any stix type is part of the relationship
+
+            # try all stix types for the ATT&CK type
+            for stixTerm in attackToStixTerm[relatedType]:
+                # if any stix type is part of the relationship
+                if source["type"] == stixTerm or target["type"] == stixTerm:
                     related = True
                     break
+
             if not related:
-                continue  # skip this relationship if the types don't match
+                # skip this relationship if the types don't match
+                continue
 
         # add mapping data
         row = {}
@@ -812,15 +905,16 @@ def relationshipsToDf(src, relatedType=None):
             """Add data for one side of the mapping."""
             # logger.debug(sdo)
             if sdo.get("external_references"):
-                if sdo["external_references"][0]["source_name"] in [
-                    "mitre-attack",
-                    "mitre-mobile-attack",
-                    "mitre-ics-attack",
-                ]:
-                    row[f"{label} ID"] = sdo["external_references"][0]["external_id"]  # "source ID" or "target ID"
+                if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
+                    # "source ID" or "target ID"
+                    row[f"{label} ID"] = sdo["external_references"][0]["external_id"]
+
             if "name" in sdo:
-                row[f"{label} name"] = sdo["name"]  # "source name" or "target name"
-            row[f"{label} type"] = stixToAttackTerm[sdo["type"]]  # "source type" or "target type"
+                # "source name" or "target name"
+                row[f"{label} name"] = sdo["name"]
+
+            # "source type" or "target type"
+            row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
 
         add_side("source", source)
         row["mapping type"] = relationship["relationship_type"]  # mapping type goes between the source/target data
@@ -835,7 +929,8 @@ def relationshipsToDf(src, relatedType=None):
         ["mapping type", "source type", "target type", "source name", "target name"]
     )
 
-    if not relatedType:  # return all relationships and citations
+    # return all relationships and citations
+    if not relatedType:
         dataframes = {
             "relationships": relationships,
         }
@@ -843,28 +938,61 @@ def relationshipsToDf(src, relatedType=None):
             dataframes["citations"] = citations.sort_values("reference")
 
         return dataframes
-    else:  # break into dataframes by mapping type
+
+    # break into dataframes by mapping type
+    else:
         dataframes = {}
 
-        # group:software / "associated {other type}"
         relatedGroupSoftware = relationships.query(
-            "`mapping type` == 'uses' and (`source type` == 'group' or `source type` == 'software') and "
+            "(`source type` == 'group' or `source type` == 'software') and "
+            "`mapping type` == 'uses' and "
             "(`target type` == 'group' or `target type` == 'software')"
         )
-        if not relatedGroupSoftware.empty:
-            dataframes[f"associated {'software' if relatedType == 'group' else 'groups'}"] = relatedGroupSoftware
-
-        # technique:group + technique:software / "procedure examples"
+        relatedCampaignSoftware = relationships.query(
+            "(`source type` == 'campaign' or `source type` == 'software') and "
+            "`mapping type` == 'uses' and "
+            "(`target type` == 'campaign' or `target type` == 'software')"
+        )
         procedureExamples = relationships.query("`mapping type` == 'uses' and `target type` == 'technique'")
-        if not procedureExamples.empty:
-            dataframes["procedure examples" if relatedType == "technique" else "techniques used"] = procedureExamples
-
-        # technique:mitigation / "mitigation mappings"
+        attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
         relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
+
+        if not relatedGroupSoftware.empty:
+            if relatedType == "group":
+                sheet_name = "associated software"
+            else:
+                sheet_name = "associated groups"
+            dataframes[sheet_name] = relatedGroupSoftware
+
+        if not relatedCampaignSoftware.empty:
+            if relatedType == "campaign":
+                sheet_name = "associated software"
+            else:
+                sheet_name = "associated campaigns"
+            dataframes[sheet_name] = relatedCampaignSoftware
+
+        if not procedureExamples.empty:
+            if relatedType == "technique":
+                sheet_name = "procedure examples"
+            else:
+                sheet_name = "techniques used"
+            dataframes[sheet_name] = procedureExamples
+
+        if not attributedCampaignGroup.empty:
+            if relatedType == "campaign":
+                sheet_name = "attributed groups"
+            elif relatedType == "group":
+                sheet_name = "attributed campaigns"
+            else:
+                sheet_name = "associated campaigns"
+            dataframes[sheet_name] = attributedCampaignGroup
+
         if not relatedMitigations.empty:
-            dataframes[
-                "associated mitigations" if relatedType == "technique" else "techniques addressed"
-            ] = relatedMitigations
+            if relatedType == "technique":
+                sheet_name = "associated mitigations"
+            else:
+                sheet_name = "techniques addressed"
+            dataframes[sheet_name] = relatedMitigations
 
         if not citations.empty:
             # filter citations by ones actually used
@@ -872,13 +1000,13 @@ def relationshipsToDf(src, relatedType=None):
             usedCitations = set()
             for dfname in dataframes:
                 df = dataframes[dfname]
-                for description in filter(
-                    lambda x: x == x, df["mapping description"].tolist()
-                ):  # filter out missing descriptions which for whatever reason
+                # filter out missing descriptions which for whatever reason
+                for description in filter(lambda x: x == x, df["mapping description"].tolist()):
                     # in pandas don't equal themselves
                     [usedCitations.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
 
-            citations = citations[citations.reference.isin(list(usedCitations))]  # filter to only used references
+            # filter to only used references
+            citations = citations[citations.reference.isin(list(usedCitations))]
 
             dataframes["citations"] = citations.sort_values("reference")
 

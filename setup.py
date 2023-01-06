@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mitreattack-python",
-    version="1.5.7",
+    version="1.7.3",
     author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
@@ -15,6 +15,7 @@ setuptools.setup(
     maintainer_email="jondricek@mitre.org",
     license="Apache 2.0",
     url="https://github.com/mitre-attack/mitreattack-python/",
+    package_data={'mitreattack': ['navlayers/exporters/fonts/*.ttf']},
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -45,6 +46,7 @@ setuptools.setup(
         'numpy',
         'openpyxl',
         'pandas',
+        'python-dateutil',
         'Pillow',
         'requests',
         'rich',

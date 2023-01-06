@@ -1,8 +1,20 @@
-from resources import testing_data
-from mitreattack.navlayers import Layer, ToExcel, ToSvg, LayerOps, Technique, MetaDiv, Metadata, Link, LinkDiv
+import json
 import os
 import shutil
-import json
+
+from resources import testing_data
+
+from mitreattack.navlayers import (
+    Layer,
+    LayerOps,
+    Link,
+    LinkDiv,
+    Metadata,
+    MetaDiv,
+    Technique,
+    ToExcel,
+    ToSvg,
+)
 
 
 class TestLayers:
@@ -33,15 +45,15 @@ class TestLayers:
             os.remove("layer.svg")
 
         lay = Layer()
-        lay.from_file('resources/heatmap_example.json')
+        lay.from_file("resources/heatmap_example.json")
         xlsx_exporter = ToExcel(domain=lay.layer.domain)
         xlsx_exporter.to_xlsx(lay, filepath="layer.xlsx")
         svg_exporter = ToSvg(domain=lay.layer.domain)
         svg_exporter.to_svg(lay, filepath="layer.svg")
         assert os.path.isfile("layer.xlsx")
         assert os.path.isfile("layer.svg")
-        os.remove('layer.xlsx')
-        os.remove('layer.svg')
+        os.remove("layer.xlsx")
+        os.remove("layer.svg")
 
     @staticmethod
     def test_config_load():
@@ -51,7 +63,7 @@ class TestLayers:
         exp.config.load_from_file("resources/demo.json")
         exp.config.__str__()
         exp.to_svg(lay)
-        os.remove('example.svg')
+        os.remove("example.svg")
 
     @staticmethod
     def test_aggregate():
@@ -60,16 +72,22 @@ class TestLayers:
             shutil.rmtree("agg_tests")
 
         os.mkdir("agg_tests")
-        listing = [testing_data.agg_layer_1, testing_data.agg_layer_2, testing_data.agg_layer_3,
-                   testing_data.agg_layer_5, testing_data.agg_layer_6, testing_data.agg_layer_7]
+        listing = [
+            testing_data.agg_layer_1,
+            testing_data.agg_layer_2,
+            testing_data.agg_layer_3,
+            testing_data.agg_layer_5,
+            testing_data.agg_layer_6,
+            testing_data.agg_layer_7,
+        ]
         for lay in listing:
             test_layer = Layer()
             test_layer.from_str(lay)
 
-            exporter = ToExcel(domain=test_layer.layer.domain, source='taxii', resource=None)
+            exporter = ToExcel(domain=test_layer.layer.domain, source="taxii", resource=None)
             exporter.to_xlsx(layerInit=test_layer, filepath=f"agg_tests/layer-{test_layer.layer.name}.xlsx")
 
-            exp = ToSvg(domain=test_layer.layer.domain, source='taxii', resource=None)
+            exp = ToSvg(domain=test_layer.layer.domain, source="taxii", resource=None)
             exp.to_svg(test_layer, filepath=f"agg_tests/layer-{test_layer.layer.name}.svg")
 
             assert os.path.isfile(f"agg_tests/layer-{test_layer.layer.name}.xlsx")
@@ -91,21 +109,26 @@ class TestLayers:
         out2 = lay2.to_dict()
         out3 = lay3.to_dict()
 
-        assert all([(out3[x] == out1[x], x) for x in out3 if x not in ['versions', 'techniques', 'metadata',
-                                                                       'gradient', 'selectSubtechniquesWithParent',
-                                                                       'layout']])
-        assert all([out3[x] == out2[x] for x in out3 if x not in ['versions', 'techniques', 'metadata', 'gradient']])
-        assert all(['4.3' == x['versions']['layer'] for x in [out1, out2, out3]])
-
+        assert all(
+            [
+                (out3[x] == out1[x], x)
+                for x in out3
+                if x
+                not in ["versions", "techniques", "metadata", "gradient", "selectSubtechniquesWithParent", "layout"]
+            ]
+        )
+        assert all([out3[x] == out2[x] for x in out3 if x not in ["versions", "techniques", "metadata", "gradient"]])
+        assert all(["4.3" == x["versions"]["layer"] for x in [out1, out2, out3]])
 
     @staticmethod
     def test_layer_ops():
-        """ Test layer lambda computation functionality"""
+        """Test layer lambda computation functionality"""
+
         def get_layers_by_name(test_layers):
-            layers_dict['Endgame'] = Layer()
-            layers_dict['Endgame'].from_str(test_layers[0])
-            layers_dict['Red2'] = Layer()
-            layers_dict['Red2'].from_str(test_layers[1])
+            layers_dict["Endgame"] = Layer()
+            layers_dict["Endgame"].from_str(test_layers[0])
+            layers_dict["Red2"] = Layer()
+            layers_dict["Red2"].from_str(test_layers[1])
             return layers_dict
 
         def build_combined_layer(layers_dict):
@@ -119,7 +142,7 @@ class TestLayers:
 
     @staticmethod
     def test_direct_meta():
-        Layer(init_data={'name': "Layer A", 'domain': "enterprise-attack"})
+        Layer(init_data={"name": "Layer A", "domain": "enterprise-attack"})
         layer_technique = Technique(tID="T1003")
         layer_technique.metadata = [Metadata(name="Metadata", value="1"), MetaDiv(active=True)]
         layer_technique2 = Technique(tID="T1004")
@@ -130,9 +153,9 @@ class TestLayers:
     @staticmethod
     def test_direct_link():
         layer_technique = Technique(tID="T1003")
-        layer_technique.links = [Link(label='test', url='127.0.0.1'), LinkDiv(active=True)]
+        layer_technique.links = [Link(label="test", url="127.0.0.1"), LinkDiv(divider=True)]
         layer_technique2 = Technique(tID="T1004")
-        layer_technique2.links = [dict(label='test', url='127.0.0.1'), dict(name='DIVIDER', value=True)]
+        layer_technique2.links = [dict(label="test", url="127.0.0.1"), dict(divider=True)]
         assert layer_technique.links[0].get_dict() == layer_technique2.links[0].get_dict()
         assert layer_technique.links[1].get_dict() == layer_technique2.links[1].get_dict()
 
@@ -142,7 +165,7 @@ class TestLayers:
         layer_file = Layer()
         layer_file.from_dict(layer_dict)
         layer_file.to_file("output.json")
-        with open("output.json", 'r', encoding="utf-16") as fio:
+        with open("output.json", "r", encoding="utf-16") as fio:
             output = json.load(fio)
         # check both 8-hex color and unicode preservation
         assert output["description"] == layer_dict["description"]

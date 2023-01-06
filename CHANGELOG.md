@@ -1,3 +1,76 @@
+# v1.7.3 12/6/2022
+
+## Fixes
+
+- Fix SVG export to hide disabled techniques when hideDisabled is True [#89](https://github.com/mitre-attack/mitreattack-python/issues/89)
+- Fix SVG export to display platforms and legend items
+- Fix parsing of link dividers in layer files [#94](https://github.com/mitre-attack/mitreattack-python/issues/94)
+- Fix issue with retrieving technique ATT&CK IDs when generating a Navigator layer from the taxii server [#82](https://github.com/mitre-attack/mitreattack-python/issues/82)
+
+# v1.7.2 10/24/2022
+
+## Fixes
+
+- Fix data component parsing in diffStix changelog script
+
+# v1.7.1 10/23/2022
+
+## Fixes
+
+- Fix JSON support for diffStix changelog script
+
+# v1.7.0 10/21/2022
+
+## Improvements
+
+- Add support for campaigns to the diffStix changelog script [#93](https://github.com/mitre-attack/mitreattack-python/pull/93)
+
+# v1.6.2 9/7/2022
+
+## Fixes
+
+- Fix SVG export functionality [#74](https://github.com/mitre-attack/mitreattack-python/issues/74)
+
+# v1.6.1 9/7/2022
+
+## Fixes
+
+- Finish switching from `outputDir` to `output_dir` (the breaking change broke ourselves! But this itself isn't a breaking change)
+
+# v1.6.0 9/7/2022
+
+## Fixes
+
+- Fix Excel file generation for previous ATT&CK versions [#88](https://github.com/mitre-attack/mitreattack-python/issues/88)
+
+## Misc
+
+- Changed attackToExcel's `write_excel()` and `export()` function parameters to use snake case instead of camel case (`outputDir` became `output_dir`)
+
+# v1.5.10 8/24/2022
+
+## Misc
+
+- Fix GitHub Actions pipeline to be able to publish to PyPI
+
+# v1.5.9 8/24/2022
+
+## Fixes
+
+- Releasing a new version due to broken 1.5.8 package deployed from modified development environment
+
+## Misc
+
+- GitHub Actions now publish releases from tags instead of from local development environments
+- Autoformatted code with black, and set up flake8 to lint as a GitHub Action going forward
+
+# v1.5.8 8/23/2022
+
+## Fixes
+
+- Fix ability to construct SVG files from TAXII data [#76](https://github.com/mitre-attack/mitreattack-python/issues/76)
+- Filter subtechniques in platforms in attacktoexcel [#84](https://github.com/mitre-attack/mitreattack-python/issues/84)
+
 # v1.5.7 5/2/2022
 
 ## Fixes

@@ -1,13 +1,20 @@
 black>=22.3.0
+check-wheel-contents
 colour>=0.1.5
 deepdiff==6.2.2
 drawSvg>=1.6.0
+flake8>=5.0.4
+flake8-docstrings>=1.6.0
 isort>=5.10.1
 loguru>=0.6.0
 Markdown>=3.3.6
 numpy>=1.16.0
 openpyxl>=3.0.3
 pandas>=1.1.5
+pyinstrument>=4.3.0
+pytest>=7.1.2
+pytest-cov>=3.0.0
+python-dateutil
 Pillow>=7.1.2
 requests>=2.21.0
 rich==12.6.0
@@ -16,4 +23,5 @@ stix2-elevator>=4.0.1
 tabulate>=0.8.9
 taxii2-client>=2.3.0
 tqdm>=4.31.1
+wheel>=0.37.1
 xlsxwriter>=1.3.7

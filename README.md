@@ -81,7 +81,8 @@ Further documentation for the navlayers module can be found [here](https://githu
 ```python
 import mitreattack.attackToExcel.attackToExcel as attackToExcel
 
-attackToExcel.export("enterprise-attack", "v8.1", "/path/to/export/folder") # generate spreadsheets representing enterprise-attack v8.1
+# generate spreadsheets representing enterprise-attack v8.1
+attackToExcel.export("enterprise-attack", "v8.1", "/path/to/export/folder")
 ```
 
 ```python

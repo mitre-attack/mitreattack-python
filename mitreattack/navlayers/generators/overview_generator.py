@@ -1,21 +1,30 @@
+"""Contains OverviewLayerGenerator class."""
+
 from stix2 import Filter
 
+from mitreattack.constants import MITRE_ATTACK_DOMAIN_STRINGS
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.core.exceptions import BadInput, typeChecker, categoryChecker
 from mitreattack.navlayers.core.layer import Layer
-from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, construct_relationship_mapping, \
-     MITRE_ATTACK_DOMAIN_STRINGS, build_data_strings
+from mitreattack.navlayers.generators.gen_helpers import (
+    remove_revoked_depreciated,
+    construct_relationship_mapping,
+    build_data_strings,
+)
 
 
 class UnableToFindTechnique(Exception):
+    """Custom exception used when unable to find techniques."""
+
     pass
 
 
 class OverviewLayerGenerator:
-    """Generates a Layer file that provides an overview of entities related to each technique"""
-    def __init__(self, source, domain='enterprise', resource=None):
-        """
-        Initialize the Generator
+    """Generates a Layer file that provides an overview of entities related to each technique."""
+
+    def __init__(self, source, domain="enterprise", resource=None):
+        """Initialize the Generator.
+
         :param source: Which source to use for data (local, taxii [server], or [remote] ATT&CK Workbench)
         :param domain: Which domain to use during generation
         :param resource: string path to local cache of stix data (local) or url of Workbench to connect to (remote)
@@ -27,31 +36,41 @@ class OverviewLayerGenerator:
         except KeyError:
             print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
             raise BadInput
-        tl = remove_revoked_depreciated(self.source_handle.query([Filter('type', '=', 'attack-pattern')]))
-        self.mitigation_objects = self.source_handle.query([Filter('type', '=', 'course-of-action')])
-        complete_relationships = self.source_handle.query([Filter('type', '=', 'relationship'),
-                                                           Filter('relationship_type', '=', 'uses')])
-        complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
-                                                                Filter('relationship_type', '=', 'mitigates')]))
-        complete_relationships.extend(self.source_handle.query([Filter('type', '=', 'relationship'),
-                                                                Filter('relationship_type', '=', 'detects')]))
+        tl = remove_revoked_depreciated(self.source_handle.query([Filter("type", "=", "attack-pattern")]))
+        self.mitigation_objects = self.source_handle.query([Filter("type", "=", "course-of-action")])
+        complete_relationships = self.source_handle.query(
+            [Filter("type", "=", "relationship"), Filter("relationship_type", "=", "uses")]
+        )
+        complete_relationships.extend(
+            self.source_handle.query(
+                [Filter("type", "=", "relationship"), Filter("relationship_type", "=", "mitigates")]
+            )
+        )
+        complete_relationships.extend(
+            self.source_handle.query([Filter("type", "=", "relationship"), Filter("relationship_type", "=", "detects")])
+        )
 
-        self.sources = self.source_handle.query([Filter('type', '=', 'x-mitre-data-source')])
-        self.components = self.source_handle.query([Filter('type', '=', 'x-mitre-data-component')])
+        self.sources = self.source_handle.query([Filter("type", "=", "x-mitre-data-source")])
+        self.components = self.source_handle.query([Filter("type", "=", "x-mitre-data-component")])
         self.source_mapping = build_data_strings(self.sources, self.components)
         # Contains relationship mapping [stix id] -> [relationships associated with that stix id for each type]
-        self.simplifier = {"course-of-action": dict(), "tool": dict(),
-                           "malware": dict(), "intrusion-set": dict(),
-                           "x-mitre-data-component": dict()}
+        self.simplifier = {
+            "course-of-action": dict(),
+            "tool": dict(),
+            "malware": dict(),
+            "intrusion-set": dict(),
+            "x-mitre-data-component": dict(),
+            "campaign": dict(),
+        }
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort
         # these into the mapping dictionary by what kind of stix object they are (tool, course-of-action, etc.)
         for entry in complete_relationships:
-            if entry['target_ref'].startswith('attack-pattern--'):
-                construct_relationship_mapping(self.simplifier[entry['source_ref'].split('--')[0]], entry)
-        self.simplifier['software'] = self.simplifier['malware']
-        self.simplifier['software'].update(self.simplifier['tool'])  # get combination of malware/tool
-        self.simplifier['datasource'] = self.simplifier['x-mitre-data-component']
+            if entry["target_ref"].startswith("attack-pattern--"):
+                construct_relationship_mapping(self.simplifier[entry["source_ref"].split("--")[0]], entry)
+        self.simplifier["software"] = self.simplifier["malware"]
+        self.simplifier["software"].update(self.simplifier["tool"])  # get combination of malware/tool
+        self.simplifier["datasource"] = self.simplifier["x-mitre-data-component"]
 
         self.tech_listing = dict()
         self.tech_no_tactic_listing = dict()
@@ -70,31 +89,32 @@ class OverviewLayerGenerator:
             self.tech_no_tactic_listing[xid] = entry
 
     def get_groups(self, relationships):
-        """
-        Sort Groups out of relationships
+        """Sort Groups out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched groups, list of group names
         """
         list_of_groups = []
         for relationship in relationships:
-            if relationship.source_ref.startswith('intrusion-set--'):
+            if relationship.source_ref.startswith("intrusion-set--"):
                 list_of_groups.append(relationship)
-        group_objects = self.source_handle.query([Filter('type', '=', 'intrusion-set'),
-                                                  Filter('id', 'in', [r.source_ref for r in list_of_groups])])
+        group_objects = self.source_handle.query(
+            [Filter("type", "=", "intrusion-set"), Filter("id", "in", [r.source_ref for r in list_of_groups])]
+        )
         names = [x.name for x in group_objects]
         return len(names), names
 
     def get_software(self, relationships):
-        """
-        Sort software out of relationships
+        """Sort software out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched software, list of software names
         """
         list_of_softwares = []
         for relationship in relationships:
-            if relationship.source_ref.startswith('malware--') or relationship.source_ref.startswith('tool--'):
+            if relationship.source_ref.startswith("malware--") or relationship.source_ref.startswith("tool--"):
                 list_of_softwares.append(relationship.source_ref)
-        software_listing = self.source_handle.query([Filter('type', '=', 'malware'), Filter('type', '=', 'tool')])
+        software_listing = self.source_handle.query([Filter("type", "=", "malware"), Filter("type", "=", "tool")])
         software_objects = []
         for soft in software_listing:
             if soft.id in list_of_softwares:
@@ -103,8 +123,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_mitigations(self, relationships):
-        """
-        Sort mitigations out of relationships
+        """Sort mitigations out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched mitigations, list of mitigation names
         """
@@ -112,8 +132,8 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_datasources(self, relationships):
-        """
-        Sort datasources/datacomponents out of relationships
+        """Sort datasources/datacomponents out of relationships.
+
         :param relationships: List of all related relationships to a given technique
         :return: length of matched datasources/datacomponents, list of associated names
         """
@@ -121,25 +141,27 @@ class OverviewLayerGenerator:
         return len(names), names
 
     def get_matrix_template(self):
-        """
-        Build the raw dictionary form matrix layer object
+        """Build the raw dictionary form matrix layer object.
+
         :return: dictionary representing all entries in the matrix layer
         """
         construct = list()
         full_matrix_listing = self.matrix_handle.get_matrix(self.domain)
         for tactic in full_matrix_listing:
             for tech in tactic.techniques:
-                construct.append(dict(techniqueID=tech.id, score=0,
-                                      tactic=self.matrix_handle.convert(tactic.tactic.name)))
+                construct.append(
+                    dict(techniqueID=tech.id, score=0, tactic=self.matrix_handle.convert(tactic.tactic.name))
+                )
             for tech_key in tactic.subtechniques:
                 for subtech in tactic.subtechniques[tech_key]:
-                    construct.append(dict(techniqueID=subtech.id, score=0,
-                                          tactic=self.matrix_handle.convert(tactic.tactic.name)))
+                    construct.append(
+                        dict(techniqueID=subtech.id, score=0, tactic=self.matrix_handle.convert(tactic.tactic.name))
+                    )
         return construct
 
     def get_technique_obj(self, techniqueID, tactic):
-        """
-        Extract the matching technique object from the tech_listing
+        """Extract the matching technique object from the tech_listing.
+
         :param techniqueID: the technique object's id
         :param tactic: optional tactic for the technique object (shortname - ex. "reconnaissance")
         :return: the matching technique object (or a UnableToFindTechnique exception)
@@ -154,48 +176,48 @@ class OverviewLayerGenerator:
             raise UnableToFindTechnique
 
     def update_template(self, obj_type, complete_tech_listing):
-        """
-        Update an existing dictionary of layer techniques with the appropriate matching objects
+        """Update an existing dictionary of layer techniques with the appropriate matching objects.
+
         :param obj_type: the type of object to update the data with
         :param complete_tech_listing: 'clean' technique dictionary template
         :return: Updated technique dictionary
         """
         temp = complete_tech_listing
         for entry in temp:
-            tech = self.get_technique_obj(entry['techniqueID'], entry['tactic'])
+            tech = self.get_technique_obj(entry["techniqueID"], entry["tactic"])
             score = 0
             listing = []
-            if obj_type == 'group':
+            if obj_type == "group":
                 try:
-                    related = self.simplifier['intrusion-set'][tech.id]
+                    related = self.simplifier["intrusion-set"][tech.id]
                     score, listing = self.get_groups(related)
                 except KeyError:
                     pass
-            elif obj_type == 'software':
+            elif obj_type == "software":
                 try:
-                    related = self.simplifier['software'][tech.id]
+                    related = self.simplifier["software"][tech.id]
                     score, listing = self.get_software(related)
                 except KeyError:
                     pass
             elif obj_type == "mitigation":
                 try:
-                    related = self.simplifier['course-of-action'][tech.id]
+                    related = self.simplifier["course-of-action"][tech.id]
                     score, listing = self.get_mitigations(related)
                 except KeyError:
                     pass  # we don't have any matches for this one
             elif obj_type == "datasource":
                 try:
-                    related = self.simplifier['datasource'][tech.id]
+                    related = self.simplifier["datasource"][tech.id]
                     score, listing = self.get_datasources(related)
                 except KeyError:
                     pass
-            entry['score'] = score
-            entry['comment'] = ', '.join(listing)
+            entry["score"] = score
+            entry["comment"] = ", ".join(listing)
         return temp
 
     def generate_layer(self, obj_type):
-        """
-        Generate a layer
+        """Generate a layer.
+
         :param obj_type: the type of object data to compute over (group, software, or mitigation)
         :return: layer object with annotated techniques
         """
@@ -215,9 +237,11 @@ class OverviewLayerGenerator:
         else:  # mitigation case
             p_name = "mitigations"
             r_type = "mitigating"
-        desc = f"Overview of techniques used by {p_name}. Score is the number of {p_name} " \
-               f"{r_type} the technique, and comment lists the {r_type} {p_name}"
-        raw_layer = dict(name=f"{p_name} overview", domain='enterprise-attack', description=desc)
-        raw_layer['techniques'] = updated_list
+        desc = (
+            f"Overview of techniques used by {p_name}. Score is the number of {p_name} "
+            f"{r_type} the technique, and comment lists the {r_type} {p_name}"
+        )
+        raw_layer = dict(name=f"{p_name} overview", domain="enterprise-attack", description=desc)
+        raw_layer["techniques"] = updated_list
         output_layer = Layer(raw_layer)
         return output_layer
