@@ -522,7 +522,7 @@ class MitreAttackData:
         return StixObjectFactory(object)
 
     def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> object:
-        """Retrieve a single object by its ATT&CK ID
+        """Retrieve a single object by its ATT&CK ID.
 
         Note: in prior versions of ATT&CK, mitigations had 1:1 relationships with techniques and shared their
         technique's ID. Searching by ATT&CK ID alone does not work properly for techniques since
@@ -550,11 +550,17 @@ class MitreAttackData:
         object = self.src.query([
             Filter('external_references.external_id', '=', attack_id.upper()),
             Filter('type', '=', stix_type),
-        ])[0]
-        return StixObjectFactory(object)
+        ])
+        
+        if not object:
+            return None
+        
+        return StixObjectFactory(object[0])
 
-    def get_object_by_name(self, name: str, stix_type: str) -> object:
-        """Retrieve an object by name
+    def get_objects_by_name(self, name: str, stix_type: str) -> list:
+        """Retrieve objects by name.
+
+        Note: the query by name is case sensitive.
 
         Parameters
         ----------
@@ -567,8 +573,8 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject | CustomStixObject
-            the STIX Domain Object specified by the name and type
+        list
+            a list of STIX Domain Objects specified by the name and type
         """
         # validate type
         if stix_type not in self.stix_types:
@@ -578,11 +584,15 @@ class MitreAttackData:
             Filter('type', '=', stix_type),
             Filter('name', '=', name)
         ]
-        object = self.src.query(filter)[0]
-        return StixObjectFactory(object)
+        objects = self.src.query(filter)
 
-    def get_group_by_alias(self, alias: str) -> object:
-        """Retrieve the group corresponding to a given alias
+        # since ATT&CK has custom objects, we need to reconstruct the query results
+        return [StixObjectFactory(o) for o in objects]
+
+    def get_groups_by_alias(self, alias: str) -> list:
+        """Retrieve the groups corresponding to a given alias.
+
+        Note: the query by alias is case sensitive.
 
         Parameters
         ----------
@@ -591,17 +601,19 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo.IntrusionSet
-            the IntrusionSet object corresponding to the alias
+        list
+            a list of stix2.v20.sdo.IntrusionSet objects corresponding to the alias
         """
         filter = [
             Filter('type', '=', 'intrusion-set'),
             Filter('aliases', 'contains', alias)
         ]
-        return self.src.query(filter)[0]
+        return self.src.query(filter)
 
-    def get_campaign_by_alias(self, alias: str) -> object:
-        """Retrieve the campaign corresponding to a given alias
+    def get_campaigns_by_alias(self, alias: str) -> list:
+        """Retrieve the campaigns corresponding to a given alias.
+
+        Note: the query by alias is case sensitive.
 
         Parameters
         ----------
@@ -610,17 +622,19 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo.Campaign
-            the Campaign object corresponding to the alias
+        list
+            a list of stix2.v20.sdo.Campaign objects corresponding to the alias
         """
         filter = [
             Filter('type', '=', 'campaign'),
             Filter('aliases', 'contains', alias)
         ]
-        return self.src.query(filter)[0]
+        return self.src.query(filter)
 
-    def get_software_by_alias(self, alias: str) -> object:
-        """Retrieve the software corresponding to a given alias
+    def get_software_by_alias(self, alias: str) -> list:
+        """Retrieve the software corresponding to a given alias.
+
+        Note: the query by alias is case sensitive.
 
         Parameters
         ----------
@@ -629,8 +643,8 @@ class MitreAttackData:
 
         Returns
         -------
-        stix2.v20.sdo.Tool | stix2.v20.sdo.Malware
-            the Tool or Malware object corresponding to the alias
+        list
+            a list of stix2.v20.sdo.Tool and stix2.v20.sdo.Malware objects corresponding to the alias
         """
         malware_filter = [
             Filter('type', '=', 'malware'),
@@ -645,7 +659,7 @@ class MitreAttackData:
                 malware_filter,
                 tool_filter
             ]
-        ))[0]
+        ))
         return software
 
     ###################################
@@ -1567,7 +1581,8 @@ class MitreAttackData:
             Filter('id', 'in', [r.target_ref for r in relations]),
             Filter('revoked', '=', False)
         ])
-        if revoked_by is not None and len(revoked_by):
-            revoked_by = revoked_by[0]
 
-        return revoked_by
+        if not revoked_by:
+            return None
+
+        return revoked_by[0]
