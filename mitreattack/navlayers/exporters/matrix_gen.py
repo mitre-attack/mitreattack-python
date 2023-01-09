@@ -222,7 +222,7 @@ class MatrixGen:
         )
         for entry in techs:
             if entry["kill_chain_phases"][0]["kill_chain_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
-                tid = [t["external_id"] for t in entry["external_references"][:1] if "attack" in t["source_name"]]
+                tid = [t["external_id"] for t in entry["external_references"][:1] if t["source_name"] == "mitre-attack"]
                 platform_tags = []
                 if "x_mitre_platforms" in entry:
                     platform_tags = entry["x_mitre_platforms"]

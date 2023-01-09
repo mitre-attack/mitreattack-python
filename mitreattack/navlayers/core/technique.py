@@ -187,12 +187,12 @@ class Technique:
                     loadChecker(type(self).__name__, entry.get_dict(), ["label", "url"], "link")
                     self.__links.append(entry)
                 elif isinstance(entry, LinkDiv):
-                    loadChecker(type(self).__name__, entry.get_dict(), ["name", "value"], "linkdiv")
+                    loadChecker(type(self).__name__, entry.get_dict(), ["divider"], "linkdiv")
                     self.__links.append(entry)
                 elif isinstance(entry, dict):
-                    if "name" in entry and entry["name"] == "DIVIDER":
-                        loadChecker(type(self).__name__, entry, ["name", "value"], "linkdiv")
-                        self.__links.append(LinkDiv(active=entry["value"]))
+                    if "divider" in entry and entry["divider"] == True:
+                        loadChecker(type(self).__name__, entry, ["divider"], "linkdiv")
+                        self.__links.append(LinkDiv(divider=entry["divider"]))
                     else:
                         loadChecker(type(self).__name__, entry, ["label", "url"], "link")
                         self.__links.append(Link(label=entry["label"], url=entry["url"]))

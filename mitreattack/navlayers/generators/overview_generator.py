@@ -60,6 +60,7 @@ class OverviewLayerGenerator:
             "malware": dict(),
             "intrusion-set": dict(),
             "x-mitre-data-component": dict(),
+            "campaign": dict(),
         }
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort

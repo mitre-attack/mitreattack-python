@@ -1,5 +1,11 @@
 # mitreattack-python specific
 output/
+attack-releases/
+
+# STIX bundles
+enterprise-attack.json
+mobile-attack.json
+ics-attack.json
 
 # STIX bundles
 enterprise-attack.json
