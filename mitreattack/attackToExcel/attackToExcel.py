@@ -106,7 +106,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "relationships": stixToDf.relationshipsToDf(src),
     }
     # get each ATT&CK type
-    if domain == "enterprise-attack":
+    if domain in ["enterprise-attack", "ics-attack"]:
         df["datasources"] = stixToDf.datasourcesToDf(src)
     return df
 
