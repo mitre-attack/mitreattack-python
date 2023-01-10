@@ -1,8 +1,15 @@
-# v2.0.0
+# v2.0.0 1/10/2023
+
+## Fixes
+
+- Fix Tactic names on Technique worksheets in exported Excel workbooks [#96](https://github.com/mitre-attack/mitreattack-python/issues/96)
+- Fix exported Excel workbooks to include data source information about the ICS domain [#97](https://github.com/mitre-attack/mitreattack-python/issues/97)
 
 ## Improvements
 
-- Added a new library module, `MitreAttackData`, for working with ATT&CK data, including the functions and relationships microlibrary from the [CTI USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md).
+- [Breaking change] Improve the changelog helper to produce much more granular details as needed [#79](https://github.com/mitre-attack/mitreattack-python/issues/79)
+- Add a new library module, `MitreAttackData`, for working with ATT&CK data, including the functions and relationships microlibrary from the
+[CTI USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md). [#90](https://github.com/mitre-attack/mitreattack-python/issues/90)
 
 # v1.7.3 12/6/2022
 
