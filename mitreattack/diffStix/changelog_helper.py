@@ -7,10 +7,9 @@ import os
 import re
 import sys
 import textwrap
-from pprint import pformat
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import markdown
 import requests
@@ -33,7 +32,6 @@ layer_defaults = [
     os.path.join("output", f"{this_month}_Updates_Pre.json"),
 ]
 
-# →
 
 class DiffStix(object):
     """Utilities for detecting and summarizing differences between two versions of the ATT&CK content."""
@@ -132,15 +130,15 @@ class DiffStix(object):
         for object_type in self.types:
             self.section_headers[object_type] = {
                 "additions": f"New {self.attack_type_to_title[object_type]}",
-                "major_version_changes": f"Major Version Changes",
-                "minor_version_changes": f"Minor Version Changes",
-                "other_version_changes": f"Other Version Changes",
-                "metadata_changes": f"Metadata-only Changes",
-                "unknown_changes": f"Unknown Changes",
-                "deprecations": f"Deprecations",
-                "revocations": f"Revocations",
-                "deletions": f"Deletions",
-                "unchanged": f"Unchanged",
+                "major_version_changes": "Major Version Changes",
+                "minor_version_changes": "Minor Version Changes",
+                "other_version_changes": "Other Version Changes",
+                "metadata_changes": "Metadata-only Changes",
+                "unknown_changes": "Unknown Changes",
+                "deprecations": "Deprecations",
+                "revocations": "Revocations",
+                "deletions": "Deletions",
+                "unchanged": "Unchanged",
             }
 
         # will hold information of contributors of the new release {... {"contributor_credit/name_as_key": counter]} ...}
@@ -203,7 +201,7 @@ class DiffStix(object):
         self.load_data()
 
     def load_domain(self, domain):
-        """Load data from directory according to domain"""
+        """Load data from directory according to domain."""
         for datastore_version in ["old", "new"]:
             # only allow github.com/mitre/cti to be used for the old STIX domain
             if self.use_mitre_cti and datastore_version == "old":
@@ -223,7 +221,7 @@ class DiffStix(object):
             self.load_attack_objects(data_store=data_store, domain=domain, datastore_version=datastore_version)
 
     def get_datastore_from_mitre_cti(self, domain, datastore_version):
-        """Load data from MITRE CTI repo according to domain"""
+        """Load data from MITRE CTI repo according to domain."""
         error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
         try:
             stix_response = requests.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
@@ -242,7 +240,7 @@ class DiffStix(object):
         sys.exit(1)
 
     def parse_extra_data(self, data_store, datastore_version: str):
-        """Parse dataStore sub-technique-of relationships"""
+        """Parse dataStore sub-technique-of relationships."""
         all_techniques = list(data_store.query([Filter("type", "=", "attack-pattern")]))
         all_datasources = list(data_store.query([Filter("type", "=", "x-mitre-data-source")]))
         all_datacomponents = list(data_store.query([Filter("type", "=", "x-mitre-data-component")]))
@@ -280,7 +278,7 @@ class DiffStix(object):
             self.data[datastore_version]["relationships"]["revoked-by"][source_id].append(relationship)
 
     def load_attack_objects(self, data_store, domain, datastore_version: str):
-        """Handle data loaded from a directory"""
+        """Handle data loaded from a directory."""
         attack_type_to_stix_filter = {
             "technique": [Filter("type", "=", "attack-pattern")],
             "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
@@ -299,7 +297,7 @@ class DiffStix(object):
             self.data[datastore_version]["attack_objects"][domain][obj_type] = {item["id"]: item for item in raw_data}
 
     def update_contributors(self, old_object, new_object):
-        """Update contributors list if new object has contributors"""
+        """Update contributors list if new object has contributors."""
         if new_object.get("x_mitre_contributors"):
             new_object_contributors = set(new_object["x_mitre_contributors"])
 
@@ -384,7 +382,7 @@ class DiffStix(object):
                     ##########################
                     elif new_stix_obj.get("x_mitre_deprecated"):
                         # if previously deprecated, not a change
-                        if not "x_mitre_deprecated" in old_stix_obj:
+                        if "x_mitre_deprecated" not in old_stix_obj:
                             deprecations.add(stix_id)
 
                     #############################################################
@@ -533,10 +531,33 @@ class DiffStix(object):
 
     def get_groupings(
         self,
-        object_type,
-        stix_objects,
-        section,
-    ):
+        object_type: str,
+        stix_objects: List,
+        section: str,
+    ) -> List[Dict[str, object]]:
+        """Group STIX objects together within a section.
+
+        A "group" in this sense is a set of STIX objects that are all in the same section, e.g. new minor version.
+        In this case, since a domain/object type are implied before we get here, it would be
+        e.g. "All Enterprise Techniques & Subtechniques, grouped alphabetically by name, and the
+        sub-techniques are 'grouped' under their parent technique"
+
+        Parameters
+        ----------
+        object_type : str
+            Type of STIX object that is being worked with.
+        stix_objects : List
+            List of STIX objects that need to be grouped.
+        section : str
+            Section of the changelog that is being created with the objects,
+            e.g. new major version, revocation, etc.
+
+        Returns
+        -------
+        List[Dict[str, object]]
+            A list of sorted, complex dictionary objects that tell if this "group" of objects have
+            their parent objects in the same section.
+        """
         datastore_version = "old" if section == "deletions" else "new"
         subtechnique_relationships = self.data[datastore_version]["relationships"]["subtechniques"]
         techniques = self.data[datastore_version]["techniques"]
@@ -572,18 +593,18 @@ class DiffStix(object):
 
             parent_technique_stix_id = relationship["target_ref"]
             the_subtechnique = children[relationship["source_ref"]]
-            if not parent_technique_stix_id in parentToChildren:
+            if parent_technique_stix_id not in parentToChildren:
                 parentToChildren[parent_technique_stix_id] = []
             parentToChildren[parent_technique_stix_id].append(the_subtechnique)
 
         # datacomponents
         for datacomponent in datacomponents.values():
-            if not datacomponent["id"] in children:
+            if datacomponent["id"] not in children:
                 continue
 
             parent_datasource_id = datacomponent["x_mitre_data_source_ref"]
             the_datacomponent = children[datacomponent["id"]]
-            if not parent_datasource_id in parentToChildren:
+            if parent_datasource_id not in parentToChildren:
                 parentToChildren[parent_datasource_id] = []
             parentToChildren[parent_datasource_id].append(the_datacomponent)
 
@@ -620,14 +641,21 @@ class DiffStix(object):
         groupings = sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
         return groupings
 
-    def get_contributor_section(self):
-        # Get contributors markdown
+    def get_contributor_section(self) -> str:
+        """Get contributors that are only found in the new STIX data.
+
+        Returns
+        -------
+        str
+            Markdown representation of the contributors found
+        """
         contribSection = "## Contributors to this release\n\n"
         sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
 
         for contributor in sorted_contributors:
+            # do not include ATT&CK as contributor
             if contributor == "ATT&CK":
-                continue  # do not include ATT&CK as contributor
+                continue
             contribSection += f"* {contributor}\n"
 
         return contribSection
@@ -649,7 +677,7 @@ class DiffStix(object):
         return {}
 
     def placard(self, stix_object, section):
-        """Get a section list item for the given SDO according to section type"""
+        """Get a section list item for the given SDO according to section type."""
         datastore_version = "old" if section == "deletions" else "new"
 
         if section == "deletions":
@@ -757,8 +785,8 @@ class DiffStix(object):
                 domains += f"### {self.domain_to_domain_label[domain]}\n\n"
                 # Skip mobile section for data sources
                 if domain == "mobile-attack" and object_type == "datasource":
-                    logger.debug(f"Skipping - ATT&CK for Mobile does not support data sources")
-                    domains += f"ATT&CK for Mobile does not support data sources\n\n"
+                    logger.debug("Skipping - ATT&CK for Mobile does not support data sources")
+                    domains += "ATT&CK for Mobile does not support data sources\n\n"
                     continue
                 domain_sections = ""
                 for section, stix_objects in self.data["changes"][object_type][domain].items():
@@ -1002,7 +1030,7 @@ def get_relative_url_from_stix(stix_object):
 
 
 def get_relative_data_component_url(datasource, datacomponent):
-    """Create url of data component with parent data source"""
+    """Create url of data component with parent data source."""
     return f"{get_relative_url_from_stix(stix_object=datasource)}/#{'%20'.join(datacomponent['name'].split(' '))}"
 
 
@@ -1079,8 +1107,7 @@ def get_attack_object_version(stix_obj) -> Optional[float]:
 
 
 def markdown_to_html(outfile, content, diffStix):
-    """Convert the markdown string passed in to HTML and store in index.html
-    of indicated output file path"""
+    """Convert the markdown string passed in to HTML and store in index.html of indicated output file path."""
     logger.info("Writing HTML to file")
     old_version = diffStix.data["old"]["attack_release_versions"]["enterprise-attack"]
     new_version = diffStix.data["new"]["attack_release_versions"]["enterprise-attack"]
@@ -1261,7 +1288,7 @@ def write_detailed_html(html_file_detailed, diffStix):
                         detailed_diff = json.loads(stix_object.get("detailed_diff", "{}"))
                         if detailed_diff:
                             lines.append("<details>")
-                            lines.append(f"<summary>Details</summary>")
+                            lines.append("<summary>Details</summary>")
                             table_inline_css = "style='border: 1px solid black;border-collapse: collapse;'"
 
                             # the deepdiff library displays differences with a prefix of: root['<top-level-key-we-care-about>']
@@ -1362,21 +1389,22 @@ def get_parsed_args():
     )
 
     parser.add_argument(
-        "-old",
+        "--old",
         type=str,
-        default="old",
-        help=f"Directory to load old STIX data from.",
+        # Default is really "old", set below
+        default=None,
+        help="Directory to load old STIX data from.",
     )
 
     parser.add_argument(
-        "-new",
+        "--new",
         type=str,
         default="new",
         help="Directory to load new STIX data from.",
     )
 
     parser.add_argument(
-        "-types",
+        "--types",
         type=str,
         nargs="+",
         choices=["technique", "software", "group", "campaign", "mitigation", "datasource"],
@@ -1384,7 +1412,7 @@ def get_parsed_args():
         help="Which types of objects to report on. Choices (and defaults) are %(choices)s",
     )
     parser.add_argument(
-        "-domains",
+        "--domains",
         type=str,
         nargs="+",
         choices=["enterprise-attack", "mobile-attack", "ics-attack"],
@@ -1417,7 +1445,7 @@ def get_parsed_args():
     )
 
     parser.add_argument(
-        "-layers",
+        "--layers",
         type=str,
         nargs="*",
         help=f"""
@@ -1428,17 +1456,10 @@ def get_parsed_args():
     )
 
     parser.add_argument(
-        "-site_prefix",
+        "--site_prefix",
         type=str,
         default="",
         help="Prefix links in markdown output, e.g. [prefix]/techniques/T1484",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Print status messages",
     )
 
     parser.add_argument(
@@ -1472,6 +1493,13 @@ def get_parsed_args():
     )
     parser.set_defaults(contributors=True)
 
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Print status messages",
+    )
+
     args = parser.parse_args()
 
     # the default loguru logger logs up to Debug by default
@@ -1483,6 +1511,10 @@ def get_parsed_args():
 
     if args.use_mitre_cti and args.old:
         parser.error("--use-mitre-cti and -old cannot be used together")
+
+    # set a default directory that doesn't conflict with use_mitre_cti
+    if not args.old:
+        args.old = "old"
 
     if args.layers is not None:
         if len(args.layers) not in [0, 3]:
@@ -1557,10 +1589,10 @@ def get_new_changelog_md(
     else:
         logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True, level="INFO")
 
-    if old and use_mitre_cti:
-        logger.error("Multiple sources selected as base STIX to compare against.")
-        logger.error("When calling get_new_changelog_md(), 'old' is mutually exclusive with 'use_mitre_cti'")
-        return ""
+    # if old and use_mitre_cti:
+    #     logger.error("Multiple sources selected as base STIX to compare against.")
+    #     logger.error("When calling get_new_changelog_md(), 'old' is mutually exclusive with 'use_mitre_cti'")
+    #     return ""
 
     diffStix = DiffStix(
         domains=domains,
