@@ -1,3 +1,9 @@
+# v2.0.2 1/10/2023
+
+## Fixes
+
+- Fix issue with diff_stix entrypoint when using the mitre/cti repository as the upstream source
+
 # v2.0.1 1/10/2023
 
 ## Fixes
