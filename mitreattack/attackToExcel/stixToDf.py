@@ -140,10 +140,10 @@ def techniquesToDf(src, domain):
     techniques = remove_revoked_deprecated(techniques)
     technique_rows = []
 
-    tactic_names = src.query([Filter("type", "=", "x-mitre-tactic")])
-    tactic_names = remove_revoked_deprecated(tactic_names)
+    tactics = src.query([Filter("type", "=", "x-mitre-tactic")])
+    tactics = remove_revoked_deprecated(tactics)
     tactic_names = {}
-    for tactic in tactic_names:
+    for tactic in tactics:
         x_mitre_shortname = tactic["x_mitre_shortname"]
         tactic_names[x_mitre_shortname] = tactic["name"]
 
@@ -174,11 +174,11 @@ def techniquesToDf(src, domain):
         for kcp in technique["kill_chain_phases"]:
             tactic_shortnames.append(kcp["phase_name"])
 
-        tactic_names = []
+        technique_tactic_names = []
         for shortname in tactic_shortnames:
             tactic_display_name = tactic_names[shortname]
-            tactic_names.append(tactic_display_name)
-        row["tactics"] = ", ".join(sorted(tactic_names))
+            technique_tactic_names.append(tactic_display_name)
+        row["tactics"] = ", ".join(sorted(technique_tactic_names))
 
         if "x_mitre_detection" in technique:
             row["detection"] = technique["x_mitre_detection"]
