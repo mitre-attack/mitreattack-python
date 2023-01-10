@@ -46,8 +46,6 @@ MATRIX_PLATFORMS_LOOKUP = {
     ],
 }
 
-TITLE_EXCLUSIONS = ["and"]
-
 
 def remove_revoked_deprecated(stix_objects):
     """Remove any revoked or deprecated objects from queries made to the data source."""
@@ -142,6 +140,13 @@ def techniquesToDf(src, domain):
     techniques = remove_revoked_deprecated(techniques)
     technique_rows = []
 
+    tactic_names = src.query([Filter("type", "=", "x-mitre-tactic")])
+    tactic_names = remove_revoked_deprecated(tactic_names)
+    tactic_names = {}
+    for tactic in tactic_names:
+        x_mitre_shortname = tactic["x_mitre_shortname"]
+        tactic_names[x_mitre_shortname] = tactic["name"]
+
     all_sub_techniques = src.query(
         [
             Filter("type", "=", "relationship"),
@@ -162,18 +167,18 @@ def techniquesToDf(src, domain):
 
         # sub-technique properties
         if "kill_chain_phases" not in technique:
-            logger.error(
-                f"Skipping {technique['external_references'][0]['external_id']} [{technique['id']}] because it does't have kill chain phases"
-            )
+            attack_id = technique['external_references'][0]['external_id']
+            logger.error(f"Skipping {attack_id} [{technique['id']}] because it does't have kill chain phases")
             continue
-        tactic_shortnames = list(map(lambda kcp: kcp["phase_name"], technique["kill_chain_phases"]))
-        tactics = list(
-            map(
-                lambda t: " ".join([x.title() if x not in TITLE_EXCLUSIONS else x for x in t.split("-")]),
-                tactic_shortnames,
-            )
-        )
-        row["tactics"] = ", ".join(sorted(tactics))
+        tactic_shortnames = []
+        for kcp in technique["kill_chain_phases"]:
+            tactic_shortnames.append(kcp["phase_name"])
+
+        tactic_names = []
+        for shortname in tactic_shortnames:
+            tactic_display_name = tactic_names[shortname]
+            tactic_names.append(tactic_display_name)
+        row["tactics"] = ", ".join(sorted(tactic_names))
 
         if "x_mitre_detection" in technique:
             row["detection"] = technique["x_mitre_detection"]
@@ -264,7 +269,7 @@ def tacticsToDf(src):
     tactics = remove_revoked_deprecated(tactics)
 
     tactic_rows = []
-    for tactic in tqdm(tactics, desc="parsing mitigations"):
+    for tactic in tqdm(tactics, desc="parsing tactics"):
         tactic_rows.append(parseBaseStix(tactic))
 
     citations = get_citations(tactics)
