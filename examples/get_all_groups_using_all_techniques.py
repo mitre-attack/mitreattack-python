@@ -9,7 +9,8 @@ def main():
 
     print(f"Groups using techniques ({len(groups_using_techniques.keys())} techniques):")
     for id, groups in groups_using_techniques.items():
-        print(f"* {id} - used by {len(groups)} {'group' if len(groups) == 1 else 'groups'}")
+        attack_id = mitre_attack_data.get_attack_id(id)
+        print(f"* {attack_id} - used by {len(groups)} {'group' if len(groups) == 1 else 'groups'}")
 
 
 if __name__ == "__main__":
