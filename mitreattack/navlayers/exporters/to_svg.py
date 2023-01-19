@@ -16,45 +16,26 @@ class NoLayer(Exception):
 class SVGConfig:
     """A SVGConfig object."""
 
-    d_width = 8.5
-    d_height = 11
-    d_headerHeight = 1
-    d_unit = "in"
-    d_showSubtechniques = "expanded"
-    d_font = "sans-serif"
-    d_tableBorderColor = "#6B7279"
-    d_showHeader = True
-    d_legendDocked = True
-    d_legendX = 0
-    d_legendY = 0
-    d_legendWidth = 2
-    d_legendHeight = 1
-    d_showLegend = True
-    d_showFilters = True
-    d_showAbout = True
-    d_showDomain = True
-    d_border = 0.104
-
     def __init__(
         self,
-        width=d_width,
-        height=d_height,
-        headerHeight=d_headerHeight,
-        unit=d_unit,
-        showSubtechniques=d_showSubtechniques,
-        font=d_font,
-        tableBorderColor=d_tableBorderColor,
-        showHeader=d_showHeader,
-        legendDocked=d_legendDocked,
-        legendX=d_legendX,
-        legendY=d_legendY,
-        legendWidth=d_legendWidth,
-        legendHeight=d_legendHeight,
-        showLegend=d_showLegend,
-        showFilters=d_showFilters,
-        showAbout=d_showAbout,
-        showDomain=d_showDomain,
-        border=d_border,
+        width=8.5,
+        height=11,
+        headerHeight=1,
+        unit="in",
+        showSubtechniques="expanded",
+        font="sans-serif",
+        tableBorderColor="#6B7279",
+        showHeader=True,
+        legendDocked=True,
+        legendX=0,
+        legendY=0,
+        legendWidth=2,
+        legendHeight=1,
+        showLegend=True,
+        showFilters=True,
+        showAbout=True,
+        showDomain=True,
+        border=0.104,
     ):
         """Define parameters to configure SVG export.
 
@@ -77,26 +58,6 @@ class SVGConfig:
         :param showDomain: Whether or not to show the Domain Version Header Block
         :param border: What default border width to use
         """
-        # force defaults in case bad values are provided so we don't crash later
-        self.width = self.d_width
-        self.height = self.d_height
-        self.headerHeight = self.d_headerHeight
-        self.unit = self.d_unit
-        self.showSubtechniques = self.d_showSubtechniques
-        self.font = self.d_font
-        self.tableBorderColor = self.d_tableBorderColor
-        self.showHeader = self.d_showHeader
-        self.legendDocked = self.d_legendDocked
-        self.legendX = self.d_legendX
-        self.legendY = self.d_legendY
-        self.legendWidth = self.d_legendWidth
-        self.legendHeight = self.d_legendHeight
-        self.showDomain = self.d_showDomain
-        self.showLegend = self.d_showLegend
-        self.showFilters = self.d_showFilters
-        self.showAbout = self.d_showAbout
-        self.border = self.d_border
-
         self.width = width
         self.height = height
         self.headerHeight = headerHeight
@@ -123,6 +84,7 @@ class SVGConfig:
         """
         with open(filename, "r") as fio:
             raw = fio.read()
+
         self._data = json.loads(raw)
         for entry in self._data:
             patched = entry
@@ -133,7 +95,7 @@ class SVGConfig:
             else:
                 print(f"WARNING - Unidentified Config Field in {filename}: {entry}")
 
-        self.__str__()
+        print(self)
 
     def save_to_file(self, filename=""):
         """Store config to json file.
@@ -164,24 +126,26 @@ class SVGConfig:
 
     def __str__(self):
         """Display current configuration."""
-        print("SVGConfig current settings: ")
-        print(f"width - {self.width}")
-        print(f"height - {self.height}")
-        print(f"headerHeight - {self.headerHeight}")
-        print(f"unit - {self.unit}")
-        print(f"showSubtechniques - {self.showSubtechniques}")
-        print(f"font - {self.font}")
-        print(f"tableBorderColor - {self.tableBorderColor}")
-        print(f"showHeader - {self.showHeader}")
-        print(f"legendDocked - {self.legendDocked}")
-        print(f"legendX - {self.legendX}")
-        print(f"legendY - {self.legendY}")
-        print(f"legendWidth - {self.legendWidth}")
-        print(f"legendHeight - {self.legendHeight}")
-        print(f"showLegend - {self.showLegend}")
-        print(f"showFilters - {self.showFilters}")
-        print(f"showAbout - {self.showAbout}")
-        print(f"border - {self.border}")
+        return (
+            f"SVGConfig settings:\n"
+            f"- width: {self.width}\n"
+            f"- height: {self.height}\n"
+            f"- headerHeight: {self.headerHeight}\n"
+            f"- unit: {self.unit}\n"
+            f"- showSubtechniques: {self.showSubtechniques}\n"
+            f"- font: {self.font}\n"
+            f"- tableBorderColor: {self.tableBorderColor}\n"
+            f"- showHeader: {self.showHeader}\n"
+            f"- legendDocked: {self.legendDocked}\n"
+            f"- legendX: {self.legendX}\n"
+            f"- legendY: {self.legendY}\n"
+            f"- legendWidth: {self.legendWidth}\n"
+            f"- legendHeight: {self.legendHeight}\n"
+            f"- showLegend: {self.showLegend}\n"
+            f"- showFilters: {self.showFilters}\n"
+            f"- showAbout: {self.showAbout}\n"
+            f"- border: {self.border}"
+        )
 
     @property
     def width(self):
