@@ -82,7 +82,7 @@ class SVGConfig:
 
         :param filename: The file to read from
         """
-        with open(filename, "r") as fio:
+        with open(filename, "r", encoding="utf-16") as fio:
             raw = fio.read()
 
         self._data = json.loads(raw)
