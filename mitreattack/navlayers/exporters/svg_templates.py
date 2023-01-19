@@ -201,7 +201,16 @@ class SvgTemplates:
 
         return d, psych, overlay
 
-    def _build_legend(self, gradient, legend, header_height, header_width, config):
+    def _build_legend(self, gradient, legend, height, width, config):
+        """Build the legend block for the SVG
+
+        :param gradient: Gradient information included with the layer
+        :param legend: List of legend items
+        :param height: Height of the legend block
+        :param width: Width of the legend block
+        :param config: SVGConfig object
+        :return: The SVG legend block
+        """
         # get all gradient colors
         gradient_colors = []
         if gradient is not False:
@@ -220,8 +229,8 @@ class SvgTemplates:
                 legend_colors.append((l.color, l.label))
 
         legend_block = SVG_HeaderBlock().build(
-            height=header_height,
-            width=header_width,
+            height=height,
+            width=width,
             label="legend",
             variant="graphic",
             gradient_colors=gradient_colors,
