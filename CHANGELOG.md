@@ -1,3 +1,18 @@
+# v2.0.3 1/21/2023
+
+## Features
+
+- Add `download_attack_stix` command that allows you to quickly download ATT&CK releases
+
+## Fixes
+
+- Fix hideDisabled is not working in to_svg() function [#89](https://github.com/mitre-attack/mitreattack-python/issues/89)
+- Fix Unicode display issue on detailed changelog page
+
+## Docs
+
+- Fix links to example scripts [#100](https://github.com/mitre-attack/mitreattack-python/pull/100)
+
 # v2.0.2 1/10/2023
 
 ## Fixes
