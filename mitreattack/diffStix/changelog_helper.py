@@ -1164,6 +1164,7 @@ def write_detailed_html(html_file_detailed, diffStix):
         <html>
             <head>
                 <title>ATT&CK Changes</title>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf8">
                 <style type="text/css">
                     table.diff {font-family:Courier; border:medium;}
                     .diff_header {background-color:#e0e0e0}
