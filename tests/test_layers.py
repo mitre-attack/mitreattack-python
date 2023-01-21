@@ -61,7 +61,7 @@ class TestLayers:
         lay = Layer(testing_data.example_layer_v3_all)
         exp = ToSvg(domain=lay.layer.domain)
         exp.config.load_from_file("resources/demo.json")
-        exp.config.__str__()
+        print(exp.config)
         exp.to_svg(lay)
         os.remove("example.svg")
 

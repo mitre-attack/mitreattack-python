@@ -67,7 +67,7 @@ class SvgTemplates:
         ff = config.font
         d = draw.Drawing(max_x, max_y, origin=(0, -max_y), displayInline=False)
         psych = 0
-        overlay = None
+    
         if config.showHeader:
             border = convertToPx(config.border, config.unit)
             root = G(tx=border, ty=border, style=f"font-family: {ff}")
@@ -170,63 +170,74 @@ class SvgTemplates:
                     header.append(bA)
                     bA.append(gA)
                     psych += 1
-                if config.showLegend:
-                    # get all gradient colors
-                    gradient_colors = []
-                    if gradient is not False:
-                        gr = gradient
-                        if gr is None:
-                            gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
-                        div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
-                        for i in range(0, len(gr.colors) * 2 - 1):
-                            gradient_colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
-                        gradient_colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
-                    
-                    # get all legend colors
-                    legend_colors = []
-                    if legend:
-                        for l in legend:
-                            legend_colors.append((l.color, l.label))
 
-                    # build gradient/legend
-                    if config.legendDocked:
-                        b3 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
-                        g3 = SVG_HeaderBlock().build(
-                            height=header_height,
-                            width=header_width,
-                            label="legend",
-                            variant="graphic",
-                            gradient_colors=gradient_colors,
-                            legend_colors=legend_colors,
-                            config=config,
-                        )
-                        header.append(b3)
-                        b3.append(g3)
-                        psych += 1
-                    else:
-                        adjusted_height = convertToPx(config.legendHeight, config.unit)
-                        adjusted_width = convertToPx(config.legendWidth, config.unit)
-                        g3 = SVG_HeaderBlock().build(
-                            height=adjusted_height,
-                            width=adjusted_width,
-                            label="legend",
-                            variant="graphic",
-                            gradient_colors=gradient_colors,
-                            legend_colors=legend_colors,
-                            config=config,
-                        )
-                        lx = convertToPx(config.legendX, config.unit)
-                        if not lx:
-                            lx = max_x - adjusted_width - convertToPx(config.border, config.unit)
-                        ly = convertToPx(config.legendY, config.unit)
-                        if not ly:
-                            ly = max_y - adjusted_height - convertToPx(config.border, config.unit)
-                        overlay = G(tx=lx, ty=ly)
-                        if (ly + adjusted_height) > max_y or (lx + adjusted_width) > max_x:
-                            print("[WARNING] - Floating legend will render partly out of view...")
-                        overlay.append(g3)
+                # build gradient/legend
+                if config.showLegend and config.legendDocked:
+                    b3 = G(tx=operation_x / header_count * psych + 1.5 * border * psych)
+                    g3 = self._build_legend(gradient, legend, header_height, header_width, config)
+                    header.append(b3)
+                    b3.append(g3)
+                    psych += 1
             d.append(root)
+
+        # undocked legend
+        overlay = None
+        if config.showLegend and not config.legendDocked:
+            adjusted_height = convertToPx(config.legendHeight, config.unit)
+            adjusted_width = convertToPx(config.legendWidth, config.unit)
+
+            g3 = self._build_legend(gradient, legend, adjusted_height, adjusted_width, config)
+
+            lx = convertToPx(config.legendX, config.unit)
+            if not lx:
+                lx = max_x - adjusted_width - convertToPx(config.border, config.unit)
+            ly = convertToPx(config.legendY, config.unit)
+            if not ly:
+                ly = max_y - adjusted_height - convertToPx(config.border, config.unit)
+            overlay = G(tx=lx, ty=ly)
+            if (ly + adjusted_height) > max_y or (lx + adjusted_width) > max_x:
+                print("[WARNING] - Floating legend will render partly out of view...")
+            overlay.append(g3)
+
         return d, psych, overlay
+
+    def _build_legend(self, gradient, legend, height, width, config):
+        """Build the legend block for the SVG
+
+        :param gradient: Gradient information included with the layer
+        :param legend: List of legend items
+        :param height: Height of the legend block
+        :param width: Width of the legend block
+        :param config: SVGConfig object
+        :return: The SVG legend block
+        """
+        # get all gradient colors
+        gradient_colors = []
+        if gradient is not False:
+            gr = gradient
+            if gr is None:
+                gr = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
+            div = round((gr.maxValue - gr.minValue) / (len(gr.colors) * 2 - 1))
+            for i in range(0, len(gr.colors) * 2 - 1):
+                gradient_colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
+            gradient_colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
+        
+        # get all legend colors
+        legend_colors = []
+        if legend:
+            for l in legend:
+                legend_colors.append((l.color, l.label))
+
+        legend_block = SVG_HeaderBlock().build(
+            height=height,
+            width=width,
+            label="legend",
+            variant="graphic",
+            gradient_colors=gradient_colors,
+            legend_colors=legend_colors,
+            config=config,
+        )
+        return legend_block
 
     def get_tactic(self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)):
         """Build a 'tactic column' svg object.
@@ -394,7 +405,7 @@ class SvgTemplates:
         technique_height = convertToPx(config.height, config.unit) - header_offset - border
         technique_height /= (max(lengths) + 1)
 
-        # create SVG
+        # create SVG object
         svg_glob = G(tx=border)
 
         # build SVG
