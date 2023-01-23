@@ -1,9 +1,9 @@
-name: Lint and publish
+name: Lint, test, and publish
 
 on: [push]
 
 jobs:
-  Lint:
+  lint-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,8 +21,13 @@ jobs:
       - name: Lint with flake8
         run: flake8 mitreattack/ --count --exit-zero --statistics
 
-  Publish:
-    needs: Lint
+      - name: Run pytest
+        run: |
+          cd tests
+          pytest --cov=mitreattack --cov-report html
+
+  publish:
+    needs: lint-test
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
