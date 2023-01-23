@@ -1,4 +1,4 @@
-""" MitreAttackData Library """
+"""MitreAttackData Library."""
 
 from dateutil import parser
 from itertools import chain
@@ -8,7 +8,7 @@ from mitreattack.stix20.custom_attack_objects import StixObjectFactory
 
 
 class MitreAttackData:
-    """MitreAttackData object"""
+    """MitreAttackData object."""
 
     stix_types = [
         "attack-pattern",
@@ -283,7 +283,7 @@ class MitreAttackData:
     ###################################
 
     def get_objects_by_type(self, stix_type: str, remove_revoked_deprecated=False) -> list:
-        """Retrieve objects by STIX type
+        """Retrieve objects by STIX type.
 
         Parameters
         ----------
@@ -398,8 +398,9 @@ class MitreAttackData:
         return techniques
 
     def get_tactics_by_matrix(self) -> dict:
-        """Retrieve the structured list of tactics within each matrix. The order of the tactics in
-        the list matches the ordering of tactics in that matrix.
+        """Retrieve the structured list of tactics within each matrix.
+
+        The order of the tactics in the list matches the ordering of tactics in that matrix.
 
         Returns
         -------
@@ -649,7 +650,7 @@ class MitreAttackData:
     ###################################
 
     def get_attack_id(self, stix_id: str) -> str:
-        """Get the object's ATT&CK ID
+        """Get the object's ATT&CK ID.
 
         Parameters
         ----------
@@ -670,7 +671,7 @@ class MitreAttackData:
         return None
 
     def get_stix_type(self, stix_id: str) -> str:
-        """Get the object's STIX type
+        """Get the object's STIX type.
 
         Parameters
         ----------
@@ -685,7 +686,7 @@ class MitreAttackData:
         return get_type_from_id(stix_id)
 
     def get_name(self, stix_id: str) -> str:
-        """Get the object's name
+        """Get the object's name.
 
         Parameters
         ----------
@@ -705,7 +706,7 @@ class MitreAttackData:
     ###################################
 
     def get_related(self, source_type: str, relationship_type: str, target_type: str, reverse: bool = False) -> dict:
-        """Build relationship mappings
+        """Build relationship mappings.
 
         Parameters
         ----------
@@ -787,7 +788,7 @@ class MitreAttackData:
         return output
 
     def merge(self, map_a: dict, map_b: dict) -> dict:
-        """Merge two relationship mappings resulting from `get_related()`
+        """Merge two relationship mappings resulting from `get_related()`.
 
         Parameters
         ----------
@@ -881,7 +882,7 @@ class MitreAttackData:
         return software_used_by_groups[group_stix_id] if group_stix_id in software_used_by_groups else []
 
     def get_all_groups_using_all_software(self) -> dict:
-        """Get all groups using all software
+        """Get all groups using all software.
 
         Returns
         -------
@@ -987,7 +988,7 @@ class MitreAttackData:
         return software_used_by_campaigns[campaign_stix_id] if campaign_stix_id in software_used_by_campaigns else []
 
     def get_all_campaigns_using_all_software(self) -> dict:
-        """Get all campaigns using all software
+        """Get all campaigns using all software.
 
         Returns
         -------
@@ -1603,7 +1604,7 @@ class MitreAttackData:
         )
 
     def get_revoking_object(self, revoked_stix_id: str = "") -> object:
-        """Given the STIX ID of a revoked object, retrieve the STIX object that replaced ("revoked") it
+        """Given the STIX ID of a revoked object, retrieve the STIX object that replaced ("revoked") it.
 
         Parameters
         ----------
