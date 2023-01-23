@@ -214,9 +214,7 @@ class _LayerObj:
                     temp._loader(entry)
                     self.__techniques.append(temp)
                 except MissingParameters as e:
-                    handler(
-                        type(self).__name__, f"Technique {entry} is missing parameters: {e}. Skipping."
-                    )
+                    handler(type(self).__name__, f"Technique {entry} is missing parameters: {e}. Skipping.")
 
     @property
     def gradient(self):
@@ -256,9 +254,7 @@ class _LayerObj:
                     temp = LegendItem(entry["label"], entry["color"])
                     self.__legendItems.append(temp)
                 except MissingParameters as e:
-                    handler(
-                        type(self).__name__, f"Legend Item {entry} is missing parameters: {e}. Skipping."
-                    )
+                    handler(type(self).__name__, f"Legend Item {entry} is missing parameters: {e}. Skipping.")
 
     @property
     def showTacticRowBackground(self):
