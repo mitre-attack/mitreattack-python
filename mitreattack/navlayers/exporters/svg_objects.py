@@ -37,9 +37,7 @@ def _getstringwidth(string, font, size):
     :param size: font size
     :return: pixel length of string
     """
-    font = ImageFont.truetype(
-        f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size)
-    )
+    font = ImageFont.truetype(f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size))
     length, _ = font.getsize(string)
     return length
 
@@ -52,9 +50,7 @@ def _getstringheight(string, font, size):
     :param size: font size
     :return: pixel height of string
     """
-    font = ImageFont.truetype(
-        f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size)
-    )
+    font = ImageFont.truetype(f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size))
     _, height = font.getsize(string)
     return height
 
@@ -169,9 +165,7 @@ class Cell(drawSvg.DrawingParentElement):
 
     def __init__(self, height, width, fill, tBC, ctype=None):
         # tBC = tableBorderColor, ctype='class' field on resulting svg object, fill=[R,G,B]
-        super().__init__(
-            height=height, width=width, style=f"fill: rgb({fill[0]}, {fill[1]}, {fill[2]})", stroke=tBC
-        )
+        super().__init__(height=height, width=width, style=f"fill: rgb({fill[0]}, {fill[1]}, {fill[2]})", stroke=tBC)
         if ctype:
             self.args["class"] = ctype
 
@@ -259,7 +253,9 @@ class SVG_HeaderBlock:
     """SVG_HeaderBlock class."""
 
     @staticmethod
-    def build(height, width, label, config, variant="text", t1text=None, t2text=None, gradient_colors=[], legend_colors=[]):
+    def build(
+        height, width, label, config, variant="text", t1text=None, t2text=None, gradient_colors=[], legend_colors=[]
+    ):
         """Build a single SVG Header Block object.
 
         :param height: Height of the block
@@ -339,7 +335,7 @@ class SVG_HeaderBlock:
                     conv = entry[0]
                     if conv.startswith("#"):
                         conv = conv[1:]
-                    block = Swatch(15, block_width, tuple(int(conv[i: i + 2], 16) for i in (0, 2, 4)))
+                    block = Swatch(15, block_width, tuple(int(conv[i : i + 2], 16) for i in (0, 2, 4)))
                     offset += block_width
                     cell.append(block)
                     gradient_cells.append(cell)
@@ -364,14 +360,16 @@ class SVG_HeaderBlock:
                 for entry in legend_colors:
                     cell = G(ctype="cell", tx=offset)
                     color = entry[0]
-                    if color.startswith("#"): color = color[1:]
-                    block = Swatch(15, block_width, tuple(int(color[i: i+2], 16) for i in (0, 2, 4)))
+                    if color.startswith("#"):
+                        color = color[1:]
+                    block = Swatch(15, block_width, tuple(int(color[i : i + 2], 16) for i in (0, 2, 4)))
                     offset += block_width
                     cell.append(block)
                     legend_cells.append(cell)
                     legendLabel = str(entry[1])
                     off = (block_width - (5 * (1 + len(legendLabel)))) / 2
-                    if off < 0: off = 0
+                    if off < 0:
+                        off = 0
                     fs, _ = _optimalFontSize("0", width / len(legend_colors), height)
                     textLabel = Text(legendLabel, fs, ctype="label", ty=25, tx=off)
                     cell.append(textLabel)
@@ -387,7 +385,17 @@ class SVG_Technique:
             self.grade = Gradient(colors=["#ff6666", "#ffe766", "#8ec843"], minValue=1, maxValue=100)
 
     def build(
-        self, offset, technique, height, width, tBC, subtechniques=[], exclude=[], mode=(True, False), tactic=None, colors=[]
+        self,
+        offset,
+        technique,
+        height,
+        width,
+        tBC,
+        subtechniques=[],
+        exclude=[],
+        mode=(True, False),
+        tactic=None,
+        colors=[],
     ):
         """Build a SVG Technique block.
 
@@ -408,7 +416,7 @@ class SVG_Technique:
         t = dict(
             name=self._disp(technique.name, technique.id, mode),
             id=technique.id,
-            color=tuple(int(c[i: i + 2], 16) for i in (0, 2, 4)),
+            color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
         )
         tech, text = self._block(t, height, width, tBC=tBC)
         g.append(tech)
@@ -426,7 +434,7 @@ class SVG_Technique:
             st = dict(
                 name=self._disp(entry.name, entry.id, mode),
                 id=entry.id,
-                color=tuple(int(c[i: i + 2], 16) for i in (0, 2, 4)),
+                color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
             )
             subtech, subtext = self._block(st, height, width - width / 5, tBC=tBC)
             gp.append(subtech)

@@ -48,7 +48,9 @@ class SvgTemplates:
         else:
             raise BadTemplateException
 
-    def _build_headers(self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None, legend=[]):
+    def _build_headers(
+        self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None, legend=[]
+    ):
         """Build the header blocks for the svg.
 
         :param name: The name of the layer being exported
@@ -67,7 +69,7 @@ class SvgTemplates:
         ff = config.font
         d = draw.Drawing(max_x, max_y, origin=(0, -max_y), displayInline=False)
         psych = 0
-    
+
         if config.showHeader:
             border = convertToPx(config.border, config.unit)
             root = G(tx=border, ty=border, style=f"font-family: {ff}")
@@ -221,7 +223,7 @@ class SvgTemplates:
             for i in range(0, len(gr.colors) * 2 - 1):
                 gradient_colors.append((gr.compute_color(int(gr.minValue + div * i)), gr.minValue + div * i))
             gradient_colors.append((gr.compute_color(gr.maxValue), gr.maxValue))
-        
+
         # get all legend colors
         legend_colors = []
         if legend:
@@ -239,7 +241,9 @@ class SvgTemplates:
         )
         return legend_block
 
-    def get_tactic(self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)):
+    def get_tactic(
+        self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)
+    ):
         """Build a 'tactic column' svg object.
 
         :param tactic: The corresponding tactic for this column
@@ -258,7 +262,7 @@ class SvgTemplates:
         tactic_name = tactic.tactic.name
         excluded_ids = [str(t[0]) + str(t[1]) for t in exclude]
         subtech_ids = [str(s[0]) + str(s[1]) for s in subtechs]
-    
+
         # copy scores to SVG
         offset = 0
         for id in tactic.subtechniques:
@@ -302,7 +306,18 @@ class SvgTemplates:
         return column
 
     def get_tech(
-        self, offset, mode, technique, tactic, config, height, width, subtechniques=[], exclude=[], colors=[], subscores=[]
+        self,
+        offset,
+        mode,
+        technique,
+        tactic,
+        config,
+        height,
+        width,
+        subtechniques=[],
+        exclude=[],
+        colors=[],
+        subscores=[],
     ):
         """Retrieve a svg object for a single technique.
 
@@ -403,7 +418,7 @@ class SvgTemplates:
 
         # calculate technique height
         technique_height = convertToPx(config.height, config.unit) - header_offset - border
-        technique_height /= (max(lengths) + 1)
+        technique_height /= max(lengths) + 1
 
         # create SVG object
         svg_glob = G(tx=border)
