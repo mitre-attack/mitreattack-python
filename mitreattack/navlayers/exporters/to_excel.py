@@ -19,6 +19,12 @@ class ToExcel:
         :param resource: Optional string path to local cache of stix data (local) or url of workbench to reach out
                             to (remote)
         """
+        if domain in ["enterprise-attack", "mitre-enterprise"]:
+            domain = "enterprise"
+        elif domain in ["mobile-attack", "mitre-mobile"]:
+            domain = "mobile"
+        elif domain == "ics-attack":
+            domain = "ics"
         self.domain = domain
         self.raw_handle = ExcelTemplates(domain=domain, source=source, resource=resource)
 

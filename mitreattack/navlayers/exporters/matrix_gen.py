@@ -1,10 +1,13 @@
 """Contains MatrixEntry, Tactic, and MatrixGen classes."""
 
-from stix2 import TAXIICollectionSource, Filter, MemoryStore
-from stix2.datastore.memory import _add
-from taxii2client.v20 import Server, Collection
-import requests
 import json
+
+import requests
+from loguru import logger
+from stix2 import Filter, MemoryStore, TAXIICollectionSource
+from stix2.datastore.memory import _add
+from taxii2client.v20 import Collection, Server
+
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
@@ -122,7 +125,7 @@ class Tactic:
 class MatrixGen:
     """A MatrixGen object."""
 
-    def __init__(self, source="taxii", resource=None):
+    def __init__(self, source="taxii", resource=None, domain="enterprise"):
         """Initialize - Creates a matrix generator object.
 
         :param source: Source to utilize (taxii, remote, or local)
@@ -130,11 +133,8 @@ class MatrixGen:
         """
         self.convert_data = {}
         self.collections = dict()
-        if source.lower() not in ["taxii", "local", "remote"]:
-            print(
-                '[MatrixGen] - Unable to generate matrix, source {} is not one of "taxii", "remote" or '
-                '"local"'.format(source)
-            )
+        if source.lower() not in ["taxii", "local", "remote", "memorystore"]:
+            logger.error(f"Unable to generate matrix, source {source} is not one of [taxii | remote | local | memorystore]")
             raise ValueError
 
         if source.lower() == "taxii":
@@ -144,6 +144,7 @@ class MatrixGen:
                 if collection.title != "PRE-ATT&CK":
                     tc = Collection("https://cti-taxii.mitre.org/stix/collections/" + collection.id)
                     self.collections[collection.title.split(" ")[0].lower()] = TAXIICollectionSource(tc)
+
         elif source.lower() == "local":
             if resource is not None:
                 hd = MemoryStore()
@@ -153,8 +154,9 @@ class MatrixGen:
                 else:
                     self.collections["enterprise"] = hd
             else:
-                print('[MatrixGen] - "local" source specified, but path to local source not provided')
+                logger.error(f"source=local specified, but path to local source not provided")
                 raise ValueError
+
         elif source.lower() == "remote":
             if resource is not None:
                 if ":" not in resource[6:]:
@@ -177,8 +179,19 @@ class MatrixGen:
                     '"remote" requires the inclusion of a "resource" url to an ATT&CK Workbench instance. No matrix '
                     "will be generated..."
                 )
+
+        elif source.lower() == "memorystore":
+            if resource is not None:
+                if "mobile" in domain:
+                    self.collections["mobile"] = resource
+                else:
+                    self.collections["enterprise"] = resource
+            else:
+                logger.error(f"source=memorystore specified, but no data was provided!")
+                raise ValueError
+
         self.matrix = {}
-        self._build_matrix()
+        self._build_matrix(domain=domain)
 
     @staticmethod
     def _remove_revoked_deprecated(content):

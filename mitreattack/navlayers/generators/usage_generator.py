@@ -32,7 +32,7 @@ class UsageLayerGenerator:
         :param domain: Which matrix to use during generation
         :param resource: string path to local STIX data (local) or url of workbench to reach out to (remote)
         """
-        self.matrix_handle = MatrixGen(source, resource)
+        self.matrix_handle = MatrixGen(source=source, resource=resource, domain=domain)
         self.domain = domain
         try:
             self.source_handle = self.matrix_handle.collections[domain]

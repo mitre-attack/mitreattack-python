@@ -1,156 +1,138 @@
-import os
-import shutil
+from pathlib import Path
 
-from resources.testing_data import example_layer_v3_all as data_layer
+from loguru import logger
+from stix2 import MemoryStore
 
 from mitreattack.navlayers import Layer, SVGConfig, ToExcel, ToSvg
 
-source = "taxii"
-resource = None
 
-l1 = Layer()
-l1.from_str(data_layer)
+def check_svg_generation(layer: Layer, path: Path, resource: MemoryStore, index: int, config: SVGConfig = None):
+    t = ToSvg(domain=layer.layer.domain, source="memorystore", resource=resource, config=config)
+    svg_output = path / f"{index}.svg"
+    t.to_svg(layerInit=layer, filepath=str(svg_output))
+    assert svg_output.exists()
 
 
-class TestMass:
-    def test_dimensions(self):
-        """Test SVG export: dimensions"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
+def check_xlsx_generation(layer: Layer, path: Path, resource: MemoryStore, index: int):
+    e = ToExcel(domain=layer.layer.domain, source="memorystore", resource=resource)
+    xlsx_output = path / f"{index}.xlsx"
+    e.to_xlsx(layerInit=layer, filepath=str(xlsx_output))
+    assert xlsx_output.exists()
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for width in [8.5, 11]:
-            for height in [8.5, 11]:
-                for headerHeight in [1, 2]:
-                    for unit in ["in", "cm"]:
-                        c = SVGConfig(width=width, height=height, headerHeight=headerHeight, unit=unit)
-                        l1.layer.description = f"{width}x{height}{unit}; header={headerHeight}"
-                        t = ToSvg(domain=l1.layer.domain, source=source, resource=resource, config=c)
-                        t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                        e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                        e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.svg")
-                        index += 1
-        shutil.rmtree("mass")
 
-    def test_showSubtechniques(self):
-        """Test SVG export: Displaying Subtechniques"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
+def test_showSubtechniques(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: Displaying Subtechniques"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for showSubtechniques in ["all", "expanded", "none"]:
+        for showHeader in [True, False]:
+            c = SVGConfig(showSubtechniques=showSubtechniques, showHeader=showHeader)
+            layer_v3_all.layer.description = f"subs={showSubtechniques},showHeader={showHeader}"
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for showSubtechniques in ["all", "expanded", "none"]:
-            for showHeader in [True, False]:
-                c = SVGConfig(showSubtechniques=showSubtechniques, showHeader=showHeader)
-                l1.layer.description = f"subs={showSubtechniques},showHeader={showHeader}"
-                t = ToSvg(domain=l1.layer.domain, source=source, resource=resource, config=c)
-                t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.svg")
-                index += 1
-        shutil.rmtree("mass")
+            check_svg_generation(
+                layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index, config=c
+            )
+            check_xlsx_generation(layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index)
+            index += 1
 
-    def test_legendWidth(self):
-        """Test SVG export: legend width variations"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for legendWidth in [3, 6]:
-            for legendHeight in [1, 2]:
-                for legendX in [2, 4]:
-                    for legendY in [2, 4]:
-                        c = SVGConfig(
-                            legendDocked=False,
-                            legendWidth=legendWidth,
-                            legendHeight=legendHeight,
-                            legendX=legendX,
-                            legendY=legendY,
-                        )
-                        l1.layer.description = f"undocked legend, {legendWidth}x{legendHeight} at {legendX}x{legendY}"
-                        t = ToSvg(domain=l1.layer.domain, source=source, resource=resource, config=c)
-                        t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                        e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                        e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.svg")
-                        index += 1
-        shutil.rmtree("mass")
+def test_dimensions(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: dimensions"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for width in [8.5, 11]:
+        for height in [8.5, 11]:
+            for headerHeight in [1, 2]:
+                for unit in ["in", "cm"]:
+                    c = SVGConfig(width=width, height=height, headerHeight=headerHeight, unit=unit)
+                    layer_v3_all.layer.description = f"{width}x{height}{unit}; header={headerHeight}"
 
-    def test_showFilters(self):
-        """Test SVG export: customization options"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
+                    check_svg_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index, config=c
+                    )
+                    check_xlsx_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index
+                    )
+                    index += 1
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for showFilters in [True, False]:
-            for showAbout in [True, False]:
-                for showLegend in [True, False]:
-                    for showDomain in [True, False]:
-                        c = SVGConfig(
-                            showFilters=showFilters, showAbout=showAbout, showLegend=showLegend, showDomain=showDomain
-                        )
-                        l1.layer.description = f"legend={showLegend}, filters={showFilters}, about={showAbout}"
-                        t = ToSvg(domain=l1.layer.domain, source=source, resource=resource, config=c)
-                        t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                        e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                        e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.xlsx")
-                        assert os.path.exists(f"mass/output/{index}.svg")
-                        index += 1
-        shutil.rmtree("mass")
 
-    def test_borders(self):
-        """Test SVG export: borders"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
+def test_legendWidth(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: legend width variations"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for legendWidth in [3, 6]:
+        for legendHeight in [1, 2]:
+            for legendX in [2, 4]:
+                for legendY in [2, 4]:
+                    c = SVGConfig(
+                        legendDocked=False,
+                        legendWidth=legendWidth,
+                        legendHeight=legendHeight,
+                        legendX=legendX,
+                        legendY=legendY,
+                    )
+                    layer_v3_all.layer.description = (
+                        f"undocked legend, {legendWidth}x{legendHeight} at {legendX}x{legendY}"
+                    )
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for border in [0.1, 0.3]:
-            for tableBorderColor in ["#ddd", "#ffaaaa"]:
-                c = SVGConfig(border=border, tableBorderColor=tableBorderColor)
-                l1.layer.description = f"border={border}, tableBorderColor={tableBorderColor}"
-                t = ToSvg(domain=l1.layer.domain, source=source, resource=resource, config=c)
-                t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.svg")
-                index += 1
-        shutil.rmtree("mass")
+                    check_svg_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index, config=c
+                    )
+                    check_xlsx_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index
+                    )
+                    index += 1
 
-    def test_counts(self):
-        """Test SVG export: scores/aggregation"""
-        if os.path.isdir("mass"):
-            shutil.rmtree("mass")
 
-        index = 0
-        os.mkdir("mass")
-        os.mkdir("mass/output")
-        for countUnscored in [True, False]:
-            for aggregateFunction in ["average", "min", "max", "sum"]:
-                l1.layer.layout.countUnscored = countUnscored
-                l1.layer.layout.aggregateFunction = aggregateFunction
-                l1.layer.description = f"countUnscored={countUnscored}, aggregateFunction={aggregateFunction}"
-                print(l1.layer.description)
-                t = ToSvg(domain=l1.layer.domain, source=source, resource=resource)
-                t.to_svg(l1, filepath=f"mass/output/{index}.svg")
-                e = ToExcel(domain=l1.layer.domain, source=source, resource=resource)
-                e.to_xlsx(l1, filepath=f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.xlsx")
-                assert os.path.exists(f"mass/output/{index}.svg")
-                index += 1
-        shutil.rmtree("mass")
+def test_showFilters(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: customization options"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for showFilters in [True, False]:
+        for showAbout in [True, False]:
+            for showLegend in [True, False]:
+                for showDomain in [True, False]:
+                    c = SVGConfig(
+                        showFilters=showFilters, showAbout=showAbout, showLegend=showLegend, showDomain=showDomain
+                    )
+                    layer_v3_all.layer.description = f"legend={showLegend}, filters={showFilters}, about={showAbout}"
+
+                    check_svg_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index, config=c
+                    )
+                    check_xlsx_generation(
+                        layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index
+                    )
+                    index += 1
+
+
+def test_borders(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: borders"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for border in [0.1, 0.3]:
+        for tableBorderColor in ["#ddd", "#ffaaaa"]:
+            c = SVGConfig(border=border, tableBorderColor=tableBorderColor)
+            layer_v3_all.layer.description = f"border={border}, tableBorderColor={tableBorderColor}"
+
+            check_svg_generation(
+                layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index, config=c
+            )
+            check_xlsx_generation(layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index)
+            index += 1
+
+
+def test_counts(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
+    """Test SVG export: scores/aggregation"""
+    logger.debug(f"{tmp_path=}")
+    index = 0
+    for countUnscored in [True, False]:
+        for aggregateFunction in ["average", "min", "max", "sum"]:
+            layer_v3_all.layer.layout.countUnscored = countUnscored
+            layer_v3_all.layer.layout.aggregateFunction = aggregateFunction
+            layer_v3_all.layer.description = f"countUnscored={countUnscored}, aggregateFunction={aggregateFunction}"
+            print(layer_v3_all.layer.description)
+
+            check_svg_generation(layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index)
+            check_xlsx_generation(layer=layer_v3_all, path=tmp_path, resource=memstore_enterprise_latest, index=index)
+            index += 1

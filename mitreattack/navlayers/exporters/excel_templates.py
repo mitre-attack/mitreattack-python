@@ -30,7 +30,7 @@ class ExcelTemplates:
             muse = domain[:-7]
         if muse in ["enterprise", "mobile"]:
             self.mode = muse
-            self.h = MatrixGen(source=source, resource=resource)
+            self.h = MatrixGen(source=source, resource=resource, domain=domain)
         else:
             raise BadTemplateException
 

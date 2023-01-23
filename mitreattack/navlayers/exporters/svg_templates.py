@@ -43,7 +43,7 @@ class SvgTemplates:
             muse = domain[:-7]
         if muse in ["enterprise", "mobile"]:
             self.mode = muse
-            self.h = MatrixGen(source=source, resource=resource)
+            self.h = MatrixGen(source=source, resource=resource, domain=domain)
             self.lhandle = None
         else:
             raise BadTemplateException

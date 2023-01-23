@@ -244,7 +244,7 @@ class SVGConfig:
     @tableBorderColor.setter
     def tableBorderColor(self, tableBorderColor):
         """Table Border Color setter."""
-        if isinstance(tableBorderColor, str) and tableBorderColor.startswith("#") and len(tableBorderColor) == 7:
+        if isinstance(tableBorderColor, str) and tableBorderColor.startswith("#") and len(tableBorderColor) in [4, 7]:
             self.__tableBorderColor = tableBorderColor
         else:
             reason = ""
@@ -423,6 +423,12 @@ class ToSvg:
                             to (remote)
         :param config: Optional pre-existing SVGConfig object
         """
+        if domain in ["enterprise-attack", "mitre-enterprise"]:
+            domain = "enterprise"
+        elif domain in ["mobile-attack", "mitre-mobile"]:
+            domain = "mobile"
+        elif domain == "ics-attack":
+            domain = "ics"
         self.raw_handle = SvgTemplates(domain=domain, source=source, resource=resource)
         if config is not None and isinstance(config, SVGConfig):
             self.config = config
