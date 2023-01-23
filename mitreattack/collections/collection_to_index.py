@@ -1,13 +1,14 @@
 """Contains CollectionToIndex class, and entrypoint for collectionToIndex_cli."""
 
 import argparse
-import os
-from tqdm import tqdm
 import json
-import uuid
-from dateutil.parser import isoparse
+import os
 import re
-from stix2 import MemoryStore, Filter
+import uuid
+
+from dateutil.parser import isoparse
+from stix2 import Filter, MemoryStore
+from tqdm import tqdm
 
 
 class CollectionToIndex:
@@ -43,7 +44,7 @@ class CollectionToIndex:
             return
 
         if folders:
-            version_regex = re.compile("(\w+-)+(\d\.?)+.json")
+            version_regex = re.compile(r"(\w+-)+(\d\.?)+.json")
             files = []
             for folder in folders:
                 files += list(
