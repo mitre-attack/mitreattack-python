@@ -9,7 +9,7 @@ In order to release a new version of mitreattack-python, follow the process outl
 
    ```bash
    # run from the tests/ directory
-   PYTHONPATH=. pytest --cov=mitreattack --cov-report html
+   pytest --cov=mitreattack --cov-report html
    ```
 
 4. Edit setup.py and increment the version number.
