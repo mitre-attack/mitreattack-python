@@ -1,3 +1,5 @@
+"""SHA256 hashes of all ATT&CK releases."""
+
 import hashlib
 
 from typing import Optional
@@ -168,7 +170,28 @@ STIX21 = {
     },
 }
 
-def get_attack_version(domain: str, stix_version: str = "2.0", stix_file: str = None, stix_content: bytes = None) -> Optional[str]:
+
+def get_attack_version(
+    domain: str, stix_version: str = "2.0", stix_file: str = None, stix_content: bytes = None
+) -> Optional[str]:
+    """Determine the version of ATT&CK based on either a file or contents of a file.
+
+    Parameters
+    ----------
+    domain : str
+        ATT&CK domain [enterprise-attack | mobile-attack | ics-attack | pre-attack]
+    stix_version : str, optional
+        Version of STIX to check, by default "2.0"
+    stix_file : str, optional
+        Path to an ATT&CK release STIX file (use this or stix_content), by default None
+    stix_content : bytes, optional
+        Contents of an ATT&CK release STIX file (use this or stix_file), by default None
+
+    Returns
+    -------
+    Optional[str]
+        _description_
+    """
     if domain not in [
         "enterprise-attack",
         "mobile-attack",
@@ -176,7 +199,7 @@ def get_attack_version(domain: str, stix_version: str = "2.0", stix_file: str = 
         "pre-attack",
     ]:
         logger.error(
-            f"domain must be one of [enterprise-attack | mobile-attack | ics-attack | pre-attack] to determine version"
+            "domain must be one of [enterprise-attack | mobile-attack | ics-attack | pre-attack] to determine version"
         )
         return None
     sha256_hash = hashlib.sha256()
