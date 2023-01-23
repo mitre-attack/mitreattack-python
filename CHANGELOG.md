@@ -1,4 +1,4 @@
-# v2.0.3 1/21/2023
+# v2.0.3 1/23/2023
 
 ## Features
 
@@ -6,8 +6,9 @@
 
 ## Fixes
 
-- Fix hideDisabled is not working in to_svg() function [#89](https://github.com/mitre-attack/mitreattack-python/issues/89)
+- Fix an issue in the navlayers module where the legend is not generated in the SVG export when `SVGConfig.legendDocked=false` [#99](https://github.com/mitre-attack/mitreattack-python/pull/99)
 - Fix Unicode display issue on detailed changelog page
+- Tests now run against local STIX files instead of TAXII server, speeding them up drastically
 
 ## Docs
 
