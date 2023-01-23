@@ -1,9 +1,10 @@
+# E203: whitespace before ':'  - black autoformatter sometimes conflicts with this one
 # E501: line too long (> 79 characters)
 # W503: Line break occurred before a binary operator
 # D105: Missing docstring in magic method - no need to have docstrings here
 
 [flake8]
-ignore=E501,W503,D105
+ignore=E203,E501,W503,D105
 docstring-convention=numpy
 exclude =
     venv

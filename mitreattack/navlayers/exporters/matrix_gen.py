@@ -156,7 +156,7 @@ class MatrixGen:
                 else:
                     self.collections["enterprise"] = hd
             else:
-                logger.error(f"source=local specified, but path to local source not provided")
+                logger.error("source=local specified, but path to local source not provided")
                 raise ValueError
 
         elif source.lower() == "remote":
@@ -189,7 +189,7 @@ class MatrixGen:
                 else:
                     self.collections["enterprise"] = resource
             else:
-                logger.error(f"source=memorystore specified, but no data was provided!")
+                logger.error("source=memorystore specified, but no data was provided!")
                 raise ValueError
 
         self.matrix = {}
