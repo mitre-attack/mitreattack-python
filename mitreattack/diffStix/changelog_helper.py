@@ -1693,8 +1693,8 @@ def get_parsed_args():
     """Create argument parser and parse arguments."""
     parser = argparse.ArgumentParser(
         description=(
-            "Create -markdown and/or -layers reporting on the changes between two versions of the ATT&CK content. "
-            "Takes STIX bundles as input. For default operation, put enterprise-attack.json and mobile-attack.json bundles "
+            "Create changelog reports on the differences between two versions of the ATT&CK content. "
+            "Takes STIX bundles as input. For default operation, put enterprise-attack.json, mobile-attack.json, and ics-attack.json bundles "
             "in 'old' and 'new' folders for the script to compare."
         )
     )
