@@ -1,3 +1,13 @@
+# v2.0.4 1/30/2023
+
+## Features
+
+- Add functionality to `mitreattack/diffStix/changelog_helper.py` to provide changed Mitigations and Detections.
+
+## Docs
+
+- Add full docstrings to most functions in `mitreattack/diffStix/changelog_helper.py`.
+
 # v2.0.3 1/23/2023
 
 ## Features
