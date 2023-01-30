@@ -1,3 +1,5 @@
+"""A helper script to download ATT&CK releases in STIX/JSON format."""
+
 import pathlib
 from typing import List
 
@@ -11,6 +13,21 @@ app = typer.Typer(add_completion=False)
 
 
 def download_stix(stix_version: str, domain: str, download_dir: str, release: str, known_hash: str):
+    """Download an ATT&CK STIX release file.
+
+    Parameters
+    ----------
+    stix_version : str
+        Version of STIX to download. Options are "2.0" or "2.1"
+    domain : str
+        An ATT&CK domain from the following list ["enterprise", "mobile", "ics"]
+    download_dir : str
+        Directory to download the STIX files to.
+    release : str
+        ATT&CK release to download.
+    known_hash : str
+        SHA256 hash of the ATT&CK release.
+    """
     release_download_dir = pathlib.Path(f"{download_dir}/v{release}")
     release_download_dir.mkdir(parents=True, exist_ok=True)
     fname = f"{domain}-attack.json"
@@ -24,6 +41,19 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
 
 
 def download_domains(domains: List[str], download_dir: str, all_versions: bool, stix_version: str):
+    """Download ATT&CK domains specified.
+
+    Parameters
+    ----------
+    domains : List[str]
+        List of domains to download.
+    download_dir : str
+        Directory to download the STIX files to.
+    all_versions : bool
+        Whether or not to download all versions of the domains.
+    stix_version : str
+        Version of STIX to download. Options are "2.0" or "2.1"
+    """
     for domain in domains:
         if domain == "pre" and stix_version == "2.1":
             # there is no STIX 2.1 data for the PRE domain
