@@ -41,7 +41,7 @@ setuptools.setup(
     install_requires=[
         "colour",
         "deepdiff",
-        "drawsvg",
+        "drawSvg<2.0.0",
         "loguru",
         "Markdown",
         "numpy",

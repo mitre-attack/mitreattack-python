@@ -4,7 +4,7 @@ import warnings
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
-    import drawsvg as draw
+    import drawSvg as draw
 
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.exporters.svg_objects import (

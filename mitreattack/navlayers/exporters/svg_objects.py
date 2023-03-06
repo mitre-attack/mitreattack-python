@@ -1,6 +1,6 @@
 """Helper classes and functions for working with SVG objects."""
 
-import drawsvg
+import drawSvg
 import colorsys
 import numpy as np
 import os
@@ -158,7 +158,7 @@ def _optimalFontSize(st, width, height, maxFontSize=12):
     return bestSize, bestWordArrangement
 
 
-class Cell(drawsvg.DrawingParentElement):
+class Cell(drawSvg.DrawingParentElement):
     """Cell class."""
 
     TAG_NAME = "rect"
@@ -170,7 +170,7 @@ class Cell(drawsvg.DrawingParentElement):
             self.args["class"] = ctype
 
 
-class HeaderRect(drawsvg.DrawingParentElement):
+class HeaderRect(drawSvg.DrawingParentElement):
     """HeaderRect class."""
 
     TAG_NAME = "rect"
@@ -187,7 +187,7 @@ class HeaderRect(drawsvg.DrawingParentElement):
             self.args["stroke"] = "black"
 
 
-class G(drawsvg.DrawingParentElement):
+class G(drawSvg.DrawingParentElement):
     """G class."""
 
     TAG_NAME = "g"
@@ -206,7 +206,7 @@ class G(drawsvg.DrawingParentElement):
             self.args["class"] = ctype
 
 
-class Line(drawsvg.DrawingParentElement):
+class Line(drawSvg.DrawingParentElement):
     """Line class."""
 
     TAG_NAME = "line"
@@ -216,7 +216,7 @@ class Line(drawsvg.DrawingParentElement):
         super().__init__(x1=x1, x2=x2, y1=y1, y2=y2, stroke=stroke)
 
 
-class Text(drawsvg.Text):
+class Text(drawSvg.Text):
     """Text class."""
 
     def __init__(self, text, font_size, ctype, position=None, tx=None, ty=None, x=None, y=None, fill=None):
@@ -239,7 +239,7 @@ class Text(drawsvg.Text):
             self.args["fill"] = fill
 
 
-class Swatch(drawsvg.DrawingParentElement):
+class Swatch(drawSvg.DrawingParentElement):
     """Swatch class."""
 
     TAG_NAME = "rect"
@@ -442,7 +442,7 @@ class SVG_Technique:
             new_offset = new_offset + height
         if count > 0:
             g.append(
-                drawsvg.Lines(
+                drawSvg.Lines(
                     width / 16,
                     -height,
                     width / 8,
