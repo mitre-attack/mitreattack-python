@@ -1,3 +1,9 @@
+# v2.0.6 3/13/2023
+
+## Fixes
+
+- Fix issue with getting revoked STIX objects
+
 # v2.0.5 3/6/2023
 
 ## Fixes
