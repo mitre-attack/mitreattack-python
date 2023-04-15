@@ -1618,7 +1618,7 @@ class MitreAttackData:
         """
         relations = self.src.relationships(revoked_stix_id, "revoked-by", source_only=True)
         revoked_by = self.src.query(
-            [Filter("id", "in", [r.target_ref for r in relations]), Filter("revoked", "=", False)]
+            [Filter("id", "in", [r.target_ref for r in relations])]
         )
 
         if not revoked_by:

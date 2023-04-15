@@ -2,7 +2,7 @@ black>=22.3.0
 check-wheel-contents
 colour>=0.1.5
 deepdiff==6.2.2
-drawSvg>=1.6.0
+drawSvg<2.0.0
 flake8>=5.0.4
 flake8-docstrings>=1.6.0
 isort>=5.10.1

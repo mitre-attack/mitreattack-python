@@ -1,3 +1,15 @@
+# v2.0.6 3/13/2023
+
+## Fixes
+
+- Fix issue with getting revoked STIX objects
+
+# v2.0.5 3/6/2023
+
+## Fixes
+
+- Fix dependency on drawSvg, pinning it to <2.0.0
+
 # v2.0.4 1/30/2023
 
 ## Features
