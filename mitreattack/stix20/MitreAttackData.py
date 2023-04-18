@@ -824,7 +824,7 @@ class MitreAttackData:
         """
         # return data if it has already been fetched
         if self.all_software_used_by_all_groups:
-            return self.get_all_software_used_by_all_groups
+            return self.all_software_used_by_all_groups
 
         # get all software used by groups
         tools_used_by_group = self.get_related("intrusion-set", "uses", "tool")
@@ -1617,9 +1617,7 @@ class MitreAttackData:
             the object that replaced ("revoked") it
         """
         relations = self.src.relationships(revoked_stix_id, "revoked-by", source_only=True)
-        revoked_by = self.src.query(
-            [Filter("id", "in", [r.target_ref for r in relations])]
-        )
+        revoked_by = self.src.query([Filter("id", "in", [r.target_ref for r in relations])])
 
         if not revoked_by:
             return None
