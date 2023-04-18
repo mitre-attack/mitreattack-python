@@ -5,16 +5,15 @@ In order to release a new version of mitreattack-python, follow the process outl
 1. Verify that all changes desired in the next release are present in the `master` branch.
 2. Verify that all changes are documented in the CHANGELOG staged in the `master` branch.
 3. Run the test suite in `/tests/` with pytest.
-   Please note, this takes a while to run, up to several hours.
 
    ```bash
-   # run from the tests/ directory
+   # must run from the tests/ directory
+   cd tests/
    pytest --cov=mitreattack --cov-report html
    ```
 
 4. Edit setup.py and increment the version number.
    Update other fields in setup.py as necessary (used libraries, etc.)
-   1. Update setuptools and wheel - `pip install --upgrade setuptools wheel`.
 5. [Optional, but recommended] Build the python library for pip locally:
    1. Remove older built pacakges - `rm -rf dist/`.
    2. Build the package - `python setup.py sdist bdist_wheel`.
