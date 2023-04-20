@@ -4,11 +4,11 @@ import argparse
 import datetime
 import difflib
 import json
-import math
 import os
 import re
 import sys
 import textwrap
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -33,6 +33,30 @@ layer_defaults = [
     os.path.join("output", f"{this_month}_Updates_ICS.json"),
     os.path.join("output", f"{this_month}_Updates_Pre.json"),
 ]
+
+
+@dataclass
+class AttackObjectVersion:
+    """An ATT&CK object version."""
+
+    major: int
+    minor: int
+
+    def __repr__(self):
+        return f"{self.major}.{self.minor}"
+
+
+# TODO: Implement a custom decoder as well. Possible solution at this link
+# https://alexisgomes19.medium.com/custom-json-encoder-with-python-f52c91b48cd2
+class AttackChangesEncoder(json.JSONEncoder):
+    """Custom JSON encoder for changes made to ATT&CK between releases."""
+
+    def default(self, obj):
+        """Handle custom object types so they can be serialized to JSON."""
+        if isinstance(obj, AttackObjectVersion):
+            return str(obj)
+
+        return json.JSONEncoder.default(self, obj)
 
 
 class DiffStix(object):
@@ -299,7 +323,7 @@ class DiffStix(object):
                     self.update_contributors(old_object=None, new_object=new_stix_obj)
 
                     # verify version is 1.0
-                    x_mitre_version = new_stix_obj.get("x_mitre_version")
+                    x_mitre_version = get_attack_object_version(stix_obj=new_stix_obj)
                     if not version_increment_is_valid(None, x_mitre_version, "additions"):
                         logger.warning(
                             f"{stix_id} - Unexpected new version. Expected 1.0, but is {x_mitre_version}. [{attack_id}] {new_stix_obj['name']}"
@@ -1111,7 +1135,7 @@ def get_placard_version_string(stix_object: dict, section: str) -> str:
 
     if section in ["additions", "deprecations", "revocations"]:
         # only display current version
-        if not version_increment_is_valid(old_version=None, new_version=str(object_version), section=section):
+        if not version_increment_is_valid(old_version=None, new_version=object_version, section=section):
             color = red
 
     elif section == "deletions":
@@ -1124,7 +1148,7 @@ def get_placard_version_string(stix_object: dict, section: str) -> str:
     else:
         # the "previous_version" key was added in the load_data() function
         old_version = stix_object.get("previous_version")
-        if not version_increment_is_valid(old_version=old_version, new_version=str(object_version), section=section):
+        if not version_increment_is_valid(old_version=old_version, new_version=object_version, section=section):
             color = red
         version_display = f"(v{old_version}&#8594;v{object_version})"
 
@@ -1155,7 +1179,7 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
     return new_values
 
 
-def version_increment_is_valid(old_version: str, new_version: str, section: str) -> bool:
+def version_increment_is_valid(old_version: AttackObjectVersion, new_version: AttackObjectVersion, section: str) -> bool:
     """Validate version increment between old and new STIX objects.
 
     Valid increments include the following:
@@ -1167,9 +1191,9 @@ def version_increment_is_valid(old_version: str, new_version: str, section: str)
 
     Parameters
     ----------
-    old_version : str
+    old_version : AttackObjectVersion
         Old version of an ATT&CK STIX Domain Object (SDO).
-    new_version : str
+    new_version : AttackObjectVersion
         New version of an ATT&CK STIX Domain Object (SDO).
     section : str
         Section change type, e.g major_version_change, revocations, etc.
@@ -1182,14 +1206,12 @@ def version_increment_is_valid(old_version: str, new_version: str, section: str)
     if section in ["revocations", "deprecations"]:
         return True
     if section == "additions":
-        if new_version != "1.0":
+        if new_version != AttackObjectVersion(major=1, minor=0):
             return False
         return True
     if not (old_version and new_version):
         return False
 
-    old_version = float(old_version)
-    new_version = float(new_version)
     major_change = is_major_version_change(old_version=old_version, new_version=new_version)
     minor_change = is_minor_version_change(old_version=old_version, new_version=new_version)
 
@@ -1198,36 +1220,38 @@ def version_increment_is_valid(old_version: str, new_version: str, section: str)
     return False
 
 
-def is_major_version_change(old_version: float, new_version: float) -> bool:
+def is_major_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is a major change."""
-    next_major = float(math.floor(old_version + 1))
-    if next_major == new_version:
+    next_major_num = old_version.major + 1
+    next_major_version = AttackObjectVersion(major=next_major_num, minor=0)
+    if new_version == next_major_version:
         return True
     return False
 
 
-def is_minor_version_change(old_version: float, new_version: float) -> bool:
+def is_minor_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is a minor change."""
-    diff = round(new_version - old_version, 1)
-    if diff == 0.1:
+    next_minor_num = old_version.minor + 1
+    next_minor_version = AttackObjectVersion(major=old_version.major, minor=next_minor_num)
+    if new_version == next_minor_version:
         return True
     return False
 
 
-def is_other_version_change(old_version: float, new_version: float) -> bool:
+def is_other_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is an unexpected change."""
-    next_major = float(math.floor(old_version + 1))
-    diff = round(new_version - old_version, 1)
-
-    # went up by more than 0.1, but not next major version
-    if (diff > 0.1) and (new_version != next_major):
-        return True
-    # version number went down
-    elif diff < 0:
-        return True
-
     # either stayed the same or was a normal version change
-    return False
+    if is_major_version_change(old_version=old_version, new_version=new_version):
+        return False
+    elif is_minor_version_change(old_version=old_version, new_version=new_version):
+        return False
+    elif ((old_version.major == new_version.major) and (old_version.minor == new_version.minor)):
+        return False
+
+    # Possible scenarios
+    # * went up by more than 0.1, but not next major version
+    # * version number went down
+    return True
 
 
 def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
@@ -1367,7 +1391,7 @@ def get_attack_id(stix_obj: dict) -> Optional[str]:
     return attack_id
 
 
-def get_attack_object_version(stix_obj: dict) -> Optional[float]:
+def get_attack_object_version(stix_obj: dict) -> AttackObjectVersion:
     """Get the object's ATT&CK version.
 
     Parameters
@@ -1377,12 +1401,16 @@ def get_attack_object_version(stix_obj: dict) -> Optional[float]:
 
     Returns
     -------
-    Optional[float]
-        The object version of the ATT&CK object. Defaults to 0.0
+    AttackObjectVersion
+        The object version of the ATT&CK object.
     """
     # ICS objects didn't have x_mitre_version until v11.0, so pretend they were version 0.0
-    version = stix_obj.get("x_mitre_version", 0)
-    return float(version)
+    version = stix_obj.get("x_mitre_version", "0.0")
+    major, minor = version.split(".")
+    major = int(major)
+    minor = int(minor)
+    object_version = AttackObjectVersion(major=major, minor=minor)
+    return object_version
 
 
 def markdown_to_html(outfile: str, content: str, diffStix: DiffStix):
@@ -1968,7 +1996,7 @@ def get_new_changelog_md(
 
         logger.info("Writing JSON updates to file")
         Path(json_file).parent.mkdir(parents=True, exist_ok=True)
-        json.dump(changes_dict, open(json_file, "w"), indent=4)
+        json.dump(changes_dict, open(json_file, "w"), cls=AttackChangesEncoder, indent=4)
 
     return md_string
 
