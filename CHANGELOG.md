@@ -1,3 +1,9 @@
+# 2.0.8 4/20/2023
+
+## Fixes
+
+- Fix logic error for handling versions of ATT&CK objects in changelog helper
+
 # 2.0.7 4/18/2023
 
 ## Fixes
