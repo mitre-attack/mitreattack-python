@@ -104,12 +104,11 @@ class DiffStix(object):
         }
 
         self.section_descriptions = {
-            "additions": "ATT&CK objects which are present in the new STIX data but not the old.",
+            "additions": "ATT&CK objects which are only present in the new STIX data.",
             "major_version_changes": "ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0)",
             "minor_version_changes": "ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1)",
-            "other_version_changes": "ATT&CK objects that have an unexpected version change. (e.g. 1.0 → 1.3)",
-            "metadata_changes": "ATT&CK objects that have at least one field changed, but not the version.",
-            "unknown_changes": "ATT&CK objects that have changed while the modified time stayed the same.",
+            "other_version_changes": "ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3)",
+            "patches": "ATT&CK objects that have been patched while keeping the version the same.",
             "revocations": "ATT&CK objects which are revoked by a different object.",
             "deprecations": "ATT&CK objects which are deprecated and no longer in use, and not replaced.",
             "deletions": "ATT&CK objects which are no longer found in the STIX data.",
@@ -123,8 +122,7 @@ class DiffStix(object):
                 "major_version_changes": "Major Version Changes",
                 "minor_version_changes": "Minor Version Changes",
                 "other_version_changes": "Other Version Changes",
-                "metadata_changes": "Metadata-only Changes",
-                "unknown_changes": "Unknown Changes",
+                "patches": "Patches",
                 "deprecations": "Deprecations",
                 "revocations": "Revocations",
                 "deletions": "Deletions",
@@ -147,8 +145,7 @@ class DiffStix(object):
                 #         "major_version_changes": [],
                 #         "minor_version_changes": [],
                 #         "other_version_changes": [],
-                #         "metadata_changes": [],
-                #         "unknown_changes": [],
+                #         "patches": [],
                 #         "revocations": [],
                 #         "deprecations": [],
                 #         "unchanged": [],
@@ -200,8 +197,7 @@ class DiffStix(object):
                 major_version_changes = set()
                 minor_version_changes = set()
                 other_version_changes = set()
-                metadata_changes = set()
-                unknown_changes = set()
+                patches = set()
                 revocations = set()
                 deprecations = set()
                 unchanged = set()
@@ -259,59 +255,35 @@ class DiffStix(object):
                         new_version = get_attack_object_version(new_stix_obj)
                         new_stix_obj["previous_version"] = old_version
 
-                        # Version number didn't change
-                        ##############################
-                        if new_version == old_version:
-                            # check for modification date increase but not version
-                            old_date = dateparser.parse(old_stix_obj["modified"])
-                            new_date = dateparser.parse(new_stix_obj["modified"])
-                            if new_date != old_date:
-                                metadata_changes.add(stix_id)
-                            else:
-                                unchanged.add(stix_id)
-
-                        # Version number changed
-                        ########################
+                        if is_major_version_change(old_version=old_version, new_version=new_version):
+                            major_version_changes.add(stix_id)
+                        elif is_minor_version_change(old_version=old_version, new_version=new_version):
+                            minor_version_changes.add(stix_id)
+                        elif is_other_version_change(old_version=old_version, new_version=new_version):
+                            logger.warning(f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_stix_obj['name']}")
+                            other_version_changes.add(stix_id)
+                        elif is_patch_change(old_stix_obj=old_stix_obj, new_stix_obj=new_stix_obj):
+                            patches.add(stix_id)
                         else:
-                            if is_major_version_change(old_version=old_version, new_version=new_version):
-                                major_version_changes.add(stix_id)
-                            elif is_minor_version_change(old_version=old_version, new_version=new_version):
-                                minor_version_changes.add(stix_id)
-                            else:
-                                other_version_changes.add(stix_id)
-                                logger.warning(
-                                    f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_stix_obj['name']}"
-                                )
+                            unchanged.add(stix_id)
 
+                        if new_version != old_version:
                             new_stix_obj["version_change"] = f"{old_version} → {new_version}"
 
                         # Description changes
                         #####################
                         old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
                         new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
-
-                        df = [x for x in old_lines if x not in new_lines]
-                        df1 = [x for x in new_lines if x not in old_lines]
-
-                        if df != [] or df1 != []:
-                            if (
-                                (stix_id not in major_version_changes)
-                                and (stix_id not in minor_version_changes)
-                                and (stix_id not in metadata_changes)
-                                and (stix_id not in other_version_changes)
-                            ):
-                                logger.error(
-                                    f"{stix_id} - Somehow {attack_id} has a description change "
-                                    "without the version being incremented or the last modified date changing"
-                                )
-                                unknown_changes.add(stix_id)
-
+                        old_lines_unique = [line for line in old_lines if line not in new_lines]
+                        new_lines_unique = [line for line in new_lines if line not in old_lines]
+                        if old_lines_unique or new_lines_unique:
                             html_diff = difflib.HtmlDiff(wrapcolumn=60)
                             html_diff._legend = ""
-
                             delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
                             new_stix_obj["description_change_table"] = delta
 
+                        # Relationship changes
+                        ######################
                         if new_stix_obj["type"] == "attack-pattern":
                             self.find_technique_mitigation_changes(new_stix_obj, domain)
                             self.find_technique_detection_changes(new_stix_obj, domain)
@@ -366,12 +338,8 @@ class DiffStix(object):
                         [new_attack_objects[stix_id] for stix_id in other_version_changes],
                         key=lambda stix_object: stix_object["name"],
                     ),
-                    "metadata_changes": sorted(
-                        [new_attack_objects[stix_id] for stix_id in metadata_changes],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "unknown_changes": sorted(
-                        [new_attack_objects[stix_id] for stix_id in unknown_changes],
+                    "patches": sorted(
+                        [new_attack_objects[stix_id] for stix_id in patches],
                         key=lambda stix_object: stix_object["name"],
                     ),
                     "revocations": sorted(
@@ -926,8 +894,7 @@ class DiffStix(object):
             * Major version changes: {self.section_descriptions["major_version_changes"]}
             * Minor version changes: {self.section_descriptions["minor_version_changes"]}
             * Other version changes: {self.section_descriptions["other_version_changes"]}
-            * Metadata changes: {self.section_descriptions["metadata_changes"]}
-            * Unknown changes: {self.section_descriptions["unknown_changes"]}
+            * Patches: {self.section_descriptions["patches"]}
             * Object revocations: {self.section_descriptions["revocations"]}
             * Object deprecations: {self.section_descriptions["deprecations"]}
             * Object deletions: {self.section_descriptions["deletions"]}
@@ -995,8 +962,7 @@ class DiffStix(object):
             "major_version_changes": "#fcf3a2",  # yellow-ish
             "minor_version_changes": "#c7c4e0",  # light periwinkle
             "other_version_changes": "#B5E5CF",  # mint
-            "metadata_changes": "#B99095",  # mauve
-            "unknown_changes": "#3D5B59",  # teal green
+            "patches": "#B99095",  # mauve
             "deletions": "#ff00e1",  # hot magenta
             "revocations": "#ff9000",  # dark orange
             "deprecations": "#ff6363",  # bittersweet red
@@ -1152,7 +1118,7 @@ def get_placard_version_string(stix_object: dict, section: str) -> str:
         color = red
 
     # nothing needs to be added to this statement - it just needs to skip the 'else' clause
-    elif section == "metadata_changes":
+    elif section == "patches":
         pass
 
     else:
@@ -1233,7 +1199,7 @@ def version_increment_is_valid(old_version: str, new_version: str, section: str)
 
 
 def is_major_version_change(old_version: float, new_version: float) -> bool:
-    """Determine if the new version is a major change or not."""
+    """Determine if the new version is a major change."""
     next_major = float(math.floor(old_version + 1))
     if next_major == new_version:
         return True
@@ -1241,10 +1207,69 @@ def is_major_version_change(old_version: float, new_version: float) -> bool:
 
 
 def is_minor_version_change(old_version: float, new_version: float) -> bool:
-    """Determine if the new version is a minor change or not."""
+    """Determine if the new version is a minor change."""
     diff = round(new_version - old_version, 1)
     if diff == 0.1:
         return True
+    return False
+
+
+def is_other_version_change(old_version: float, new_version: float) -> bool:
+    """Determine if the new version is an unexpected change."""
+    next_major = float(math.floor(old_version + 1))
+    diff = round(new_version - old_version, 1)
+
+    # went up by more than 0.1, but not next major version
+    if (diff > 0.1) and (new_version != next_major):
+        return True
+    # version number went down
+    elif diff < 0:
+        return True
+
+    # either stayed the same or was a normal version change
+    return False
+
+
+def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
+    """Determine if ATT&CK Object changes are considered a patch change.
+
+    Parameters
+    ----------
+    old_stix_obj : dict
+        Old ATT&CK STIX Domain Object (SDO).
+    new_stix_obj : dict
+        New ATT&CK STIX Domain Object (SDO).
+
+    Returns
+    -------
+    bool
+        True if the object changed in such a way as to only be considered a patch change.
+    """
+    stix_id = new_stix_obj["id"]
+    attack_id = get_attack_id(new_stix_obj)
+
+    # Version stayed the same, but the modified date changed
+    old_version = get_attack_object_version(old_stix_obj)
+    new_version = get_attack_object_version(new_stix_obj)
+    if new_version == old_version:
+        old_date = dateparser.parse(old_stix_obj["modified"])
+        new_date = dateparser.parse(new_stix_obj["modified"])
+        if new_date != old_date:
+            return True
+
+    # description changed, even though modified date didn't
+    old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
+    new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
+    old_lines_unique = [line for line in old_lines if line not in new_lines]
+    new_lines_unique = [line for line in new_lines if line not in old_lines]
+    if old_lines_unique or new_lines_unique:
+        logger.error(
+            f"{stix_id} - Somehow {attack_id} has a description change "
+            "without the version being incremented or the last modified date changing"
+        )
+        return True
+
+    # doesn't meet the definintion of a patch change
     return False
 
 
