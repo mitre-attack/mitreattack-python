@@ -50,3 +50,70 @@ Example execution:
 ```shell
 diff_stix -v --show-key --html-file output/changelog.html --html-file-detailed output/changelog-detailed.html --markdown-file output/changelog.md  --json-file output/changelog.json --layers output/layer-enterprise.json output/layer-mobile.json output/layer-ics.json --old path/to/old/stix/ --new path/to/new/stix/
 ```
+
+## Changelog JSON format
+
+The changelog helper script has the option to output a JSON file with detailed differences between ATT&CK releases.
+This is the overall structure you can expect to find in the file.
+A brief explanation of key pieces can be found below.
+
+```JSON
+{
+  "enterprise-attack": {
+    "techniques": {
+        "additions": [],
+        "major_version_changes": [],
+        "minor_version_changes": [],
+        "other_version_changes": [],
+        "patches": [],
+        "revocations": [],
+        "deprecations": [],
+        "deletions": [],
+    },
+    "software": {},
+    "groups": {},
+    "campaigns": {},
+    "mitigations": {},
+    "datasources": {},
+    "datacomponents": {}
+  },
+  "mobile-attack": {},
+  "ics-attack": {},
+  "new-contributors": [
+    "Contributor A",
+    "Contributor B",
+    "Contributor C"
+  ]
+}
+```
+
+* The top-level objects include information about specific domains as well as `new-contributors`, which are only found in the newer ATT&CK release.
+* For domain changes, they are broken down by object type, e.g. `techniques` or `mitigations`.
+* The following table helps break down the change types that are currently tracked.
+
+| Field                   |  Type          | Description                                                                                                                                 |
+|-------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `additions`             | array[object] | ATT&CK objects which are only present in the new STIX data.                                                                                 |
+| `major_version_changes` | array[object] | ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0).                                                                          |
+| `minor_version_changes` | array[object] | ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1).                                                                          |
+| `other_version_changes` | array[object] | ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3). These are unintended, but can be found in previous releases. |
+| `patches`               | array[object] | ATT&CK objects that have been patched while keeping the version the same.                                                                   |
+| `revocations`           | array[object] | ATT&CK objects which are revoked by a different object.                                                                                     |
+| `deprecations`          | array[object] | ATT&CK objects which are deprecated and no longer in use, and not replaced.                                                                 |
+| `deletions`             | array[object] | ATT&CK objects which are no longer found in the STIX data. This should almost never happen.                                                 |
+
+### Changed Objects
+
+The bulk of the changelog file consists of lists of JSON objects.
+If you are familiar with reading the STIX format, they may look famliar, yet a little "off".
+That is because there are a few fields that have been added in some cases depending on what section they appear in.
+For example, objects that are brand new do not have `previous_version` available to them.
+The following table lists the extra fields that can be found in objects in the changelog.
+
+| Field                      | Required | Type   | Description                                                                                                                                                   |
+|----------------------------|----------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `changelog_mitigations`    | false    | object | Three lists for `shared`, `new`, and `dropped` for Mitigations that are related to a Technique between versions.                                              |
+| `changelog_detections`     | false    | object | Three lists for `shared`, `new`, and `dropped` for Detections that are related to a Technique between versions.                                               || `description_change_table` | false    | string | HTML rendering of a table that displays the differences between descriptions for an ATT&CK object.                                                            |
+| `detailed_diff`            | false    | string | A python DeepDiff object that has been JSON serialized which represents STIX changes for an ATT&CK object between releases.                                   |
+| `previous_version`         | false    | string | If the object existed in the previous release, then it denotes the version the object was in the previous release.                                             |
+| `version_change`           | false    | string | If the object existed in the previous release and was changed in the current release, then a descriptive string in the format '`old-version` → `new-version`' |
