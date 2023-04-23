@@ -425,18 +425,18 @@ class DiffStix(object):
         dropped_mitigations = old_mitigations.keys() - new_mitigations.keys()
 
         new_stix_obj["changelog_mitigations"] = {
-            "shared": [
+            "shared": sorted([
                 f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
                 for stix_id in shared_mitigations
-            ],
-            "new": [
+            ]),
+            "new": sorted([
                 f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
                 for stix_id in brand_new_mitigations
-            ],
-            "dropped": [
+            ]),
+            "dropped": sorted([
                 f"{get_attack_id(stix_obj=old_mitigations[stix_id])}: {old_mitigations[stix_id]['name']}"
                 for stix_id in dropped_mitigations
-            ],
+            ]),
         }
 
     def find_technique_detection_changes(self, new_stix_obj: dict, domain: str):
@@ -488,9 +488,9 @@ class DiffStix(object):
         dropped_detections = old_detections.keys() - new_detections.keys()
 
         new_stix_obj["changelog_detections"] = {
-            "shared": [f"{new_detections[stix_id]}" for stix_id in shared_detections],
-            "new": [f"{new_detections[stix_id]}" for stix_id in brand_new_detections],
-            "dropped": [f"{old_detections[stix_id]}" for stix_id in dropped_detections],
+            "shared": sorted([f"{new_detections[stix_id]}" for stix_id in shared_detections]),
+            "new": sorted([f"{new_detections[stix_id]}" for stix_id in brand_new_detections]),
+            "dropped": sorted([f"{old_detections[stix_id]}" for stix_id in dropped_detections]),
         }
 
     def load_domain(self, domain: str):
