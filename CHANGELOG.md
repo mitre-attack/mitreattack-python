@@ -1,3 +1,9 @@
+# 2.0.9 4/23/2023
+
+## Fixes
+
+- Update sorting logic for detections and mitigations in changelog JSON format
+
 # 2.0.8 4/20/2023
 
 ## Fixes
