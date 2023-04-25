@@ -128,11 +128,11 @@ class DiffStix(object):
         }
 
         self.section_descriptions = {
-            "additions": "ATT&CK objects which are only present in the new STIX data.",
+            "additions": "ATT&CK objects which are only present in the new release.",
             "major_version_changes": "ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0)",
             "minor_version_changes": "ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1)",
-            "other_version_changes": "ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3)",
-            "patches": "ATT&CK objects that have been patched while keeping the version the same.",
+            "other_version_changes": "ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.2)",
+            "patches": "ATT&CK objects that have been patched while keeping the version the same. (e.g., 1.0 → 1.0 but something like a typo, a URL, or some metadata was fixed)",
             "revocations": "ATT&CK objects which are revoked by a different object.",
             "deprecations": "ATT&CK objects which are deprecated and no longer in use, and not replaced.",
             "deletions": "ATT&CK objects which are no longer found in the STIX data.",
@@ -1287,8 +1287,8 @@ def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
     old_lines_unique = [line for line in old_lines if line not in new_lines]
     new_lines_unique = [line for line in new_lines if line not in old_lines]
     if old_lines_unique or new_lines_unique:
-        logger.error(
-            f"{stix_id} - Somehow {attack_id} has a description change "
+        logger.warning(
+            f"{stix_id} - {attack_id} has a description change "
             "without the version being incremented or the last modified date changing"
         )
         return True

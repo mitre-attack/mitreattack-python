@@ -1,3 +1,9 @@
+# 2.0.10 4/25/2023
+
+## Features
+
+- Add ATT&CK v13.0 release SHA256 hashes
+
 # 2.0.9 4/23/2023
 
 ## Fixes
