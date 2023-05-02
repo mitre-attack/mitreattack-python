@@ -9,7 +9,7 @@ from loguru import logger
 # This file contains SHA256 hashes for officially released ATT&CK versions
 # download_string = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-v{release}/{domain}-attack/{domain}-attack.json"
 
-LATEST_VERSION = "12.1"
+LATEST_VERSION = "13.0"
 
 STIX20 = {
     "enterprise": {
