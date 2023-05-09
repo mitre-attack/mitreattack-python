@@ -1,3 +1,9 @@
+# 2.0.11 5/9/2023
+
+## Features
+
+- Update release information for ATT&CK 13.1
+
 # 2.0.10 4/25/2023
 
 ## Features
