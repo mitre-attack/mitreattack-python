@@ -34,6 +34,7 @@ class _LayerObj:
         self.name = name
         self.__description = UNSETVALUE
         self.domain = domain
+        self.__customDataURL = UNSETVALUE
         self.__filters = UNSETVALUE
         self.__sorting = UNSETVALUE
         self.__layout = UNSETVALUE
@@ -107,6 +108,16 @@ class _LayerObj:
             dom = dom.split("-")[-1] + "-attack"
         categoryChecker(type(self).__name__, dom, ["enterprise-attack", "mobile-attack", "ics-attack"], "domain")
         self.__domain = domain
+        
+    @property
+    def customDataURL(self):
+        if self.__customDataURL != UNSETVALUE:
+            return self.__customDataURL
+    
+    @customDataURL.setter
+    def customDataURL(self, customDataURL):
+        typeChecker(type(self).__name__, customDataURL, str, "customDataURL")
+        self.__customDataURL = customDataURL
 
     @property
     def description(self):
