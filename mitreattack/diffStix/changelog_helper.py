@@ -534,14 +534,19 @@ class DiffStix(object):
             STIX MemoryStore object representing an ATT&CK domain.
         """
         error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
-        try:
-            stix_response = requests.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
-            if stix_response.status_code != 200:
-                logger.error(error_message)
-                sys.exit(1)
-        except requests.exceptions.ContentDecodingError:
-            logger.error(error_message)
-            sys.exit(1)
+        number_tries = 0
+            while number_of_tries < 3:
+            try:
+                stix_response = requests.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
+                if stix_response.status_code != 200:
+                    logger.error(error_message)
+                    sys.exit(1)
+            except requests.exceptions.ContentDecodingError:
+                if number_of_tries == 3:
+                    logger.error(error_message)
+                    sys.exit(1)
+                else:
+                    number_of_tries += 1
 
         stix_json = stix_response.json()
         attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
