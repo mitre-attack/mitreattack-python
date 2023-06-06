@@ -518,4 +518,4 @@ class ToSvg:
             legend=legend,
             config=self.config,
         )
-        d.saveSvg(filepath)
+        d.save_svg(filepath)
