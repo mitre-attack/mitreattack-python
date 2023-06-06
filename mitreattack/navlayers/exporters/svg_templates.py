@@ -1,6 +1,6 @@
 """Contains SvgTemplates class."""
 
-import drawsvg as draw
+import drawsvg
 
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 from mitreattack.navlayers.exporters.svg_objects import (
@@ -63,7 +63,7 @@ class SvgTemplates:
         max_y = convertToPx(config.height, config.unit)
         header_height = convertToPx(config.headerHeight, config.unit)
         ff = config.font
-        d = draw.Drawing(max_x, max_y, origin=(0, 0), displayInline=False)
+        d = drawsvg.Drawing(max_x, max_y, origin=(0, 0), displayInline=False)
         psych = 0
 
         if config.showHeader:
