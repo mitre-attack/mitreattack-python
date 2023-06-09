@@ -285,7 +285,9 @@ class DiffStix(object):
                         elif is_minor_version_change(old_version=old_version, new_version=new_version):
                             minor_version_changes.add(stix_id)
                         elif is_other_version_change(old_version=old_version, new_version=new_version):
-                            logger.warning(f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_stix_obj['name']}")
+                            logger.warning(
+                                f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_stix_obj['name']}"
+                            )
                             other_version_changes.add(stix_id)
                         elif is_patch_change(old_stix_obj=old_stix_obj, new_stix_obj=new_stix_obj):
                             patches.add(stix_id)
@@ -426,18 +428,24 @@ class DiffStix(object):
         dropped_mitigations = old_mitigations.keys() - new_mitigations.keys()
 
         new_stix_obj["changelog_mitigations"] = {
-            "shared": sorted([
-                f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
-                for stix_id in shared_mitigations
-            ]),
-            "new": sorted([
-                f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
-                for stix_id in brand_new_mitigations
-            ]),
-            "dropped": sorted([
-                f"{get_attack_id(stix_obj=old_mitigations[stix_id])}: {old_mitigations[stix_id]['name']}"
-                for stix_id in dropped_mitigations
-            ]),
+            "shared": sorted(
+                [
+                    f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
+                    for stix_id in shared_mitigations
+                ]
+            ),
+            "new": sorted(
+                [
+                    f"{get_attack_id(stix_obj=new_mitigations[stix_id])}: {new_mitigations[stix_id]['name']}"
+                    for stix_id in brand_new_mitigations
+                ]
+            ),
+            "dropped": sorted(
+                [
+                    f"{get_attack_id(stix_obj=old_mitigations[stix_id])}: {old_mitigations[stix_id]['name']}"
+                    for stix_id in dropped_mitigations
+                ]
+            ),
         }
 
     def find_technique_detection_changes(self, new_stix_obj: dict, domain: str):
@@ -1183,7 +1191,9 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
     return new_values
 
 
-def version_increment_is_valid(old_version: AttackObjectVersion, new_version: AttackObjectVersion, section: str) -> bool:
+def version_increment_is_valid(
+    old_version: AttackObjectVersion, new_version: AttackObjectVersion, section: str
+) -> bool:
     """Validate version increment between old and new STIX objects.
 
     Valid increments include the following:
@@ -1249,7 +1259,7 @@ def is_other_version_change(old_version: AttackObjectVersion, new_version: Attac
         return False
     elif is_minor_version_change(old_version=old_version, new_version=new_version):
         return False
-    elif ((old_version.major == new_version.major) and (old_version.minor == new_version.minor)):
+    elif (old_version.major == new_version.major) and (old_version.minor == new_version.minor):
         return False
 
     # Possible scenarios
@@ -1540,7 +1550,6 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         file.writelines(frontmatter)
         lines = []
         for object_type, domain_data in diffStix.data["changes"].items():
-
             # this is an obnoxious way of determining if there are changes in any of the sections for any of the domains
             if sum([sum(change_types.values(), []) for change_types in domain_data.values()], []):
                 lines.append(f"<h2>{diffStix.attack_type_to_title[object_type]}</h2>")
@@ -1662,7 +1671,6 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                             # the deepdiff library displays differences with a prefix of: root['<top-level-key-we-care-about>']
                             regex = r"^root\['(?P<top_stix_key>[^\']*)'\](?P<the_rest>.*)$"
                             for detailed_change_type, detailed_changes in detailed_diff.items():
-
                                 lines.append(f"<table {table_inline_css}>")
                                 lines.append(f"<caption>{detailed_change_type}</caption>")
                                 lines.append("<thead><tr>")
