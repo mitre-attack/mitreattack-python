@@ -7,7 +7,7 @@ In order to release a new version of mitreattack-python, follow the process outl
 3. Build the _mitreattack-python_ package from source and install it locally:
    1. [Optional] Activate a virtualenv. e.g., `source ./venv/bin/activate`
    2. Uninstall any older/previously installed versions of mitreattack-python: `pip uninstall mitreattack-python`
-   3. If you have previously built from source, remove older build artifacts: `rm -rf dist/`. 
+   3. If you have previously built from source, remove older build artifacts: `rm -rf dist/`.
    4. Build the package: `python setup.py sdist bdist_wheel`.
    5. Lint the wheel contents with [check-wheel-contents](https://github.com/jwodder/check-wheel-contents): `check-wheel-contents dist/`
    6. Install the package locally using pip, and import it in a python session to validate the build: `pip install --find-links=./dist mitreattack-python`

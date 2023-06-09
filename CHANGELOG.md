@@ -1,3 +1,10 @@
+# 2.0.12 6/9/2023
+
+## Features
+
+- Changelog Helper: Ignore order when creating diff
+- Changelog Helper: Attempt to download STIX multiple times
+
 # 2.0.11 5/9/2023
 
 ## Features
