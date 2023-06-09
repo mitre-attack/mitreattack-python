@@ -1,3 +1,9 @@
+# 2.0.13 6/9/2023
+
+## Fixes
+
+- Fix issue with minimum version of drawsvg in setup.py
+
 # 2.0.12 6/9/2023
 
 ## Features
