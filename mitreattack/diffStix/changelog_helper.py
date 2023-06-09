@@ -18,6 +18,7 @@ import stix2
 from dateutil import parser as dateparser
 from deepdiff import DeepDiff
 from loguru import logger
+from requests.adapters import HTTPAdapter, Retry
 from rich.progress import track
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
@@ -535,7 +536,10 @@ class DiffStix(object):
         """
         error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
         try:
-            stix_response = requests.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
+            s = requests.Session()
+            retries = Retry(total=10, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+            s.mount("http", HTTPAdapter(max_retries=retries))
+            stix_response = s.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
             if stix_response.status_code != 200:
                 logger.error(error_message)
                 sys.exit(1)
