@@ -302,6 +302,9 @@ class MitreAttackData:
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
 
+        if not objects:
+            return None
+
         # since ATT&CK has custom objects, we need to reconstruct the query results
         return [StixObjectFactory(o) for o in objects]
 
@@ -520,6 +523,10 @@ class MitreAttackData:
             the STIX Domain Object specified by the STIX ID
         """
         object = self.src.get(stix_id)
+
+        if not object:
+            return None
+
         return StixObjectFactory(object)
 
     def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> object:
@@ -585,6 +592,9 @@ class MitreAttackData:
 
         filter = [Filter("type", "=", stix_type), Filter("name", "=", name)]
         objects = self.src.query(filter)
+
+        if not objects:
+            return None
 
         # since ATT&CK has custom objects, we need to reconstruct the query results
         return [StixObjectFactory(o) for o in objects]
