@@ -22,8 +22,7 @@ from requests.adapters import HTTPAdapter, Retry
 from rich.progress import track
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
-
-from mitreattack import release_info
+import release_info
 
 # explanation of modification types to data objects for legend in layer files
 date = datetime.datetime.today()
@@ -545,7 +544,7 @@ class DiffStix(object):
         error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
         try:
             s = requests.Session()
-            retries = Retry(total=10, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+            retries = Retry(total=10, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
             s.mount("http", HTTPAdapter(max_retries=retries))
             stix_response = s.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
             if stix_response.status_code != 200:
@@ -554,6 +553,14 @@ class DiffStix(object):
         except requests.exceptions.ContentDecodingError:
             logger.error(error_message)
             sys.exit(1)
+        except requests.exceptions.JSONDecodeError:
+            s2 = requests.Session()
+            retries = Retry(total=10, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+            s2.mount("http", HTTPAdapter(max_retries=retries))
+            stix_response = s2.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json")
+            if stix_response.status_code != 200:
+                logger.error(error_message)
+                sys.exit(1)
 
         stix_json = stix_response.json()
         attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
