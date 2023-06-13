@@ -112,6 +112,8 @@ def parseBaseStix(sdo):
         if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
             row["ID"] = sdo["external_references"][0]["external_id"]
             url = sdo["external_references"][0]["url"]
+    if "id" in sdo: # required for workbench collection import
+        row["STIX ID"] = sdo["id"]
     if "name" in sdo:
         row["name"] = sdo["name"]
     if "description" in sdo:
@@ -122,6 +124,8 @@ def parseBaseStix(sdo):
         row["created"] = format_date(sdo["created"])
     if "modified" in sdo:
         row["last modified"] = format_date(sdo["modified"])
+    if "x_mitre_domains" in sdo: # required for workbench collection import
+        row["domain"] = ",".join(sdo["x_mitre_domains"])
     if "x_mitre_version" in sdo:
         row["version"] = sdo["x_mitre_version"]
     if "x_mitre_contributors" in sdo:
@@ -330,6 +334,7 @@ def datasourcesToDf(src):
             columns=[
                 "name",
                 "ID",
+                "STIX ID",
                 "description",
                 "collection layers",
                 "platforms",
@@ -483,6 +488,11 @@ def campaignsToDf(src):
                             # aliases.append(alias)
                 row["associated campaigns"] = ", ".join(associated_campaigns)
                 row["associated campaigns citations"] = ", ".join(associated_campaign_citations)
+            # add fields required to import excel to workbench:
+            row["first seen"] = format_date(campaign["first_seen"])
+            row["first seen citation"] = campaign["x_mitre_first_seen_citation"]
+            row["last seen"] = format_date(campaign["last_seen"])
+            row["last seen citation"] = campaign["x_mitre_last_seen_citation"]
 
             campaign_rows.append(row)
 
