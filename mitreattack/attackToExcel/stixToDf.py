@@ -926,8 +926,9 @@ def relationshipsToDf(src, relatedType=None):
 
             if "name" in sdo:
                 # "source name" or "target name"
-                row[f"{label} name"] = sdo["name"]
-
+                row[f"{label} name stupid"] = sdo["name"]
+            if "id" in sdo:
+                row[f"{label} ref"] = sdo ["id"]
             # "source type" or "target type"
             row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
 
@@ -936,15 +937,20 @@ def relationshipsToDf(src, relatedType=None):
         add_side("target", target)
         if "description" in relationship:  # add description of relationship to the end of the row
             row["mapping description"] = relationship["description"]
-
+        # add required fields for workbench import
+        row["STIX ID"] = relationship["id"]
+        if "created" in sdo:
+            row["created"] = format_date(relationship["created"])
+        if "modified" in sdo:
+            row["last modified"] = format_date(relationship["modified"])
         relationship_rows.append(row)
 
     citations = get_citations(relationships)
     relationships = pd.DataFrame(relationship_rows).sort_values(
-        ["mapping type", "source type", "target type", "source name", "target name"]
+        ["mapping type", "source type", "target type", "source name", "target name", "source ref", "target ref", "created", "last modified"]
     )
 
-    # return all relationships and citations
+    # return all relationships and citations 
     if not relatedType:
         dataframes = {
             "relationships": relationships,
