@@ -1,3 +1,10 @@
+# 2.0.7 4/18/2023
+
+## Fixes
+
+- [Fix bug in get_all_software_used_by_all_groups()](https://github.com/mitre-attack/mitreattack-python/pull/109) (Credit: @jmsarn)
+- Update categories for changelog helper script
+
 # v2.0.6 3/13/2023
 
 ## Fixes
