@@ -1,3 +1,40 @@
+# 2.0.13 6/9/2023
+
+## Fixes
+
+- Fix issue with minimum version of drawsvg in setup.py
+
+# 2.0.12 6/9/2023
+
+## Features
+
+- Changelog Helper: Ignore order when creating diff
+- Changelog Helper: Attempt to download STIX multiple times
+
+# 2.0.11 5/9/2023
+
+## Features
+
+- Update release information for ATT&CK 13.1
+
+# 2.0.10 4/25/2023
+
+## Features
+
+- Add ATT&CK v13.0 release SHA256 hashes
+
+# 2.0.9 4/23/2023
+
+## Fixes
+
+- Update sorting logic for detections and mitigations in changelog JSON format
+
+# 2.0.8 4/20/2023
+
+## Fixes
+
+- Fix logic error for handling versions of ATT&CK objects in changelog helper
+
 # 2.0.7 4/18/2023
 
 ## Fixes

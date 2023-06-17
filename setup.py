@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mitreattack-python",
-    version="2.0.7",
+    version="2.0.13",
     author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
@@ -33,7 +33,6 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "Topic :: Security",
-        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
@@ -41,7 +40,7 @@ setuptools.setup(
     install_requires=[
         "colour",
         "deepdiff",
-        "drawSvg<2.0.0",
+        "drawsvg>=2.0.0",
         "loguru",
         "Markdown",
         "numpy",
