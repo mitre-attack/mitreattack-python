@@ -926,8 +926,9 @@ def relationshipsToDf(src, relatedType=None):
 
             if "name" in sdo:
                 # "source name" or "target name"
-                row[f"{label} name stupid"] = sdo["name"]
+                row[f"{label} name"] = sdo["name"]
             if "id" in sdo:
+                # "source ref" or "target ref"
                 row[f"{label} ref"] = sdo ["id"]
             # "source type" or "target type"
             row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
@@ -937,7 +938,7 @@ def relationshipsToDf(src, relatedType=None):
         add_side("target", target)
         if "description" in relationship:  # add description of relationship to the end of the row
             row["mapping description"] = relationship["description"]
-        # add required fields for workbench import
+        # add required fields for workbench import: relationship stix id, created, and modified
         row["STIX ID"] = relationship["id"]
         if "created" in sdo:
             row["created"] = format_date(relationship["created"])
