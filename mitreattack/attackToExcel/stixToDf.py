@@ -940,9 +940,9 @@ def relationshipsToDf(src, relatedType=None):
             row["mapping description"] = relationship["description"]
         # add required fields for workbench import: relationship stix id, created, and modified
         row["STIX ID"] = relationship["id"]
-        if "created" in sdo:
+        if "created" in relationship:
             row["created"] = format_date(relationship["created"])
-        if "modified" in sdo:
+        if "modified" in relationship:
             row["last modified"] = format_date(relationship["modified"])
         relationship_rows.append(row)
 
