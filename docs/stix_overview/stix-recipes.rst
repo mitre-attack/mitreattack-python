@@ -1,4 +1,4 @@
-Getting Started
+Stix Recipes
 ===============
 
 ## Python recipes
