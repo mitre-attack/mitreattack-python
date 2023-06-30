@@ -1,3 +1,9 @@
+# 2.0.14 6/30/2023
+
+## Fixes
+
+- Downloading STIX in changelog_helper is more resilient
+
 # 2.0.13 6/9/2023
 
 ## Fixes
