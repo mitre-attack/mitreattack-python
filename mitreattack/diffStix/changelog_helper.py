@@ -545,15 +545,14 @@ class DiffStix(object):
         s = requests.Session()
         retries = Retry(total=10, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
         s.mount("http", HTTPAdapter(max_retries=retries))
+        stix_url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
         try:
-            stix_response = s.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json",
-                                  timeout=60)
+            stix_response = s.get(stix_url, timeout=60)
             if stix_response.status_code != 200:
                 logger.error(error_message)
                 sys.exit(1)
-        except (requests.exceptions.ContentDecodingError, requests.exceptions.JSONDecodeError) as error:
-            stix_response = s.get(f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json",
-                                  timeout=60)
+        except (requests.exceptions.ContentDecodingError, requests.exceptions.JSONDecodeError):
+            stix_response = s.get(stix_url, timeout=60)
             if stix_response.status_code != 200:
                 logger.error(error_message)
                 sys.exit(1)
