@@ -26,6 +26,13 @@ other modules in this library under "Additional Modules".
 
 .. toctree::
    :maxdepth: 1
+   :caption: STIX Overview
+
+   stix_overview/getting-started
+   stix_overview/stix-recipes
+
+.. toctree::
+   :maxdepth: 1
    :caption: Additional Modules
 
    additional_modules/navlayers
