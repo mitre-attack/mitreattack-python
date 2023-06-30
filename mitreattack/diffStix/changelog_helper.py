@@ -22,6 +22,7 @@ from requests.adapters import HTTPAdapter, Retry
 from rich.progress import track
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
+
 from mitreattack import release_info
 
 # explanation of modification types to data objects for legend in layer files
@@ -724,7 +725,7 @@ class DiffStix(object):
         parentToChildren = {}
         # subtechniques
         for relationship in subtechnique_relationships.values():
-            if not relationship["source_ref"] in children:
+            if relationship["source_ref"] not in children:
                 continue
 
             parent_technique_stix_id = relationship["target_ref"]
@@ -1087,7 +1088,8 @@ class DiffStix(object):
                         section=section,
                         domain=domain,
                     )
-                    # new_values includes parents & children mixed (e.g. techniques/sub-techniques, data sources/components)
+                    # new_values includes parents & children mixed
+                    # (e.g. techniques/sub-techniques, data sources/components)
                     new_values = cleanup_values(groupings=groupings)
                     changes_dict[domain][object_type][section] = new_values
 
@@ -1670,7 +1672,8 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                             lines.append("<summary>Details</summary>")
                             table_inline_css = "style='border: 1px solid black;border-collapse: collapse;'"
 
-                            # the deepdiff library displays differences with a prefix of: root['<top-level-key-we-care-about>']
+                            # the deepdiff library displays differences with a prefix of:
+                            # root['<top-level-key-we-care-about>']
                             regex = r"^root\['(?P<top_stix_key>[^\']*)'\](?P<the_rest>.*)$"
                             for detailed_change_type, detailed_changes in detailed_diff.items():
                                 lines.append(f"<table {table_inline_css}>")
@@ -1761,7 +1764,8 @@ def get_parsed_args():
     parser = argparse.ArgumentParser(
         description=(
             "Create changelog reports on the differences between two versions of the ATT&CK content. "
-            "Takes STIX bundles as input. For default operation, put enterprise-attack.json, mobile-attack.json, and ics-attack.json bundles "
+            "Takes STIX bundles as input. For default operation, put "
+            "enterprise-attack.json, mobile-attack.json, and ics-attack.json bundles "
             "in 'old' and 'new' folders for the script to compare."
         )
     )
