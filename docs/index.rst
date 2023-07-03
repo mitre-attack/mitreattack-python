@@ -35,7 +35,6 @@ other modules in this library under "Additional Modules".
    stix_overview/by_name
    stix_overview/deprecated_revoked
    stix_overview/getting_related_objects
-   stix_overview/getting_revoked_objects
    stix_overview/getting_software
    stix_overview/multiple_objects
    stix_overview/objects_by_content
@@ -49,7 +48,8 @@ other modules in this library under "Additional Modules".
    stix_overview/techniques_subtechniques
    stix_overview/relationships_microlibrary
    stix_overview/techniques_by_group_sw
-   stix_overview/removed_revoked_deprecated
+   stix_overview/remove_revoked_deprecated
+   stix_overview/getting_revoked_objects
    
    
 
