@@ -41,13 +41,15 @@ other modules in this library under "Additional Modules".
    stix_overview/objects_by_content
    stix_overview/objects_by_type
    stix_overview/objects_since_date
-   stix_overview/relationships_microlibrary
-   stix_overview/removed_revoked_deprecated
-   stix_overview/stix_recipes
    stix_overview/stix_id
    stix_overview/tactics_by_matrix
-   stix_overview/techniques_by_group_sw
    stix_overview/techniques_by_platform
+   stix_overview/techniques_by_platform
+   stix_overview/techniques_by_tactic
+   stix_overview/techniques_subtechniques
+   stix_overview/relationships_microlibrary
+   stix_overview/techniques_by_group_sw
+   stix_overview/removed_revoked_deprecated
    
    
 
