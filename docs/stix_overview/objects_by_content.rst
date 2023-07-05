@@ -5,7 +5,7 @@ Objects by content
 
 Sometimes it may be useful to query objects by the content of their description:
 
-```python
+.. code-block:: python
 from stix2 import Filter
 
 def get_techniques_by_content(thesrc, content):
@@ -14,4 +14,3 @@ def get_techniques_by_content(thesrc, content):
 
 # Get all techniques where the string LSASS appears in the description
 get_techniques_by_content(src, 'LSASS')
-```
