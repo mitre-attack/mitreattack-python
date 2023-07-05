@@ -23,15 +23,15 @@ Before installing requirements, we recommend setting up a virtual environment:
 
 [stix2 can be installed by following the instructions on their repository](https://github.com/oasis-open/cti-python-stix2#installation). Imports for the recipes in this repository can be done from the base package, for example:
 
-```python
+.. code-block:: python
 from stix2 import Filter
-```
+
 
 However, if you are aiming to extend the ATT&CK dataset with new objects or implement complex workflows, you may need to use the `v20` specifier for some imports. This ensures that the objects use the STIX 2.0 API instead of the STIX 2.1 API. For example:
 
-```python
+.. code-block:: python
 from stix2.v20 import AttackPattern
-```
+
 
 You can see a full list of the classes which have versioned imports [here](https://stix2.readthedocs.io/en/latest/api/stix2.v20.html).
 
@@ -41,9 +41,9 @@ You can see a full list of the classes which have versioned imports [here](https
 
 If the TAXII Client is getting a 406 Response, make sure you are running the latest version (`pip install --upgrade stix2` or `pip install --upgrade taxii2-client`). In addition, make sure you are running the 2.0 version of the client (using the `v20` import) as shown below in order to communicate with the ATT&CK TAXII 2.0 Server.
 
-```python
+.. code-block:: python
 from taxii2client.v20 import Collection
-```
+
 
 ### Access local content
 
@@ -58,22 +58,22 @@ Many users may opt to access the ATT&CK content via a local copy of the STIX dat
 Each domain in this repo is formatted according to the [STIX2 FileSystem spec](https://stix2.readthedocs.io/en/latest/guide/filesystem.html).
 Therefore you can use a `FileSystemSource` to load a domain, for example to load the enterprise-attack domain:
 
-```python
+.. code-block:: python
 from stix2 import FileSystemSource
 
 src = FileSystemSource('./cti/enterprise-attack')
-```
+
 
 #### Access via bundle
 
 If you instead prefer to download just the domain bundle, e.g [enterprise-attack.json](/enterprise-attack/enterprise-attack.json), you can still load this using a MemoryStore:
 
-```python
+.. code-block:: python
 from stix2 import MemoryStore
 
 src = MemoryStore()
 src.load_from_file("enterprise-attack.json")
-```
+
 
 ### Access live content
 
@@ -94,7 +94,7 @@ Users can access the ATT&CK data from the official ATT&CK TAXII server. In TAXII
 
 You can also get a list of available collection from the server directly:
 
-```python
+.. code-block:: python
 from taxii2client.v20 import Server # only specify v20 if your installed version is >= 2.0.0
 
 server = Server("https://cti-taxii.mitre.org/taxii/")
@@ -102,11 +102,11 @@ api_root = server.api_roots[0]
 # Print name and ID of all ATT&CK domains available as collections
 for collection in api_root.collections:
     print(collection.title.ljust(20) + collection.id)
-```
+
 
 The following recipe demonstrates how to access the enterprise-attack data from the TAXII server.
 
-```python
+.. code-block:: python
 from stix2 import TAXIICollectionSource
 from taxii2client.v20 import Collection # only specify v20 if your installed version is >= 2.0.0
 
@@ -118,7 +118,7 @@ collections = {
 
 collection = Collection(f"https://cti-taxii.mitre.org/stix/collections/{collections['enterprise_attack']}/")
 src = TAXIICollectionSource(collection)
-```
+
 
 For more about TAXII, please see oasis-open's [Introduction to TAXII](https://oasis-open.github.io/cti-documentation/taxii/intro).
 
@@ -128,7 +128,7 @@ Users can alternatively access the data from MITRE/CTI using HTTP requests, and 
 While typically the TAXII method is more desirable for "live" access, this method can be useful if you want to
 access data on a branch of the MITRE/CTI repo (the TAXII server only holds the master branch) or in the case of a TAXII server outage.
 
-```python
+.. code-block:: python
 import requests
 from stix2 import MemoryStore
 
@@ -138,7 +138,7 @@ def get_data_from_branch(domain, branch="master"):
     return MemoryStore(stix_data=stix_json["objects"])
 
 src = get_data_from_branch("enterprise-attack")
-```
+
 
 ### Access a specific version of ATT&CK
 
@@ -146,7 +146,7 @@ ATT&CK versions are tracked on the MITRE/CTI repo using [tags](https://github.co
 
 In addition to checking out the repo under the tag for a given version or downloading the STIX from github using your browser, you can also use a variation on the [requests method](#access-from-github-via-requests) to access a particular version of ATT&CK:
 
-```python
+.. code-block:: python
 import requests
 from stix2 import MemoryStore
 
@@ -156,11 +156,11 @@ def get_data_from_version(domain, version):
     return MemoryStore(stix_data=stix_json["objects"])
 
 src = get_data_from_version("enterprise-attack", "5.2")
-```
+
 
 You can get a list of ATT&CK versions programmatically using the github API:
 
-```python
+.. code-block:: python
 import requests
 import re
 
@@ -168,7 +168,7 @@ refToTag = re.compile(r"ATT&CK-v(.*)")
 tags = requests.get("https://api.github.com/repos/mitre/cti/git/refs/tags").json()
 versions = list(map(lambda tag: refToTag.search(tag["ref"]).groups()[0] , filter(lambda tag: "ATT&CK-v" in tag["ref"], tags)))
 # versions = ["1.0", "2.0", ...]
-```
+
 
 ### Access multiple domains simultaneously
 
@@ -177,11 +177,11 @@ with a single domain at a time. While oftentimes the hard separation of domains 
 domains into a single DataStore. Use any of the methods above to acquire the individual datastores, and then use the following approach to combine them into
 a single CompositeDataSource:
 
-```python
+.. code-block:: python
 from stix2 import CompositeDataSource
 
 src = CompositeDataSource()
 src.add_data_sources([enterprise_attack_src, mobile_attack_src, ics_attack_src])
-```
+
 
 You can then use this CompositeDataSource just as you would the DataSource for an individual domain.
