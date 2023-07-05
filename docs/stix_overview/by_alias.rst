@@ -4,7 +4,7 @@ By Alias
 
 The following methodology can be used to find the group corresponding to a given alias:
 
-```python
+.. code-block:: python
 from stix2 import Filter
 
 def get_group_by_alias(thesrc, alias):
@@ -14,4 +14,3 @@ def get_group_by_alias(thesrc, alias):
     ])[0]
     
 get_group_by_alias(src, 'Cozy Bear')
-```
