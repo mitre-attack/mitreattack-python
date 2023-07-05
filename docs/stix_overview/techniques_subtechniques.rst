@@ -6,6 +6,7 @@ Getting techniques or sub-techniques
 ATT&CK Techniques and sub-techniques are both represented as `attack-pattern` objects. Therefore further parsing is necessary to get specifically techniques or sub-techniques.
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def get_techniques_or_subtechniques(thesrc, include="both"):
