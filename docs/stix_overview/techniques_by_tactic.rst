@@ -7,6 +7,7 @@ Techniques are related to tactics by their kill_chain_phases property.
 The `phase_name` of each kill chain phase corresponds to the `x_mitre_shortname` of a tactic.
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def get_tactic_techniques(thesrc, tactic):

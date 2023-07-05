@@ -10,6 +10,7 @@ longer maintained by ATT&CK.
 We recommend _not_ using built-in STIX filters for removing revoked objects (e.g `Filter('revoked', '=', False)`). This is because the behavior of this specific filter is inconsistent depending on the method of access (using local data or accessing via the TAXII server). We recommend using the following code example to filter revoked objects instead. See [issue #127](https://github.com/mitre/cti/issues/127) for more details.
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def remove_revoked_deprecated(stix_objects):

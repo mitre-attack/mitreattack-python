@@ -8,6 +8,7 @@ Techniques are associated with one or more platforms. You can query the techniqu
 under a specific platform with the following code:
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def get_techniques_by_platform(thesrc, platform):

@@ -8,6 +8,7 @@ These techniques are oftentimes distinct from the techniques used directly by a 
 The following recipe can be used to retrieve the techniques used by a group's software:
 
 .. code-block:: python
+    
     from stix2.utils import get_type_from_id
     from stix2 import Filter
 

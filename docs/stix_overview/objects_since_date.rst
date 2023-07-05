@@ -5,6 +5,7 @@ Objects created or modified since a given date
 Sometimes you may want to get a list of objects which have been created or modified after a certain time.
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def get_created_after(thesrc, timestamp):

@@ -6,6 +6,7 @@ Objects by content
 Sometimes it may be useful to query objects by the content of their description:
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def get_techniques_by_content(thesrc, content):

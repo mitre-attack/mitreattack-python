@@ -7,6 +7,7 @@ found within the `tactic_refs` property in a matrix. The order of the tactics in
 the ordering of the tactics in that matrix. The following recipe returns a structured list of tactics within each matrix of the input DataStore.
 
 .. code-block:: python
+    
     from stix2 import Filter
 
     def getTacticsByMatrix(thesrc):

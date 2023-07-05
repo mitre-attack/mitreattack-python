@@ -10,6 +10,7 @@ This microlibrary can be used to build a lookup table of stixID to related objec
 The argument to each accessor function is a STIX2 MemoryStore to build the relationship mappings from.
 
 .. code-block:: python
+    
     from pprint import pprint
     from stix2 import MemoryStore, Filter
 
