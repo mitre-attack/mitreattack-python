@@ -5,7 +5,7 @@ Getting software
 
 Because software are the union of two STIX types (`tool` and `malware`), the process for accessing software is slightly more complicated.
 
-```python
+.. code-block:: python
 from itertools import chain
 from stix2 import Filter
 
@@ -18,4 +18,3 @@ def get_software(thesrc):
     ))
 
 get_software(src)
-```
