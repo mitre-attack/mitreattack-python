@@ -419,6 +419,29 @@ class MitreAttackData:
                 tactics[matrices[i]["name"]].append(self.src.get(tactic_id))
 
         return tactics
+    
+    def get_tactics_by_technique(self) -> dict:
+        """Retrieve the strutured list of tactics within each technique.
+        
+        The order of the tactics in the list matches the ordering of tactics in that technique.
+        
+        Returns
+        -------
+        dict
+            a mapping of tactics to techniques {technique_name: [Tactics]}
+        """
+        tactics = {}
+        techniques = self.src.query(
+            Filter("type", "=", "attack-pattern")
+        )
+                
+        for i in range(len(techniques)):
+            tactics[techniques[i]["name"]] = []
+            
+            for tactic_id in techniques[i]["kill_chain_phases"]: 
+                tactics[techniques[i]["name"]].append(tactic_id)
+        
+        return tactics
 
     def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been created after a given time.
