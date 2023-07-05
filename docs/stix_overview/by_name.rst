@@ -6,7 +6,7 @@ By Name
 
 The following recipe retrieves an object according to its name:
 
-```python
+.. code-block:: python
 from stix2 import Filter
 
 def get_technique_by_name(thesrc, name):
@@ -17,4 +17,3 @@ def get_technique_by_name(thesrc, name):
     return thesrc.query(filt)
 # get the technique titled "System Information Discovery"
 get_technique_by_name(src, 'System Information Discovery')
-```
