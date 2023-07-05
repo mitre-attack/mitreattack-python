@@ -1,7 +1,7 @@
 By ATT&CK ID
 ===============
 
-#### By ATT&CK ID
+**By ATT&CK ID**
 
 The following recipe can be used to retrieve an object according to its ATT&CK ID:
 

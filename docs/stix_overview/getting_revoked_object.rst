@@ -1,7 +1,7 @@
 Getting a revoking object
 ===============
 
-#### Getting a revoking object
+**Getting a revoking object**
 
 When an object is replaced by another object, it is marked with the field `revoked` and a relationship of type `revoked-by` is created where the `source_ref` is the revoked object and the `target_ref` is the revoking object. This relationship can be followed to find the replacing object:
 

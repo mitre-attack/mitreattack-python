@@ -2,7 +2,7 @@ By Name
 ===============
 
 
-#### By name
+**By name**
 
 The following recipe retrieves an object according to its name:
 

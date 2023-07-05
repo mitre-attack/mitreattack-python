@@ -1,7 +1,7 @@
 Removing revoked and deprecated objects
 ===============
 
-#### Removing revoked and deprecated objects
+**Removing revoked and deprecated objects**
 
 Revoked and deprecated objects are kept in the knowledge base so that workflows relying on those objects are not
 broken. We recommend you filter out revoked and deprecated objects from your views whenever possible since they are no

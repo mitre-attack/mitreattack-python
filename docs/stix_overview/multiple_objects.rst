@@ -1,6 +1,6 @@
 Getting multiple objects
 ===============
-### Getting multiple objects
+**Getting multiple objects**
 
 The recipes in this following section address how to query the dataset for multiple objects.
 

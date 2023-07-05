@@ -1,6 +1,7 @@
 By STIX ID
 ===============
-#### By STIX ID
+
+**By STIX ID**
 
 The following recipe can be used to retrieve an object according to its STIX ID. This is typically the preferred way to retrieve objects when working with ATT&CK data because STIX IDs are guaranteed to be unique.
 

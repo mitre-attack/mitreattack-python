@@ -1,7 +1,7 @@
 Getting software
 ===============
 
-##### Getting software
+**Getting software**
 
 Because software are the union of two STIX types (`tool` and `malware`), the process for accessing software is slightly more complicated.
 

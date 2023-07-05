@@ -1,7 +1,7 @@
 Techniques by tactic
 ===============
 
-#### Techniques by tactic
+**Techniques by tactic**
 
 Techniques are related to tactics by their kill_chain_phases property.
 The `phase_name` of each kill chain phase corresponds to the `x_mitre_shortname` of a tactic.
