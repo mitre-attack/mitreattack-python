@@ -1,8 +1,6 @@
 Objects by content
 ===============
 
-**Objects by content**
-
 Sometimes it may be useful to query objects by the content of their description:
 
 .. code-block:: python

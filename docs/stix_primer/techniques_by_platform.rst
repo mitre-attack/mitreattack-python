@@ -1,9 +1,6 @@
 Techniques by platform
 ===============
 
-
-**Techniques by platform**
-
 Techniques are associated with one or more platforms. You can query the techniques
 under a specific platform with the following code:
 

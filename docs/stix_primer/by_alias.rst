@@ -1,6 +1,5 @@
 By Alias
 ===============
-**By alias**
 
 The following methodology can be used to find the group corresponding to a given alias:
 

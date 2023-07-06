@@ -2,8 +2,6 @@ By Name
 ===============
 
 
-**By name**
-
 The following recipe retrieves an object according to its name:
 
 .. code-block:: python

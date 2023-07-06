@@ -1,8 +1,6 @@
 Getting techniques or sub-techniques
 ===============
 
-**Getting techniques or sub-techniques**
-
 ATT&CK Techniques and sub-techniques are both represented as `attack-pattern` objects. Therefore further parsing is necessary to get specifically techniques or sub-techniques.
 
 .. code-block:: python

@@ -1,6 +1,5 @@
 Tactics by matrix
 ===============
-**Tactics by matrix**
 
 The tactics are individual objects (`x-mitre-tactic`), and their order in a matrix (`x-mitre-matrix`) is
 found within the `tactic_refs` property in a matrix. The order of the tactics in that list matches

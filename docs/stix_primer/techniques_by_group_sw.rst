@@ -1,6 +1,5 @@
 Getting techniques used by a group's software
 ===============
-**Getting techniques used by a group's software**
 
 Because a group uses software, and software uses techniques, groups can be considered indirect users of techniques used by their software.
 These techniques are oftentimes distinct from the techniques used directly by a group, although there are occasionally intersections in these two sets of techniques.
