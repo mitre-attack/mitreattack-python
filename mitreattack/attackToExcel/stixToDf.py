@@ -112,6 +112,8 @@ def parseBaseStix(sdo):
         if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
             row["ID"] = sdo["external_references"][0]["external_id"]
             url = sdo["external_references"][0]["url"]
+    if "id" in sdo: # required for workbench collection import
+        row["STIX ID"] = sdo["id"]
     if "name" in sdo:
         row["name"] = sdo["name"]
     if "description" in sdo:
@@ -122,6 +124,8 @@ def parseBaseStix(sdo):
         row["created"] = format_date(sdo["created"])
     if "modified" in sdo:
         row["last modified"] = format_date(sdo["modified"])
+    if "x_mitre_domains" in sdo: # required for workbench collection import
+        row["domain"] = ",".join(sdo["x_mitre_domains"])
     if "x_mitre_version" in sdo:
         row["version"] = sdo["x_mitre_version"]
     if "x_mitre_contributors" in sdo:
@@ -330,6 +334,7 @@ def datasourcesToDf(src):
             columns=[
                 "name",
                 "ID",
+                "STIX ID",
                 "description",
                 "collection layers",
                 "platforms",
@@ -483,6 +488,11 @@ def campaignsToDf(src):
                             # aliases.append(alias)
                 row["associated campaigns"] = ", ".join(associated_campaigns)
                 row["associated campaigns citations"] = ", ".join(associated_campaign_citations)
+            # add fields required to import excel to workbench:
+            row["first seen"] = format_date(campaign["first_seen"])
+            row["first seen citation"] = campaign["x_mitre_first_seen_citation"]
+            row["last seen"] = format_date(campaign["last_seen"])
+            row["last seen citation"] = campaign["x_mitre_last_seen_citation"]
 
             campaign_rows.append(row)
 
@@ -917,7 +927,9 @@ def relationshipsToDf(src, relatedType=None):
             if "name" in sdo:
                 # "source name" or "target name"
                 row[f"{label} name"] = sdo["name"]
-
+            if "id" in sdo:
+                # "source ref" or "target ref"
+                row[f"{label} ref"] = sdo ["id"]
             # "source type" or "target type"
             row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
 
@@ -926,15 +938,20 @@ def relationshipsToDf(src, relatedType=None):
         add_side("target", target)
         if "description" in relationship:  # add description of relationship to the end of the row
             row["mapping description"] = relationship["description"]
-
+        # add required fields for workbench import: relationship stix id, created, and modified
+        row["STIX ID"] = relationship["id"]
+        if "created" in relationship:
+            row["created"] = format_date(relationship["created"])
+        if "modified" in relationship:
+            row["last modified"] = format_date(relationship["modified"])
         relationship_rows.append(row)
 
     citations = get_citations(relationships)
     relationships = pd.DataFrame(relationship_rows).sort_values(
-        ["mapping type", "source type", "target type", "source name", "target name"]
+        ["mapping type", "source type", "target type", "source name", "target name", "source ref", "target ref", "created", "last modified"]
     )
 
-    # return all relationships and citations
+    # return all relationships and citations 
     if not relatedType:
         dataframes = {
             "relationships": relationships,
