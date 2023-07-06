@@ -1,4 +1,4 @@
-Getting Started
+Accessing ATT&CK data in python
 ===============
 
 **Accessing ATT&CK data in python**
