@@ -28,7 +28,7 @@ other modules in this library under "Additional Modules".
    :maxdepth: 1
    :caption: STIX Overview
 
-   stix_overview/getting-started
+   stix_overview/access-attack
    stix_overview/stix-recipes
    stix_overview/attack_id
    stix_overview/by_alias
