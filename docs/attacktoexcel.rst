@@ -9,31 +9,31 @@ It also provides a means to access ATT&CK data as [Pandas](https://pandas.pydata
 
 Print full usage instructions:
 
-```shell
-python3 attackToExcel.py -h
-```
+.. code:: bash
+    python3 attackToExcel.py -h
+
 
 Example execution:
 
-```shell
-python3 attackToExcel.py
-```
+.. code:: bash
+    python3 attackToExcel.py
+
 
 Build a excel files corresponding to a specific domain and version of ATT&CK:
 
-```shell
-python3 attackToExcel -domain mobile-attack -version v5.0
-```
+.. code:: bash
+    python3 attackToExcel -domain mobile-attack -version v5.0
+
 
 **Module**
 
 Example execution targeting a specific domain and version:
 
 .. code-block:: python
-import mitreattack.attackToExcel.attackToExcel as attackToExcel
+    import mitreattack.attackToExcel.attackToExcel as attackToExcel
 
-attackToExcel.export("mobile-attack", "v5.0", "/path/to/export/folder")
-```
+    attackToExcel.export("mobile-attack", "v5.0", "/path/to/export/folder")
+
 
 **Interfaces**
 
