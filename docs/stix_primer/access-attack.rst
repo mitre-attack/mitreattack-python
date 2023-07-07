@@ -201,4 +201,26 @@ You can then use this CompositeDataSource just as you would the DataSource for a
 .. toctree::
    :maxdepth: 1
    :caption: Table of Contents
+
+   stix-recipes
+   attack_id
+   by_alias
+   by_name
+   deprecated_revoked
+   getting_related_objects
+   getting_software
+   multiple_objects
+   objects_by_content
+   objects_by_type
+   objects_since_date
+   stix_id
+   tactics_by_matrix
+   techniques_by_platform
+   techniques_by_platform
+   techniques_by_tactic
+   techniques_subtechniques
+   relationships_microlibrary
+   techniques_by_group_sw
+   remove_revoked_deprecated
+   getting_revoked_objects
     
