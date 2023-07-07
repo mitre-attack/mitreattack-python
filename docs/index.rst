@@ -11,6 +11,7 @@ other modules in this library under "Additional Modules".
    :maxdepth: 1
    :caption: Overview
 
+   getting_started
    installation
    related_work
    contributing
