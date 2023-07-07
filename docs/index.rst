@@ -11,11 +11,11 @@ other modules in this library under "Additional Modules".
    :maxdepth: 1
    :caption: Overview
 
-   docs/getting_started
    installation
    related_work
    contributing
    notice
+   getting_started
 
 .. toctree::
    :maxdepth: 1
