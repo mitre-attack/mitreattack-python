@@ -29,27 +29,6 @@ other modules in this library under "Additional Modules".
    :caption: STIX Overview
 
    stix_overview/access-attack
-   stix_overview/stix-recipes
-   stix_overview/attack_id
-   stix_overview/by_alias
-   stix_overview/by_name
-   stix_overview/deprecated_revoked
-   stix_overview/getting_related_objects
-   stix_overview/getting_software
-   stix_overview/multiple_objects
-   stix_overview/objects_by_content
-   stix_overview/objects_by_type
-   stix_overview/objects_since_date
-   stix_overview/stix_id
-   stix_overview/tactics_by_matrix
-   stix_overview/techniques_by_platform
-   stix_overview/techniques_by_platform
-   stix_overview/techniques_by_tactic
-   stix_overview/techniques_subtechniques
-   stix_overview/relationships_microlibrary
-   stix_overview/techniques_by_group_sw
-   stix_overview/remove_revoked_deprecated
-   stix_overview/getting_revoked_objects
    
    
 
