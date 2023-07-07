@@ -15,7 +15,7 @@ other modules in this library under "Additional Modules".
    related_work
    contributing
    notice
-   getting_started
+   start
 
 .. toctree::
    :maxdepth: 1
