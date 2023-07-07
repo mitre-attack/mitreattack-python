@@ -8,9 +8,9 @@ see the [full documentation](https://mitreattack-python.readthedocs.io/) on Read
 
 To use this package, install the mitreattack-python library with [pip](https://pip.pypa.io/en/stable/):
 
-```shell
-pip install mitreattack-python
-```
+.. code:: bash
+   pip install mitreattack-python
+
 
 Note: the library requires [python3](https://www.python.org/).
 
