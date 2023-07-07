@@ -15,7 +15,6 @@ other modules in this library under "Additional Modules".
    related_work
    contributing
    notice
-   start
 
 .. toctree::
    :maxdepth: 1
@@ -30,7 +29,7 @@ other modules in this library under "Additional Modules".
    :caption: STIX Overview
 
    stix_primer/access-attack
-   
+   start
    
 
 .. toctree::
