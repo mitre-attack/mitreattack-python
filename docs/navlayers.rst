@@ -386,23 +386,23 @@ If not provided, the configuration for the generator will be set to default valu
 
 ### .generate_layer()
 
-```python
-x.generate_layer(match=object_identifier)
-```
+.. code-block:: python
+    
+    x.generate_layer(match=object_identifier)
+
 
 The `generate_layer` function generates a layer, customized to the input `object_identifier`.
 Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mitigation`, `software`, and `data component` objects within the selected ATT&CK data.
 
-#### Example Usage
+.. code-block:: python
 
-```python
-from mitreattack.navlayers import UsageLayerGenerator
+    from mitreattack.navlayers import UsageLayerGenerator
 
-handle = UsageLayerGenerator(source='taxii', domain='enterprise')
+    handle = UsageLayerGenerator(source='taxii', domain='enterprise')
 
-layer1 = handle.generate_layer(match='G0018')
-layer2 = handle.generate_layer(match='Adups')
-```
+    layer1 = handle.generate_layer(match='G0018')
+    layer2 = handle.generate_layer(match='Adups')
+
 
 ## sum_generator.py
 
@@ -413,9 +413,10 @@ Each one of the generated layers will correspond to a single instance of the spe
 
 ### SumLayerGenerator()
 
-```python
-x = SumLayerGenerator(source='taxii', domain='enterprise', resource=None)
-```
+.. code-block:: python
+    
+    x = SumLayerGenerator(source='taxii', domain='enterprise', resource=None)
+
 
 The initialization function for `SumGeneratorLayer`, like `ToSVG` and `ToExcel`, requires the specification of where
 to retrieve data from (taxii server etc.).
@@ -429,9 +430,10 @@ If not provided, the configuration for the generator will be set to default valu
 
 ### .generate_layer()
 
-```python
-x.generate_layer(layers_type=object_type_name)
-```
+.. code-block:: python
+    
+    x.generate_layer(layers_type=object_type_name)
+
 
 The `generate_layer` function generates a collection of layers, each customized to one instance of the input `object_type_name`.
 Valid types include `group`, `mitigation`, `software`, and `datasource`.
