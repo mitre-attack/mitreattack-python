@@ -196,3 +196,9 @@ a single CompositeDataSource:
 
 
 You can then use this CompositeDataSource just as you would the DataSource for an individual domain.
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Table of Contents
+    
