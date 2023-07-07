@@ -28,7 +28,7 @@ other modules in this library under "Additional Modules".
    :maxdepth: 1
    :caption: STIX Overview
 
-   stix_overview/access-attack
+   stix_primer/access-attack
    
    
 
