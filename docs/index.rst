@@ -16,6 +16,15 @@ other modules in this library under "Additional Modules".
    contributing
    notice
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Additional Modules
+
+   differenceinstix
+   attacktoexcel
+   collections
+   navlayers
+   start
 
 .. toctree::
    :maxdepth: 1
@@ -33,15 +42,7 @@ other modules in this library under "Additional Modules".
    start
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Additional Modules
 
-   differenceinstix
-   attacktoexcel
-   collections
-   navlayers
-   start
    
 
 
