@@ -39,7 +39,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 `overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_. Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. |
 | `usage_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py>`_ | Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below. |
-| `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_| Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
+| `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ . Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
 
 **Utility Modules
 
@@ -54,8 +54,8 @@ and version 4.X layers, upgrading them to version 4.3.
 
 | script | description |
 |:-------|:------------|
-| [layerExporter_cli.py](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py) | A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. |
-| [layerGenerator_cli.py](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py) | A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. |
+| `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_ | A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. |
+| `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_ | A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. |
 
 **Layer
 
@@ -74,7 +74,7 @@ The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will 
 | `x.to_str()` | Returns a representation of the current ATT&CK layer object as a string representation of a dictionary. |
 
 Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
-[here](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md).
+`here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md>`_.
 
 **Example Usage
 
@@ -437,10 +437,10 @@ Valid types include `group`, `mitigation`, `software`, and `datasource`.
 
 **layerExporter_cli.py**
 
-This command line tool allows users to convert a [navigator](https://github.com/mitre-attack/attack-navigator)
+This command line tool allows users to convert a `navigator <https://github.com/mitre-attack/attack-navigator>`_
 layer file to either an svg image or excel file using the functionality provided by the navlayers module.
 Details about the SVG configuration json mentioned below can be found in the
-[SVGConfig](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig)
+`SVGConfig <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md#svgconfig>`_
 entry within the navlayers module documentation.
 
 .. code:: bash
@@ -477,7 +477,7 @@ entry within the navlayers module documentation.
 
 **layerGenerator_cli.py**
 
-This command line tool allows users to generate [ATT&CK Navigator](https://github.com/mitre-attack/attack-navigator)
+This command line tool allows users to generate `ATT&CK Navigator <https://github.com/mitre-attack/attack-navigator>`_
 layer files from either a specific group, software, or mitigation. Alternatively, users can generate a layer file with a
 mapping to all associated groups, software, or mitigations across the techniques within ATT&CK.
 
