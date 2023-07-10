@@ -16,15 +16,6 @@ other modules in this library under "Additional Modules".
    contributing
    notice
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Additional Modules
-
-   differenceinstix
-   attacktoexcel
-   collections
-   navlayers
-   start
 
 .. toctree::
    :maxdepth: 1
@@ -39,10 +30,13 @@ other modules in this library under "Additional Modules".
    :caption: STIX Primer
 
    stix_primer/access-attack
-   start
-
-
-
    
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Additional Modules
 
+   additional_modules/navlayers
+   additional_modules/attackToExcel
+   additional_modules/collections
+   additional_modules/diffStix
