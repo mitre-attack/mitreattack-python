@@ -27,7 +27,7 @@ other modules in this library under "Additional Modules".
 
 .. toctree::
    :maxdepth: 1
-   :caption: STIX Overview
+   :caption: STIX Primer
 
    stix_primer/access-attack
    start
@@ -36,11 +36,12 @@ other modules in this library under "Additional Modules".
 .. toctree::
    :maxdepth: 1
    :caption: Additional Modules
-   
+
    differenceinstix
    attacktoexcel
    collections
    navlayers
+   start
    
 
 
