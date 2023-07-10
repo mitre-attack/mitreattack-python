@@ -1623,3 +1623,6 @@ class MitreAttackData:
             return None
 
         return revoked_by[0]
+
+    def get_release_notes(self, enterprise_stix, mobile_stix, ics_stix):
+        return
