@@ -1,4 +1,6 @@
-**collections**
+
+Collections
+==============================================
 
 This folder contains modules and scripts for working with ATT&CK collections.
 Collections are sets of ATT&CK STIX objects, grouped for user convienence.

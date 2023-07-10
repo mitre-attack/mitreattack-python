@@ -1,4 +1,5 @@
-**navlayers**
+NavLayers
+==============================================
 
 This folder contains modules and scripts for working with ATT&CK Navigator layers.
 ATT&CK Navigator Layers are a set of annotations overlaid on top of the ATT&CK Matrix.

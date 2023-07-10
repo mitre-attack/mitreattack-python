@@ -15,7 +15,7 @@ other modules in this library under "Additional Modules".
    related_work
    contributing
    notice
-
+   getting_started
 
 .. toctree::
    :maxdepth: 1
@@ -36,7 +36,7 @@ other modules in this library under "Additional Modules".
    :maxdepth: 1
    :caption: Additional Modules
 
-   additional_modules/navlayers
-   additional_modules/attackToExcel
-   additional_modules/collections
-   additional_modules/diffStix
+   diffinstix
+   collections
+   navlayers
+   attacktoexcel

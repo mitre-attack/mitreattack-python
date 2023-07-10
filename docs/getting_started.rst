@@ -1,5 +1,6 @@
 
-**mitreattack-python**
+Getting started
+==============================================
 
 This repository contains a library of Python tools and utilities for working with ATT&CK data. For more information,
 see the [full documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDocs.
