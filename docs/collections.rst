@@ -40,8 +40,8 @@ An example of how to use the class, and method, can be found below.
 **collection_to_index.py**
 
 `collection_to_index.py` provides the `CollectionToIndex` class, which proves a means by which to summarize existing
-[collections](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections)
-into a single [collection index](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes) file.
+`collections <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_
+into a single `collection index <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_ file.
 The `CollectionToIndex` class contains the `generate_index` function, which when provided with a name, description, root url (pointing to where the raw collections are stored),
 and a list of either files, folders, or already loaded bundles in the form of dictionaries, will create a summarizing index.
 
@@ -73,7 +73,7 @@ and a list of either files, folders, or already loaded bundles in the form of di
 
 `stix_to_collection.py` provides the `STIXToCollection` class, which proves a means by which to convert
 existing stix bundles into ones containing a
-[collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) object.
+`collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_ object.
 The `STIXToCollection` class contains the `stix_to_collection` function, which when provided with a starter bundle,
 a name, a version, and an optional description, will output a modified bundle that contains a summary collection object.
 
