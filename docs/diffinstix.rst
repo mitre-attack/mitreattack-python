@@ -14,7 +14,7 @@ Print full usage instructions:
 .. code:: bash
 # You must run `pip install mitreattack-python` in order to access the diff_stix command
   diff_stix --help
-  usage: diff_stix [-h] [--old OLD] [--new NEW] [--domains {enterprise-attack,mobile-attack,ics-attack} [{enterprise-attack,mobile-attack,ics-attack} ...]] [--markdown-file MARKDOWN_FILE] [--html-file HTML_FILE] [--html-file-detailed HTML_FILE_DETAILED]
+  usage: diff_stix [-h] [--old OLD] [--new NEW] [--domains {enterprise-attack,mobile-attack,ics-attack} [{enterprise-attack,mobile-attack,ics-attack} ...]] [--markdown-file MARKDOWN_FILE] [--html-file         HTML_FILE] [--html-file-detailed HTML_FILE_DETAILED]
                   [--json-file JSON_FILE] [--layers [LAYERS ...]] [--site_prefix SITE_PREFIX] [--unchanged] [--use-mitre-cti] [--show-key] [--contributors] [--no-contributors] [-v]
 
   Create changelog reports on the differences between two versions of the ATT&CK content. Takes STIX bundles as input. For default operation, put enterprise-attack.json, mobile-attack.json, and ics-attack.json bundles in 'old' and 'new' folders for the script to compare.
