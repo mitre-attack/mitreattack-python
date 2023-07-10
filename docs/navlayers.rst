@@ -26,31 +26,31 @@ and version 4.X layers, upgrading them to version 4.3.
 
 | script | description |
 |:-------|:------------|
-| [layerops](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py) | Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. |
+| `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_ | Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. |
 
 **Exporter Scripts
 
 | script | description |
 |:-------|:------------|
-| [to_excel](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py) | Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below. |
-| [to_svg](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py) | Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.|
+| `to_excel <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py>`_ | Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below. |
+| `to_svg <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py>`_ | Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.|
 
 **Generator Scripts
 
 | script | description |
 |:-------|:------------|
-| [overview_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py)| Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. |
-| [usage_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py)| Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below. |
-| [sum_generator](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py)| Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
+| `overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_| Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. |
+| `usage_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py>`_ | Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below. |
+| `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_| Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
 
 **Utility Modules
 
 | script | description |
 |:-------|:------------|
-| [excel_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py) | Provides a means by which to convert a matrix into a clean excel matrix template. |
-| [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). |
-| [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
-| [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
+| `excel_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py>`_ | Provides a means by which to convert a matrix into a clean excel matrix template. |
+| `matrix_gen <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py>`_ | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). |
+| `svg_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py>`_ | Provides a means by which to convert a layer file into a marked up svg file. |
+| `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ | Provides raw templates and supporting functionality for generating svg objects. |
 
 **Command Line Tools
 
