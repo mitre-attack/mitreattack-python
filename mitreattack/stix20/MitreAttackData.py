@@ -430,8 +430,8 @@ class MitreAttackData:
         
         Returns
         -------
-        list
-            a list of tactics that the technique to be queried contains.
+        dict
+            a dictionary of tactics that the technique to be queried contains.
         """
         return [phase["phase_name"] for phase in self.get_object_by_stix_id(stix_id)["kill_chain_phases"]]
 
