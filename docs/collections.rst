@@ -24,17 +24,17 @@ An example of how to use the class, and method, can be found below.
 
 **Example Usage**
 
-.. code-block:: python
+    .. code-block:: python
+        
+        import json
+        from mitreattack.collections import IndexToMarkdown
     
-    import json
-    from mitreattack.collections import IndexToMarkdown
-
-    with open('collection_index.json', 'r') as input_file:
-        with open('collection_index.md', 'w') as output_file:
-            input_index = json.load(input_file)
-            generated_md = IndexToMarkdown.index_to_markdown(input_index)  # Convert index to markdown
-            output_file.write(generated_md)
-    print(generated_md)
+        with open('collection_index.json', 'r') as input_file:
+            with open('collection_index.md', 'w') as output_file:
+                input_index = json.load(input_file)
+                generated_md = IndexToMarkdown.index_to_markdown(input_index)  # Convert index to markdown
+                output_file.write(generated_md)
+        print(generated_md)
 
 
 **collection_to_index.py**
