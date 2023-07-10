@@ -9,10 +9,8 @@ For more information about ATT&CK collections, see the corresponding
 
 **Collections Scripts**
 
-| script | description |
-|:-------|:------------|
 `index_to_markdown <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py>`_ | Provides a means by which to convert a `collection index <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_ into a human-readable markdown file. More information can be found in the corresponding [section](#index_to_markdown.py) below.|
-|[collection_to_index](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/collection_to_index.py)| Provides a means by which to convert a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections) into a easy-to-share [index file](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes). More information can be found in the corresponding [section](#collection_to_index.py) below.|
+'collection_to_index <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/collection_to_index.py>`_ Provides a means by which to convert a `collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_ into a easy-to-share `index file <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_. More information can be found in the corresponding [section](#collection_to_index.py) below.|
 |[stix_to_collection](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/stix_to_collection.py)| Provides a means by which to convert raw stix (in the form of [bundles](https://docs.oasis-open.org/cti/stix/v2.1/cs01/stix-v2.1-cs01.html#_gms872kuzdmg)) into a [collection](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections). More information can be found in the corresponding [section](#stix_to_collection.py) below.|
 
 **index_to_markdown.py**
