@@ -421,14 +421,17 @@ class MitreAttackData:
         return tactics
     
     def get_tactics_by_technique(self, stix_id) -> dict:
-        """Retrieve the strutured list of tactics within each technique.
+        """Retrieve the list of tactics within a particular technique.
         
-        The order of the tactics in the list matches the ordering of tactics in that technique.
+        Parameters
+        ----------
+        stix_id : str
+            the stix id of the technique to be queried.
         
         Returns
         -------
-        dict
-            a mapping of tactics to techniques {technique_name: [Tactics]}
+        list
+            a list of tactics that the technique to be queried contains.
         """
         return [phase["phase_name"] for phase in self.get_object_by_stix_id(stix_id)["kill_chain_phases"]]
 
