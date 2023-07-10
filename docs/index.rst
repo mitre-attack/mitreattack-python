@@ -16,6 +16,9 @@ other modules in this library under "Additional Modules".
    contributing
    notice
    differenceinstix
+   attacktoexcel
+   collections
+   navlayers
 
 
 .. toctree::
