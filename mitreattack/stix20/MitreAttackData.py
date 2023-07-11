@@ -436,7 +436,7 @@ class MitreAttackData:
         tactics = []
         phases = self.get_object_by_stix_id(stix_id)
         
-        for phase in phases["kill_chain_phases"]:
+        for phase in phases.get("kill_chain_phases"):
             tactics.append(phase["phase_name"])
         
         return tactics
