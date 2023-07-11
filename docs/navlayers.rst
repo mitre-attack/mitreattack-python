@@ -20,9 +20,9 @@ and version 4.X layers, upgrading them to version 4.3.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Heading row 1, column 1
+   * - Heading row 1, column 11
      - Heading row 1, column 2
-     - Heading row 1, column 3
+     - Heading row 1, column 32
    * - Row 1, column 1
      -
      - Row 1, column 3
