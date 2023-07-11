@@ -433,8 +433,14 @@ class MitreAttackData:
         list
             a list of tactics that the technique to be queried contains.
         """
-        return [phase["phase_name"] for phase in self.get_object_by_stix_id(stix_id)["kill_chain_phases"]]
-
+        tactics = []
+        phases = self.get_object_by_stix_id(stix_id)
+        
+        for phase in phases["kill_chain_phases"]:
+            tactics.append(phase["phase_name"])
+        
+        return tactics
+        
     def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been created after a given time.
 
