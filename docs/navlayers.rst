@@ -20,33 +20,34 @@ and version 4.X layers, upgrading them to version 4.3.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Heading row 1, column 11
-     - Heading row 1, column 2
-     - Heading row 1, column 32
-   * - Row 1, column 1
-     - hi
-     - Row 1, column 3
-   * - Row 2, column 1
-     - Row 2, column 2
-     - Row 2, column 3
-   * - row 1
-     - row 2
-     - row 3
+   * - 
+     -
 
-`filter <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py>`_ | Implements a basic `filter object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties>`_. |
-| `gradient <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/gradient.py>`_ | Implements a basic `gradient object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#gradient-object-properties>`_. |
-| `layer <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layer.py>`_ | Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding [section](#Layer) below. |
-| `layout <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layout.py>`_ | Implements a basic `layout object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#layout-object-properties>`_. |
-| `legenditem <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/legenditem.py>`_ | Implements a basic `legenditem object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#legenditem-object-properties>`_. |
-| `metadata <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/metadata.py>`_ | Implements a basic `metadata object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#metadata-object-properties>`_. |
-| `technique <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/technique.py>`_ | Implements a basic `technique object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#technique-object-properties>`_. |
-| `versions <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/versions.py>`_ | Implements a basic `versions object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties>`_.|
+   * - script
+     - description
+   * - `filter <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py>`_
+     - Implements a basic `filter object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties>`_
+   * - `gradient <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/gradient.py>`_ 
+     - Implements a basic `gradient object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#gradient-object-properties>`_
+   * - `layer <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layer.py>`_
+     - Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding [section](#Layer) below.
+   * - `layout <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layout.py>`_
+     - Implements a basic `layout object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#layout-object-properties>`_
+   * - `legenditem <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/legenditem.py>`_ 
+     - Implements a basic `legenditem object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#legenditem-object-properties>`_
+   * - `metadata <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/metadata.py>`_ 
+     - Implements a basic `metadata object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#metadata-object-properties>`_
+   * - `technique <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/technique.py>`_
+     - Implements a basic `technique object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#technique-object-properties>`_
+   * - `versions <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/versions.py>`_
+     - Implements a basic `versions object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties>`_
 
 **Manipulator Scripts
 
-| script | description |
-|:-------|:------------|
-| `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_ | Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. |
+   * - script
+     - description
+   * - `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_
+     - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. 
 
 **Exporter Scripts
 
