@@ -24,7 +24,7 @@ and version 4.X layers, upgrading them to version 4.3.
      - Heading row 1, column 2
      - Heading row 1, column 32
    * - Row 1, column 1
-     -
+     - hi
      - Row 1, column 3
    * - Row 2, column 1
      - Row 2, column 2
