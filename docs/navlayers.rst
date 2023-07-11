@@ -13,6 +13,23 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Core Modules**
 
+
+## Core Modules
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Heading row 1, column 1
+     - Heading row 1, column 2
+     - Heading row 1, column 3
+   * - Row 1, column 1
+     -
+     - Row 1, column 3
+   * - Row 2, column 1
+     - Row 2, column 2
+     - Row 2, column 3
+
 `filter <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py>`_ | Implements a basic `filter object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties>`_. |
 | `gradient <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/gradient.py>`_ | Implements a basic `gradient object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#gradient-object-properties>`_. |
 | `layer <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layer.py>`_ | Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding [section](#Layer) below. |
