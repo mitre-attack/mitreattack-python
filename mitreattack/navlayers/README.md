@@ -12,6 +12,20 @@ and version 4.X layers, upgrading them to version 4.3.
 
 ## Core Modules
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Heading row 1, column 1
+     - Heading row 1, column 2
+     - Heading row 1, column 3
+   * - Row 1, column 1
+     -
+     - Row 1, column 3
+   * - Row 2, column 1
+     - Row 2, column 2
+     - Row 2, column 3
+
 | script | description |
 |:-------|:------------|
 | [filter](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py) | Implements a basic [filter object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties). |
