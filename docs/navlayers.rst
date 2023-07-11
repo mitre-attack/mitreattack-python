@@ -346,72 +346,50 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
      - Hex color to use for the technique borders 
      - string 
      - "#6B7279" 
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-
-
-| showHeader | Whether or not to show Header Blocks | bool | True |
-| legendDocked | Whether or not the legend should be docked | bool | True |
-| legendX | Where to place the legend on the x axis if not docked | number | 0 |
-| legendY | Where to place the legend on the y axis if not docked | number | 1 |
-| legendWidth | Width of the legend if not docked | number | 2 |
-| legendHeight | Height of the legend if not docked | number | 1 |
-| showLegend | Whether or not to show the legend | bool | True |
-| showFilters | Whether or not to show the Filter Header Block | bool | True |
-| showDomain | Whether or not to show the Domain and Version Header Block | bool | True |
-| showAbout | Whether or not to show the About Header Block | bool | True |
-| border | What default border width to use | number | 0.104 |
-
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     - 
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     -
-   * - 
-     -
-     - 
-     - 
+   * - showHeader 
+     - Whether or not to show Header Blocks 
+     - bool 
+     - True 
+   * - legendDocked 
+     - Whether or not the legend should be docked 
+     - bool  
+     - True 
+   * - legendX 
+     - Where to place the legend on the x axis if not docked 
+     - number 
+     - 0
+   * - legendY 
+     - Where to place the legend on the y axis if not docked 
+     - number 
+     - 1 
+   * - legendWidth 
+     - Width of the legend if not docked 
+     - number 
+     - 2 
+   * - legendHeight 
+     - Height of the legend if not docked 
+     - number 
+     - 1 
+   * - showLegend 
+     - Whether or not to show the legend 
+     - bool 
+     - True 
+   * - showFilters 
+     - Whether or not to show the Filter Header Block 
+     - bool 
+     - True 
+   * - showDomain 
+     - Whether or not to show the Domain and Version Header Block 
+     - bool 
+     - True 
+   * - showAbout 
+     - Whether or not to show the About Header Block 
+     - bool 
+     - True 
+   * - border 
+     - What default border width to use 
+     - number 
+     - 0.104 
 
 **.to_svg() Method
 
