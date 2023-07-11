@@ -314,15 +314,56 @@ the currently loaded configuration can be interacted with at `ToSvg().config`.
 The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method,
 or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 
-| attribute| description | type | default value |
-|:-------|:------------|:------------|:------------|
-| width | Desired SVG width | number | 8.5 |
-| height | Desired SVG height | number | 11 |
-| headerHeight | Desired Header Block height | number | 1 |
-| unit | SVG measurement units (qualifies width, height, etc.) - "in", "cm", "px", "em", or "pt"| string | "in" |
-| showSubtechniques | Display form for subtechniques - "all", "expanded" (decided by layer), or "none" | string | "expanded" |
-| font | What font style to use - "serif", "sans-serif", or "monospace" | string | "sans-serif" |
-| tableBorderColor | Hex color to use for the technique borders | string | "#6B7279" |
+   * - attribute
+     - description
+     - type
+     - default value
+   * - width 
+     - Desired SVG width
+     - number
+     - 8.5
+   * - height
+     - Desired SVG height
+     - number
+     - 11
+   * - headerHeight
+     - Desired Header Block height
+     - number
+     - 1
+   * - unit 
+     - SVG measurement units (qualifies width, height, etc.) - "in", "cm", "px", "em", or "pt"
+     - string 
+     - "in" 
+   * - showSubtechniques 
+     - Display form for subtechniques - "all", "expanded" (decided by layer), or "none"
+     - string 
+     - "expanded" 
+   * - font 
+     - What font style to use - "serif", "sans-serif", or "monospace" 
+     - string 
+     - "sans-serif" 
+   * - tableBorderColor 
+     - Hex color to use for the technique borders 
+     - string 
+     - "#6B7279" 
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+
+
 | showHeader | Whether or not to show Header Blocks | bool | True |
 | legendDocked | Whether or not the legend should be docked | bool | True |
 | legendX | Where to place the legend on the x axis if not docked | number | 0 |
@@ -334,6 +375,43 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 | showDomain | Whether or not to show the Domain and Version Header Block | bool | True |
 | showAbout | Whether or not to show the About Header Block | bool | True |
 | border | What default border width to use | number | 0.104 |
+
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     - 
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     -
+   * - 
+     -
+     - 
+     - 
 
 **.to_svg() Method
 
