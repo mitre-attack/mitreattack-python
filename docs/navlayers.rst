@@ -83,10 +83,12 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Command Line Tools
 
-| script | description |
-|:-------|:------------|
-| `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_ | A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. |
-| `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_ | A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. |
+   * - script
+     - description
+   * - `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_
+     - A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. 
+   * - `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_
+     - A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. 
 
 **Layer
 
@@ -95,14 +97,20 @@ It is the primary interface through which other Layer-related classes defined in
 The Layer class API and a usage example are below.
 The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
 
-| method [x = Layer()]| description |
-|:-------|:------------|
-| `x.from_str(_input_)` | Loads an ATT&CK layer from a string representation of a json layer. |
-| `x.from_dict(_input_)` | Loads an ATT&CK layer from a dictionary. |
-| `x.from_file(_filepath_)` | Loads an ATT&CK layer from a file location specified by the _filepath_. |
-| `x.to_file(_filepath_)` | Saves the current state of the loaded ATT&CK layer to a json file denoted by the _filepath_. |
-| `x.to_dict()` | Returns a representation of the current ATT&CK layer object as a dictionary. |
-| `x.to_str()` | Returns a representation of the current ATT&CK layer object as a string representation of a dictionary. |
+   * - method [x = Layer()]
+     - description
+   * - `x.from_str(_input_)` 
+     - Loads an ATT&CK layer from a string representation of a json layer.
+   * - `x.from_dict(_input_)`
+     - Loads an ATT&CK layer from a dictionary.
+   * - `x.from_file(_filepath_)`
+     - Loads an ATT&CK layer from a file location specified by the _filepath_.
+   * - `x.to_file(_filepath_)`
+     - Saves the current state of the loaded ATT&CK layer to a json file denoted by the _filepath_.
+   * - `x.to_dict()`
+     - Returns a representation of the current ATT&CK layer object as a dictionary. 
+   * - `x.to_str()`
+     - Returns a representation of the current ATT&CK layer object as a string representation of a dictionary.
 
 Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
 `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md>`_.
