@@ -20,9 +20,6 @@ and version 4.X layers, upgrading them to version 4.3.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - 
-     -
-
    * - script
      - description
    * - `filter <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py>`_
@@ -51,16 +48,25 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Exporter Scripts
 
-| script | description |
-|:-------|:------------|
-| `to_excel <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py>`_ | Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below. |
-| `to_svg <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py>`_ | Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.|
+   * - script
+     - description
+   * - `to_excel <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py>`_
+     - Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below.
+   * - `to_svg <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py>`_
+     - Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.
+
+
 
 **Generator Scripts
 
-`overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_. Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. |
-| `usage_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py>`_ | Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below. |
-| `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ . Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. |
+   * - script
+     - description
+   * - `overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_
+     - Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. 
+   * - `usage_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py>`_ 
+     - Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below.
+   * - `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ 
+     - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. 
 
 **Utility Modules
 
