@@ -92,16 +92,34 @@ A brief explanation of key pieces can be found below.
 * For domain changes, they are broken down by object type, e.g. `techniques` or `mitigations`.
 * The following table helps break down the change types that are currently tracked.
 
-| Field                   |  Type          | Description                                                                                                                                 |
-|-------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `additions`             | array[object] | ATT&CK objects which are only present in the new STIX data.                                                                                 |
-| `major_version_changes` | array[object] | ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0).                                                                          |
-| `minor_version_changes` | array[object] | ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1).                                                                          |
-| `other_version_changes` | array[object] | ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3). These are unintended, but can be found in previous releases. |
-| `patches`               | array[object] | ATT&CK objects that have been patched while keeping the version the same.                                                                   |
-| `revocations`           | array[object] | ATT&CK objects which are revoked by a different object.                                                                                     |
-| `deprecations`          | array[object] | ATT&CK objects which are deprecated and no longer in use, and not replaced.                                                                 |
-| `deletions`             | array[object] | ATT&CK objects which are no longer found in the STIX data. This should almost never happen.                                                 |
+   * - field 
+     - type
+     - description
+   * - `additions`     
+     -array[object]
+     - ATT&CK objects which are only present in the new STIX data.      
+   * - `major_version_changes``
+     - array[object]
+     - ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0). 
+   * - `minor_version_changes`
+     - array[object]
+     - ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1).  
+   * - `other_version_changes`
+     - array[object]
+     - array[object] | ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3). These are unintended, but can be found in previous releases.
+     * - `patches`     
+     - array[object]
+     - ATT&CK objects that have been patched while keeping the version the same.  
+      * - `revocations`  
+     - array[object]
+     - ATT&CK objects which are revoked by a different object. 
+   * - `deprecations`  
+     - array[object]
+     - ATT&CK objects which are deprecated and no longer in use, and not replaced.   
+   * - `deletions`    
+     - array[object
+     - ATT&CK objects which are no longer found in the STIX data. This should almost never happen.     
+
 
 **Changed Objects
 
@@ -111,10 +129,29 @@ That is because there are a few fields that have been added in some cases depend
 For example, objects that are brand new do not have `previous_version` available to them.
 The following table lists the extra fields that can be found in objects in the changelog.
 
-| Field                      | Required | Type   | Description                                                                                                                                                   |
-|----------------------------|----------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `changelog_mitigations`    | false    | object | Three lists for `shared`, `new`, and `dropped` for Mitigations that are related to a Technique between versions.                                              |
-| `changelog_detections`     | false    | object | Three lists for `shared`, `new`, and `dropped` for Detections that are related to a Technique between versions.                                               || `description_change_table` | false    | string | HTML rendering of a table that displays the differences between descriptions for an ATT&CK object.                                                            |
-| `detailed_diff`            | false    | string | A python DeepDiff object that has been JSON serialized which represents STIX changes for an ATT&CK object between releases.                                   |
-| `previous_version`         | false    | string | If the object existed in the previous release, then it denotes the version the object was in the previous release.                                             |
-| `version_change`           | false    | string | If the object existed in the previous release and was changed in the current release, then a descriptive string in the format '`old-version` → `new-version`' |
+   * - Field
+     - Required
+     - Type
+     - Description
+   * - `changelog_mitigations` 
+     - false
+     - object 
+     - Three lists for `shared`, `new`, and `dropped` for Mitigations that are related to a Technique between versions.      
+   * - `changelog_detections` 
+     - false
+     - object 
+     - HTML rendering of a table that displays the differences between descriptions for an ATT&CK object.        
+   * - `detailed_diff`  
+     - false
+     - string 
+     - A python DeepDiff object that has been JSON serialized which represents STIX changes for an ATT&CK object between releases.        
+   * - `previous_version`
+     - false
+     - string 
+     - If the object existed in the previous release, then it denotes the version the object was in the previous release.    
+   * - `version_change`  
+     - false
+     - string 
+     - If the object existed in the previous release and was changed in the current release, then a descriptive string in the format '`old-version` → `new-version`' 
+                                                    
+
