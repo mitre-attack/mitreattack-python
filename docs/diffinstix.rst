@@ -92,6 +92,10 @@ A brief explanation of key pieces can be found below.
 * For domain changes, they are broken down by object type, e.g. `techniques` or `mitigations`.
 * The following table helps break down the change types that are currently tracked.
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - field 
      - type
      - description
@@ -129,6 +133,10 @@ That is because there are a few fields that have been added in some cases depend
 For example, objects that are brand new do not have `previous_version` available to them.
 The following table lists the extra fields that can be found in objects in the changelog.
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+   
    * - Field
      - Required
      - Type

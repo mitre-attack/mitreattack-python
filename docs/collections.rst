@@ -9,6 +9,11 @@ For more information about ATT&CK collections, see the corresponding
 
 **Collections Scripts**
 
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - script
      - description
    * - `index_to_markdown <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py>`_ 

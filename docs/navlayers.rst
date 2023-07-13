@@ -41,12 +41,20 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Manipulator Scripts
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - script
      - description
    * - `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_
      - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. 
 
 **Exporter Scripts
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
 
    * - script
      - description
@@ -59,6 +67,10 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Generator Scripts
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - script
      - description
    * - `overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_
@@ -69,6 +81,10 @@ and version 4.X layers, upgrading them to version 4.3.
      - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. 
 
 **Utility Modules
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
 
    * - script
      - description
@@ -83,6 +99,10 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Command Line Tools
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - script
      - description
    * - `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_
@@ -96,6 +116,10 @@ The `Layer` class provides format validation and read/write capabilities to aid 
 It is the primary interface through which other Layer-related classes defined in the core module should be used.
 The Layer class API and a usage example are below.
 The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
 
    * - method [x = Layer()]
      - description
@@ -313,6 +337,10 @@ The config object should be provided to the `ToSvg` object during instantiation,
 the currently loaded configuration can be interacted with at `ToSvg().config`.
 The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method,
 or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
 
    * - attribute
      - description

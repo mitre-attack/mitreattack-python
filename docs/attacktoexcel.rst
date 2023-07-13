@@ -44,6 +44,10 @@ attackToExcel provides the means by which to convert/extract the ATT&CK STIX dat
 overview of the available methods follows.
 
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
    * - method name
      - arguments
      - usage
@@ -65,6 +69,9 @@ overview of the available methods follows.
 stixToDf provides various methods to process and manipulate the STIX data in order to create [Pandas](https://pandas.pydata.org/) DataFrames for
 processing. A brief overview of these methods follows.
 
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
 
    * - method name
      - arguments
