@@ -100,7 +100,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Command Line Tools
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50 100
    :header-rows: 1
 
    * - script
