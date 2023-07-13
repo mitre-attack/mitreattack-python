@@ -82,20 +82,20 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Utility Modules
 
-.. list-table:: Title
-   :widths: 25 25 50
-   :header-rows: 1
+  .. list-table:: Title
+    :widths: 25 25 50
+    :header-rows: 1
 
-    * - script
-      - description
-    * - `excel_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py>`_ 
-      - Provides a means by which to convert a matrix into a clean excel matrix template. 
-    * - `matrix_gen <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py>`_
-      - Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). 
-    * - `svg_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py>`_
-      - Provides a means by which to convert a layer file into a marked up svg file.
-    * - `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ 
-     - Provides raw templates and supporting functionality for generating svg objects.
+      * - script
+        - description
+      * - `excel_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py>`_ 
+        - Provides a means by which to convert a matrix into a clean excel matrix template. 
+      * - `matrix_gen <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py>`_
+        - Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). 
+      * - `svg_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py>`_
+        - Provides a means by which to convert a layer file into a marked up svg file.
+      * - `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ 
+      - Provides raw templates and supporting functionality for generating svg objects.
 
 **Command Line Tools
 
