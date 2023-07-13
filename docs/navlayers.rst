@@ -102,13 +102,12 @@ and version 4.X layers, upgrading them to version 4.3.
 .. list-table:: Title
    :widths: 50 50 100
    :header-rows: 1
-
-   * - script
-     - description
-   * - `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_
-     - A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. 
-   * - `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_
-     - A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. 
+    * - script
+      - description
+    * - `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_
+      - A commandline utility to export Layer files to excel or svg formats using the exporter tools. Run with `-h` for usage. 
+    * - `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_
+      - A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. 
 
 **Layer
 
