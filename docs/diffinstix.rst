@@ -125,7 +125,7 @@ A brief explanation of key pieces can be found below.
      - ATT&CK objects which are no longer found in the STIX data. This should almost never happen.     
 
 
-**Changed Objects
+**Changed Objects**
 
 The bulk of the changelog file consists of lists of JSON objects.
 If you are familiar with reading the STIX format, they may look famliar, yet a little "off".
