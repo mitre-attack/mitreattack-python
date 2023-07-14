@@ -93,7 +93,7 @@ A brief explanation of key pieces can be found below.
 * The following table helps break down the change types that are currently tracked.
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 33 33 34
    :header-rows: 1
 
    * - field 
@@ -134,7 +134,7 @@ For example, objects that are brand new do not have `previous_version` available
 The following table lists the extra fields that can be found in objects in the changelog.
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 25 25 25 25
    :header-rows: 1
    
    * - Field

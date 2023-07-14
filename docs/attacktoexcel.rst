@@ -45,7 +45,7 @@ overview of the available methods follows.
 
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 33 33 34
    :header-rows: 1
 
    * - method name
@@ -70,7 +70,7 @@ stixToDf provides various methods to process and manipulate the STIX data in ord
 processing. A brief overview of these methods follows.
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 33 33 34
    :header-rows: 1
 
    * - method name

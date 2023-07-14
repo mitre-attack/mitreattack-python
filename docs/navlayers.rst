@@ -17,7 +17,7 @@ and version 4.X layers, upgrading them to version 4.3.
 ## Core Modules
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
    * - script
@@ -42,7 +42,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Manipulator Scripts
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
    * - script
@@ -53,7 +53,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Exporter Scripts
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
    * - script
@@ -68,7 +68,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Generator Scripts
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
    * - script
@@ -83,7 +83,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Utility Modules
 
   .. list-table:: Title
-    :widths: 25 25 50
+    :widths: 50 50
     :header-rows: 1
 
       * - script
@@ -100,7 +100,7 @@ and version 4.X layers, upgrading them to version 4.3.
 **Command Line Tools
 
 .. list-table:: Title
-   :widths: 50 50 100
+   :widths: 50 50 
    :header-rows: 1
     * - script
       - description
@@ -117,7 +117,7 @@ The Layer class API and a usage example are below.
 The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
    * - method [x = Layer()]
@@ -338,7 +338,7 @@ The configuration can also be populated from a json file using the `.load_from_f
 or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 25 25 25 25
    :header-rows: 1
 
    * - attribute
