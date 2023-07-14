@@ -82,7 +82,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Utility Modules
 
-  .. list-table::  
+.. list-table::  
     :widths: 50 50
     :header-rows: 1
 
