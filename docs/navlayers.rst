@@ -95,7 +95,7 @@ and version 4.X layers, upgrading them to version 4.3.
       * - `svg_templates <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py>`_
         - Provides a means by which to convert a layer file into a marked up svg file.
       * - `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ 
-      - Provides raw templates and supporting functionality for generating svg objects.
+        - Provides raw templates and supporting functionality for generating svg objects.
 
 **Command Line Tools
 
