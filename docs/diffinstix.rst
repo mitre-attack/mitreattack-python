@@ -133,7 +133,7 @@ That is because there are a few fields that have been added in some cases depend
 For example, objects that are brand new do not have `previous_version` available to them.
 The following table lists the extra fields that can be found in objects in the changelog.
 
-.. list-table:: Title
+.. list-table:: 
    :widths: 25 25 25 25
    :header-rows: 1
    

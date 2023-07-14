@@ -69,7 +69,7 @@ overview of the available methods follows.
 stixToDf provides various methods to process and manipulate the STIX data in order to create [Pandas](https://pandas.pydata.org/) DataFrames for
 processing. A brief overview of these methods follows.
 
-.. list-table:: Title
+.. list-table:: 
    :widths: 33 33 34
    :header-rows: 1
 

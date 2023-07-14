@@ -16,7 +16,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 ## Core Modules
 
-.. list-table:: Title
+.. list-table::  
    :widths: 50 50
    :header-rows: 1
 
@@ -41,7 +41,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Manipulator Scripts
 
-.. list-table:: Title
+.. list-table::  
    :widths: 50 50
    :header-rows: 1
 
@@ -52,7 +52,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Exporter Scripts
 
-.. list-table:: Title
+.. list-table::  
    :widths: 50 50
    :header-rows: 1
 
@@ -67,7 +67,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Generator Scripts
 
-.. list-table:: Title
+.. list-table:: 
    :widths: 50 50
    :header-rows: 1
 
@@ -82,7 +82,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Utility Modules
 
-  .. list-table:: Title
+  .. list-table::  
     :widths: 50 50
     :header-rows: 1
 
@@ -99,7 +99,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Command Line Tools
 
-.. list-table:: Title
+.. list-table::  
    :widths: 50 50 
    :header-rows: 1
     * - script
@@ -116,7 +116,7 @@ It is the primary interface through which other Layer-related classes defined in
 The Layer class API and a usage example are below.
 The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
 
-.. list-table:: Title
+.. list-table::  
    :widths: 50 50
    :header-rows: 1
 
@@ -337,7 +337,7 @@ the currently loaded configuration can be interacted with at `ToSvg().config`.
 The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method,
 or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 
-.. list-table:: Title
+.. list-table::  
    :widths: 25 25 25 25
    :header-rows: 1
 

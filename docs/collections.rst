@@ -10,7 +10,7 @@ For more information about ATT&CK collections, see the corresponding
 **Collections Scripts**
 
 
-.. list-table:: Title
+.. list-table:: 
    :widths: 50 50
    :header-rows: 1
 
