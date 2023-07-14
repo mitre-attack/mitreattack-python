@@ -39,7 +39,7 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `versions <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/versions.py>`_
      - Implements a basic `versions object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties>`_
 
-**Manipulator Scripts
+**Manipulator Scripts**
 
 .. list-table::  
    :widths: 50 50
@@ -50,7 +50,7 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_
      - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. 
 
-**Exporter Scripts
+**Exporter Scripts**
 
 .. list-table::  
    :widths: 50 50
@@ -65,7 +65,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 
 
-**Generator Scripts
+**Generator Scripts**
 
 .. list-table:: 
    :widths: 50 50
@@ -80,7 +80,7 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ 
      - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. 
 
-**Utility Modules
+**Utility Modules**
 
 .. list-table::  
     :widths: 50 50
@@ -97,7 +97,7 @@ and version 4.X layers, upgrading them to version 4.3.
     * - `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ 
       - Provides raw templates and supporting functionality for generating svg objects.
 
-**Command Line Tools
+**Command Line Tools**
 
 .. list-table::  
    :widths: 50 50 
@@ -109,7 +109,7 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_
      - A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. 
 
-**Layer
+**Layer**
 
 The `Layer` class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python.
 It is the primary interface through which other Layer-related classes defined in the core module should be used.
@@ -173,14 +173,14 @@ Examples on how to create a layer programmatically, as opposed to loading it fro
     layer3.from_file(example_layer_location)        # Load layer data from a file into existing layer object
 
 
-**layerops.py
+**layerops.py**
 
 `Layerops.py` provides the `LayerOps` class, which is a way to combine layer files in an automated way, using user defined lambda functions.
 Each LayerOps instance, when created, ingests the provided lambda functions, and stores them for use.
 An existing `LayerOps` class can be used to combine layer files according to the initialized lambda using the process method.
 The breakdown of this two step process is documented in the table below, while examples of both the list and dictionary modes of operation can be found below.
 
-**# LayerOps()
+**# LayerOps()**
 
 .. code-block:: python
 
@@ -201,7 +201,7 @@ The process method applies the lambda functions stored during initialization to 
 _data_ must be either a list or a dictionary of Layer objects, and is expected to match the format of the lambda equations provided during initialization.
 `default_values` is an optional dictionary argument that overrides the currently stored default values with new ones for this specific processing operation.
 
-**# Example Usage
+**Example Usage**
 
 .. code-block:: python
     from mitreattack.navlayers.manipulators.layerops import LayerOps
@@ -250,13 +250,13 @@ _data_ must be either a list or a dictionary of Layer objects, and is expected t
     out_layer6.to_file("C:\demo_layer6.json")                     # Save combined comment layer to file
 
 
-**to_excel.py
+**to_excel.py**
 
 `to_excel.py` provides the `ToExcel` class, which is a way to export an existing layer file as an Excel spreadsheet.
 The `ToExcel` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
 Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
 
-**ToExcel()
+**ToExcel()**
 
 .. code-block:: python
     x = ToExcel(domain='enterprise', source='taxii', resource=None)
@@ -271,7 +271,7 @@ it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path
 to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
 
-**.to_xlsx() Method
+**.to_xlsx() Method**
 
 .. code-block:: python
 x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
@@ -279,7 +279,7 @@ x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
 
 The `to_xlsx` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
-**# Example Usage
+**Example Usage**
 
 .. code-block:: python
 from mitreattack.navlayers import Layer
@@ -298,14 +298,14 @@ from mitreattack.navlayers import ToExcel
     t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
 
 
-**to_svg.py
+**to_svg.py**
 
 `to_svg.py` provides the `ToSvg` class, which is a way to export an existing layer file as an SVG image file.
 The `ToSvg` class, like the `ToExcel` class, has an optional parameter for the initialization function,
 that tells the exporter what data source to use when building the output matrix.
 Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
 
-**ToSvg()
+**ToSvg()**
 
 .. code-block:: python
     x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
@@ -321,7 +321,7 @@ or if the source is set to `remote`, in which case it should be the url of an AT
 The `config` parameter is an optional `SVGConfig` object that can be used to configure the export as desired.
 If not provided, the configuration for the export will be set to default values.
 
-**SVGConfig()
+**SVGConfig()**
 
 .. code-block:: python
     y = SVGConfig(width=8.5, height=11, headerHeight=1, unit="in", showSubtechniques="expanded",
@@ -418,14 +418,14 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
      - number 
      - 0.104 
 
-**.to_svg() Method
+**.to_svg() Method**
 
 .. code-block:: python
     x.to_svg(layerInit=layer, filepath="layer.svg")
 
 The `to_svg` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
-**# Example Usage
+**# Example Usage**
 
 .. code-block:: python
     from mitreattack.navlayers import Layer
