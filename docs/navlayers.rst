@@ -13,9 +13,6 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Core Modules**
 
-
-## Core Modules
-
 .. list-table::  
    :widths: 50 50
    :header-rows: 1
@@ -100,8 +97,9 @@ and version 4.X layers, upgrading them to version 4.3.
 **Command Line Tools**
 
 .. list-table::  
-   :widths: 50 50 
+   :widths: 50 50
    :header-rows: 1
+   
    * - script
      - description
    * - `layerExporter_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerExporter_cli.py>`_
