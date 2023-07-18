@@ -139,7 +139,7 @@ Examples on how to create a layer programmatically, as opposed to loading it fro
 **Example Usage**
 
 .. code-block:: python
-  
+
     example_layer3_dict = {
         "name": "example layer",
         "version": "3.0",
@@ -277,7 +277,7 @@ to a local stix bundle, or if the source is set to `remote`, in which case it sh
 
 .. code-block:: python
 
-x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
+  x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
 
 
 The `to_xlsx` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
