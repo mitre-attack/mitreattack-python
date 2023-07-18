@@ -56,7 +56,7 @@ Many users may opt to access the ATT&CK content via a local copy of the STIX dat
 - User can modify the ATT&CK content if desired
 - Downloaded copy is static, so updates to the ATT&CK catalog won't cause bugs in automated workflows. User can still manually update by cloning a fresh version of the data
 
-#### Access via FileSystemSource
+**Access via FileSystemSource**
 
 Each domain in this repo is formatted according to the [STIX2 FileSystem spec](https://stix2.readthedocs.io/en/latest/guide/filesystem.html).
 Therefore you can use a `FileSystemSource` to load a domain, for example to load the enterprise-attack domain:
@@ -91,11 +91,18 @@ Some users may instead prefer to access "live" ATT&CK content over the internet.
 
 Users can access the ATT&CK data from the official ATT&CK TAXII server. In TAXII, the ATT&CK domains are represented as collections with static IDs:
 
-| domain | collection ID |
-|:-------|:--------------|
-| `enterprise-attack` | `95ecc380-afe9-11e4-9b6c-751b66dd541e` |
-| `mobile-attack` | `2f669986-b40b-4423-b720-4396ca6a462b` |
-| `ics-attack` | `02c3ef24-9cd4-48f3-a99f-b74ce24f1d34` |
+.. list-table::  
+   :widths: 50 50
+   :header-rows: 1
+
+   * - domain
+     - collection ID
+   * - `enterprise-attack`
+     - `95ecc380-afe9-11e4-9b6c-751b66dd541e`
+   * - `mobile-attack` 
+     - `2f669986-b40b-4423-b720-4396ca6a462b`
+   * - `ics-attack`
+     - `02c3ef24-9cd4-48f3-a99f-b74ce24f1d34`
 
 You can also get a list of available collection from the server directly:
 
