@@ -470,14 +470,14 @@ of the specified ATT&CK object type (group, mitigation, etc.), and a comment tha
     x = OverviewLayerGenerator(source='taxii', domain='enterprise', resource=None)
 
 
-The initialization function for `OverviewLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
+The initialization function for ``OverviewLayerGenerator``, like ``ToSVG`` and ``ToExcel``, requires the specification of where
 to retrieve data from (taxii server etc.).
-The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The domain can be either ``enterprise``, ``mobile``, or ``ics``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
-The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
-or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+``taxii`` indicates that the tool should utilize the ``cti-taxii`` server when building the matrix,
+while the ``local`` option indicates that it should use a local bundle, and the ``remote`` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The ``resource`` argument is only required if the source is set to ``local``, in which case it should be a path to a local stix bundle,
+or if the source is set to ``remote``, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
 
 **.generate_layer()**
@@ -486,14 +486,14 @@ If not provided, the configuration for the generator will be set to default valu
     x.generate_layer(obj_type=object_type_name)
 
 
-The `generate_layer` function generates a layer, customized to the input `object_type_name`.
-Valid values include `group`, `mitigation`, `software`, and `datasource`.
+The ``generate_layer`` function generates a layer, customized to the input ``object_type_name``.
+Valid values include ``group``, ``mitigation``, ``software``, and ``datasource``.
 
 **usage_generator.py**
 
-`usage_ generator.py` provides the `UsageLayerGenerator` class, which is designed to allow users to
+``usage_ generator.py`` provides the ``UsageLayerGenerator`` class, which is designed to allow users to
 generate an ATT&CK layer that scores any relevant techniques that a given input ATT&CK object has.
-These objects can be any `group`, `software`, `mitigation`, or `data component`,
+These objects can be any ``group``, ``software``, ``mitigation``, or ``data component``,
 and can be referenced by ID or by any alias when provided to the generator.
 
 **UsageLayerGenerator()**
@@ -502,7 +502,7 @@ and can be referenced by ID or by any alias when provided to the generator.
     x = UsageLayerGenerator(source='taxii', domain='enterprise', resource=None)
 
 
-The initialization function for `UsageLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
+The initialization function for ``UsageLayerGenerator``, like ``ToSVG`` and ``ToExcel``, requires the specification of where
 to retrieve data from (taxii server etc.).
 The domain can be either ``enterprise``, ``mobile``, or ``ics``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
