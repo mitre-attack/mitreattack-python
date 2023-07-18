@@ -1624,5 +1624,45 @@ class MitreAttackData:
 
         return revoked_by[0]
 
-    def get_release_notes(self, enterprise_stix, mobile_stix, ics_stix):
-        return
+    def get_release_notes(self):
+        groups = self.remove_revoked_deprecated(self.get_groups())
+        software = self.remove_revoked_deprecated(self.get_software())
+        subtechniques = self.remove_revoked_deprecated(self.get_subtechniques())
+        tactics = self.remove_revoked_deprecated(self.get_tactics())
+        techniques = self.remove_revoked_deprecated(self.get_techniques())
+        campaigns = self.remove_revoked_deprecated(self.get_campaigns())
+        
+        ret = {}
+        ret["software"] = len(software)
+        ret["groups"] = len(groups)
+        ret["campaigns"] = len(campaigns)
+        ret["tactics"] = len(tactics)
+        ret["subtechniques"] = len(subtechniques)
+        ret["techniques"] = len(techniques) - ret["subtechniques"]
+   
+        return ret
+    
+    @staticmethod
+    def print_release_notes(enterprise_stix, mobile_stix, ics_stix):
+        enterprise = MitreAttackData(enterprise_stix).get_release_notes()
+        mobile = MitreAttackData(mobile_stix).get_release_notes()
+        ics = MitreAttackData(ics_stix).get_release_notes()
+        
+        software = enterprise["software"] + mobile["software"] + ics["software"]
+        campaigns = enterprise["campaigns"] + mobile["campaigns"] + ics["campaigns"]
+        groups = enterprise["groups"] + mobile["groups"] + ics["groups"]
+        
+        dictionary = {}
+        dictionary["Enterprise"] = enterprise
+        dictionary["Mobile"] = mobile
+        dictionary["ICS"] = ics
+        
+        print(f"This version of ATT&CK contains {software} Pieces of Software, {groups} Groups, and {campaigns} Campaigns")
+        print("Broken out by domain:\n")
+        for key, stix in dictionary.items():
+            print((f"-ATT&CK for {key} contains {stix['tactics']} "
+                   f"Tactics, {stix['techniques']} Techniques, "
+                   f"{stix['subtechniques']} Sub-Techniques, "
+                   f"{stix['groups']} Groups, {stix['campaigns']} "
+                   f"Campaigns, and {stix['software']} Pieces of Software."))
+        
