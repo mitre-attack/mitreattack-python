@@ -258,4 +258,4 @@ for backwards compatibility reasons.
     Metadiv().value      # Bool denoting active or not
     Metadiv().get_dict() # Export metadiv as a dictionary object
 
-A `Metadiv` object is simply a modified version of a `Metadata` object used as a visual divider.
+A ``Metadiv`` object is simply a modified version of a ``Metadata`` object used as a visual divider.
