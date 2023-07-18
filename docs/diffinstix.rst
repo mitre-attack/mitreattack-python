@@ -59,33 +59,33 @@ This is the overall structure you can expect to find in the file.
 A brief explanation of key pieces can be found below.
 
 .. code-block:: json
-    {
-      "enterprise-attack": {
-        "techniques": {
-            "additions": [],
-            "major_version_changes": [],
-            "minor_version_changes": [],
-            "other_version_changes": [],
-            "patches": [],
-            "revocations": [],
-            "deprecations": [],
-            "deletions": [],
-        },
-        "software": {},
-        "groups": {},
-        "campaigns": {},
-        "mitigations": {},
-        "datasources": {},
-        "datacomponents": {}
+  {
+    "enterprise-attack": {
+      "techniques": {
+          "additions": [],
+          "major_version_changes": [],
+          "minor_version_changes": [],
+          "other_version_changes": [],
+          "patches": [],
+          "revocations": [],
+          "deprecations": [],
+          "deletions": [],
       },
-      "mobile-attack": {},
-      "ics-attack": {},
-      "new-contributors": [
-        "Contributor A",
-        "Contributor B",
-        "Contributor C"
-      ]
-    }
+      "software": {},
+      "groups": {},
+      "campaigns": {},
+      "mitigations": {},
+      "datasources": {},
+      "datacomponents": {}
+    },
+    "mobile-attack": {},
+    "ics-attack": {},
+    "new-contributors": [
+      "Contributor A",
+      "Contributor B",
+      "Contributor C"
+    ]
+  }
 
 
 * The top-level objects include information about specific domains as well as `new-contributors`, which are only found in the newer ATT&CK release.
