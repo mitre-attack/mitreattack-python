@@ -136,7 +136,7 @@ The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will 
 Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
 `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md>`_.
 
-**Example Usage
+**Example Usage**
 
 .. code-block:: python
     example_layer3_dict = {
@@ -178,7 +178,7 @@ Each LayerOps instance, when created, ingests the provided lambda functions, and
 An existing `LayerOps` class can be used to combine layer files according to the initialized lambda using the process method.
 The breakdown of this two step process is documented in the table below, while examples of both the list and dictionary modes of operation can be found below.
 
-**# LayerOps()**
+**LayerOps()**
 
 .. code-block:: python
 
@@ -189,7 +189,7 @@ Each of the _inputs_ takes a lambda function that will be used to combine techni
 The one exception to this is _default_values_, which is an optional dictionary argument containing default values
 to provide the lambda functions if techniques of the combined layers are missing them.
 
-****.process() Method
+**.process() Method**
 
 .. code-block:: python
     x.process(data, default_values=default_values)

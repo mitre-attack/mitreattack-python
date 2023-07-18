@@ -28,25 +28,15 @@ other modules in this library under "Additional Modules".
 
 .. toctree::
    :maxdepth: 1
-   :caption: STIX Primer
-
-   stix_primer/access-attack
-   
-
-.. toctree::
-   :maxdepth: 1
    :caption: Additional Modules
-
-   additional_modules/navlayers
-   additional_modules/attackToExcel
-   additional_modules/collections
-   additional_modules/diffStix
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Additional Modules part 2
 
    diffinstix
    collections
    navlayers
    attacktoexcel
+
+.. toctree::
+   :maxdepth: 1
+   :caption: STIX Primer
+
+   stix_primer/access-attack
