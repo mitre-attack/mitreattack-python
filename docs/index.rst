@@ -33,6 +33,7 @@ other modules in this library under "Additional Modules".
    diffinstix
    collections
    navlayers
+   navlayercore
    attacktoexcel
 
 .. toctree::
