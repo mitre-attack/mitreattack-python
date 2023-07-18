@@ -12,6 +12,7 @@ Run `diff_stix -h` for full usage instructions.
 Print full usage instructions:
 
 .. code:: bash
+
   # You must run `pip install mitreattack-python` in order to access the diff_stix command
     diff_stix --help
     usage: diff_stix [-h] [--old OLD] [--new NEW] [--domains {enterprise-attack,mobile-attack,ics-attack} [{enterprise-attack,mobile-attack,ics-attack} ...]] [--markdown-file MARKDOWN_FILE] [--html-file         HTML_FILE] [--html-file-detailed HTML_FILE_DETAILED]
@@ -49,6 +50,7 @@ Print full usage instructions:
 Example execution:
 
 .. code:: bash
+  
   diff_stix -v --show-key --html-file output/changelog.html --html-file-detailed output/changelog-detailed.html --markdown-file output/changelog.md  --json-file output/changelog.json --layers output/layer-enterprise.json output/layer-mobile.json output/layer-ics.json --old path/to/old/stix/ --new path/to/new/stix/
 
 

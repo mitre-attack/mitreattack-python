@@ -139,6 +139,7 @@ Examples on how to create a layer programmatically, as opposed to loading it fro
 **Example Usage**
 
 .. code-block:: python
+  
     example_layer3_dict = {
         "name": "example layer",
         "version": "3.0",
@@ -192,6 +193,7 @@ to provide the lambda functions if techniques of the combined layers are missing
 **.process() Method**
 
 .. code-block:: python
+
     x.process(data, default_values=default_values)
 
 
@@ -202,6 +204,7 @@ _data_ must be either a list or a dictionary of Layer objects, and is expected t
 **Example Usage**
 
 .. code-block:: python
+
     from mitreattack.navlayers.manipulators.layerops import LayerOps
     from mitreattack.navlayers.core.layer import Layer
 
@@ -257,6 +260,7 @@ Valid options include using live data from cti-taxii.mitre.org, using a local ST
 **ToExcel()**
 
 .. code-block:: python
+
     x = ToExcel(domain='enterprise', source='taxii', resource=None)
 
 
@@ -272,16 +276,18 @@ to a local stix bundle, or if the source is set to `remote`, in which case it sh
 **.to_xlsx() Method**
 
 .. code-block:: python
+
 x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
-```
+
 
 The `to_xlsx` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
 **Example Usage**
 
 .. code-block:: python
-from mitreattack.navlayers import Layer
-from mitreattack.navlayers import ToExcel
+
+  from mitreattack.navlayers import Layer
+  from mitreattack.navlayers import ToExcel
 
     lay = Layer()
     lay.from_file("path/to/layer/file.json")
@@ -306,6 +312,7 @@ Valid options include using live data from cti-taxii.mitre.org, using a local ST
 **ToSvg()**
 
 .. code-block:: python
+
     x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
 
 
@@ -322,6 +329,7 @@ If not provided, the configuration for the export will be set to default values.
 **SVGConfig()**
 
 .. code-block:: python
+
     y = SVGConfig(width=8.5, height=11, headerHeight=1, unit="in", showSubtechniques="expanded",
                     font="sans-serif", tableBorderColor="#6B7279", showHeader=True, legendDocked=True,
                     legendX=0, legendY=0, legendWidth=2, legendHeight=1, showLegend=True, showFilters=True,
@@ -419,13 +427,15 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 **.to_svg() Method**
 
 .. code-block:: python
+
     x.to_svg(layerInit=layer, filepath="layer.svg")
 
 The `to_svg` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
 
-**# Example Usage**
+**Example Usage**
 
 .. code-block:: python
+
     from mitreattack.navlayers import Layer
     from mitreattack.navlayers import ToSvg, SVGConfig
 
@@ -456,6 +466,7 @@ of the specified ATT&CK object type (group, mitigation, etc.), and a comment tha
 **OverviewLayerGenerator()**
 
 .. code-block:: python
+
     x = OverviewLayerGenerator(source='taxii', domain='enterprise', resource=None)
 
 
@@ -564,6 +575,7 @@ Details about the SVG configuration json mentioned below can be found in the
 entry within the navlayers module documentation.
 
 .. code:: bash
+
     C:\Users\attack>layerExporter_cli -h
     usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local,remote}]
                                 [--resource RESOURCE] -o OUTPUT [OUTPUT ...]
@@ -602,6 +614,7 @@ layer files from either a specific group, software, or mitigation. Alternatively
 mapping to all associated groups, software, or mitigations across the techniques within ATT&CK.
 
 .. code:: bash
+
     C:\Users\attack>layerGenerator_cli -h
     usage: layerGenerator_cli [-h]
                                 (--overview-type {group,software,mitigation,datasource} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation,datasource})
