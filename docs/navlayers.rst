@@ -109,7 +109,7 @@ and version 4.X layers, upgrading them to version 4.3.
 
 **Layer**
 
-The `Layer` class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python.
+The ``Layer`` class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python.
 It is the primary interface through which other Layer-related classes defined in the core module should be used.
 The Layer class API and a usage example are below.
 The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will upgrade version 3 layers into compatible version 4 ones whenever possible.
@@ -120,17 +120,17 @@ The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will 
 
    * - method [x = Layer()]
      - description
-   * - `x.from_str(_input_)` 
+   * - ``x.from_str(_input_)``
      - Loads an ATT&CK layer from a string representation of a json layer.
-   * - `x.from_dict(_input_)`
+   * - ``x.from_dict(_input_)``
      - Loads an ATT&CK layer from a dictionary.
-   * - `x.from_file(_filepath_)`
+   * - ``x.from_file(_filepath_)``
      - Loads an ATT&CK layer from a file location specified by the _filepath_.
-   * - `x.to_file(_filepath_)`
+   * - ``x.to_file(_filepath_)``
      - Saves the current state of the loaded ATT&CK layer to a json file denoted by the _filepath_.
-   * - `x.to_dict()`
+   * - ``x.to_dict()``
      - Returns a representation of the current ATT&CK layer object as a dictionary. 
-   * - `x.to_str()`
+   * - ``x.to_str()``
      - Returns a representation of the current ATT&CK layer object as a string representation of a dictionary.
 
 Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
@@ -174,9 +174,9 @@ Examples on how to create a layer programmatically, as opposed to loading it fro
 
 **layerops.py**
 
-`Layerops.py` provides the `LayerOps` class, which is a way to combine layer files in an automated way, using user defined lambda functions.
+``Layerops.py`` provides the ``LayerOps`` class, which is a way to combine layer files in an automated way, using user defined lambda functions.
 Each LayerOps instance, when created, ingests the provided lambda functions, and stores them for use.
-An existing `LayerOps` class can be used to combine layer files according to the initialized lambda using the process method.
+An existing ``LayerOps`` class can be used to combine layer files according to the initialized lambda using the process method.
 The breakdown of this two step process is documented in the table below, while examples of both the list and dictionary modes of operation can be found below.
 
 **LayerOps()**
@@ -199,7 +199,7 @@ to provide the lambda functions if techniques of the combined layers are missing
 
 The process method applies the lambda functions stored during initialization to the layer objects in _data_.
 _data_ must be either a list or a dictionary of Layer objects, and is expected to match the format of the lambda equations provided during initialization.
-`default_values` is an optional dictionary argument that overrides the currently stored default values with new ones for this specific processing operation.
+``default_values`` is an optional dictionary argument that overrides the currently stored default values with new ones for this specific processing operation.
 
 **Example Usage**
 
@@ -253,8 +253,8 @@ _data_ must be either a list or a dictionary of Layer objects, and is expected t
 
 **to_excel.py**
 
-`to_excel.py` provides the `ToExcel` class, which is a way to export an existing layer file as an Excel spreadsheet.
-The `ToExcel` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
+``to_excel.py`` provides the ``ToExcel`` class, which is a way to export an existing layer file as an Excel spreadsheet.
+The ``ToExcel`` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
 Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
 
 **ToExcel()**
@@ -264,14 +264,14 @@ Valid options include using live data from cti-taxii.mitre.org, using a local ST
     x = ToExcel(domain='enterprise', source='taxii', resource=None)
 
 
-The `ToExcel` constructor takes domain, server, and resource arguments during instantiation.
-The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
+The ``ToExcel`` constructor takes domain, server, and resource arguments during instantiation.
+The domain can be either ``enterprise`` or ``mobile``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that
+``taxii`` indicates that the tool should utilize the official ATT&CK Taxii Server (``cti-taxii``) when building the matrix,
+while the ``local`` option indicates that it should use a local bundle, and the ``remote`` option indicates that
 it should utilize a remote ATT&CK Workbench instance.
-The `resource` argument is only required if the source is set to `local`, in which case it should be a path
-to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
+The ``resource`` argument is only required if the source is set to ``local``, in which case it should be a path
+to a local stix bundle, or if the source is set to ``remote``, in which case it should be the url of a ATT&CK workbench instance.
 
 **.to_xlsx() Method**
 
@@ -280,7 +280,7 @@ to a local stix bundle, or if the source is set to `remote`, in which case it sh
   x.to_xlsx(layerInit=layer, filepath="layer.xlsx")
 
 
-The `to_xlsx` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
+The ``to_xlsx`` method exports the layer file referenced as ``layer``, as an excel file to the ``filepath`` specified.
 
 **Example Usage**
 
@@ -304,8 +304,8 @@ The `to_xlsx` method exports the layer file referenced as `layer`, as an excel f
 
 **to_svg.py**
 
-`to_svg.py` provides the `ToSvg` class, which is a way to export an existing layer file as an SVG image file.
-The `ToSvg` class, like the `ToExcel` class, has an optional parameter for the initialization function,
+``to_svg.py`` provides the ``ToSvg`` class, which is a way to export an existing layer file as an SVG image file.
+The ``ToSvg`` class, like the ``ToExcel`` class, has an optional parameter for the initialization function,
 that tells the exporter what data source to use when building the output matrix.
 Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
 
@@ -316,14 +316,14 @@ Valid options include using live data from cti-taxii.mitre.org, using a local ST
     x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
 
 
-The `ToSvg` constructor, just like the `ToExcel` constructor, takes domain, server, and resource arguments during instantiation.
-The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
+The ``ToSvg`` constructor, just like the ``ToExcel`` constructor, takes domain, server, and resource arguments during instantiation.
+The domain can be either ``enterprise`` or ``mobile``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
-The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
-or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
-The `config` parameter is an optional `SVGConfig` object that can be used to configure the export as desired.
+``taxii`` indicates that the tool should utilize the ``cti-taxii`` server when building the matrix,
+while the ``local`` option indicates that it should use a local bundle, and the ``remote`` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The ``resource`` argument is only required if the source is set to ``local``, in which case it should be a path to a local stix bundle,
+or if the source is set to ``remote``, in which case it should be the url of an ATT&CK Workbench instance.
+The ``config`` parameter is an optional ``SVGConfig`` object that can be used to configure the export as desired.
 If not provided, the configuration for the export will be set to default values.
 
 **SVGConfig()**
@@ -336,12 +336,12 @@ If not provided, the configuration for the export will be set to default values.
                     showAbout=True, showDomain=True, border=0.104)
 
 
-The `SVGConfig` object is used to configure how an SVG export behaves.
+The ``SVGConfig`` object is used to configure how an SVG export behaves.
 The defaults for each of the available values can be found in the declaration above, and a brief explanation for each field is included in the table below.
-The config object should be provided to the `ToSvg` object during instantiation, but if values need to be updated on the fly,
-the currently loaded configuration can be interacted with at `ToSvg().config`.
-The configuration can also be populated from a json file using the `.load_from_file(filename="path/to/file.json")` method,
-or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
+The config object should be provided to the ``ToSvg`` object during instantiation, but if values need to be updated on the fly,
+the currently loaded configuration can be interacted with at ``ToSvg().config``.
+The configuration can also be populated from a json file using the ``.load_from_file(filename="path/to/file.json")`` method,
+or stored to one using the ``.save_to_file(filename="path/to/file.json)`` method.
 
 .. list-table::  
    :widths: 25 25 25 25
@@ -430,7 +430,7 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 
     x.to_svg(layerInit=layer, filepath="layer.svg")
 
-The `to_svg` method exports the layer file referenced as `layer`, as an excel file to the `filepath` specified.
+The ``to_svg`` method exports the layer file referenced as ``layer``, as an excel file to the ``filepath`` specified.
 
 **Example Usage**
 
@@ -459,7 +459,7 @@ The `to_svg` method exports the layer file referenced as `layer`, as an excel fi
 
 **overview_generator.py**
 
-`overview_generator.py` provides the `OverviewLayerGenerator` class, which is designed to allow users to
+``overview_generator.py`` provides the ``OverviewLayerGenerator`` class, which is designed to allow users to
 generate an ATT&CK layer that, on a per technique basis, has a score that corresponds to all instances
 of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance.
 
@@ -504,12 +504,12 @@ and can be referenced by ID or by any alias when provided to the generator.
 
 The initialization function for `UsageLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
 to retrieve data from (taxii server etc.).
-The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The domain can be either ``enterprise``, ``mobile``, or ``ics``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
-The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
-or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+``taxii`` indicates that the tool should utilize the ``cti-taxii`` server when building the matrix,
+while the ``local`` option indicates that it should use a local bundle, and the ``remote`` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The ``resource`` argument is only required if the source is set to ``local``, in which case it should be a path to a local stix bundle,
+or if the source is set to ``remote``, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
 
 **.generate_layer()**
@@ -519,8 +519,8 @@ If not provided, the configuration for the generator will be set to default valu
     x.generate_layer(match=object_identifier)
 
 
-The `generate_layer` function generates a layer, customized to the input `object_identifier`.
-Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mitigation`, `software`, and `data component` objects within the selected ATT&CK data.
+The ``generate_layer`` function generates a layer, customized to the input ``object_identifier``.
+Valid values include ``ATT&CK ID``, ``name``, or any known ``alias`` for ``group``, ``mitigation``, ``software``, and ``data component`` objects within the selected ATT&CK data.
 
 .. code-block:: python
 
@@ -534,7 +534,7 @@ Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mit
 
 **sum_generator.py**
 
-`sum_generator.py` provides the `SumLayerGenerator` class, which is designed to allow users to
+``sum_generator.py`` provides the ``SumLayerGenerator`` class, which is designed to allow users to
 generate a collection of ATT&CK layers that, on a per technique basis, have a score that corresponds to all instances
 of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance.
 Each one of the generated layers will correspond to a single instance of the specified ATT&CK object type.
@@ -546,14 +546,14 @@ Each one of the generated layers will correspond to a single instance of the spe
     x = SumLayerGenerator(source='taxii', domain='enterprise', resource=None)
 
 
-The initialization function for `SumGeneratorLayer`, like `ToSVG` and `ToExcel`, requires the specification of where
+The initialization function for ``SumGeneratorLayer``, like ``ToSVG`` and ``ToExcel``, requires the specification of where
 to retrieve data from (taxii server etc.).
-The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
+The domain can be either ``enterprise``, ``mobile``, or ``ics``, and can be pulled directly from a layer file as ``layer.domain``.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
-The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
-or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
+``taxii`` indicates that the tool should utilize the ``cti-taxii`` server when building the matrix,
+while the ``local`` option indicates that it should use a local bundle, and the ``remote`` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The ``resource`` argument is only required if the source is set to ``local``, in which case it should be a path to a local stix bundle,
+or if the source is set to ``remote``, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
 
 **.generate_layer()**
@@ -563,8 +563,8 @@ If not provided, the configuration for the generator will be set to default valu
     x.generate_layer(layers_type=object_type_name)
 
 
-The `generate_layer` function generates a collection of layers, each customized to one instance of the input `object_type_name`.
-Valid types include `group`, `mitigation`, `software`, and `datasource`.
+The ``generate_layer`` function generates a collection of layers, each customized to one instance of the input ``object_type_name``.
+Valid types include ``group``, ``mitigation``, ``software``, and ``datasource``.
 
 **layerExporter_cli.py**
 
