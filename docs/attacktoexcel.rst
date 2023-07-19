@@ -4,10 +4,11 @@ ATT&CK to Excel
 This folder contains a module for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets.
 It also provides a means to access ATT&CK data as [Pandas](https://pandas.pydata.org/) DataFrames for data analysis.
 
-Usage
+Usage:
 -----
 
-**Command Line**
+Command Line
+-----
 
 Print full usage instructions:
 
@@ -30,7 +31,8 @@ Build a excel files corresponding to a specific domain and version of ATT&CK:
     python3 attackToExcel -domain mobile-attack -version v5.0
 
 
-**Module**
+Module
+-----
 
 Example execution targeting a specific domain and version:
 
@@ -41,9 +43,11 @@ Example execution targeting a specific domain and version:
     attackToExcel.export("mobile-attack", "v5.0", "/path/to/export/folder")
 
 
-**Interfaces**
+Interfaces:
+-----
 
-**attackToExcel**
+attackToExcel
+-----
 
 attackToExcel provides the means by which to convert/extract the ATT&CK STIX data to Excel spreadsheets. A brief
 overview of the available methods follows.
@@ -69,7 +73,8 @@ overview of the available methods follows.
      - `domain`: the domain of ATT&CK to download <br> `version`: optional parameter specifying which version of ATT&CK to download <br> `output_dir`: optional parameter specifying output directory
      - Downloads ATT&CK data from MITRE/CTI and exports it to Excel spreadsheets
 
-**stixToDf**
+stixToDf
+-----
 
 stixToDf provides various methods to process and manipulate the STIX data in order to create [Pandas](https://pandas.pydata.org/) DataFrames for
 processing. A brief overview of these methods follows.
@@ -104,7 +109,8 @@ processing. A brief overview of these methods follows.
      - Parses STIX matrices from the provided data and returns a parsed matrix structure of the form `[{matrix, name, description, merge, border}, ...]`
 
 
-**Spreadsheet format**
+Spreadsheet format
+-----
 
 The Excel representation of the ATT&CK dataset includes both master spreadsheets,
 containing all object types, and individual spreadsheets for each object type.
@@ -116,7 +122,8 @@ A citations sheet can be used to look up the in-text citations which appear in s
 For domains that include multiple matrices, such as Mobile ATT&CK, each matrix gets its own named sheet.
 Unlike the STIX dataset, objects that have been revoked or deprecated are not included in the spreadsheets.
 
-**Accessing the Pandas DataFrames**
+Accessing the Pandas DataFrames
+-----
 
 Internally, attackToExcel stores the parsed STIX data as [Pandas](https://pandas.pydata.org/) DataFrames.
 These can be retrieved for use in data analysis.

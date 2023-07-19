@@ -3,9 +3,10 @@ Getting started
 ==============================================
 
 This repository contains a library of Python tools and utilities for working with ATT&CK data. For more information,
-see the [full documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDocs.
+see the `full documentation <https://mitreattack-python.readthedocs.io/>`_ on ReadTheDocs.
 
-**Install**
+Install
+-----
 
 To use this package, install the mitreattack-python library with [pip](https://pip.pypa.io/en/stable/):
 
@@ -15,13 +16,15 @@ To use this package, install the mitreattack-python library with [pip](https://p
 
 Note: the library requires [python3](https://www.python.org/).
 
-**MitreAttackData Library**
+MitreAttackData Library
+------------------------
 
 The ``MitreAttackData`` library is used to read in and work with MITRE ATT&CK STIX 2.0 content. This library provides 
 the ability to query the dataset for objects and their related objects. This is the main content of mitreattack-python;
 you can read more about other modules in this library under "Additional Modules".
 
-**Additional Modules**
+Additional Modules
+------------------------
 
 More detailed information and examples about the specific usage of the additional modules in this package can be found in the individual README files for each module linked below.
 
@@ -47,17 +50,20 @@ More detailed information and examples about the specific usage of the additiona
      - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/diffStix/README.md>`_
 
 
-**Related MITRE Work**
+Related MITRE Work
+------------------------
 
 Go to `this link <https://mitreattack-python.readthedocs.io/en/latest/related_work.html>`_ for related MITRE work.
 
 
-**Contributing**
+Contributing
+------------------------
 
 To contribute to this project, either through a bug report, feature request, or merge request,
 please see the `Contributors Guide <https://github.com/mitre-attack/mitreattack-python/blob/master/docs/CONTRIBUTING.md>`_.
 
-**Notice**
+Notice
+------------------------
 
 Copyright 2023 The MITRE Corporation
 
@@ -77,4 +83,4 @@ limitations under the License.
 
 This project makes use of ATT&CK®
 
-[ATT&CK Terms of Use](https://attack.mitre.org/resources/terms-of-use/)
+`ATT&CK Terms of Use <https://attack.mitre.org/resources/terms-of-use/>`_

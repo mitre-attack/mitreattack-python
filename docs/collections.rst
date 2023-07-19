@@ -7,7 +7,8 @@ Collections are sets of ATT&CK STIX objects, grouped for user convienence.
 For more information about ATT&CK collections, see the corresponding
 `ATT&CK documentation <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_.
 
-**Collections Scripts**
+Collections Scripts
+------------------------
 
 
 .. list-table:: 
@@ -55,7 +56,8 @@ into a single `collection index <https://github.com/center-for-threat-informed-d
 The `CollectionToIndex` class contains the `generate_index` function, which when provided with a name, description, root url (pointing to where the raw collections are stored),
 and a list of either files, folders, or already loaded bundles in the form of dictionaries, will create a summarizing index.
 
-**Example Usage**
+Example Usage
+---------------
 
     .. code-block:: python
         
@@ -87,7 +89,8 @@ existing stix bundles into ones containing a
 The `STIXToCollection` class contains the `stix_to_collection` function, which when provided with a starter bundle,
 a name, a version, and an optional description, will output a modified bundle that contains a summary collection object.
 
-**Example Usage**
+Example Usage
+--------------
 
 .. code-block:: python
 

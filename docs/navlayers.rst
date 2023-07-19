@@ -11,7 +11,8 @@ All scripts adhere to the MITRE ATT&CK Navigator Layer file format,
 but will accept legacy `version 3.0 <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md>`_
 and version 4.X layers, upgrading them to version 4.3.
 
-**Core Modules**
+Core Modules
+------------------------
 
 .. list-table::  
    :widths: 50 50
@@ -36,7 +37,8 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `versions <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/versions.py>`_
      - Implements a basic `versions object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#versions-object-properties>`_
 
-**Manipulator Scripts**
+Manipulator Scripts
+------------------------
 
 .. list-table::  
    :widths: 50 50
@@ -47,7 +49,8 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_
      - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. 
 
-**Exporter Scripts**
+Exporter Scripts
+------------------------
 
 .. list-table::  
    :widths: 50 50
@@ -62,7 +65,8 @@ and version 4.X layers, upgrading them to version 4.3.
 
 
 
-**Generator Scripts**
+Generator Scripts
+------------------------
 
 .. list-table:: 
    :widths: 50 50
@@ -77,7 +81,8 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ 
      - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. 
 
-**Utility Modules**
+Utility Modules
+------------------------
 
 .. list-table::  
     :widths: 50 50
@@ -94,7 +99,8 @@ and version 4.X layers, upgrading them to version 4.3.
     * - `svg_objects <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py>`_ 
       - Provides raw templates and supporting functionality for generating svg objects.
 
-**Command Line Tools**
+Command Line Tools
+------------------------
 
 .. list-table::  
    :widths: 50 50
@@ -107,7 +113,8 @@ and version 4.X layers, upgrading them to version 4.3.
    * - `layerGenerator_cli.py <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/layerGenerator_cli.py>`_
      - A commandline utility to generate Layer files that correspond to various and collections of various stix objects. Run with `-h` for usage. 
 
-**Layer**
+Layer
+------------------------
 
 The ``Layer`` class provides format validation and read/write capabilities to aid in working with ATT&CK Navigator Layers in python.
 It is the primary interface through which other Layer-related classes defined in the core module should be used.
@@ -136,7 +143,8 @@ The class currently supports version 3 and 4 of the ATT&CK Layer spec, and will 
 Examples on how to create a layer programmatically, as opposed to loading it from an existing medium, can be found
 `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/README.md>`_.
 
-**Example Usage**
+Example Usage
+------------------------
 
 .. code-block:: python
 
@@ -282,7 +290,8 @@ to a local stix bundle, or if the source is set to ``remote``, in which case it 
 
 The ``to_xlsx`` method exports the layer file referenced as ``layer``, as an excel file to the ``filepath`` specified.
 
-**Example Usage**
+Example Usage
+------------------------
 
 .. code-block:: python
 
@@ -432,7 +441,8 @@ or stored to one using the ``.save_to_file(filename="path/to/file.json)`` method
 
 The ``to_svg`` method exports the layer file referenced as ``layer``, as an excel file to the ``filepath`` specified.
 
-**Example Usage**
+Example Usage
+--------------
 
 .. code-block:: python
 

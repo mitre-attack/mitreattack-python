@@ -20,7 +20,9 @@ object breakdown can be seen here (please note there are other fields, these are
             |---> demo.layer.metadata (List of Metadata instances)-------> A collection of metadata objects
 
 
-**Creating Layers Programmatically**
+Creating Layers Programmatically
+------------------------
+
 With knowledge of the objects involved, as well as the additional fields (which have a 1:1 mapping with the 
 default ATT&CK Navigator spec), it is possible to programmatically generate a layer. Below is an example of
 how this might be accomplished, piece by piece.
@@ -142,7 +144,9 @@ produce equivalent internal layers once completed.
 
 
 
-**Object Documentation**
+Object Documentation
+------------------------
+
 Should it be helpful, the following section provides a breakdown of the available fields and methods for 
 each of the objects in the Core. This only includes 'public' methods and fields; there may be others used
 for processing and other functionality that are not documented here, though documentation does exist for these
