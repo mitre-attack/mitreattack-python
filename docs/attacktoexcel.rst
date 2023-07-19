@@ -7,24 +7,26 @@ It also provides a means to access ATT&CK data as [Pandas](https://pandas.pydata
 Usage
 -----
 
-Command Line
------
+**Command Line**
 
 Print full usage instructions:
 
 .. code:: bash
+
     python3 attackToExcel.py -h
 
 
 Example execution:
 
 .. code:: bash
+
     python3 attackToExcel.py
 
 
 Build a excel files corresponding to a specific domain and version of ATT&CK:
 
 .. code:: bash
+
     python3 attackToExcel -domain mobile-attack -version v5.0
 
 
@@ -33,6 +35,7 @@ Build a excel files corresponding to a specific domain and version of ATT&CK:
 Example execution targeting a specific domain and version:
 
 .. code-block:: python
+  
     import mitreattack.attackToExcel.attackToExcel as attackToExcel
 
     attackToExcel.export("mobile-attack", "v5.0", "/path/to/export/folder")
@@ -121,6 +124,7 @@ These can be retrieved for use in data analysis.
 Example of accessing [Pandas](https://pandas.pydata.org/) DataFrames:
 
 .. code-block:: python
+
     import mitreattack.attackToExcel.attackToExcel as attackToExcel
     import mitreattack.attackToExcel.stixToDf as stixToDf
 
