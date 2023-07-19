@@ -5,7 +5,8 @@ This folder contains a module for creating markdown, HTML, JSON and/or ATT&CK Na
 reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content.
 Run `diff_stix -h` for full usage instructions.
 
-**Usage**
+Usage
+-----
 
 **Command Line**
 
