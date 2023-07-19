@@ -2,8 +2,8 @@
 Getting started
 ==============================================
 
-This repository contains a library of Python tools and utilities for working with ATT&CK data. For more information,
-see the `full documentation <https://mitreattack-python.readthedocs.io/>`_ on ReadTheDocs.
+This repository houses the ATT&CK catalog's Cyber Threat Intelligence, represented in the STIX 2.0 JSON format. 
+Additionally, it includes a USAGE document that provides further examples for accessing and parsing our dataset using Python.
 
 Install
 -----
@@ -21,7 +21,7 @@ MitreAttackData Library
 
 The ``MitreAttackData`` library is used to read in and work with MITRE ATT&CK STIX 2.0 content. This library provides 
 the ability to query the dataset for objects and their related objects. This is the main content of mitreattack-python;
-you can read more about other modules in this library under "Additional Modules".
+you can read more about other modules in this library under the "Additional Modules" header in the side pane.
 
 Additional Modules
 ------------------------
