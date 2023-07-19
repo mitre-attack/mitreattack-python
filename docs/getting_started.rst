@@ -8,13 +8,14 @@ Additionally, it includes a USAGE document that provides further examples for ac
 Install
 -----
 
-To use this package, install the mitreattack-python library with [pip](https://pip.pypa.io/en/stable/):
+To use this package, install the mitreattack-python library with `pip <https://pip.pypa.io/en/stable/`_:
 
 .. code:: bash
+
    pip install mitreattack-python
 
 
-Note: the library requires [python3](https://www.python.org/).
+Note: the library requires `python3 <https://www.python.org/>`_.
 
 MitreAttackData Library
 ------------------------
