@@ -46,7 +46,7 @@ More detailed information and examples about the specific usage of the additiona
      - A set of utilities for working with `ATT&CK Collections and Collection Indexes <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md>`_. Provides functionalities for converting and summarizing data in collections and collection indexes, as well as generating a collection from a raw stix bundle input. 
      - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/README.md>`_.
    * - `diffStix <https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/diffStix>`_
-     -   Create markdown, HTML, JSON and/or ATT&CK Navigator layers reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content. Run `diff_stix -h` for full usage instructions. 
+     -   Create markdown, HTML, JSON and/or ATT&CK Navigator layers reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content. Run ``diff_stix -h`` for full usage instructions. 
      - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/diffStix/README.md>`_
 
 
