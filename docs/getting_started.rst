@@ -8,7 +8,7 @@ Additionally, it includes a USAGE document that provides further examples for ac
 Install
 -----
 
-To use this package, install the mitreattack-python library with `pip <https://pip.pypa.io/en/stable/`_:
+To use this package, install the mitreattack-python library with `pip <https://pip.pypa.io/en/stable/`_ :
 
 .. code:: bash
 
