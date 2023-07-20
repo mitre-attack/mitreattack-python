@@ -259,7 +259,8 @@ _data_ must be either a list or a dictionary of Layer objects, and is expected t
     out_layer6.to_file("C:\demo_layer6.json")                     # Save combined comment layer to file
 
 
-**to_excel.py**
+to_excel.py
+------------------------
 
 ``to_excel.py`` provides the ``ToExcel`` class, which is a way to export an existing layer file as an Excel spreadsheet.
 The ``ToExcel`` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
@@ -311,7 +312,8 @@ Example Usage
     t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
 
 
-**to_svg.py**
+to_svg.py
+------------------------
 
 ``to_svg.py`` provides the ``ToSvg`` class, which is a way to export an existing layer file as an SVG image file.
 The ``ToSvg`` class, like the ``ToExcel`` class, has an optional parameter for the initialization function,
@@ -467,7 +469,8 @@ Example Usage
     t3.to_svg(layerInit=lay, filepath="demo3.svg")
 
 
-**overview_generator.py**
+overview_generator.py
+------------------------
 
 ``overview_generator.py`` provides the ``OverviewLayerGenerator`` class, which is designed to allow users to
 generate an ATT&CK layer that, on a per technique basis, has a score that corresponds to all instances
@@ -499,7 +502,8 @@ If not provided, the configuration for the generator will be set to default valu
 The ``generate_layer`` function generates a layer, customized to the input ``object_type_name``.
 Valid values include ``group``, ``mitigation``, ``software``, and ``datasource``.
 
-**usage_generator.py**
+usage_generator.py
+------------------------
 
 ``usage_ generator.py`` provides the ``UsageLayerGenerator`` class, which is designed to allow users to
 generate an ATT&CK layer that scores any relevant techniques that a given input ATT&CK object has.
@@ -542,7 +546,8 @@ Valid values include ``ATT&CK ID``, ``name``, or any known ``alias`` for ``group
     layer2 = handle.generate_layer(match='Adups')
 
 
-**sum_generator.py**
+sum_generator.py
+------------------------
 
 ``sum_generator.py`` provides the ``SumLayerGenerator`` class, which is designed to allow users to
 generate a collection of ATT&CK layers that, on a per technique basis, have a score that corresponds to all instances
@@ -576,7 +581,8 @@ If not provided, the configuration for the generator will be set to default valu
 The ``generate_layer`` function generates a collection of layers, each customized to one instance of the input ``object_type_name``.
 Valid types include ``group``, ``mitigation``, ``software``, and ``datasource``.
 
-**layerExporter_cli.py**
+layerExporter_cli.py
+------------------------
 
 This command line tool allows users to convert a `navigator <https://github.com/mitre-attack/attack-navigator>`_
 layer file to either an svg image or excel file using the functionality provided by the navlayers module.
@@ -617,7 +623,8 @@ entry within the navlayers module documentation.
     C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json       
 
 
-**layerGenerator_cli.py**
+layerGenerator_cli.py
+------------------------
 
 This command line tool allows users to generate `ATT&CK Navigator <https://github.com/mitre-attack/attack-navigator>`_
 layer files from either a specific group, software, or mitigation. Alternatively, users can generate a layer file with a
