@@ -27,7 +27,7 @@ you can read more about other modules in this library under the "Additional Modu
 Additional Modules
 ------------------------
 
-More detailed information and examples about the specific usage of the additional modules in this package can be found in the individual README files for each module linked below.
+More detailed information and examples about the specific usage of the additional modules in this package can be found in the individual documents for each module linked below.
 
 
 .. list-table::  

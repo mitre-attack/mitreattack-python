@@ -1,8 +1,8 @@
 ATT&CK to Excel
 ==============================================
 
-ATT&CK to Excel contains a module for converting [ATT&CK STIX data](https://github.com/mitre/cti) to Excel spreadsheets.
-It also provides a means to access ATT&CK data as [Pandas](https://pandas.pydata.org/) DataFrames for data analysis.
+ATT&CK to Excel contains a module for converting `ATT&CK STIX data <https://github.com/mitre/cti>`_ to Excel spreadsheets.
+It also provides a means to access ATT&CK data as `Pandas <https://pandas.pydata.org/>`_ DataFrames for data analysis.
 
 Usage:
 -----
@@ -76,7 +76,7 @@ overview of the available methods follows.
 stixToDf
 -----
 
-stixToDf provides various methods to process and manipulate the STIX data in order to create [Pandas](https://pandas.pydata.org/) DataFrames for
+stixToDf provides various methods to process and manipulate the STIX data in order to create `Pandas <https://pandas.pydata.org/>`_ DataFrames for
 processing. A brief overview of these methods follows.
 
 .. list-table:: 
@@ -125,10 +125,10 @@ Unlike the STIX dataset, objects that have been revoked or deprecated are not in
 Accessing the Pandas DataFrames
 -----
 
-Internally, attackToExcel stores the parsed STIX data as [Pandas](https://pandas.pydata.org/) DataFrames.
+Internally, attackToExcel stores the parsed STIX data as `Pandas <https://pandas.pydata.org/>`_ DataFrames.
 These can be retrieved for use in data analysis.
 
-Example of accessing [Pandas](https://pandas.pydata.org/) DataFrames:
+Example of accessing `Pandas <https://pandas.pydata.org/>`_ DataFrames:
 
 .. code-block:: python
 

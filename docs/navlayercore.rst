@@ -2,7 +2,7 @@ Layers Core
 ===============
 
 This subcomponent, as part of the larger navlayers module, is responsible for Layer objects. Please note, this 
-documentation assumes familiarity with the [ATT&CK Navigator layer format](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md).
+documentation assumes familiarity with the `ATT&CK Navigator layer format <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md>`_.
 The main handle for this implementation is the Layer, which stores an individual instance of a LayerObj object,
 which further references the various sub-objects that make up a complete Layer. A visual representation of this
 object breakdown can be seen here (please note there are other fields, these are just the objects):
