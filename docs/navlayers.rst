@@ -25,7 +25,7 @@ Core Modules
    * - `gradient <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/gradient.py>`_ 
      - Implements a basic `gradient object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#gradient-object-properties>`_
    * - `layer <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layer.py>`_
-     - Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding [section] :ref:`Layer` below.
+     - Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding :ref:`Section<Layer>` below.
    * - `layout <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layout.py>`_
      - Implements a basic `layout object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#layout-object-properties>`_
    * - `legenditem <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/legenditem.py>`_ 
