@@ -8,7 +8,8 @@ Run `diff_stix -h` for full usage instructions.
 Usage
 -----
 
-**Command Line**
+Command Line
+-----
 
 Print full usage instructions:
 
@@ -55,7 +56,8 @@ Example execution:
   diff_stix -v --show-key --html-file output/changelog.html --html-file-detailed output/changelog-detailed.html --markdown-file output/changelog.md  --json-file output/changelog.json --layers output/layer-enterprise.json output/layer-mobile.json output/layer-ics.json --old path/to/old/stix/ --new path/to/new/stix/
 
 
-**Changelog JSON format**
+Changelog JSON format
+-----
 
 The changelog helper script has the option to output a JSON file with detailed differences between ATT&CK releases.
 This is the overall structure you can expect to find in the file.
@@ -128,7 +130,8 @@ A brief explanation of key pieces can be found below.
      - ATT&CK objects which are no longer found in the STIX data. This should almost never happen.     
 
 
-**Changed Objects**
+Changed Objects
+-----
 
 The bulk of the changelog file consists of lists of JSON objects.
 If you are familiar with reading the STIX format, they may look famliar, yet a little "off".
