@@ -4,7 +4,7 @@ Accessing ATT&CK data in python
 **Accessing ATT&CK data in python**
 
 There are several ways to acquire the ATT&CK data in Python. All of them will provide an object
-implementing the DataStore API and can be used interchangeably with the recipes provided in the [Python recipes](#Python-Recipes) section.
+implementing the DataStore API and can be used interchangeably with the recipes provided in the `STIX recipes <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/stix_primer/access-attack.html>`_ section.
 
 This section utilizes the `stix2 python library <https://github.com/oasis-open/cti-python-stix2>`_ . Please refer to the `STIX2 Python API Documentation <https://stix2.readthedocs.io/en/latest/>`_ for more information on how to work with STIX programmatically.
 
