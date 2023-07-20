@@ -25,7 +25,7 @@ Core Modules
    * - `gradient <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/gradient.py>`_ 
      - Implements a basic `gradient object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#gradient-object-properties>`_
    * - `layer <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layer.py>`_
-     - Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding :ref:`Section<Layer>` below.
+     - Provides an interface for interacting with core module's layer representation. A further breakdown can be found in the corresponding :ref:`section<Layer>` below.
    * - `layout <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/layout.py>`_
      - Implements a basic `layout object <https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#layout-object-properties>`_
    * - `legenditem <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/legenditem.py>`_ 
@@ -47,7 +47,7 @@ Manipulator Scripts
    * - script
      - description
    * - `layerops <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/manipulators/layerops.py>`_
-     - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding [section](#layerops.py) below. 
+     - Provides a means by which to combine multiple ATT&CK layer objects in customized ways. A further breakdown can be found in the corresponding :ref:`section<layerops.py>` below. 
 
 Exporter Scripts
 ------------------------
@@ -59,9 +59,9 @@ Exporter Scripts
    * - script
      - description
    * - `to_excel <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_excel.py>`_
-     - Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding [section](#to_excel.py) below.
+     - Provides a means by which to export an ATT&CK Layer to an excel file. A further breakdown can be found in the corresponding `section<to_excel.py>` below.
    * - `to_svg <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/to_svg.py>`_
-     - Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding [section](#to_svg.py) below. This file also contains the `SVGConfig` object that can be used to configure the SVG export.
+     - Provides a means by which to export an ATT&CK layer to an svg image file. A further breakdown can be found in the corresponding `section<to_svg.py` below. This file also contains the ``SVGConfig`` object that can be used to configure the SVG export.
 
 
 
@@ -75,11 +75,11 @@ Generator Scripts
    * - script
      - description
    * - `overview_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/overview_generator.py>`_
-     - Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding [section](#overview_generator.py) below. 
+     - Provides a means by which to generate an ATT&CK Layer that summarizes, on a per technique basis, all instances of a given ATT&CK object type that reference/utilize each technique. A further explanation can be found in the corresponding `section<overview_generator.py>` below. 
    * - `usage_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/usage_generator.py>`_ 
-     - Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding [section](#usage_generator.py) below.
+     - Provides a means by which to generate an ATT&CK Layer that summarizes the techniques associated with a given ATT&CK object. A further explanation can be found in the corresponding `section<usage_generator.py>` below.
    * - `sum_generator <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/generators/sum_generator.py>`_ 
-     - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding [section](#sum_generator.py) below. 
+     - Provides a means by which to generate a collection of ATT&CK Layers, one for each object in a given ATT&CK object class, that summarizes the coverage of that object. A further explanation can be found in the corresponding `section<sum_generator.py` below. 
 
 Utility Modules
 ------------------------
