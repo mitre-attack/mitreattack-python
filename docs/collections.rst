@@ -20,11 +20,12 @@ Collections Scripts
    * - `index_to_markdown <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/index_to_markdown.py>`_ 
      - Provides a means by which to convert a `collection index <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_ into a human-readable markdown file. More information can be found in the corresponding :ref:`index_to_markdown.py` below.
    * - `collection_to_index <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/collection_to_index.py>`_ 
-     - Provides a means by which to convert a `collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_ into a easy-to-share `index file <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_. More information can be found in the corresponding [section](#collection_to_index.py) below.
+     - Provides a means by which to convert a `collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_ into a easy-to-share `index file <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_. More information can be found in the corresponding :ref:`section<collection_to_index.py>` below.
    * - `stix_to_collection <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/stix_to_collection.py>`_ 
-     - Provides a means by which to convert raw stix (in the form of `bundles <https://docs.oasis-open.org/cti/stix/v2.1/cs01/stix-v2.1-cs01.html#_gms872kuzdmg>`_) into a `collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_. More information can be found in the corresponding [section](#stix_to_collection.py) below.
+     - Provides a means by which to convert raw stix (in the form of `bundles <https://docs.oasis-open.org/cti/stix/v2.1/cs01/stix-v2.1-cs01.html#_gms872kuzdmg>`_) into a `collection <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_. More information can be found in the corresponding :ref:`section<stix_to_collection.py>` below.
 
-**index_to_markdown.py**
+index_to_markdown.py
+------------------------
 
 `index_to_markdown.py` provides the `IndexToMarkdown` class, which provides a way to transform an existing
 `collection index file <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_
@@ -33,7 +34,8 @@ The `IndexToMarkdown` class is very simple, and provides a single method, `index
 which in turn only requires a single parameter - a dictionary representation of the desired index file to convert to markdown.
 An example of how to use the class, and method, can be found below.
 
-**Example Usage**
+Example Usage
+------------------------
 
     .. code-block:: python
         
@@ -48,7 +50,8 @@ An example of how to use the class, and method, can be found below.
         print(generated_md)
 
 
-**collection_to_index.py**
+collection_to_index.py
+------------------------
 
 `collection_to_index.py` provides the `CollectionToIndex` class, which proves a means by which to summarize existing
 `collections <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_
@@ -81,7 +84,8 @@ Example Usage
         print(output_indexC)
 
 
-**stix_to_collection.py**
+stix_to_collection.py
+------------------------
 
 `stix_to_collection.py` provides the `STIXToCollection` class, which proves a means by which to convert
 existing stix bundles into ones containing a

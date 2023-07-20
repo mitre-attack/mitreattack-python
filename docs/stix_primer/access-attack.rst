@@ -1,14 +1,13 @@
 Accessing ATT&CK data in python
 ===============
 
-**Accessing ATT&CK data in python**
-
 There are several ways to acquire the ATT&CK data in Python. All of them will provide an object
 implementing the DataStore API and can be used interchangeably with the recipes provided in the `STIX recipes <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/stix_primer/access-attack.html>`_ section.
 
 This section utilizes the `stix2 python library <https://github.com/oasis-open/cti-python-stix2>`_ . Please refer to the `STIX2 Python API Documentation <https://stix2.readthedocs.io/en/latest/>`_ for more information on how to work with STIX programmatically.
 
-**Requirements and imports**
+Requirements and imports
+----------------------
 
 Before installing requirements, we recommend setting up a virtual environment:
 
@@ -19,7 +18,8 @@ Before installing requirements, we recommend setting up a virtual environment:
     - macOS and Linux: ``source env/bin/activate``
     - Windows: ``env/Scripts/activate.bat``
 
-**stix2**
+stix2
+----------------------
 
 stix2 can be installed by following the instructions on their `repository <https://github.com/oasis-open/cti-python-stix2#installation>`_ . Imports for the recipes in this repository can be done from the base package, for example:
 
@@ -37,7 +37,8 @@ However, if you are aiming to extend the ATT&CK dataset with new objects or impl
 
 You can see a full list of the classes which have versioned imports `here <https://stix2.readthedocs.io/en/latest/api/stix2.v20.html>`_ .
 
-**taxii2client**
+taxii2client
+-------------
 
 taxii2-client can be installed by following the instructions on their `repository <https://github.com/oasis-open/cti-taxii-client#installation>`_ . The ATT&CK TAXII server implements the 2.0 version of the TAXII specification, but the default import of ``taxii2client`` (version 2.0.0 and above) uses the 2.1 version of the TAXII specification, which can lead to 406 responses when connecting to our TAXII server if not accounted for.
 
@@ -48,7 +49,8 @@ If the TAXII Client is getting a 406 Response, make sure you are running the lat
     from taxii2client.v20 import Collection
 
 
-**Access local content**
+Access local content
+--------------------
 
 Many users may opt to access the ATT&CK content via a local copy of the STIX data on this repo. This can be advantageous for several reasons:
 
@@ -56,7 +58,8 @@ Many users may opt to access the ATT&CK content via a local copy of the STIX dat
 - User can modify the ATT&CK content if desired
 - Downloaded copy is static, so updates to the ATT&CK catalog won't cause bugs in automated workflows. User can still manually update by cloning a fresh version of the data
 
-**Access via FileSystemSource**
+Access via FileSystemSource
+---------------------------
 
 Each domain in this repo is formatted according to the `STIX2 FileSystem spec <https://stix2.readthedocs.io/en/latest/guide/filesystem.html>`_ .
 Therefore you can use a ``FileSystemSource`` to load a domain, for example to load the enterprise-attack domain:
@@ -68,7 +71,8 @@ Therefore you can use a ``FileSystemSource`` to load a domain, for example to lo
 src = FileSystemSource('./cti/enterprise-attack')
 
 
-**Access via bundle**
+Access via bundle
+------------------
 
 If you instead prefer to download just the domain bundle, e.g `enterprise-attack.json <https://github.com/mitre/cti/blob/master/enterprise-attack/enterprise-attack.json>`_ , you can still load this using a MemoryStore:
 
@@ -80,14 +84,16 @@ If you instead prefer to download just the domain bundle, e.g `enterprise-attack
     src.load_from_file("enterprise-attack.json")
 
 
-**Access live content**
+Access live content
+-------------------
 
 Some users may instead prefer to access "live" ATT&CK content over the internet. This is advantageous for several reasons:
 
 - Always stays up to date with the evolving ATT&CK catalog
 - Doesn't require an initial download of the ATT&CK content, generally requires less setup
 
-**Access from the ATT&CK TAXII server**
+Access from the ATT&CK TAXII server
+----------------------------------
 
 Users can access the ATT&CK data from the official ATT&CK TAXII server. In TAXII, the ATT&CK domains are represented as collections with static IDs:
 
@@ -136,7 +142,8 @@ The following recipe demonstrates how to access the enterprise-attack data from 
 
 For more about TAXII, please see oasis-open's `Introduction to TAXII <https://oasis-open.github.io/cti-documentation/taxii/intro>`_ .
 
-**Access from Github via requests**
+Access from Github via requests
+----------------------
 
 Users can alternatively access the data from MITRE/CTI using HTTP requests, and load the resulting content into a MemoryStore.
 While typically the TAXII method is more desirable for "live" access, this method can be useful if you want to
@@ -155,11 +162,12 @@ access data on a branch of the MITRE/CTI repo (the TAXII server only holds the m
     src = get_data_from_branch("enterprise-attack")
 
 
-**Access a specific version of ATT&CK**
+Access a specific version of ATT&CK
+----------------------
 
-ATT&CK versions are tracked on the MITRE/CTI repo using `tags <https://github.com/mitre/cti/tags>`_ . Tags prefixed with ``ATT&CK-v`` correspond to ATT&CK versions and tags prefixed with ``CAPEC-v`` correspond to CAPEC versions. You can find more information about ATT&CK versions on the [versions of ATT&CK page](https://attack.mitre.org/resources/versions/) on the ATT&CK website.
+ATT&CK versions are tracked on the MITRE/CTI repo using `tags <https://github.com/mitre/cti/tags>`_ . Tags prefixed with ``ATT&CK-v`` correspond to ATT&CK versions and tags prefixed with ``CAPEC-v`` correspond to CAPEC versions. You can find more information about ATT&CK versions on the `versions of ATT&CK page <https://attack.mitre.org/resources/versions/>`_ on the ATT&CK website.
 
-In addition to checking out the repo under the tag for a given version or downloading the STIX from github using your browser, you can also use a variation on the [requests method](#access-from-github-via-requests) to access a particular version of ATT&CK:
+In addition to checking out the repo under the tag for a given version or downloading the STIX from github using your browser, you can also use a variation on the :ref:`requests method<access-from-github-via-requests>` to access a particular version of ATT&CK:
 
 .. code-block:: python
 
@@ -187,7 +195,8 @@ You can get a list of ATT&CK versions programmatically using the github API:
     # versions = ["1.0", "2.0", ...]
 
 
-**Access multiple domains simultaneously**
+Access multiple domains simultaneously
+----------------------
 
 Because ATT&CK is stored in multiple domains (as of this writing, enterprise-attack, mobile-attack and ics-attack), the above methodologies will only allow you to work
 with a single domain at a time. While oftentimes the hard separation of domains is advantageous, occasionally it is useful to combine
