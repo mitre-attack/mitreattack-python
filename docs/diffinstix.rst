@@ -1,7 +1,7 @@
 Diff Stix
 ==============================================
 
-This folder contains a module for creating markdown, HTML, JSON and/or ATT&CK Navigator layers
+Diff Stix contains a module for creating markdown, HTML, JSON and/or ATT&CK Navigator layers
 reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content.
 Run `diff_stix -h` for full usage instructions.
 

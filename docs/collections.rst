@@ -2,7 +2,7 @@
 Collections
 ==============================================
 
-This folder contains modules and scripts for working with ATT&CK collections.
+Collections contains modules and scripts for working with ATT&CK collections.
 Collections are sets of ATT&CK STIX objects, grouped for user convienence.
 For more information about ATT&CK collections, see the corresponding
 `ATT&CK documentation <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collections>`_.
