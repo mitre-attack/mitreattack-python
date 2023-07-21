@@ -3,7 +3,7 @@ Diff Stix
 
 Diff Stix contains a module for creating markdown, HTML, JSON and/or ATT&CK Navigator layers
 reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content.
-Run `diff_stix -h` for full usage instructions.
+Run ``diff_stix -h`` for full usage instructions.
 
 Usage
 -----
@@ -93,8 +93,8 @@ A brief explanation of key pieces can be found below.
   }
 
 
-* The top-level objects include information about specific domains as well as `new-contributors`, which are only found in the newer ATT&CK release.
-* For domain changes, they are broken down by object type, e.g. `techniques` or `mitigations`.
+* The top-level objects include information about specific domains as well as ``new-contributors``, which are only found in the newer ATT&CK release.
+* For domain changes, they are broken down by object type, e.g. ``techniques`` or ``mitigations``.
 * The following table helps break down the change types that are currently tracked.
 
 .. list-table:: Title
@@ -104,28 +104,28 @@ A brief explanation of key pieces can be found below.
    * - field 
      - type
      - description
-   * - `additions`     
+   * - ``additions``    
      -array[object]
      - ATT&CK objects which are only present in the new STIX data.      
-   * - `major_version_changes``
+   * - ``major_version_changes``
      - array[object]
      - ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0). 
-   * - `minor_version_changes`
+   * - ``minor_version_changes``
      - array[object]
      - ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1).  
-   * - `other_version_changes`
+   * - ``other_version_changes``
      - array[object]
      - array[object] | ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.3). These are unintended, but can be found in previous releases.
-     * - `patches`     
+     * - ``patches``
      - array[object]
      - ATT&CK objects that have been patched while keeping the version the same.  
-      * - `revocations`  
+      * - ``revocations`` 
      - array[object]
      - ATT&CK objects which are revoked by a different object. 
-   * - `deprecations`  
+   * - ``deprecations``  
      - array[object]
      - ATT&CK objects which are deprecated and no longer in use, and not replaced.   
-   * - `deletions`    
+   * - ``deletions``    
      - array[object
      - ATT&CK objects which are no longer found in the STIX data. This should almost never happen.     
 
@@ -136,7 +136,7 @@ Changed Objects
 The bulk of the changelog file consists of lists of JSON objects.
 If you are familiar with reading the STIX format, they may look famliar, yet a little "off".
 That is because there are a few fields that have been added in some cases depending on what section they appear in.
-For example, objects that are brand new do not have `previous_version` available to them.
+For example, objects that are brand new do not have ``previous_version`` available to them.
 The following table lists the extra fields that can be found in objects in the changelog.
 
 .. list-table:: 
@@ -147,25 +147,25 @@ The following table lists the extra fields that can be found in objects in the c
      - Required
      - Type
      - Description
-   * - `changelog_mitigations` 
+   * - ``changelog_mitigations`` 
      - false
      - object 
-     - Three lists for `shared`, `new`, and `dropped` for Mitigations that are related to a Technique between versions.      
-   * - `changelog_detections` 
+     - Three lists for ``shared``, ``new``, and ``dropped`` for Mitigations that are related to a Technique between versions.      
+   * - ``changelog_detections`` 
      - false
      - object 
      - HTML rendering of a table that displays the differences between descriptions for an ATT&CK object.        
-   * - `detailed_diff`  
+   * - ``detailed_diff`` 
      - false
      - string 
      - A python DeepDiff object that has been JSON serialized which represents STIX changes for an ATT&CK object between releases.        
-   * - `previous_version`
+   * - ``previous_version``
      - false
      - string 
      - If the object existed in the previous release, then it denotes the version the object was in the previous release.    
-   * - `version_change`  
+   * - ``version_change``  
      - false
      - string 
-     - If the object existed in the previous release and was changed in the current release, then a descriptive string in the format '`old-version` → `new-version`' 
+     - If the object existed in the previous release and was changed in the current release, then a descriptive string in the format '``old-version`` → ``new-version``' 
                                                     
 
