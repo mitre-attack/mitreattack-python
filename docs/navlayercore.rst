@@ -77,6 +77,7 @@ displayed below, is to create and modify instances of the core objects in the li
 produce equivalent internal layers once completed.
 
 .. code-block:: python
+
     import mitreattack.navlayers as navlayers
 
     layer_example = navlayers.Layer(name="example", domain="enterprise-attack") # arguments required for every layer
@@ -187,6 +188,7 @@ in the source code for them.
     _LayerObj().get_dict()                    # Export Layer as a dictionary object
 
 **Versions Object**
+
 .. code-block:: python
 
     Versions().layer      # String denoting Layer format version
@@ -195,6 +197,7 @@ in the source code for them.
     Versions().get_dict() # Export Version data as a dictionary object
 
 **Filter Object**
+
 .. code-block:: python
 
     Filter().domain     # String denoting the domain for the Filter
@@ -203,7 +206,9 @@ in the source code for them.
 
 Please note that although not documented here, there is another Filter object variant, Filterv3, which exists
 for backwards compatibility reasons.
+
 **Layout Object**
+
 .. code-block:: python
 
     Layout().layout              # String denoting which layout form to use
