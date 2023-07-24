@@ -5,7 +5,7 @@ Revoked and deprecated objects are kept in the knowledge base so that workflows 
 broken. We recommend you filter out revoked and deprecated objects from your views whenever possible since they are no
 longer maintained by ATT&CK.
 
-We recommend _not_ using built-in STIX filters for removing revoked objects (e.g `Filter('revoked', '=', False)`). This is because the behavior of this specific filter is inconsistent depending on the method of access (using local data or accessing via the TAXII server). We recommend using the following code example to filter revoked objects instead. See [issue #127](https://github.com/mitre/cti/issues/127) for more details.
+We recommend _not_ using built-in STIX filters for removing revoked objects (e.g ``Filter('revoked', '=', False)``). This is because the behavior of this specific filter is inconsistent depending on the method of access (using local data or accessing via the TAXII server). We recommend using the following code example to filter revoked objects instead. See `issue #127 <https://github.com/mitre/cti/issues/127>`_ for more details.
 
 .. code-block:: python
     
