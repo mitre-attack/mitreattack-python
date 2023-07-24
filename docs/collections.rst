@@ -27,10 +27,10 @@ Collections Scripts
 index_to_markdown.py
 ------------------------
 
-`index_to_markdown.py` provides the `IndexToMarkdown` class, which provides a way to transform an existing
+``index_to_markdown.py`` provides the ``IndexToMarkdown`` class, which provides a way to transform an existing
 `collection index file <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md#collection-indexes>`_
 into a markdown file for easy of use and reference.
-The `IndexToMarkdown` class is very simple, and provides a single method, `index_to_markdown`,
+The ``IndexToMarkdown`` class is very simple, and provides a single method, ``index_to_markdown``,
 which in turn only requires a single parameter - a dictionary representation of the desired index file to convert to markdown.
 An example of how to use the class, and method, can be found below.
 
