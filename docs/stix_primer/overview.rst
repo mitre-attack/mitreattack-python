@@ -24,7 +24,6 @@ You can go to the `Access ATTACK <https://mitreattack-python.readthedocs.io/en/1
    stix_id
    tactics_by_matrix
    techniques_by_platform
-   techniques_by_platform
    techniques_by_tactic
    techniques_subtechniques
    relationships_microlibrary
