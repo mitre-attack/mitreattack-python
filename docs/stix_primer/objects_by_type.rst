@@ -1,7 +1,7 @@
 Objects by type
 ===============
 
-See [The ATT&CK data model](#The-ATTCK-Data-Model) for mappings of ATT&CK type to STIX type.
+See `The ATT&CK data model <https://github.com/mitre/cti/blob/master/USAGE.md#The-ATTCK-Data-Model>`_ for mappings of ATT&CK type to STIX type.
 
 .. code-block:: python
     
