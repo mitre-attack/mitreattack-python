@@ -154,6 +154,7 @@ for processing and other functionality that are not documented here, though docu
 in the source code for them.
 
 **Layer Object**
+
 .. code-block:: python
 
     Layer().layer       # Stores the raw LayerObj file
