@@ -39,16 +39,16 @@ More detailed information and examples about the specific usage of the additiona
      - documentation
    * - `navlayers <https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/navlayers>`_
      -  A collection of utilities for working with `ATT&CK Navigator <https://github.com/mitre-attack/attack-navigator>`_ layers. Provides the ability to import, export, and manipulate layers. Layers can be read in from the filesystem or python dictionaries, combined and edited, and then exported to excel or SVG images.
-     -  Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/README.md>`_ 
+     -  Further documentation can be found `here <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/navlayers.html>`_ 
    * - `attackToExcel <https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/attackToExcel>`_
      - A collection of utilities for converting `ATT&CK STIX data <https://github.com/mitre/cti>`_ to Excel spreadsheets. It also provides access to `Pandas <https://pandas.pydata.org/>`_ DataFrames representing the dataset for use in data analysis. 
-     - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/attackToExcel/README.md>`_
+     - Further documentation can be found `here <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/attacktoexcel.html>`_
    * - `collections <https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/collections>`_
      - A set of utilities for working with `ATT&CK Collections and Collection Indexes <https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/collections.md>`_. Provides functionalities for converting and summarizing data in collections and collection indexes, as well as generating a collection from a raw stix bundle input. 
-     - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/collections/README.md>`_.
+     - Further documentation can be found `here <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/collections.html>`_.
    * - `diffStix <https://github.com/mitre-attack/mitreattack-python/tree/master/mitreattack/diffStix>`_
      -   Create markdown, HTML, JSON and/or ATT&CK Navigator layers reporting on the changes between two versions of the STIX2 bundles representing the ATT&CK content. Run ``diff_stix -h`` for full usage instructions. 
-     - Further documentation can be found `here <https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/diffStix/README.md>`_
+     - Further documentation can be found `here <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/diffinstix.html>`_
 
 
 Related MITRE Work
