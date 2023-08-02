@@ -10,8 +10,6 @@ All scripts adhere to the MITRE ATT&CK Navigator Layer file format,
 but will accept legacy [version 3.0](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv3.md)
 and version 4.X layers, upgrading them to version 4.3.
 
-## Core Modules
-
 | script | description |
 |:-------|:------------|
 | [filter](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/core/filter.py) | Implements a basic [filter object](https://github.com/mitre-attack/attack-navigator/blob/develop/layers/LAYERFORMATv4_1.md#filter-object-properties). |

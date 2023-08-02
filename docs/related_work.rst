@@ -16,7 +16,7 @@ phases of an adversary's lifecycle, and the platforms they are known to target. 
 for understanding security risk against known adversary behavior, for planning security 
 improvements, and verifying defenses work as expected.
 
-https://attack.mitre.org
+Visit `the ATT&CK website <https://attack.mitre.org>`_ to browse our curated knowledge base.
 
 STIX
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
