@@ -1,4 +1,5 @@
 import json
+import os
 
 from resources.testing_data import collection, index
 
@@ -21,10 +22,14 @@ def test_collection_to_index():
 
 def test_stix_to_collection():
     """Test converting stix bundle file to a collection"""
-    with open("resources/ics-bundle.json", "r") as fio:
+    dir = os.path.dirname(__file__)
+    ics_bundle_collection = os.path.join(dir, "resources", "ics-bundle.json")
+    enterprise_bundle_collection = os.path.join(dir, "resources", "enterprise-bundle.json")
+    
+    with open(ics_bundle_collection, "r") as fio:
         v20 = json.load(fio)
 
-    with open("resources/enterprise-bundle.json", "r") as fio:
+    with open(enterprise_bundle_collection, "r") as fio:
         v21 = json.load(fio)
 
     STIXToCollection.stix_to_collection(v20, name="v20_test", version="9.0", description="testing")
