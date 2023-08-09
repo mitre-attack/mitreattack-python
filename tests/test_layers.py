@@ -2,9 +2,8 @@ import json
 from pathlib import Path
 
 import pytest
-from stix2 import MemoryStore
-
 from resources import testing_data
+from stix2 import MemoryStore
 
 from mitreattack.navlayers import (
     Layer,
