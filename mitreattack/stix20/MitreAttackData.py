@@ -62,6 +62,8 @@ class MitreAttackData:
         if not isinstance(stix_filepath, str):
             raise TypeError(f"Argument stix_filepath must be of type str, not {type(stix_filepath)}")
 
+        self.stix_filepath = stix_filepath
+
         self.src = MemoryStore()
         self.src.load_from_file(stix_filepath)
 
@@ -303,7 +305,7 @@ class MitreAttackData:
             objects = self.remove_revoked_deprecated(objects)
 
         if not objects:
-            return None
+            return []
 
         # since ATT&CK has custom objects, we need to reconstruct the query results
         return [StixObjectFactory(o) for o in objects]
@@ -525,7 +527,7 @@ class MitreAttackData:
         object = self.src.get(stix_id)
 
         if not object:
-            return None
+            raise ValueError(f"{stix_id} not found in {self.stix_filepath}")
 
         return StixObjectFactory(object)
 
@@ -594,7 +596,7 @@ class MitreAttackData:
         objects = self.src.query(filter)
 
         if not objects:
-            return None
+            return []
 
         # since ATT&CK has custom objects, we need to reconstruct the query results
         return [StixObjectFactory(o) for o in objects]

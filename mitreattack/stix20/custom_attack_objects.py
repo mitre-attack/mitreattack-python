@@ -47,8 +47,10 @@ def StixObjectFactory(data: dict) -> object:
         "x-mitre-data-component": DataComponent,
     }
 
-    if data and "type" in data and data["type"] in stix_type_to_custom_class:
-        return stix_type_to_custom_class[data["type"]](**data, allow_custom=True)
+    stix_type = data.get("type")
+
+    if data and stix_type in stix_type_to_custom_class:
+        return stix_type_to_custom_class[stix_type](**data, allow_custom=True)
     return data
 
 
