@@ -1671,7 +1671,7 @@ class MitreAttackData:
         if self.all_techniques_targeting_all_assets:
             return self.all_techniques_targeting_all_assets
 
-        self.all_techniques_targeting_all_assets = self.get_related("attack-pattern", "targets", "x-mitre-asset")
+        self.all_techniques_targeting_all_assets = self.get_related("attack-pattern", "targets", "x-mitre-asset", reverse=True)
 
         return self.all_techniques_targeting_all_assets
 
@@ -1690,7 +1690,9 @@ class MitreAttackData:
         """
         techniques_targeting_assets = self.get_all_techniques_targeting_all_assets()
         return (
-            techniques_targeting_assets[asset_stix_id] if asset_stix_id in techniques_targeting_assets else []
+            techniques_targeting_assets[asset_stix_id]
+            if asset_stix_id in techniques_targeting_assets
+            else []
         )
 
     def get_all_assets_targeted_by_all_techniques(self) -> dict:
@@ -1705,7 +1707,7 @@ class MitreAttackData:
         if self.all_assets_targeted_by_all_techniques:
             return self.all_assets_targeted_by_all_techniques
 
-        self.all_assets_targeted_by_all_techniques = self.get_related("attack-pattern", "targets", "x-mitre-asset", reverse=True)
+        self.all_assets_targeted_by_all_techniques = self.get_related("attack-pattern", "targets", "x-mitre-asset")
 
         return self.all_assets_targeted_by_all_techniques
 
@@ -1723,4 +1725,8 @@ class MitreAttackData:
             a list of {asset, relationship} for each asset targeted by the technique
         """
         assets_targeted_by_techniques = self.get_all_assets_targeted_by_all_techniques()
-        return assets_targeted_by_techniques[technique_stix_id] if technique_stix_id in assets_targeted_by_techniques else []
+        return (
+            assets_targeted_by_techniques[technique_stix_id]
+            if technique_stix_id in assets_targeted_by_techniques
+            else []
+        )
