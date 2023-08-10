@@ -1,10 +1,10 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
-from stix2 import MemoryStore
-
 from resources import testing_data
+from stix2 import MemoryStore
 
 from mitreattack.navlayers import (
     Layer,
@@ -37,7 +37,8 @@ def test_depreciated_tactics_export(tmp_path: Path, memstore_enterprise_latest: 
 def test_colormap_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
     """Test exporting a layer with a gradiant of scores"""
     lay = Layer()
-    lay.from_file("resources/heatmap_example.json")
+    dir = os.path.dirname(__file__)
+    lay.from_file(os.path.join(dir, "resources", "heatmap_example.json"))
     xlsx_output = tmp_path / "layer.xlsx"
     svg_output = tmp_path / "layer.svg"
 
