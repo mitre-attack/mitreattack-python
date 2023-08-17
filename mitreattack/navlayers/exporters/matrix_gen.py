@@ -153,8 +153,13 @@ class MatrixGen:
                 hd.load_from_file(resource)
                 if "mobile" in resource.lower():
                     self.collections["mobile"] = hd
-                else:
+                elif "enterprise" in resource.lower():
                     self.collections["enterprise"] = hd
+                elif "ics" in resource.lower():
+                    self.collections["ics"] = hd
+                else:
+                    logger.error(f"invalid domain specified ({resource.lower()})")
+                    raise ValueError
             else:
                 logger.error("source=local specified, but path to local source not provided")
                 raise ValueError
@@ -166,7 +171,7 @@ class MatrixGen:
                     resource += ":3000"
                 if not resource.startswith("http"):
                     resource = "http://" + resource
-                for dataset in ["enterprise", "mobile"]:
+                for dataset in ["enterprise", "mobile", "ics"]:
                     hd = MemoryStore()
                     response = requests.get(
                         f"{resource}/api/stix-bundles?domain={dataset}-"
@@ -186,8 +191,13 @@ class MatrixGen:
             if resource is not None:
                 if "mobile" in domain:
                     self.collections["mobile"] = resource
-                else:
+                elif "enterprise" in domain:
                     self.collections["enterprise"] = resource
+                elif "ics" in domain:
+                    self.collections["ics"] = resource
+                else:
+                    logger.error(f"invalid domain specified ({resource.lower()})")
+                    raise ValueError
             else:
                 logger.error("source=memorystore specified, but no data was provided!")
                 raise ValueError
