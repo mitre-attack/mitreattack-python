@@ -562,7 +562,7 @@ class DiffStix(object):
         attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
         self.data[datastore_version][domain]["attack_release_version"] = attack_version
 
-        data_store = MemoryStore(stix_data=stix_json["objects"])
+        data_store = MemoryStore(stix_data=stix_json["objects"], version="2.1")
         return data_store
 
     def parse_extra_data(self, data_store: stix2.MemoryStore, domain: str, datastore_version: str):
