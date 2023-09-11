@@ -38,7 +38,7 @@ def _getstringwidth(string, font, size):
     :return: pixel length of string
     """
     font = ImageFont.truetype(f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size))
-    length, _ = font.getsize(string)
+    length, _ = font.getbbox(string)[2:4]
     return length
 
 
@@ -51,7 +51,7 @@ def _getstringheight(string, font, size):
     :return: pixel height of string
     """
     font = ImageFont.truetype(f"{os.path.sep.join(__file__.split(os.path.sep)[:-1])}/fonts/{font}.ttf", int(size))
-    _, height = font.getsize(string)
+    _, height = font.getbbox(string)[2:4]
     return height
 
 
