@@ -19,7 +19,7 @@ def attack_stix_dir():
         domains=["enterprise", "mobile", "ics"],
         download_dir=download_dir,
         all_versions=False,
-        stix_version="2.0"
+        stix_version="2.0",
     )
 
     yield download_dir

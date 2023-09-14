@@ -42,12 +42,11 @@ class TestCustomAttackObjects:
         data = {"something": "else"}
         assert StixObjectFactory(data) == data
 
-
     def test_tactic(self):
         name = "Tactic"
         shortname = "Tactic shortname"
         version = "Tactic version"
-        tactic = Tactic(**{"name":name, "x_mitre_shortname": shortname, "x_mitre_version": version})
+        tactic = Tactic(**{"name": name, "x_mitre_shortname": shortname, "x_mitre_version": version})
 
         assert tactic.name == name
         assert tactic.type == "x-mitre-tactic"
