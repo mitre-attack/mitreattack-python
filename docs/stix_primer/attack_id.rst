@@ -21,4 +21,4 @@ Note: in prior versions of ATT&CK, mitigations had 1:1 relationships with techni
         Filter("type", "=", "attack-pattern")
     ])[0]
 
-The old 1:1 mitigations causing this issue are deprecated, so you can also filter them out that way — see [Removing revoked and deprecated objects](#Removing-revoked-and-deprecated-objects).
+The old 1:1 mitigations causing this issue are deprecated, so you can also filter them out that way — see `Removing revoked and deprecated objects <https://mitreattack-python.readthedocs.io/en/126-docs-add-section-to-docs-for-accessing-stix/stix_primer/remove_revoked_deprecated.html>`_ .
