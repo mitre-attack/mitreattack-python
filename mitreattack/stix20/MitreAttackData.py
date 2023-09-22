@@ -377,8 +377,8 @@ class MitreAttackData:
         list
             a list of AttackPattern objects under the given platform
         """
-        filter = [Filter("type", "=", "attack-pattern"), Filter("x_mitre_platforms", "contains", platform)]
-        techniques = self.src.query(filter)
+        query = [Filter("type", "=", "attack-pattern"), Filter("x_mitre_platforms", "contains", platform)]
+        techniques = self.src.query(query)
         if remove_revoked_deprecated:
             techniques = self.remove_revoked_deprecated(techniques)
         return techniques
@@ -543,12 +543,12 @@ class MitreAttackData:
         stix2.v20.sdo._DomainObject | CustomStixObject
             the STIX Domain Object specified by the STIX ID
         """
-        object = self.src.get(stix_id)
+        attack_object = self.src.get(stix_id)
 
-        if not object:
+        if not attack_object:
             raise ValueError(f"{stix_id} not found in {self.stix_filepath}")
 
-        return StixObjectFactory(object)
+        return StixObjectFactory(attack_object)
 
     def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> object:
         """Retrieve a single object by its ATT&CK ID.
@@ -576,17 +576,17 @@ class MitreAttackData:
         if stix_type not in self.stix_types:
             raise ValueError(f"stix_type must be one of {self.stix_types}")
 
-        object = self.src.query(
+        attack_object = self.src.query(
             [
                 Filter("external_references.external_id", "=", attack_id.upper()),
                 Filter("type", "=", stix_type),
             ]
         )
 
-        if not object:
+        if not attack_object:
             return None
 
-        return StixObjectFactory(object[0])
+        return StixObjectFactory(attack_object[0])
 
     def get_objects_by_name(self, name: str, stix_type: str) -> list:
         """Retrieve objects by name.
@@ -611,8 +611,8 @@ class MitreAttackData:
         if stix_type not in self.stix_types:
             raise ValueError(f"stix_type must be one of {self.stix_types}")
 
-        filter = [Filter("type", "=", stix_type), Filter("name", "=", name)]
-        objects = self.src.query(filter)
+        query = [Filter("type", "=", stix_type), Filter("name", "=", name)]
+        objects = self.src.query(query)
 
         if not objects:
             return []
@@ -635,8 +635,8 @@ class MitreAttackData:
         list
             a list of stix2.v20.sdo.IntrusionSet objects corresponding to the alias
         """
-        filter = [Filter("type", "=", "intrusion-set"), Filter("aliases", "contains", alias)]
-        return self.src.query(filter)
+        query = [Filter("type", "=", "intrusion-set"), Filter("aliases", "contains", alias)]
+        return self.src.query(query)
 
     def get_campaigns_by_alias(self, alias: str) -> list:
         """Retrieve the campaigns corresponding to a given alias.
@@ -653,8 +653,8 @@ class MitreAttackData:
         list
             a list of stix2.v20.sdo.Campaign objects corresponding to the alias
         """
-        filter = [Filter("type", "=", "campaign"), Filter("aliases", "contains", alias)]
-        return self.src.query(filter)
+        query = [Filter("type", "=", "campaign"), Filter("aliases", "contains", alias)]
+        return self.src.query(query)
 
     def get_software_by_alias(self, alias: str) -> list:
         """Retrieve the software corresponding to a given alias.
@@ -680,7 +680,7 @@ class MitreAttackData:
     # Get Object Information
     ###################################
 
-    def get_attack_id(self, stix_id: str) -> str:
+    def get_attack_id(self, stix_id: str) -> str | None:
         """Get the object's ATT&CK ID.
 
         Parameters
@@ -810,7 +810,7 @@ class MitreAttackData:
         for stix_id in id_to_related:
             value = []
             for related in id_to_related[stix_id]:
-                if not related["id"] in id_to_target:
+                if related["id"] not in id_to_target:
                     continue  # targeting a revoked object
                 value.append(
                     {"object": StixObjectFactory(id_to_target[related["id"]]), "relationship": related["relationship"]}
