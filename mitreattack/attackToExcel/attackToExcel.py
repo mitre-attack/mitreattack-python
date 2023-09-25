@@ -101,6 +101,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "software": stixToDf.softwareToDf(src),
         "groups": stixToDf.groupsToDf(src),
         "campaigns": stixToDf.campaignsToDf(src),
+        "assets": stixToDf.assetsToDf(src),
         "mitigations": stixToDf.mitigationsToDf(src),
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
