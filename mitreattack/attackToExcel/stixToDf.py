@@ -108,10 +108,11 @@ def parseBaseStix(sdo):
     """Given an SDO, return a dict of field names:values that are common across all ATT&CK STIX types."""
     row = {}
     url = None
-    if sdo.get("external_references"):
-        if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
-            row["ID"] = sdo["external_references"][0]["external_id"]
-            url = sdo["external_references"][0]["url"]
+    if sdo.get("external_references") and len(sdo["external_references"]) > 0:
+            if (sdo["external_references"][0]).get("external_id"):
+                row["ID"] = sdo["external_references"][0]["external_id"]
+            if (sdo["external_references"][0]).get("url"):
+                url = sdo["external_references"][0]["url"]
     if "id" in sdo:  # required for workbench collection import
         row["STIX ID"] = sdo["id"]
     if "name" in sdo:
@@ -919,10 +920,10 @@ def relationshipsToDf(src, relatedType=None):
         def add_side(label, sdo):
             """Add data for one side of the mapping."""
             # logger.debug(sdo)
-            if sdo.get("external_references"):
-                if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
+            if sdo.get("external_references") and len(sdo["external_references"]) > 0:
                     # "source ID" or "target ID"
-                    row[f"{label} ID"] = sdo["external_references"][0]["external_id"]
+                    if (sdo["external_references"][0]).get("external_id"):
+                        row[f"{label} ID"] = sdo["external_references"][0]["external_id"]
 
             if "name" in sdo:
                 # "source name" or "target name"
