@@ -4,7 +4,7 @@ from dateutil import parser
 from itertools import chain
 from stix2 import MemoryStore, Filter
 from stix2.utils import get_type_from_id
-from mitreattack.stix20.custom_attack_objects import StixObjectFactory
+from mitreattack.stix21.custom_attack_objects import StixObjectFactory
 
 
 class MitreAttackData:

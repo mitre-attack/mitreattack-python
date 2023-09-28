@@ -61,7 +61,7 @@ class CollectionToIndex:
                     dict(
                         type="bundle",
                         id=f"bundle--{x.id}",
-                        spec_version="2.0",
+                        spec_version="2.1",
                         objects=x.source.query([Filter("type", "=", "x-mitre-collection")]),
                     )
                     for x in sets

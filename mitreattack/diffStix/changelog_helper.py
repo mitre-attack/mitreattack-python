@@ -546,7 +546,7 @@ class DiffStix(object):
         s = requests.Session()
         retries = Retry(total=10, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
         s.mount("http", HTTPAdapter(max_retries=retries))
-        stix_url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
+        stix_url = f"https://raw.githubusercontent.com/mitre/attack-stix-data/master/{domain}/{domain}.json"
         try:
             stix_response = s.get(stix_url, timeout=60)
             if stix_response.status_code != 200:
@@ -562,7 +562,7 @@ class DiffStix(object):
         attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
         self.data[datastore_version][domain]["attack_release_version"] = attack_version
 
-        data_store = MemoryStore(stix_data=stix_json["objects"])
+        data_store = MemoryStore(stix_data=stix_json["objects"], version="2.1")
         return data_store
 
     def parse_extra_data(self, data_store: stix2.MemoryStore, domain: str, datastore_version: str):

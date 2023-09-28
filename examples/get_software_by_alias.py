@@ -6,7 +6,7 @@ def main():
 
     S0196 = mitre_attack_data.get_software_by_alias("ShellTea")
 
-    print(S0196.serialize(pretty=True))
+    print(S0196[0].serialize(pretty=True))
 
 
 if __name__ == "__main__":
