@@ -530,48 +530,53 @@ def assetsToDf(src):
     """
     assets = src.query([Filter("type", "=", "x-mitre-asset")])
     assets = remove_revoked_deprecated(assets)
-    asset_rows = []
-    for asset in tqdm(assets, desc="parsing assets"):
-        row = parseBaseStix(asset)
-        # add asset-specific fields
-        if "x_mitre_platforms" in asset:
-            row["platforms"] = ", ".join(sorted(asset["x_mitre_platforms"]))
-        if "x_mitre_sectors" in asset:
-            row["sectors"] = ", ".join(sorted(asset["x_mitre_sectors"]))
-        if "x_mitre_related_assets" in asset:
-            related_assets = []
-            related_assets_sectors = []
-            related_assets_descriptions = []
 
-            for related_asset in asset["x_mitre_related_assets"]:
-                related_assets.append(related_asset["name"])
-                related_assets_sectors.append(", ".join(related_asset["related_asset_sectors"]))
-                related_assets_descriptions.append(related_asset["description"])
+    dataframes = {}
+    if assets:
+        asset_rows = []
+        for asset in tqdm(assets, desc="parsing assets"):
+            row = parseBaseStix(asset)
+            # add asset-specific fields
+            if "x_mitre_platforms" in asset:
+                row["platforms"] = ", ".join(sorted(asset["x_mitre_platforms"]))
+            if "x_mitre_sectors" in asset:
+                row["sectors"] = ", ".join(sorted(asset["x_mitre_sectors"]))
+            if "x_mitre_related_assets" in asset:
+                related_assets = []
+                related_assets_sectors = []
+                related_assets_descriptions = []
 
-            row["related assets"] = "; ".join(related_assets)
-            row["related assets sectors"] = "; ".join(related_assets_sectors)
-            row["related assets description"] = "; ".join(related_assets_descriptions)
+                for related_asset in asset["x_mitre_related_assets"]:
+                    related_assets.append(related_asset["name"])
+                    related_assets_sectors.append(", ".join(related_asset["related_asset_sectors"]))
+                    related_assets_descriptions.append(related_asset["description"])
 
-        asset_rows.append(row)
+                row["related assets"] = "; ".join(related_assets)
+                row["related assets sectors"] = "; ".join(related_assets_sectors)
+                row["related assets description"] = "; ".join(related_assets_descriptions)
 
-    citations = get_citations(assets)
-    dataframes = {
-        "assets": pd.DataFrame(asset_rows).sort_values("name"),
-    }
-    # add relationships
-    codex = relationshipsToDf(src, relatedType="asset")
-    dataframes.update(codex)
-    # add relationship references
-    dataframes["assets"]["relationship citations"] = _get_relationship_citations(dataframes["assets"], codex)
-    # add/merge citations
-    if not citations.empty:
-        # append to existing citations from references
-        if "citations" in dataframes:
-            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
-        else:  # add citations
-            dataframes["citations"] = citations
+            asset_rows.append(row)
 
-        dataframes["citations"].sort_values("reference")
+        citations = get_citations(assets)
+        dataframes = {
+            "assets": pd.DataFrame(asset_rows).sort_values("name"),
+        }
+        # add relationships
+        codex = relationshipsToDf(src, relatedType="asset")
+        dataframes.update(codex)
+        # add relationship references
+        dataframes["assets"]["relationship citations"] = _get_relationship_citations(dataframes["assets"], codex)
+        # add/merge citations
+        if not citations.empty:
+            # append to existing citations from references
+            if "citations" in dataframes:
+                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
+            else:  # add citations
+                dataframes["citations"] = citations
+
+            dataframes["citations"].sort_values("reference")
+    else:
+        logger.warning("No assets found - nothing to parse")
 
     return dataframes
 
