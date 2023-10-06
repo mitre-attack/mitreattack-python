@@ -821,6 +821,41 @@ class MitreAttackData:
                 map_a[id] = map_b[id]
         return map_a
     
+    def add_inherited_campaign_relationships(self, related_campaigns, inherited_campaign_relationships, object_relationships) -> dict:
+        """Helper function for adding inherited relationships to list of [{"object": object, "relationships": [relationship]}]
+        
+        Parameters
+        ----------
+        related_campaigns : dict
+            campaigns related to the object: [object_stix_id => [ {campaign, [campaign_uses_object]} ]]
+        inherited_campaign_relationships : dict
+            relationships to be inherited from campaigns: [campaign_id => [ {related_object, [campaign_uses_related_object]} ]]
+        object_relationships : dict
+            direct relationships with the object itself: [object_stix_id => [ {related_object, [relationship]} ]]
+        """
+        for stix_id, campaigns in related_campaigns.items():
+            for campaign in campaigns:
+                if campaign["object"]["id"] not in inherited_campaign_relationships:
+                    # no relationships inherited from campaign
+                    continue
+
+                # inheriting relationships from campaign
+                for stix_object in inherited_campaign_relationships[campaign["object"]["id"]]:
+                    # append inherited campaign relationship and campaign/group relationship
+                    relationship = {"object": stix_object["object"], "relationships": stix_object["relationships"] + campaign["relationships"]}
+
+                    if stix_id not in object_relationships:
+                        # add inherited relationship entry from attributed campaign
+                        object_relationships[stix_id] = [relationship]
+                        continue
+
+                    # object exists, add inherited campaign relationships to existing list
+                    object_relationships[stix_id].append(relationship)
+
+        # remove duplicates
+        object_relationships = self.remove_duplicates(object_relationships)
+        return object_relationships
+    
     def remove_duplicates(self, relationship_map) -> dict:
         """Helper function to remove duplicate objects in a list of [{"object": object, "relationships": [relationship]}]"""
         deduplicated_map = {} # {stix_id => [{"object": object, "relationships": []}]}
@@ -1152,27 +1187,9 @@ class MitreAttackData:
         # get groups attributing to campaigns: [group_id => [ {campaign, [campaign_attributed-to_group]} ]]
         groups_attributing = self.get_related("campaign", "attributed-to", "intrusion-set", reverse=True)
 
-        for group_id, campaigns in groups_attributing.items():
-            for campaign in campaigns:
-                if campaign["object"]["id"] not in techniques_used_by_campaigns:
-                    # campaign does not use techniques, skip
-                    continue
+        # add inherited relationships to techniques used by groups
+        techniques_used_by_groups = self.add_inherited_campaign_relationships(groups_attributing, techniques_used_by_campaigns, techniques_used_by_groups)
 
-                # campaign uses technique(s)
-                for technique in techniques_used_by_campaigns[campaign["object"]["id"]]:
-                    # append campaign/technique relationship and campaign/group relationship
-                    relationship = {"object": technique["object"], "relationships": technique["relationships"] + campaign["relationships"]}
-
-                    if group_id not in techniques_used_by_groups:
-                        # add a technique used by group entry from attributed campaign
-                        techniques_used_by_groups[group_id] = [relationship]
-                        continue
-
-                    # group exists, add technique & inherited campaign relationships to existing list
-                    techniques_used_by_groups[group_id].append(relationship)
-
-        # remove duplicates
-        techniques_used_by_groups = self.remove_duplicates(techniques_used_by_groups)
         self.all_techniques_used_by_all_groups = techniques_used_by_groups
         return techniques_used_by_groups
 
@@ -1215,27 +1232,9 @@ class MitreAttackData:
         # get groups attributing to campaigns: [campaign_id => [ {group, [campaign_attributed-to_group]} ]]
         attributed_campaigns = self.get_related("campaign", "attributed-to", "intrusion-set")
 
-        for technique_id, campaigns in campaigns_using_techniques.items():
-            for campaign in campaigns:
-                if campaign["object"]["id"] not in attributed_campaigns:
-                    # campaign is not attributed to group, skip
-                    continue
+        # add inherited relationships to groups using techniques
+        groups_using_techniques = self.add_inherited_campaign_relationships(campaigns_using_techniques, attributed_campaigns, groups_using_techniques)
 
-                # campaign is attributed to group(s)
-                for group in attributed_campaigns[campaign["object"]["id"]]:
-                    # append campaign/technique relationships and campaign/group relationship
-                    relationship = {"object": group["object"], "relationships": campaign["relationships"] + group["relationships"]}
-
-                    if technique_id not in groups_using_techniques:
-                        # add group using technique entry from attributed campaign
-                        groups_using_techniques[technique_id] = [relationship]
-                        continue
-
-                    # technique exists, add group & inherited campaign relationships to existing list
-                    groups_using_techniques[technique_id].append(relationship)
-
-        # remove duplicates
-        groups_using_techniques = self.remove_duplicates(groups_using_techniques)
         self.all_groups_using_all_techniques = groups_using_techniques
         return groups_using_techniques
 
