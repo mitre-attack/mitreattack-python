@@ -734,8 +734,8 @@ class MitreAttackData:
         Returns
         -------
         dict
-            if reverse=False, relationship mapping of source_object_id => [{target_object, relationship}];
-            if reverse=True, relationship mapping of target_object_id => [{source_object, relationship}]
+            if reverse=False, relationship mapping of source_object_id => [{target_object, relationship[]}];
+            if reverse=True, relationship mapping of target_object_id => [{source_object, relationship[]}]
         """
         relationships = self.src.query(
             [
@@ -791,10 +791,10 @@ class MitreAttackData:
         for stix_id in id_to_related:
             value = []
             for related in id_to_related[stix_id]:
-                if not related["id"] in id_to_target:
+                if related["id"] not in id_to_target:
                     continue  # targeting a revoked object
                 value.append(
-                    {"object": StixObjectFactory(id_to_target[related["id"]]), "relationship": related["relationship"]}
+                    {"object": StixObjectFactory(id_to_target[related["id"]]), "relationships": [related["relationship"]]}
                 )
             output[stix_id] = value
         return output
@@ -820,6 +820,25 @@ class MitreAttackData:
             else:
                 map_a[id] = map_b[id]
         return map_a
+    
+    def remove_duplicates(self, relationship_map) -> dict:
+        """Helper function to remove duplicate objects in a list of [{"object": object, "relationships": [relationship]}]"""
+        deduplicated_map = {} # {stix_id => [{"object": object, "relationships": []}]}
+        for stix_id, sdos in relationship_map.items():
+            sdo_list = []
+            seen_sdo_ids = []
+            for sdo in sdos:
+                if sdo["object"]["id"] not in seen_sdo_ids:
+                    seen_sdo_ids.append(sdo["object"]["id"])
+                    sdo_list.append(sdo)
+                    continue
+
+                # seen this object before, append relationships
+                for index, item in enumerate(sdo_list):
+                    if item["object"].id == sdo["object"].id:
+                        sdo_list[index]["relationships"] = item["relationships"] + sdo["relationships"]
+            deduplicated_map[stix_id] = sdo_list
+        return deduplicated_map
 
     ###################################
     # Software/Group Relationships
@@ -1117,42 +1136,43 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of group_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique used by the group and
+            a mapping of group_stix_id => [{'object': Technique, 'relationships': Relationship[]}] for each technique used by the group and
             each technique used by campaigns attributed to the group
         """
         # return data if it has already been fetched
         if self.all_techniques_used_by_all_groups:
             return self.all_techniques_used_by_all_groups
 
-        # get all techniques used by groups
-        techniques_used_by_groups = self.get_related(
-            "intrusion-set", "uses", "attack-pattern"
-        )  # group_id => {technique, relationship}
+        # get techniques used by groups: [group_id => [ {technique, [group_uses_technique]} ]]
+        techniques_used_by_groups = self.get_related("intrusion-set", "uses", "attack-pattern")
 
-        # get groups attributing to campaigns and all techniques used by campaigns
-        campaigns_attributed_to_group = {
-            "campaigns": self.get_related(
-                "campaign", "attributed-to", "intrusion-set", reverse=True
-            ),  # group_id => {campaign, relationship}
-            "techniques": self.get_related(
-                "campaign", "uses", "attack-pattern"
-            ),  # campaign_id => {technique, relationship}
-        }
+        # get techniques used by campaigns: [campaign_id => [ {technique, [campaign_uses_technique]} ]]
+        techniques_used_by_campaigns = self.get_related("campaign", "uses", "attack-pattern")
 
-        for group_id in campaigns_attributed_to_group["campaigns"]:
-            techniques_used_by_campaigns = []
-            # check if attributed campaign is using technique
-            for campaign in campaigns_attributed_to_group["campaigns"][group_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in campaigns_attributed_to_group["techniques"]:
-                    techniques_used_by_campaigns.extend(campaigns_attributed_to_group["techniques"][campaign_id])
+        # get groups attributing to campaigns: [group_id => [ {campaign, [campaign_attributed-to_group]} ]]
+        groups_attributing = self.get_related("campaign", "attributed-to", "intrusion-set", reverse=True)
 
-            # update techniques used by groups to include techniques used by a groups attributed campaign
-            if group_id in techniques_used_by_groups:
-                techniques_used_by_groups[group_id].extend(techniques_used_by_campaigns)
-            else:
-                techniques_used_by_groups[group_id] = techniques_used_by_campaigns
+        for group_id, campaigns in groups_attributing.items():
+            for campaign in campaigns:
+                if campaign["object"]["id"] not in techniques_used_by_campaigns:
+                    # campaign does not use techniques, skip
+                    continue
 
+                # campaign uses technique(s)
+                for technique in techniques_used_by_campaigns[campaign["object"]["id"]]:
+                    # append campaign/technique relationship and campaign/group relationship
+                    relationship = {"object": technique["object"], "relationships": technique["relationships"] + campaign["relationships"]}
+
+                    if group_id not in techniques_used_by_groups:
+                        # add a technique used by group entry from attributed campaign
+                        techniques_used_by_groups[group_id] = [relationship]
+                        continue
+
+                    # group exists, add technique & inherited campaign relationships to existing list
+                    techniques_used_by_groups[group_id].append(relationship)
+
+        # remove duplicates
+        techniques_used_by_groups = self.remove_duplicates(techniques_used_by_groups)
         self.all_techniques_used_by_all_groups = techniques_used_by_groups
         return techniques_used_by_groups
 
@@ -1167,7 +1187,7 @@ class MitreAttackData:
         Returns
         -------
         list
-            a list of {technique, relationship} for each technique used by the group and
+            a list of {'object': Technique, 'relationships': Relationship[]} for each technique used by the group and
             each technique used by campaigns attributed to the group
         """
         techniques_used_by_groups = self.get_all_techniques_used_by_all_groups()
@@ -1179,42 +1199,43 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of technique_id => {group, relationship} for each group using the technique and each campaign attributed to
-            groups using the technique
+            a mapping of technique_stix_id => [{'object': Group, 'relationships': Relationship[]}] for each group using the 
+            technique and each campaign attributed to groups using the technique
         """
         # return data if it has already been fetched
         if self.all_groups_using_all_techniques:
             return self.all_groups_using_all_techniques
 
-        # get all groups using techniques
-        groups_using_techniques = self.get_related(
-            "intrusion-set", "uses", "attack-pattern", reverse=True
-        )  # technique_id => {group, relationship}
+        # get groups using techniques: [technique_id => [ {group, [group_uses_technique]} ]]
+        groups_using_techniques = self.get_related("intrusion-set", "uses", "attack-pattern", reverse=True)
 
-        # get campaigns attributed to groups and all campaigns using techniques
-        groups_attributing_to_campaigns = {
-            "campaigns": self.get_related(
-                "campaign", "uses", "attack-pattern", reverse=True
-            ),  # technique_id => {campaign, relationship}
-            "groups": self.get_related(
-                "campaign", "attributed-to", "intrusion-set"
-            ),  # campaign_id => {group, relationship}
-        }
+        # get campaigns using techniques: [technique_id => [ {campaign, [campaign_uses_technique]} ]]
+        campaigns_using_techniques = self.get_related("campaign", "uses", "attack-pattern", reverse=True)
 
-        for technique_id in groups_attributing_to_campaigns["campaigns"]:
-            campaigns_attributed_to_group = []
-            # check if campaign is attributed to group
-            for campaign in groups_attributing_to_campaigns["campaigns"][technique_id]:
-                campaign_id = campaign["object"]["id"]
-                if campaign_id in groups_attributing_to_campaigns["groups"]:
-                    campaigns_attributed_to_group.extend(groups_attributing_to_campaigns["groups"][campaign_id])
+        # get groups attributing to campaigns: [campaign_id => [ {group, [campaign_attributed-to_group]} ]]
+        attributed_campaigns = self.get_related("campaign", "attributed-to", "intrusion-set")
 
-            # update groups using techniques to include techniques used by a groups attributed campaign
-            if technique_id in groups_using_techniques:
-                groups_using_techniques[technique_id].extend(campaigns_attributed_to_group)
-            else:
-                groups_using_techniques[technique_id] = campaigns_attributed_to_group
+        for technique_id, campaigns in campaigns_using_techniques.items():
+            for campaign in campaigns:
+                if campaign["object"]["id"] not in attributed_campaigns:
+                    # campaign is not attributed to group, skip
+                    continue
 
+                # campaign is attributed to group(s)
+                for group in attributed_campaigns[campaign["object"]["id"]]:
+                    # append campaign/technique relationships and campaign/group relationship
+                    relationship = {"object": group["object"], "relationships": campaign["relationships"] + group["relationships"]}
+
+                    if technique_id not in groups_using_techniques:
+                        # add group using technique entry from attributed campaign
+                        groups_using_techniques[technique_id] = [relationship]
+                        continue
+
+                    # technique exists, add group & inherited campaign relationships to existing list
+                    groups_using_techniques[technique_id].append(relationship)
+
+        # remove duplicates
+        groups_using_techniques = self.remove_duplicates(groups_using_techniques)
         self.all_groups_using_all_techniques = groups_using_techniques
         return groups_using_techniques
 
@@ -1229,7 +1250,7 @@ class MitreAttackData:
         Returns
         -------
         list
-            a list of {group, relationship} for each group using the technique and each campaign attributed to
+            a list of {'object': Group, 'relationships': Relationship[]} for each group using the technique and each campaign attributed to
             groups using the technique
         """
         groups_using_techniques = self.get_all_groups_using_all_techniques()
