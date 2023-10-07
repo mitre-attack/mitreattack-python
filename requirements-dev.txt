@@ -18,7 +18,7 @@ pytest-cov>=3.0.0
 python-dateutil
 Pillow>=7.1.2
 requests>=2.21.0
-rich==13.5.3
+rich==13.6.0
 ruff>=0.0.275
 stix2>=3.0.1
 stix2-elevator>=4.0.1
