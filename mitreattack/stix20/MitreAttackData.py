@@ -723,11 +723,11 @@ class MitreAttackData:
         Parameters
         ----------
         source_type : str
-            source type for the relationships, e.g. 'attack-pattern'
+            source type for the relationships, e.g. 'intrusion-set'
         relationship_type : str
             relationship type for the relationships, e.g. 'uses'
         target_type : str
-            target type for the relationships, e.g. 'intrusion-set'
+            target type for the relationships, e.g. 'attack-pattern'
         reverse : bool, optional
             build reverse mapping of target to source, by default False
 
@@ -777,9 +777,12 @@ class MitreAttackData:
 
         # all objects of relevant type
         if not reverse:
-            targets = self.src.query([Filter("type", "=", target_type), Filter("revoked", "=", False)])
+            targets = self.src.query([Filter("type", "=", target_type)])
         else:
-            targets = self.src.query([Filter("type", "=", source_type), Filter("revoked", "=", False)])
+            targets = self.src.query([Filter("type", "=", source_type)])
+
+        # remove revoked/deprecated objects
+        targets = self.remove_revoked_deprecated(targets)
 
         # build lookup of stixID to stix object
         id_to_target = {}
