@@ -9,7 +9,7 @@ def main():
 
     print(f"Mitigations mitigating techniques ({len(mitigations_mitigating.keys())} techniques):")
     for id, mitigations in mitigations_mitigating.items():
-        print(f"* {id} - mitigated by {len(mitigations)} {'mitigation' if len(mitigations) == 1 else 'mitigation'}")
+        print(f"* {id} - mitigated by {len(mitigations)} {'mitigation' if len(mitigations) == 1 else 'mitigations'}")
 
 
 if __name__ == "__main__":

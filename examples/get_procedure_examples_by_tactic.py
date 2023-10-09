@@ -6,7 +6,7 @@ def print_procedure_examples(mitre_attack_data, attack_objects_using_technique):
         stix_object = attack_object["object"]
         attack_id = mitre_attack_data.get_attack_id(stix_id=stix_object["id"])
         name = stix_object["name"]
-        procedure_description = attack_object["relationship"].get("description")
+        procedure_description = attack_object["relationships"][0].get("description")
 
         print(f"[{attack_id}] {name}: {procedure_description}")
 
