@@ -7,7 +7,7 @@ def main():
     date = "2022-10-01"
     objects = mitre_attack_data.get_objects_modified_after(date)
 
-    print(f"There were {len(objects)} objects modified after {date}")
+    print(f"There are {len(objects)} objects modified after {date}")
 
 
 if __name__ == "__main__":

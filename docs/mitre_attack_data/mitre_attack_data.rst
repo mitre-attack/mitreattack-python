@@ -57,7 +57,7 @@ a lookup table of STIX ID to related objects and relationships.
     # [
     #     {
     #         "object": Malware, # S0061
-    #         "relationship": Relationship # relationship between G0019 and S0061
+    #         "relationships": Relationship[] # relationships between G0019 and S0061
     #     },
     #     {
     #         ...
@@ -79,8 +79,7 @@ by ATT&CK.
     mitigations = mitre_attack_data.get_mitigations(remove_revoked_deprecated=True)
 
 
-To remove revoked and deprecated objects from the results of a method without a parameter to 
-automatically remove revoked and deprecated objects:
+To separately remove revoked and deprecated objects from the results of a method:
 
 .. code-block:: python
 
