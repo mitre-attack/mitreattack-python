@@ -6,7 +6,7 @@ def print_procedure_examples(mitre_attack_data, attack_objects_using_technique):
         stix_object = attack_object["object"]
         attack_id = mitre_attack_data.get_attack_id(stix_id=stix_object["id"])
         name = stix_object["name"]
-        procedure_description = attack_object["relationship"].get("description")
+        procedure_description = attack_object["relationships"][0].get("description")
 
         print(f"[{attack_id}] {name}: {procedure_description}")
 
@@ -30,12 +30,22 @@ def main():
         for technique in techniques:
             technique_stix_id = technique["id"]
             groups_using_technique = mitre_attack_data.get_groups_using_technique(technique_stix_id=technique_stix_id)
-            software_using_technique = mitre_attack_data.get_software_using_technique(technique_stix_id=technique_stix_id)
-            campaigns_using_technique = mitre_attack_data.get_campaigns_using_technique(technique_stix_id=technique_stix_id)
+            software_using_technique = mitre_attack_data.get_software_using_technique(
+                technique_stix_id=technique_stix_id
+            )
+            campaigns_using_technique = mitre_attack_data.get_campaigns_using_technique(
+                technique_stix_id=technique_stix_id
+            )
 
-            print_procedure_examples(mitre_attack_data=mitre_attack_data, attack_objects_using_technique=groups_using_technique)
-            print_procedure_examples(mitre_attack_data=mitre_attack_data, attack_objects_using_technique=software_using_technique)
-            print_procedure_examples(mitre_attack_data=mitre_attack_data, attack_objects_using_technique=campaigns_using_technique)
+            print_procedure_examples(
+                mitre_attack_data=mitre_attack_data, attack_objects_using_technique=groups_using_technique
+            )
+            print_procedure_examples(
+                mitre_attack_data=mitre_attack_data, attack_objects_using_technique=software_using_technique
+            )
+            print_procedure_examples(
+                mitre_attack_data=mitre_attack_data, attack_objects_using_technique=campaigns_using_technique
+            )
 
 
 if __name__ == "__main__":

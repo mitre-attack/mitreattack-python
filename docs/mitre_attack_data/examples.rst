@@ -13,9 +13,10 @@ Getting An ATT&CK Object
 
 * `get_object_by_stix_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_object_by_stix_id.py>`_
 * `get_object_by_attack_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_object_by_attack_id.py>`_
-* `get_object_by_name.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_object_by_name.py>`_
-* `get_group_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_group_by_alias.py>`_
+* `get_objects_by_name.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_by_name.py>`_
+* `get_groups_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_groups_by_alias.py>`_
 * `get_software_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_software_by_alias.py>`_
+* `get_campaigns_by_alias.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_campaigns_by_alias.py>`_
 * `get_stix_type.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_stix_type.py>`_
 * `get_attack_id.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_attack_id.py>`_
 * `get_name.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_name.py>`_
@@ -41,6 +42,7 @@ Getting Multiple ATT&CK Objects
 * `get_techniques_by_platform.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_techniques_by_platform.py>`_
 * `get_objects_by_content.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_by_content.py>`_
 * `get_objects_created_after.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_created_after.py>`_
+* `get_objects_modified_after.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_modified_after.py>`_
 
 Related Objects
 -------------------
@@ -108,4 +110,3 @@ Campaign:Group Relationships
 * `get_groups_attributing_to_campaign.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_groups_attributing_to_campaign.py>`_
 * `get_all_campaigns_attributed_to_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_campaigns_attributed_to_all_groups.py>`_
 * `get_campaigns_attributed_to_group.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_campaigns_attributed_to_group.py>`_
-
