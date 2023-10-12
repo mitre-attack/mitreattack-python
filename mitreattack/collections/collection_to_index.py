@@ -171,7 +171,7 @@ def main(args):
             name=args.name, description=args.description, root_url=args.root_url, files=args.files, folders=args.folders
         )
         print(f"writing {args.output}")
-        json.dump(index, f, indent=4, enforce_ascii=False)
+        json.dump(index, f, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":

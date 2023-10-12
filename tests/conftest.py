@@ -19,7 +19,7 @@ def attack_stix_dir():
         domains=["enterprise", "mobile", "ics"],
         download_dir=download_dir,
         all_versions=False,
-        stix_version="2.0"
+        stix_version="2.0",
     )
 
     yield download_dir
@@ -29,20 +29,17 @@ def attack_stix_dir():
 
 @pytest.fixture(scope="session")
 def stix_file_enterprise_latest(attack_stix_dir):
-    stix_file = f"{attack_stix_dir}/v{LATEST_VERSION}/enterprise-attack.json"
-    return stix_file
+    return f"{attack_stix_dir}/v{LATEST_VERSION}/enterprise-attack.json"
 
 
 @pytest.fixture(scope="session")
 def stix_file_mobile_latest(attack_stix_dir):
-    stix_file = f"{attack_stix_dir}/v{LATEST_VERSION}/mobile-attack.json"
-    return stix_file
+    return f"{attack_stix_dir}/v{LATEST_VERSION}/mobile-attack.json"
 
 
 @pytest.fixture(scope="session")
 def stix_file_ics_latest(attack_stix_dir):
-    stix_file = f"{attack_stix_dir}/v{LATEST_VERSION}/ics-attack.json"
-    return stix_file
+    return f"{attack_stix_dir}/v{LATEST_VERSION}/ics-attack.json"
 
 
 @pytest.fixture(scope="session")

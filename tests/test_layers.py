@@ -80,7 +80,9 @@ def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
         xlsx_output = tmp_path / f"layer-{test_layer.layer.name}.xlsx"
         svg_output = tmp_path / f"layer-{test_layer.layer.name}.svg"
 
-        xlsx_exporter = ToExcel(domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest)
+        xlsx_exporter = ToExcel(
+            domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest
+        )
         svg_exporter = ToSvg(domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest)
 
         xlsx_exporter.to_xlsx(layerInit=test_layer, filepath=str(xlsx_output))
@@ -111,7 +113,7 @@ def test_upgrades():
         ]
     )
     assert all([out3[x] == out2[x] for x in out3 if x not in ["versions", "techniques", "metadata", "gradient"]])
-    assert all(["4.3" == x["versions"]["layer"] for x in [out1, out2, out3]])
+    assert all(["4.4" == x["versions"]["layer"] for x in [out1, out2, out3]])
 
 
 def test_layer_ops():
