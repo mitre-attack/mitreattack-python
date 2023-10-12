@@ -41,6 +41,13 @@ information about the mapping of ATT&CK concepts to STIX 2.0 objects can be foun
     * **x_mitre_data_source_ref** (*str*) - The STIX ID of the data source this component 
       is a part of.
 
+.. autoclass:: mitreattack.stix20.Asset
+
+    **Custom Properties:**
+
+    * **x_mitre_platforms** (*list[str]*) - The list of platforms that apply to the asset.
+    * **x_mitre_related_assets** (*list[dict]*) - The list of related assets.
+
 STIX Object Factory
 -------------------
 
