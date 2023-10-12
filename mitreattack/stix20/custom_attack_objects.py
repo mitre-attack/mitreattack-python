@@ -46,6 +46,7 @@ def StixObjectFactory(data: dict) -> object:
         "x-mitre-tactic": Tactic,
         "x-mitre-data-source": DataSource,
         "x-mitre-data-component": DataComponent,
+        "x-mitre-asset": Asset,
     }
 
     stix_type = data.get("type")
