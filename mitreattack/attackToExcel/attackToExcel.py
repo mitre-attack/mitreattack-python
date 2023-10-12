@@ -10,7 +10,7 @@ from loguru import logger
 from stix2 import MemoryStore
 
 # import mitreattack.attackToExcel.stixToDf as stixToDf
-from mitreattack.attackToExcel import stixToDf
+import stixToDf
 
 INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
@@ -312,7 +312,6 @@ def main():
     parser.add_argument(
         "-domain",
         type=str,
-        choices=["enterprise-attack", "mobile-attack", "ics-attack"],
         default="enterprise-attack",
         help="which domain of ATT&CK to convert",
     )

@@ -249,9 +249,11 @@ def techniquesToDf(src, domain):
     }
     # add relationships
     codex = relationshipsToDf(src, relatedType="technique")
-    dataframes.update(codex)
-    # add relationship references
-    dataframes["techniques"]["relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
+    if len(codex) > 0:
+        dataframes.update(codex)
+        # add relationship references
+        dataframes["techniques"]["relationship citations"] = _get_relationship_citations(dataframes["techniques"], codex)
+
     # add/merge citations
     if not citations.empty:
         if "citations" in dataframes:  # append to existing citations from references
@@ -271,6 +273,10 @@ def tacticsToDf(src):
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     tactics = src.query([Filter("type", "=", "x-mitre-tactic")])
+
+    if len(tactics) < 1:
+        return []
+    
     tactics = remove_revoked_deprecated(tactics)
 
     tactic_rows = []
@@ -374,6 +380,10 @@ def softwareToDf(src):
             src.query(f) for f in [Filter("type", "=", "tool"), Filter("type", "=", "malware")]
         )
     )
+
+    if len(software) < 1:
+        return []
+
     software = remove_revoked_deprecated(software)
     software_rows = []
     for soft in tqdm(software, desc="parsing software"):
@@ -416,6 +426,10 @@ def groupsToDf(src):
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     groups = src.query([Filter("type", "=", "intrusion-set")])
+    
+    if len(groups) < 1:
+        return []
+    
     groups = remove_revoked_deprecated(groups)
     group_rows = []
     for group in tqdm(groups, desc="parsing groups"):
@@ -467,6 +481,10 @@ def campaignsToDf(src):
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     campaigns = src.query([Filter("type", "=", "campaign")])
+
+    if len(campaigns) < 1:
+        return []
+    
     campaigns = remove_revoked_deprecated(campaigns)
 
     dataframes = {}
@@ -530,6 +548,10 @@ def mitigationsToDf(src):
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     mitigations = src.query([Filter("type", "=", "course-of-action")])
+
+    if len(mitigations) < 1:
+        return []
+    
     mitigations = remove_revoked_deprecated(mitigations)
     mitigation_rows = []
     for mitigation in tqdm(mitigations, desc="parsing mitigations"):
@@ -633,6 +655,7 @@ def build_technique_and_sub_columns(
 
             subtechniques = remove_revoked_deprecated(subtechniques)
             subtechniques = sorted(subtechniques, key=lambda x: x["name"])
+
             for i in range(len(subtechniques)):  # for each sub-technique
                 if i != 0:
                     techniques_column.append("")  # first sub-technique is parallel to the technique in the layout
@@ -743,10 +766,11 @@ def matricesToDf(src, domain):
         sub_matrices_grid = dict()
         sub_matrices_merges = dict()
         sub_matrices_columns = dict()
-        for entry in MATRIX_PLATFORMS_LOOKUP[domain]:
-            sub_matrices_grid[entry] = []
-            sub_matrices_merges[entry] = []
-            sub_matrices_columns[entry] = []
+        if domain in MATRIX_PLATFORMS_LOOKUP:
+            for entry in MATRIX_PLATFORMS_LOOKUP[domain]:
+                sub_matrices_grid[entry] = []
+                sub_matrices_merges[entry] = []
+                sub_matrices_columns[entry] = []
 
         parsed = {
             "name": matrix["name"] if len(matrices) == 1 else f"{domain.split('-')[0].capitalize()} {matrix['name']}",
@@ -788,26 +812,26 @@ def matricesToDf(src, domain):
                 matrix_grid_handle=matrix_grid,
                 tactic_name=tactic["name"],
             )
-
-            for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
-                # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
-                # If an second entry can be found, the results from that query will be used, otherwise, the singular
-                # platform will be.
-                a_techs = filter_platforms(
-                    techniques,
-                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
-                )
-                if a_techs:
-                    sub_matrices_columns[platform].append(tactic["name"])
-                    build_technique_and_sub_columns(
-                        src=src,
-                        techniques=a_techs,
-                        columns=sub_matrices_columns[platform],
-                        merge_data_handle=sub_matrices_merges[platform],
-                        matrix_grid_handle=sub_matrices_grid[platform],
-                        tactic_name=tactic["name"],
-                        platform=platform,
+            if domain in MATRIX_PLATFORMS_LOOKUP:
+                for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
+                    # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
+                    # If an second entry can be found, the results from that query will be used, otherwise, the singular
+                    # platform will be.
+                    a_techs = filter_platforms(
+                        techniques,
+                        MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
                     )
+                    if a_techs:
+                        sub_matrices_columns[platform].append(tactic["name"])
+                        build_technique_and_sub_columns(
+                            src=src,
+                            techniques=a_techs,
+                            columns=sub_matrices_columns[platform],
+                            merge_data_handle=sub_matrices_merges[platform],
+                            matrix_grid_handle=sub_matrices_grid[platform],
+                            tactic_name=tactic["name"],
+                            platform=platform,
+                        )
 
         # square the grid because pandas doesn't like jagged columns
         longest_column = 0
@@ -894,7 +918,8 @@ def relationshipsToDf(src, relatedType=None):
             continue
         if relationship["relationship_type"] == "revoked":
             continue
-
+        
+        
         # don't track sub-technique relationships, those are tracked in the techniques df
         if relationship["relationship_type"] == "subtechnique-of":
             continue
@@ -913,10 +938,10 @@ def relationshipsToDf(src, relatedType=None):
             if not related:
                 # skip this relationship if the types don't match
                 continue
-
+        
         # add mapping data
         row = {}
-
+    
         def add_side(label, sdo):
             """Add data for one side of the mapping."""
             # logger.debug(sdo)
@@ -934,8 +959,8 @@ def relationshipsToDf(src, relatedType=None):
             # "source type" or "target type"
             row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
 
-        add_side("source", source)
-        row["mapping type"] = relationship["relationship_type"]  # mapping type goes between the source/target data
+        add_side("source", source) 
+        row["mapping type"] = relationship["relationship_type"] # mapping type goes between the source/target data
         add_side("target", target)
         if "description" in relationship:  # add description of relationship to the end of the row
             row["mapping description"] = relationship["description"]
@@ -946,21 +971,24 @@ def relationshipsToDf(src, relatedType=None):
         if "modified" in relationship:
             row["last modified"] = format_date(relationship["modified"])
         relationship_rows.append(row)
+    
 
     citations = get_citations(relationships)
-    relationships = pd.DataFrame(relationship_rows).sort_values(
-        [
-            "mapping type",
-            "source type",
-            "target type",
-            "source name",
-            "target name",
-            "source ref",
-            "target ref",
-            "created",
-            "last modified",
-        ]
-    )
+
+    if len(relationship_rows) > 0:
+        relationships = pd.DataFrame(relationship_rows).sort_values(
+            [
+                "mapping type",
+                "source type",
+                "target type",
+                "source name",
+                "target name",
+                "source ref",
+                "target ref",
+                "created",
+                "last modified",
+            ]
+        )
 
     # return all relationships and citations
     if not relatedType:
@@ -976,57 +1004,62 @@ def relationshipsToDf(src, relatedType=None):
     else:
         dataframes = {}
 
-        relatedGroupSoftware = relationships.query(
-            "(`source type` == 'group' or `source type` == 'software') and "
-            "`mapping type` == 'uses' and "
-            "(`target type` == 'group' or `target type` == 'software')"
-        )
-        relatedCampaignSoftware = relationships.query(
-            "(`source type` == 'campaign' or `source type` == 'software') and "
-            "`mapping type` == 'uses' and "
-            "(`target type` == 'campaign' or `target type` == 'software')"
-        )
-        procedureExamples = relationships.query("`mapping type` == 'uses' and `target type` == 'technique'")
-        attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
-        relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
+        if type(relationships) is not list:
+        
+            relatedGroupSoftware = relationships.query(
+                "(`source type` == 'group' or `source type` == 'software') and "
+                "`mapping type` == 'uses' and "
+                "(`target type` == 'group' or `target type` == 'software')"
+            )
 
-        if not relatedGroupSoftware.empty:
-            if relatedType == "group":
-                sheet_name = "associated software"
-            else:
-                sheet_name = "associated groups"
-            dataframes[sheet_name] = relatedGroupSoftware
+            # logger.warning(relatedGroupSoftware)
+            relatedCampaignSoftware = relationships.query(
+                "(`source type` == 'campaign' or `source type` == 'software') and "
+                "`mapping type` == 'uses' and "
+                "(`target type` == 'campaign' or `target type` == 'software')"
+            )
+            procedureExamples = relationships.query("`mapping type` == 'uses' and `target type` == 'technique'")
+            attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
+            relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
 
-        if not relatedCampaignSoftware.empty:
-            if relatedType == "campaign":
-                sheet_name = "associated software"
-            else:
-                sheet_name = "associated campaigns"
-            dataframes[sheet_name] = relatedCampaignSoftware
+            if not relatedGroupSoftware.empty:
+                if relatedType == "group":
+                    sheet_name = "associated software"
+                else:
+                    sheet_name = "associated groups"
+                dataframes[sheet_name] = relatedGroupSoftware
 
-        if not procedureExamples.empty:
-            if relatedType == "technique":
-                sheet_name = "procedure examples"
-            else:
-                sheet_name = "techniques used"
-            dataframes[sheet_name] = procedureExamples
+            if not relatedCampaignSoftware.empty:
+                if relatedType == "campaign":
+                    sheet_name = "associated software"
+                else:
+                    sheet_name = "associated campaigns"
+                dataframes[sheet_name] = relatedCampaignSoftware
 
-        if not attributedCampaignGroup.empty:
-            if relatedType == "campaign":
-                sheet_name = "attributed groups"
-            elif relatedType == "group":
-                sheet_name = "attributed campaigns"
-            else:
-                sheet_name = "associated campaigns"
-            dataframes[sheet_name] = attributedCampaignGroup
+            if not procedureExamples.empty:
+                if relatedType == "technique":
+                    sheet_name = "procedure examples"
+                else:
+                    sheet_name = "techniques used"
+                dataframes[sheet_name] = procedureExamples
 
-        if not relatedMitigations.empty:
-            if relatedType == "technique":
-                sheet_name = "associated mitigations"
-            else:
-                sheet_name = "techniques addressed"
-            dataframes[sheet_name] = relatedMitigations
+            if not attributedCampaignGroup.empty:
+                if relatedType == "campaign":
+                    sheet_name = "attributed groups"
+                elif relatedType == "group":
+                    sheet_name = "attributed campaigns"
+                else:
+                    sheet_name = "associated campaigns"
+                dataframes[sheet_name] = attributedCampaignGroup
 
+            if not relatedMitigations.empty:
+                if relatedType == "technique":
+                    sheet_name = "associated mitigations"
+                else:
+                    sheet_name = "techniques addressed"
+                dataframes[sheet_name] = relatedMitigations
+
+        #im too lazy idk if tHIS IS SUPPOSED TO GO IN TH DA IF
         if not citations.empty:
             # filter citations by ones actually used
             # build master list of used citations
@@ -1042,7 +1075,7 @@ def relationshipsToDf(src, relatedType=None):
             citations = citations[citations.reference.isin(list(usedCitations))]
 
             dataframes["citations"] = citations.sort_values("reference")
-
+        
         return dataframes
 
 
@@ -1072,4 +1105,7 @@ def _get_relationship_citations(object_dataframe, relationship_df):
         else:
             for i in range(0, len(new_citations)):
                 new_citations[i] = ",".join([new_citations[i], subset[i]])
+
+
     return new_citations
+
