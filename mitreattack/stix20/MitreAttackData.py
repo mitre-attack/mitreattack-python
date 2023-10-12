@@ -1652,7 +1652,7 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of asset_stix_id => [{'object': Technique, 'relationship': Relationship}] for each technique targeting the asset
+            a mapping of asset_stix_id => [{'object': AttackPattern, 'relationships': Relationship[]}] for each technique targeting the asset
         """
         # return data if it has already been fetched
         if self.all_techniques_targeting_all_assets:
@@ -1673,7 +1673,7 @@ class MitreAttackData:
         Returns
         -------
         list
-            a list of {technique, relationship} for each technique targeting the asset
+            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique targeting the asset
         """
         techniques_targeting_assets = self.get_all_techniques_targeting_all_assets()
         return (
@@ -1688,7 +1688,7 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of technique_stix_id => [{'object': Asset, 'relationship': Relationship}] for each asset targeted by the technique
+            a mapping of technique_stix_id => [{'object': Asset, 'relationships': Relationship[]}] for each asset targeted by the technique
         """
         # return data if it has already been fetched
         if self.all_assets_targeted_by_all_techniques:
@@ -1709,7 +1709,7 @@ class MitreAttackData:
         Returns
         -------
         list
-            a list of {asset, relationship} for each asset targeted by the technique
+            a list of {"object": Asset, "relationships": Relationship[]} for each asset targeted by the technique
         """
         assets_targeted_by_techniques = self.get_all_assets_targeted_by_all_techniques()
         return (
