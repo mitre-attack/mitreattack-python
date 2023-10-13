@@ -1,3 +1,15 @@
+# 2.1.0 10/13/2023
+
+## Fixes
+
+- Addressed issue in mitreattack/stix20/MitreAttackData.py which was causing duplicate Group entries. [#149](https://github.com/mitre-attack/mitreattack-python/issues/149)
+- Updated toSvg() to address an underlying Pillow update. [#140](https://github.com/mitre-attack/mitreattack-python/issues/140)
+- Fixed issue that caused some relationships to be excluded from the results. [#128](https://github.com/mitre-attack/mitreattack-python/issues/128)
+
+## Documentation
+
+- Updated documentation to include links to all the latest example scripts.
+
 # 2.0.14 6/30/2023
 
 ## Fixes
