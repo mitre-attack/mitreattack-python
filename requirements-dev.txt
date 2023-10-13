@@ -1,8 +1,8 @@
 black>=22.3.0
 check-wheel-contents
 colour>=0.1.5
-deepdiff==6.3.0
-drawsvg==2.1.1
+deepdiff==6.6.0
+drawsvg==2.3.0
 flake8>=5.0.4
 flake8-docstrings>=1.6.0
 isort>=5.10.1
@@ -18,7 +18,7 @@ pytest-cov>=3.0.0
 python-dateutil
 Pillow>=7.1.2
 requests>=2.21.0
-rich==13.4.1
+rich==13.6.0
 ruff>=0.0.275
 stix2>=3.0.1
 stix2-elevator>=4.0.1

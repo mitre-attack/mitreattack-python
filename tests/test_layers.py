@@ -1,10 +1,10 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
-from stix2 import MemoryStore
-
 from resources import testing_data
+from stix2 import MemoryStore
 
 from mitreattack.navlayers import (
     Layer,
@@ -37,7 +37,8 @@ def test_depreciated_tactics_export(tmp_path: Path, memstore_enterprise_latest: 
 def test_colormap_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
     """Test exporting a layer with a gradiant of scores"""
     lay = Layer()
-    lay.from_file("resources/heatmap_example.json")
+    dir = os.path.dirname(__file__)
+    lay.from_file(os.path.join(dir, "resources", "heatmap_example.json"))
     xlsx_output = tmp_path / "layer.xlsx"
     svg_output = tmp_path / "layer.svg"
 
@@ -79,7 +80,9 @@ def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
         xlsx_output = tmp_path / f"layer-{test_layer.layer.name}.xlsx"
         svg_output = tmp_path / f"layer-{test_layer.layer.name}.svg"
 
-        xlsx_exporter = ToExcel(domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest)
+        xlsx_exporter = ToExcel(
+            domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest
+        )
         svg_exporter = ToSvg(domain=test_layer.layer.domain, source="memorystore", resource=memstore_enterprise_latest)
 
         xlsx_exporter.to_xlsx(layerInit=test_layer, filepath=str(xlsx_output))
@@ -110,7 +113,7 @@ def test_upgrades():
         ]
     )
     assert all([out3[x] == out2[x] for x in out3 if x not in ["versions", "techniques", "metadata", "gradient"]])
-    assert all(["4.3" == x["versions"]["layer"] for x in [out1, out2, out3]])
+    assert all(["4.4" == x["versions"]["layer"] for x in [out1, out2, out3]])
 
 
 def test_layer_ops():
