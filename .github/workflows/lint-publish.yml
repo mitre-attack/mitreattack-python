@@ -22,6 +22,7 @@ jobs:
       - name: Lint with flake8
         run: flake8 mitreattack/ --count --exit-zero --statistics
 
+      # should turn these back on once they take less than 10 minutes to run
       - name: Run pytest
         run: |
           cd tests
@@ -45,12 +46,11 @@ jobs:
           pip install -r requirements-dev.txt
           pip install .
 
-      # should turn these back on once they take less than 10 minutes to run
-      # - name: Run pytest
-      #   run: |
-      #     cd tests
-      #     pytest --cov=mitreattack --cov-report html
-      #     cd ..
+      - name: Run pytest
+        run: |
+          cd tests
+          pytest --cov=mitreattack --cov-report html
+          cd ..
 
       - name: Build package
         run: python setup.py sdist bdist_wheel
