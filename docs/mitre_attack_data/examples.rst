@@ -40,6 +40,7 @@ Getting Multiple ATT&CK Objects
 
 * `get_tactics_by_matrix.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_tactics_by_matrix.py>`_
 * `get_techniques_by_tactic.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_techniques_by_tactic.py>`_
+* `get_tactics_by_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_tactics_by_technique.py>`_
 * `get_techniques_by_platform.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_techniques_by_platform.py>`_
 * `get_objects_by_content.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_by_content.py>`_
 * `get_objects_created_after.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_objects_created_after.py>`_

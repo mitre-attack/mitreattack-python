@@ -443,7 +443,36 @@ class MitreAttackData:
                 tactics[matrices[i]["name"]].append(self.src.get(tactic_id))
 
         return tactics
+    
+    def get_tactics_by_technique(self, stix_id) -> list:
+        """Retrieve the list of tactics within a particular technique.
+        
+        Parameters
+        ----------
+        stix_id : str
+            the stix id of the technique to be queried.
+        
+        Returns
+        -------
+        list
+            a list of tactics that the technique to be queried contains.
+        """
+        technique = self.get_object_by_stix_id(stix_id)
 
+        # get tactic shortnames from technique
+        shortnames = []
+        for phase in technique.get("kill_chain_phases"):
+            shortnames.append(phase["phase_name"])
+
+        # map shortnames to tactic objects
+        all_tactics = self.get_tactics()
+        technique_tactics = []
+        for tactic in all_tactics:
+            if tactic.get_shortname() in shortnames:
+                technique_tactics.append(tactic)
+
+        return technique_tactics
+        
     def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been created after a given time.
 
