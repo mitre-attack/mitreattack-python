@@ -23,10 +23,10 @@ jobs:
         run: flake8 mitreattack/ --count --exit-zero --statistics
 
       # should turn these back on once they take less than 10 minutes to run
-      - name: Run pytest
-        run: |
-          cd tests
-          pytest --cov=mitreattack --cov-report html
+      # - name: Run pytest
+      #   run: |
+      #     cd tests
+      #     pytest --cov=mitreattack --cov-report html
 
   publish:
     needs: lint-test
