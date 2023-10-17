@@ -12,7 +12,7 @@ from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
-
+from mitreattack.stix20 import MitreAttackData
 
 # Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
 #   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
@@ -876,6 +876,8 @@ def relationshipsToDf(src, relatedType=None):
         "campaign": "campaign",
     }
 
+    mitre_attack_data = MitreAttackData(src=src)
+
     # get master list of relationships
     relationships = src.query([Filter("type", "=", "relationship")])
     relationships = remove_revoked_deprecated(relationships)
@@ -916,26 +918,19 @@ def relationshipsToDf(src, relatedType=None):
         # add mapping data
         row = {}
 
-        def add_side(label, sdo):
-            """Add data for one side of the mapping."""
-            # logger.debug(sdo)
-            if sdo.get("external_references"):
-                if sdo["external_references"][0]["source_name"] in MITRE_ATTACK_ID_SOURCE_NAMES:
-                    # "source ID" or "target ID"
-                    row[f"{label} ID"] = sdo["external_references"][0]["external_id"]
+        row["source ID"] = mitre_attack_data.get_attack_id(stix_id=source["id"])
+        row["source name"] = source.get("name")
+        row["source ref"] = source.get("id")
+        row["source type"] = stixToAttackTerm.get(source["type"])
 
-            if "name" in sdo:
-                # "source name" or "target name"
-                row[f"{label} name"] = sdo["name"]
-            if "id" in sdo:
-                # "source ref" or "target ref"
-                row[f"{label} ref"] = sdo["id"]
-            # "source type" or "target type"
-            row[f"{label} type"] = stixToAttackTerm[sdo["type"]]
+        # mapping type goes between the source/target data
+        row["mapping type"] = relationship["relationship_type"]
 
-        add_side("source", source)
-        row["mapping type"] = relationship["relationship_type"]  # mapping type goes between the source/target data
-        add_side("target", target)
+        row["target ID"] = mitre_attack_data.get_attack_id(stix_id=target["id"])
+        row["target name"] = target.get("name")
+        row["target ref"] = target.get("id")
+        row["target type"] = stixToAttackTerm.get(target["type"])
+
         if "description" in relationship:  # add description of relationship to the end of the row
             row["mapping description"] = relationship["description"]
         # add required fields for workbench import: relationship stix id, created, and modified
