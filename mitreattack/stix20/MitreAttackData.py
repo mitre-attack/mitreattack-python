@@ -1,8 +1,10 @@
 """MitreAttackData Library."""
 
+import stix2
+
 from dateutil import parser
 from itertools import chain
-from stix2 import MemoryStore, Filter
+from stix2 import Filter
 from stix2.utils import get_type_from_id
 from mitreattack.stix20.custom_attack_objects import StixObjectFactory
 
@@ -51,21 +53,33 @@ class MitreAttackData:
     all_techniques_detected_by_all_datacomponents = None
     all_datacomponents_detecting_all_techniques = None
 
-    def __init__(self, stix_filepath: str):
+    def __init__(self, stix_filepath: str = None, src: stix2.MemoryStore = None):
         """Initialize a MitreAttackData object.
 
         Parameters
         ----------
-        stix_file : str
-            Filepath to a STIX 2.0 bundle
+        stix_file : str, optional
+            Filepath to a STIX 2.0 bundle. Mutually exclusive with `src`.
+        src : stix2.MemoryStore, optional
+            A STIX 2.0 bundle that has already been loaded into memory. Mutually exclusive with `stix_file`.
         """
-        if not isinstance(stix_filepath, str):
+        if not stix_filepath and not src:
+            raise TypeError("MitreAttackData cannot be initialized without one of `stix_filepath` or `src`.")
+        elif stix_filepath and src:
+            raise TypeError("MitreAttackData cannot be initialized with both `stix_filepath` and `src`.")
+
+        if stix_filepath and not isinstance(stix_filepath, str):
             raise TypeError(f"Argument stix_filepath must be of type str, not {type(stix_filepath)}")
 
-        self.stix_filepath = stix_filepath
+        self.stix_filepath = None
+        self.src = None
 
-        self.src = MemoryStore()
-        self.src.load_from_file(stix_filepath)
+        if stix_filepath:
+            self.stix_filepath = stix_filepath
+            self.src = stix2.MemoryStore()
+            self.src.load_from_file(stix_filepath)
+        elif src:
+            self.src = src
 
     ###################################
     # Utilities
@@ -424,15 +438,15 @@ class MitreAttackData:
                 tactics[matrices[i]["name"]].append(self.src.get(tactic_id))
 
         return tactics
-    
+
     def get_tactics_by_technique(self, stix_id) -> list:
         """Retrieve the list of tactics within a particular technique.
-        
+
         Parameters
         ----------
         stix_id : str
             the stix id of the technique to be queried.
-        
+
         Returns
         -------
         list
@@ -453,7 +467,7 @@ class MitreAttackData:
                 technique_tactics.append(tactic)
 
         return technique_tactics
-        
+
     def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been created after a given time.
 
@@ -556,7 +570,7 @@ class MitreAttackData:
         sdo = self.src.get(stix_id)
 
         if not sdo:
-            raise ValueError(f"{stix_id} not found in {self.stix_filepath}")
+            raise ValueError(f"{stix_id} not found")
 
         return StixObjectFactory(sdo)
 
@@ -826,7 +840,10 @@ class MitreAttackData:
                 if related["id"] not in id_to_target:
                     continue  # targeting a revoked object
                 value.append(
-                    {"object": StixObjectFactory(id_to_target[related["id"]]), "relationships": [related["relationship"]]}
+                    {
+                        "object": StixObjectFactory(id_to_target[related["id"]]),
+                        "relationships": [related["relationship"]],
+                    }
                 )
             output[stix_id] = value
         return output
@@ -852,10 +869,12 @@ class MitreAttackData:
             else:
                 map_a[id] = map_b[id]
         return map_a
-    
-    def add_inherited_campaign_relationships(self, related_campaigns, inherited_campaign_relationships, object_relationships) -> dict:
-        """Helper function for adding inherited relationships to list of [{"object": object, "relationships": [relationship]}]
-        
+
+    def add_inherited_campaign_relationships(
+        self, related_campaigns, inherited_campaign_relationships, object_relationships
+    ) -> dict:
+        """Add inherited relationships to list of [{"object": object, "relationships": [relationship]}].
+
         Parameters
         ----------
         related_campaigns : dict
@@ -874,7 +893,10 @@ class MitreAttackData:
                 # inheriting relationships from campaign
                 for stix_object in inherited_campaign_relationships[campaign["object"]["id"]]:
                     # append inherited campaign relationship and campaign/group relationship
-                    relationship = {"object": stix_object["object"], "relationships": stix_object["relationships"] + campaign["relationships"]}
+                    relationship = {
+                        "object": stix_object["object"],
+                        "relationships": stix_object["relationships"] + campaign["relationships"],
+                    }
 
                     if stix_id not in object_relationships:
                         # add inherited relationship entry from attributed campaign
@@ -887,10 +909,10 @@ class MitreAttackData:
         # remove duplicates
         object_relationships = self.remove_duplicates(object_relationships)
         return object_relationships
-    
+
     def remove_duplicates(self, relationship_map) -> dict:
-        """Helper function to remove duplicate objects in a list of [{"object": object, "relationships": [relationship]}]"""
-        deduplicated_map = {} # {stix_id => [{"object": object, "relationships": []}]}
+        """Remove duplicate objects in a list of [{"object": object, "relationships": [relationship]}]."""
+        deduplicated_map = {}  # {stix_id => [{"object": object, "relationships": []}]}
         for stix_id, sdos in relationship_map.items():
             sdo_list = []
             seen_sdo_ids = []
@@ -938,7 +960,9 @@ class MitreAttackData:
         groups_attributing = self.get_related("campaign", "attributed-to", "intrusion-set", reverse=True)
 
         # add inherited relationships to software used by groups
-        software_used_by_groups = self.add_inherited_campaign_relationships(groups_attributing, software_used_by_campaigns, software_used_by_groups)
+        software_used_by_groups = self.add_inherited_campaign_relationships(
+            groups_attributing, software_used_by_campaigns, software_used_by_groups
+        )
 
         self.all_software_used_by_all_groups = software_used_by_groups
         return software_used_by_groups
@@ -972,7 +996,7 @@ class MitreAttackData:
         # return data if it has already been fetched
         if self.all_groups_using_all_software:
             return self.all_groups_using_all_software
-        
+
         # get groups using software: [software_id => [ {group, [group_uses_software]} ]]
         groups_using_tools = self.get_related("intrusion-set", "uses", "tool", reverse=True)
         groups_using_malware = self.get_related("intrusion-set", "uses", "malware", reverse=True)
@@ -987,7 +1011,9 @@ class MitreAttackData:
         attributed_campaigns = self.get_related("campaign", "attributed-to", "intrusion-set")
 
         # add inherited relationships to groups using software
-        groups_using_software = self.add_inherited_campaign_relationships(campaigns_using_software, attributed_campaigns, groups_using_software)
+        groups_using_software = self.add_inherited_campaign_relationships(
+            campaigns_using_software, attributed_campaigns, groups_using_software
+        )
 
         self.all_groups_using_all_software = groups_using_software
         return groups_using_software
@@ -1182,7 +1208,9 @@ class MitreAttackData:
         groups_attributing = self.get_related("campaign", "attributed-to", "intrusion-set", reverse=True)
 
         # add inherited relationships to techniques used by groups
-        techniques_used_by_groups = self.add_inherited_campaign_relationships(groups_attributing, techniques_used_by_campaigns, techniques_used_by_groups)
+        techniques_used_by_groups = self.add_inherited_campaign_relationships(
+            groups_attributing, techniques_used_by_campaigns, techniques_used_by_groups
+        )
 
         self.all_techniques_used_by_all_groups = techniques_used_by_groups
         return techniques_used_by_groups
@@ -1210,7 +1238,7 @@ class MitreAttackData:
         Returns
         -------
         dict
-            a mapping of technique_stix_id => [{"object": IntrusionSet, "relationships": Relationship[]}] for each group using the 
+            a mapping of technique_stix_id => [{"object": IntrusionSet, "relationships": Relationship[]}] for each group using the
             technique and each campaign attributed to groups using the technique
         """
         # return data if it has already been fetched
@@ -1227,7 +1255,9 @@ class MitreAttackData:
         attributed_campaigns = self.get_related("campaign", "attributed-to", "intrusion-set")
 
         # add inherited relationships to groups using techniques
-        groups_using_techniques = self.add_inherited_campaign_relationships(campaigns_using_techniques, attributed_campaigns, groups_using_techniques)
+        groups_using_techniques = self.add_inherited_campaign_relationships(
+            campaigns_using_techniques, attributed_campaigns, groups_using_techniques
+        )
 
         self.all_groups_using_all_techniques = groups_using_techniques
         return groups_using_techniques
@@ -1284,9 +1314,7 @@ class MitreAttackData:
         """
         techniques_used_by_campaigns = self.get_all_techniques_used_by_all_campaigns()
         return (
-            techniques_used_by_campaigns[campaign_stix_id] 
-            if campaign_stix_id in techniques_used_by_campaigns 
-            else []
+            techniques_used_by_campaigns[campaign_stix_id] if campaign_stix_id in techniques_used_by_campaigns else []
         )
 
     def get_all_campaigns_using_all_techniques(self) -> dict:
