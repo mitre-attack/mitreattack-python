@@ -1,3 +1,13 @@
+# 2.1.1 10/18/2023
+
+## Fixes
+
+- Set all columns in Excel files Relationships tabs the same. [#136](https://github.com/mitre-attack/mitreattack-python/issues/136)
+
+## Features
+
+- mitreattack.stix20.MitreAttackData can now be initialized with a stix2.MemoryStore instead of just a STIX file.
+
 # 2.1.0 10/13/2023
 
 ## Fixes
