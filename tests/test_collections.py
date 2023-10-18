@@ -1,12 +1,15 @@
 import json
+from argparse import Namespace
 from pathlib import Path
 
-from argparse import Namespace
-from resources.testing_data import collection, index
+from mitreattack.collections.collection_to_index import CollectionToIndex
+from mitreattack.collections.collection_to_index import main as CTI_main
+from mitreattack.collections.index_to_markdown import IndexToMarkdown
+from mitreattack.collections.index_to_markdown import main as ITM_main
+from mitreattack.collections.stix_to_collection import STIXToCollection
+from mitreattack.collections.stix_to_collection import main as STC_main
 
-from mitreattack.collections.collection_to_index import CollectionToIndex, main as CTI_main
-from mitreattack.collections.index_to_markdown import IndexToMarkdown, main as ITM_main
-from mitreattack.collections.stix_to_collection import STIXToCollection, main as STC_main
+from .resources.testing_data import collection, index
 
 
 class TestCollectionToIndex:
