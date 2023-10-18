@@ -301,15 +301,16 @@ def export(
         Raised when missing exactly one of `remote`, `stix_file`, or `mem_store`.
     """
     if (
-        (remote is None and stix_file is None and mem_store is None)
-        or (remote and stix_file and mem_store)
+        (remote and stix_file and mem_store)
         or (remote and stix_file)
         or (remote and mem_store)
         or (stix_file and mem_store)
     ):
-        raise TypeError("Exactly one of `remote`, `stix_file`, and `mem_store` must be passed in.")
+        raise TypeError("Exactly zero or one of `remote`, `stix_file`, and `mem_store` must be passed in.")
 
-    if remote or stix_file:
+    get_stix_from_github = remote is None and stix_file is None and mem_store is None
+
+    if get_stix_from_github or remote or stix_file:
         mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
 
     logger.info(f"************ Exporting {domain} to Excel ************")
