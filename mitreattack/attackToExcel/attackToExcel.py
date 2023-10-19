@@ -268,6 +268,7 @@ def export(
     output_dir: str = ".",
     remote: str = None,
     stix_file: str = None,
+    mem_store: MemoryStore = None,
 ):
     """Download ATT&CK data from MITRE/CTI and convert it to Excel spreadsheets.
 
@@ -280,23 +281,38 @@ def export(
         If omitted will build the current version of ATT&CK, by default None
     output_dir : str, optional
         The directory to write the excel files to.
-        If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
+        If omitted writes to a subfolder of the current directory depending on specified domain and version.
+        By default "."
     remote : str, optional
         The URL of a remote ATT&CK Workbench instance to connect to for stix data.
-        Mutually exclusive with stix_file.
-        by default None
+        Mutually exclusive with `stix_file` and `mem_store`.
+        By default None
     stix_file : str, optional
-        Path to a local STIX file containing ATT&CK data for a domain, by default None
+        Path to a local STIX file containing ATT&CK data for a domain.
+        Mutually exclusive with `remote` and `mem_store`.
+        By default None
+    mem_store : stix2.MemoryStore, optional
+        A STIX bundle containing ATT&CK data for a domain already loaded into memory.
+        Mutually exclusive with `remote` and `stix_file`.
+        By default None
 
     Raises
     ------
-    ValueError
-        Raised if both `remote` and `stix_file` are passed
+    TypeError
+        Raised when missing exactly one of `remote`, `stix_file`, or `mem_store`.
     """
-    if remote and stix_file:
-        raise ValueError("remote and stix_file are mutually exclusive. Please only use one or the other")
+    if (
+        (remote and stix_file and mem_store)
+        or (remote and stix_file)
+        or (remote and mem_store)
+        or (stix_file and mem_store)
+    ):
+        raise TypeError("Exactly zero or one of `remote`, `stix_file`, and `mem_store` must be passed in.")
 
-    mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
+    get_stix_from_github = remote is None and stix_file is None and mem_store is None
+
+    if get_stix_from_github or remote or stix_file:
+        mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
 
     logger.info(f"************ Exporting {domain} to Excel ************")
 

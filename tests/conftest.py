@@ -3,12 +3,13 @@ from pathlib import Path
 
 import pytest
 from loguru import logger
-from resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 from stix2 import MemoryStore
 
 from mitreattack.download_stix import download_domains
 from mitreattack.navlayers import Layer
 from mitreattack.release_info import LATEST_VERSION
+
+from .resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 
 
 @pytest.fixture(autouse=True, scope="session")

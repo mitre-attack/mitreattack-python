@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import pytest
-from resources import testing_data
 from stix2 import MemoryStore
 
 from mitreattack.navlayers import (
@@ -17,6 +16,8 @@ from mitreattack.navlayers import (
     ToExcel,
     ToSvg,
 )
+
+from .resources import testing_data
 
 
 def test_depreciated_tactics_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
