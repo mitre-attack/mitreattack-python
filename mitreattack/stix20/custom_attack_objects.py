@@ -9,7 +9,7 @@ from stix2.properties import (
     ReferenceProperty,
     TimestampProperty,
     BooleanProperty,
-    DictionaryProperty
+    DictionaryProperty,
 )
 
 
@@ -220,7 +220,7 @@ class DataComponent(CustomStixObject, object):
         ("sectors", ListProperty(StringProperty())),
         ("x_mitre_related_assets", ListProperty(DictionaryProperty())),
         ("x_mitre_platforms", ListProperty(StringProperty())),
-    ]
+    ],
 )
 class Asset(CustomStixObject, object):
     """Custom Asset object of type stix2.CustomObject.

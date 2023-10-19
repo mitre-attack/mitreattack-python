@@ -23,7 +23,7 @@ class MitreAttackData:
         "x-mitre-tactic",
         "x-mitre-data-source",
         "x-mitre-data-component",
-        "x-mitre-asset"
+        "x-mitre-asset",
     ]
 
     # software:group
@@ -267,7 +267,7 @@ class MitreAttackData:
             a list of Campaign objects
         """
         return self.get_objects_by_type("campaign", remove_revoked_deprecated)
-    
+
     def get_assets(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all asset objects.
 
@@ -1715,7 +1715,9 @@ class MitreAttackData:
         if self.all_techniques_targeting_all_assets:
             return self.all_techniques_targeting_all_assets
 
-        self.all_techniques_targeting_all_assets = self.get_related("attack-pattern", "targets", "x-mitre-asset", reverse=True)
+        self.all_techniques_targeting_all_assets = self.get_related(
+            "attack-pattern", "targets", "x-mitre-asset", reverse=True
+        )
 
         return self.all_techniques_targeting_all_assets
 
@@ -1733,11 +1735,7 @@ class MitreAttackData:
             a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique targeting the asset
         """
         techniques_targeting_assets = self.get_all_techniques_targeting_all_assets()
-        return (
-            techniques_targeting_assets[asset_stix_id]
-            if asset_stix_id in techniques_targeting_assets
-            else []
-        )
+        return techniques_targeting_assets[asset_stix_id] if asset_stix_id in techniques_targeting_assets else []
 
     def get_all_assets_targeted_by_all_techniques(self) -> dict:
         """Get all assets targeted by all techniques.
