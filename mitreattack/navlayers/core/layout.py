@@ -25,6 +25,7 @@ class Layout:
         self.__showAggregateScores = UNSETVALUE
         self.__countUnscored = UNSETVALUE
         self.__aggregateFunction = Aggregates.average
+        self.__expandedSubtechniques = UNSETVALUE
 
     def compute_aggregate(self, technique, subtechniques):
         """Compute the aggregate score for a technique and any subtechniques.
@@ -110,6 +111,17 @@ class Layout:
     def showName(self, showName):
         typeChecker(type(self).__name__, showName, bool, "showName")
         self.__showName = showName
+
+    @property
+    def expandedSubtechniques(self):
+        """Getter for expandedSubtechniques."""
+        if self.__expandedSubtechniques != UNSETVALUE:
+            return self.__expandedSubtechniques
+
+    @expandedSubtechniques.setter
+    def expandedSubtechniques(self, expandedSubtechniques):
+        typeChecker(type(self).__name__, expandedSubtechniques, bool, "expandedSubtechniques")
+        self.__expandedSubtechniques = expandedSubtechniques
 
     @property
     def showAggregateScores(self):

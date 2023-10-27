@@ -49,7 +49,8 @@ layer_example.layer.layout = dict(layout="side",
                                   showName=True,
                                   showAggregateScores=True,
                                   countUnscored=True,
-                                  aggregateFunction="sum")  # average, sum, max, min
+                                  aggregateFunction="sum", # average, sum, max, min
+                                  expandedSubtechniques="annotated")  # all, annotated, none
 
 # configure whether or not to hide disabled techniques
 layer_example.layer.hideDisabled = True
@@ -102,6 +103,7 @@ layout_obj.layout = "side"
 layout_obj.showID = True
 layout_obj.showName = True
 layout_obj.showAggregateScores = True
+layout_obj.expandedSubtechniques = "annotated"
 layout_obj.countUnscored = True
 layout_obj.aggregateFunction = "sum"  # average, sum, max, min
 layer_build.layout = layout_obj
@@ -171,6 +173,7 @@ in the source code for them.
     _LayerObj().tacticRowBackground           # Color code for tactic background
     _LayerObj().selectTechniquesAcrossTactics # Bool determining whether or not to select cross-tactic
     _LayerObj().selectSubtechniquesWithParent # Bool determining whether or not to select subtechniques
+    _LayerObj().selectVisibleTechniques       # Bool determining whether or not to select only visible techniques
     _LayerObj().metadata                      # List of links to Metadata items
     _LayerObj().get_dict()                    # Export Layer as a dictionary object
 ```
@@ -198,6 +201,8 @@ for backwards compatibility reasons.
     Layout().countUnscored       # Bool denoting whether ot not to count unscored techniques as 0s for Aggregates
     Layout().aggregateFunction   # A enum integer denoting which aggregate function to utilize
                                  # 1 - Average, 2 - min, 3 - max, 4 - sum
+    Layout().expandedSubtechniques # String denoting how to display sub-techniques in the layer
+                                 # "all" - expand all sub-techniques, "annotated" - expand only annotated sub-techniques, "none" - collapse all sub-techniques
     Layout().get_dict()          # Export Layout data as a dictionary object
     Layout().compute_aggregate() # Compute the aggregate score for a technique and it's subtechniques
 ```
