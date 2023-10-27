@@ -60,15 +60,15 @@ class Versions:
         """Setter for layer."""
         typeChecker(type(self).__name__, layer, str, "layer")
         try:
-            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2", "4.3", "4.4"], "layer version")
+            categoryChecker(type(self).__name__, layer, ["3.0", "4.0", "4.1", "4.2", "4.3", "4.4", "4.5"], "layer version")
         except BadInput:
             print(
-                f"[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.4 schema, this may result in "
+                f"[WARNING] - unrecognized layer version {layer}. Defaulting to the 4.5 schema, this may result in "
                 f"unexpected behavior."
             )
-        if layer in ["3.0", "4.0", "4.1", "4.2", "4.3"]:
-            print(f"[NOTICE] - Forcibly upgrading version from {layer} to 4.4.")
-            layer = "4.4"
+        if layer in ["3.0", "4.0", "4.1", "4.2", "4.3", "4.4"]:
+            print(f"[NOTICE] - Forcibly upgrading version from {layer} to 4.5.")
+            layer = "4.5"
         self.__layer = layer
 
     def get_dict(self):
