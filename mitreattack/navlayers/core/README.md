@@ -171,6 +171,7 @@ in the source code for them.
     _LayerObj().tacticRowBackground           # Color code for tactic background
     _LayerObj().selectTechniquesAcrossTactics # Bool determining whether or not to select cross-tactic
     _LayerObj().selectSubtechniquesWithParent # Bool determining whether or not to select subtechniques
+    _LayerObj().selectVisibleTechniques       # Bool determining whether or not to select only visible techniques
     _LayerObj().metadata                      # List of links to Metadata items
     _LayerObj().get_dict()                    # Export Layer as a dictionary object
 ```

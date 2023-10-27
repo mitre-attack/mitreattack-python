@@ -45,6 +45,7 @@ class _LayerObj:
         self.__tacticRowBackground = UNSETVALUE
         self.__selectTechniquesAcrossTactics = UNSETVALUE
         self.__selectSubtechniquesWithParent = UNSETVALUE
+        self.__selectVisibleTechniques = UNSETVALUE
         self.__metadata = UNSETVALUE
         self.__links = UNSETVALUE
 
@@ -301,6 +302,17 @@ class _LayerObj:
         self.__selectSubtechniquesWithParent = selectSubtechniquesWithParent
 
     @property
+    def selectVisibleTechniques(self):
+        """Getter for selectVisibleTechniques."""
+        if self.__selectVisibleTechniques != UNSETVALUE:
+            return self.__selectVisibleTechniques
+
+    @selectVisibleTechniques.setter
+    def selectVisibleTechniques(self, selectVisibleTechniques):
+        typeChecker(type(self).__name__, selectVisibleTechniques, bool, "selectVisibleTechniques")
+        self.__selectVisibleTechniques = selectVisibleTechniques
+
+    @property
     def metadata(self):
         """Getter for metadata."""
         if self.__metadata != UNSETVALUE:
@@ -389,6 +401,8 @@ class _LayerObj:
             temp.append("selectTechniquesAcrossTactics")
         if self.selectSubtechniquesWithParent:
             temp.append("selectSubtechniquesWithParent")
+        if self.selectVisibleTechniques:
+            temp.append("selectVisibleTechniques")
         if self.metadata:
             temp.append("metadata")
         return temp
@@ -426,6 +440,8 @@ class _LayerObj:
             temp["selectTechniquesAcrossTactics"] = self.selectTechniquesAcrossTactics
         if self.selectSubtechniquesWithParent is not None:
             temp["selectSubtechniquesWithParent"] = self.selectSubtechniquesWithParent
+        if self.selectVisibleTechniques is not None:
+            temp["selectVisibleTechniques"] = self.selectVisibleTechniques
         if self.metadata:
             temp["metadata"] = [x.get_dict() for x in self.metadata]
         return temp
@@ -470,6 +486,8 @@ class _LayerObj:
             self.selectTechniquesAcrossTactics = data
         elif field == "selectSubtechniquesWithParent":
             self.selectSubtechniquesWithParent = data
+        elif field == "selectVisibleTechniques":
+            self.selectVisibleTechniques = data
         elif field == "metadata":
             self.metadata = data
         elif field == "links":

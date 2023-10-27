@@ -39,6 +39,7 @@ compat = {
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": True,
     "selectSubtechniquesWithParent": False,
+    "selectVisibleTechniques": False,
 }
 agg_layer_1 = """
 {
@@ -257,7 +258,8 @@ agg_layer_5 = """
     "showTacticRowBackground": false,
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
-    "selectSubtechniquesWithParent": false
+    "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
 }"""
 
 agg_layer_6 = """
@@ -343,7 +345,8 @@ agg_layer_6 = """
     "showTacticRowBackground": false,
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
-    "selectSubtechniquesWithParent": false
+    "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
 }
 """
 
@@ -472,6 +475,7 @@ example_layer_v3 = """
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": false,
     "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
     "metadata": [
         {
             "name": "layer metadata 1",
@@ -821,7 +825,8 @@ example_layer_v3_longer = """
     "showTacticRowBackground": false,
     "tacticRowBackground": "#4400ff",
     "selectTechniquesAcrossTactics": false,
-    "selectSubtechniquesWithParent": false
+    "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
 }
 """
 
@@ -7361,7 +7366,8 @@ example_layer_v3_all = """{
     "showTacticRowBackground": false,
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
-    "selectSubtechniquesWithParent": false
+    "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
 }"""
 
 example_layer_v41 = """
@@ -7446,6 +7452,7 @@ example_layer_v41 = """
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": false,
     "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
     "metadata": [
         {
             "name": "layer metadata 1",
@@ -7590,7 +7597,8 @@ example_layer_v41_vbug = """{
     "showTacticRowBackground": false,
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
-    "selectSubtechniquesWithParent": false
+    "selectSubtechniquesWithParent": false,
+    "selectVisibleTechniques": false,
 }"""
 
 example_layer_v3_dict = {
@@ -7699,6 +7707,7 @@ example_layer_v43_dict = {
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": False,
     "selectSubtechniquesWithParent": False,
+    "selectVisibleTechniques": False,
     "metadata": [
         {"name": "layer metadata 1", "value": "layer metadata 1 value"},
         {"divider": True},
@@ -7759,6 +7768,7 @@ example_layer_v42_dict = {
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": False,
     "selectSubtechniquesWithParent": False,
+    "selectVisibleTechniques": False,
     "metadata": [
         {"name": "layer metadata 1", "value": "layer metadata 1 value"},
         {"name": "layer metadata 2", "value": "layer metadata 2 value"},
