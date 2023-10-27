@@ -180,6 +180,8 @@ class _LayerObj:
                 temp.countUnscored = layout["countUnscored"]
             if "aggregateFunction" in layout:
                 temp.aggregateFunction = layout["aggregateFunction"]
+            if "expandedSubtechniques" in layout:
+                temp.expandedSubtechniques = layout["expandedSubtechniques"]
             self.__layout = temp
 
     @property

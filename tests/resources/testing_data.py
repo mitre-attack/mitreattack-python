@@ -28,6 +28,7 @@ compat = {
         "showName": True,
         "showAggregateScores": False,
         "countUnscored": False,
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [],
@@ -56,7 +57,8 @@ agg_layer_1 = """
         "layout": "side",
         "showID": false,
         "showName": true,
-        "showAggregateScores": true
+        "showAggregateScores": true,
+        "expandedSubtechniques": "annotated",
     },
     "techniques": [
         {
@@ -104,7 +106,8 @@ agg_layer_2 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "aggregateFunction": "min"
+        "aggregateFunction": "min",
+        "expandedSubtechniques": "annotated",
     },
     "techniques": [
         {
@@ -153,7 +156,8 @@ agg_layer_3 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "aggregateFunction": "min"
+        "aggregateFunction": "min",
+        "expandedSubtechniques": "annotated",
     },
     "techniques": [
         {
@@ -217,7 +221,8 @@ agg_layer_5 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "countUnscored": false
+        "countUnscored": false,
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": false,
     "techniques": [
@@ -294,7 +299,8 @@ agg_layer_6 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "countUnscored": false
+        "countUnscored": false,
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": false,
     "techniques": [
@@ -366,7 +372,8 @@ agg_layer_7 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "aggregateFunction": "average"
+        "aggregateFunction": "average",
+        "expandedSubtechniques": "annotated",
     },
     "techniques": [
         {
@@ -7662,6 +7669,7 @@ example_layer_v43_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [
@@ -7730,6 +7738,7 @@ example_layer_v42_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [
