@@ -2,7 +2,7 @@
 
 from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
-defaults = dict(layer="4.3", navigator="4.5.5")
+defaults = dict(layer="4.5", navigator="4.9.0")
 
 
 class Versions:
