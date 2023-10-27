@@ -1,3 +1,10 @@
+# 3.0.0 - Upcoming Changes
+
+## Features
+
+- Added support for Assets to the `MitreAttackData`, `attackToExcel`, `diffStix`, and `navlayers` modules.
+- Updated `navlayers` module to support Navigator Layer File Format version 4.5. [#98](https://github.com/mitre-attack/mitreattack-python/issues/98)
+
 # 2.1.1 10/18/2023
 
 ## Fixes
