@@ -23,6 +23,7 @@ class MitreAttackData:
         "x-mitre-tactic",
         "x-mitre-data-source",
         "x-mitre-data-component",
+        "x-mitre-asset",
     ]
 
     # software:group
@@ -52,6 +53,9 @@ class MitreAttackData:
     # technique:data-component
     all_techniques_detected_by_all_datacomponents = None
     all_datacomponents_detecting_all_techniques = None
+    # technique:asset
+    all_techniques_targeting_all_assets = None
+    all_assets_targeted_by_all_techniques = None
 
     def __init__(self, stix_filepath: str = None, src: stix2.MemoryStore = None):
         """Initialize a MitreAttackData object.
@@ -264,6 +268,21 @@ class MitreAttackData:
         """
         return self.get_objects_by_type("campaign", remove_revoked_deprecated)
 
+    def get_assets(self, remove_revoked_deprecated=False) -> list:
+        """Retrieve all asset objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            remove revoked or deprecated objects from the query, by default False
+
+        Returns
+        -------
+        list
+            a list of Asset objects
+        """
+        return self.get_objects_by_type("x-mitre-asset", remove_revoked_deprecated)
+
     def get_datasources(self, remove_revoked_deprecated=False) -> list:
         """Retrieve all data source objects.
 
@@ -334,7 +353,7 @@ class MitreAttackData:
         object_type : str, optional
             the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', or 'x-mitre-data-component')
+            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
         remove_revoked_deprecated : bool, optional
             remove revoked or deprecated objects from the query, by default False
 
@@ -589,7 +608,7 @@ class MitreAttackData:
         stix_type : str
             the object STIX type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', or 'x-mitre-data-component')
+            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
 
         Returns
         -------
@@ -624,7 +643,7 @@ class MitreAttackData:
         stix_type : str
             the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', or 'x-mitre-data-component')
+            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
 
         Returns
         -------
@@ -1679,3 +1698,77 @@ class MitreAttackData:
             return None
 
         return revoked_by[0]
+
+    ###################################
+    # Technique/Asset Relationships
+    ###################################
+
+    def get_all_techniques_targeting_all_assets(self) -> dict:
+        """Get all techniques targeting all assets.
+
+        Returns
+        -------
+        dict
+            a mapping of asset_stix_id => [{'object': AttackPattern, 'relationships': Relationship[]}] for each technique targeting the asset
+        """
+        # return data if it has already been fetched
+        if self.all_techniques_targeting_all_assets:
+            return self.all_techniques_targeting_all_assets
+
+        self.all_techniques_targeting_all_assets = self.get_related(
+            "attack-pattern", "targets", "x-mitre-asset", reverse=True
+        )
+
+        return self.all_techniques_targeting_all_assets
+
+    def get_techniques_targeting_asset(self, asset_stix_id: str) -> list:
+        """Get all techniques targeting an asset.
+
+        Parameters
+        ----------
+        asset_stix_id : str
+            the STIX ID of the asset
+
+        Returns
+        -------
+        list
+            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique targeting the asset
+        """
+        techniques_targeting_assets = self.get_all_techniques_targeting_all_assets()
+        return techniques_targeting_assets[asset_stix_id] if asset_stix_id in techniques_targeting_assets else []
+
+    def get_all_assets_targeted_by_all_techniques(self) -> dict:
+        """Get all assets targeted by all techniques.
+
+        Returns
+        -------
+        dict
+            a mapping of technique_stix_id => [{'object': Asset, 'relationships': Relationship[]}] for each asset targeted by the technique
+        """
+        # return data if it has already been fetched
+        if self.all_assets_targeted_by_all_techniques:
+            return self.all_assets_targeted_by_all_techniques
+
+        self.all_assets_targeted_by_all_techniques = self.get_related("attack-pattern", "targets", "x-mitre-asset")
+
+        return self.all_assets_targeted_by_all_techniques
+
+    def get_assets_targeted_by_technique(self, technique_stix_id: str) -> list:
+        """Get all assets targeted by a technique.
+
+        Parameters
+        ----------
+        technique_stix_id : str
+            the STIX ID of the technique
+
+        Returns
+        -------
+        list
+            a list of {"object": Asset, "relationships": Relationship[]} for each asset targeted by the technique
+        """
+        assets_targeted_by_techniques = self.get_all_assets_targeted_by_all_techniques()
+        return (
+            assets_targeted_by_techniques[technique_stix_id]
+            if technique_stix_id in assets_targeted_by_techniques
+            else []
+        )

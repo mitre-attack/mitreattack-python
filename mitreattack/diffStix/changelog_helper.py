@@ -108,7 +108,7 @@ class DiffStix(object):
         self.new = new
         self.show_key = show_key
         self.site_prefix = site_prefix
-        self.types = ["techniques", "software", "groups", "campaigns", "mitigations", "datasources", "datacomponents"]
+        self.types = ["techniques", "software", "groups", "campaigns", "assets", "mitigations", "datasources", "datacomponents"]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
         self.include_contributors = include_contributors
@@ -123,6 +123,7 @@ class DiffStix(object):
             "software": "Software",
             "groups": "Groups",
             "campaigns": "Campaigns",
+            "assets": "Assets",
             "mitigations": "Mitigations",
             "datasources": "Data Sources",
             "datacomponents": "Data Components",
@@ -582,6 +583,7 @@ class DiffStix(object):
             "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
             "groups": [Filter("type", "=", "intrusion-set")],
             "campaigns": [Filter("type", "=", "campaign")],
+            "assets": [Filter("type", "=", "x-mitre-asset")],
             "mitigations": [Filter("type", "=", "course-of-action")],
             "datasources": [Filter("type", "=", "x-mitre-data-source")],
             "datacomponents": [Filter("type", "=", "x-mitre-data-component")],

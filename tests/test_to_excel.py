@@ -10,6 +10,7 @@ from mitreattack.attackToExcel import attackToExcel
 
 def check_excel_files_exist(excel_folder: Path, domain: str):
     assert (excel_folder / f"{domain}.xlsx").exists()
+    assert (excel_folder / f"{domain}-assets.xlsx").exists()
     assert (excel_folder / f"{domain}-campaigns.xlsx").exists()
     if domain != "mobile-attack":
         # Mobile domain does not have datasources

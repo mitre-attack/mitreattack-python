@@ -31,6 +31,7 @@ Getting ATT&CK Objects by Type
 * `get_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_groups.py>`_
 * `get_all_software.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_software.py>`_
 * `get_all_campaigns.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_campaigns.py>`_
+* `get_all_assets.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_assets.py>`_
 * `get_all_datasources.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_datasources.py>`_
 * `get_all_datacomponents.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_datacomponents.py>`_
 
@@ -111,3 +112,10 @@ Campaign:Group Relationships
 * `get_groups_attributing_to_campaign.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_groups_attributing_to_campaign.py>`_
 * `get_all_campaigns_attributed_to_all_groups.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_campaigns_attributed_to_all_groups.py>`_
 * `get_campaigns_attributed_to_group.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_campaigns_attributed_to_group.py>`_
+
+Technique:Asset Relationships
+
+* `get_all_assets_targeted_by_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_assets_targeted_by_all_techniques.py>`_
+* `get_assets_targeted_by_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_assets_targeted_by_technique.py>`_
+* `get_all_techniques_targeting_all_assets.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_techniques_targeting_all_assets.py>`_
+* `get_techniques_targeting_asset.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_techniques_targeting_asset.py>`_

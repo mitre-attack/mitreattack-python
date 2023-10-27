@@ -14,18 +14,18 @@ def main(argv=None):
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--overview-type",
-        choices=["group", "software", "mitigation", "datasource"],
+        choices=["group", "software", "mitigation", "datasource", "campaign", "asset"],
         help="Output a layer file where the target type is summarized across the entire dataset.",
     )
     group.add_argument(
         "--mapped-to",
         help="Output layer file with techniques mapped to the given group, software, "
-        "mitigation, or data component. Argument can be name, associated "
+        "mitigation, data component, campaign, or asset. Argument can be name, associated "
         "group/software, or ATT&CK ID.",
     )
     group.add_argument(
         "--batch-type",
-        choices=["group", "software", "mitigation", "datasource"],
+        choices=["group", "software", "mitigation", "datasource", "campaign", "asset"],
         help="Output a collection of layer files to the specified folder, each one representing a "
         "different instance of the target type.",
     )

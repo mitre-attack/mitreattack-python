@@ -522,6 +522,65 @@ def campaignsToDf(src):
     return dataframes
 
 
+def assetsToDf(src):
+    """Parse STIX assets from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    assets = src.query([Filter("type", "=", "x-mitre-asset")])
+    assets = remove_revoked_deprecated(assets)
+
+    dataframes = {}
+    if assets:
+        asset_rows = []
+        for asset in tqdm(assets, desc="parsing assets"):
+            row = parseBaseStix(asset)
+            # add asset-specific fields
+            if "x_mitre_platforms" in asset:
+                row["platforms"] = ", ".join(sorted(asset["x_mitre_platforms"]))
+            if "x_mitre_sectors" in asset:
+                row["sectors"] = ", ".join(sorted(asset["x_mitre_sectors"]))
+            if "x_mitre_related_assets" in asset:
+                related_assets = []
+                related_assets_sectors = []
+                related_assets_descriptions = []
+
+                for related_asset in asset["x_mitre_related_assets"]:
+                    related_assets.append(related_asset["name"])
+                    related_assets_sectors.append(", ".join(related_asset["related_asset_sectors"]))
+                    related_assets_descriptions.append(related_asset["description"])
+
+                row["related assets"] = "; ".join(related_assets)
+                row["related assets sectors"] = "; ".join(related_assets_sectors)
+                row["related assets description"] = "; ".join(related_assets_descriptions)
+
+            asset_rows.append(row)
+
+        citations = get_citations(assets)
+        dataframes = {
+            "assets": pd.DataFrame(asset_rows).sort_values("name"),
+        }
+        # add relationships
+        codex = relationshipsToDf(src, relatedType="asset")
+        dataframes.update(codex)
+        # add relationship references
+        dataframes["assets"]["relationship citations"] = _get_relationship_citations(dataframes["assets"], codex)
+        # add/merge citations
+        if not citations.empty:
+            # append to existing citations from references
+            if "citations" in dataframes:
+                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
+            else:  # add citations
+                dataframes["citations"] = citations
+
+            dataframes["citations"].sort_values("reference")
+    else:
+        logger.warning("No assets found - nothing to parse")
+
+    return dataframes
+
+
 def mitigationsToDf(src):
     """Parse STIX mitigations from the given data and return corresponding pandas dataframes.
 
@@ -859,6 +918,7 @@ def relationshipsToDf(src, relatedType=None):
         "software": ["tool", "malware"],
         "group": ["intrusion-set"],
         "campaign": ["campaign"],
+        "asset": ["x-mitre-asset"],
         "mitigation": ["course-of-action"],
         "matrix": ["x-mitre-matrix"],
         "datasource": ["x-mitre-data-component"],
@@ -874,6 +934,7 @@ def relationshipsToDf(src, relatedType=None):
         "x-mitre-data-component": "datacomponent",
         "x-mitre-data-source": "datasource",
         "campaign": "campaign",
+        "x-mitre-asset": "asset",
     }
 
     mitre_attack_data = MitreAttackData(src=src)
@@ -983,6 +1044,7 @@ def relationshipsToDf(src, relatedType=None):
         procedureExamples = relationships.query("`mapping type` == 'uses' and `target type` == 'technique'")
         attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
         relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
+        targetedAssets = relationships.query("`mapping type` == 'targets' and `target type` == 'asset'")
 
         if not relatedGroupSoftware.empty:
             if relatedType == "group":
@@ -1020,6 +1082,13 @@ def relationshipsToDf(src, relatedType=None):
             else:
                 sheet_name = "techniques addressed"
             dataframes[sheet_name] = relatedMitigations
+
+        if not targetedAssets.empty:
+            if relatedType == "technique":
+                sheet_name = "targeted assets"
+            else:
+                sheet_name = "associated techniques"
+            dataframes[sheet_name] = targetedAssets
 
         if not citations.empty:
             # filter citations by ones actually used

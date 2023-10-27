@@ -1,4 +1,4 @@
-from mitreattack.stix20.custom_attack_objects import DataComponent, DataSource, Matrix, StixObjectFactory, Tactic
+from mitreattack.stix20.custom_attack_objects import DataComponent, DataSource, Matrix, StixObjectFactory, Tactic, Asset
 
 
 class TestCustomAttackObjects:
@@ -29,6 +29,7 @@ class TestCustomAttackObjects:
             "x-mitre-data-source": DataSource,
             "x-mitre-matrix": Matrix,
             "x-mitre-tactic": Tactic,
+            "x-mitre-asset": Asset,
         }
 
         object_name = "Object name"
@@ -52,3 +53,10 @@ class TestCustomAttackObjects:
         assert tactic.type == "x-mitre-tactic"
         assert tactic.get_shortname() == shortname
         assert tactic.get_version() == version
+
+    def test_asset(self):
+        name = "Asset"
+        asset = Asset(name=name)
+
+        assert asset.name == name
+        assert asset.type == "x-mitre-asset"

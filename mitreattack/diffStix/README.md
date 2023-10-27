@@ -73,6 +73,7 @@ A brief explanation of key pieces can be found below.
     "software": {},
     "groups": {},
     "campaigns": {},
+    "assets": {},
     "mitigations": {},
     "datasources": {},
     "datacomponents": {}

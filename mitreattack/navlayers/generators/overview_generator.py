@@ -52,6 +52,8 @@ class OverviewLayerGenerator:
 
         self.sources = self.source_handle.query([Filter("type", "=", "x-mitre-data-source")])
         self.components = self.source_handle.query([Filter("type", "=", "x-mitre-data-component")])
+        self.campaigns = self.source_handle.query([Filter("type", "=", "campaign")])
+        self.assets = self.source_handle.query([Filter("type", "=", "x-mitre-asset")])
         self.source_mapping = build_data_strings(self.sources, self.components)
         # Contains relationship mapping [stix id] -> [relationships associated with that stix id for each type]
         self.simplifier = {
@@ -61,6 +63,7 @@ class OverviewLayerGenerator:
             "intrusion-set": dict(),
             "x-mitre-data-component": dict(),
             "campaign": dict(),
+            "asset": dict(),
         }
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort
@@ -139,6 +142,24 @@ class OverviewLayerGenerator:
         """
         names = [self.source_mapping[x.source_ref] for x in relationships]
         return len(names), names
+    
+    def get_campaigns(self, relationships):
+        """Sort campaigns out of relationships.
+
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched campaigns, list of campaign names
+        """
+        names = [x.name for x in self.campaigns if x.id in relationships]
+        return len(names), names
+
+    def get_assets(self, relationships):
+        """Sort assets out of relationships.
+
+        :param relationships: List of all related relationships to a given technique
+        :return: length of matched assets, list of asset names
+        """
+        names = [x.name for x in self.assets if x.id in relationships]
+        return len(names), names
 
     def get_matrix_template(self):
         """Build the raw dictionary form matrix layer object.
@@ -211,6 +232,18 @@ class OverviewLayerGenerator:
                     score, listing = self.get_datasources(related)
                 except KeyError:
                     pass
+            elif obj_type == "campaign":
+                try:
+                    related = self.simplifier["campaign"][tech.id]
+                    score, listing = self.get_campaigns(related)
+                except KeyError:
+                    pass
+            elif obj_type == "asset":
+                try:
+                    related = self.simplifier["asset"][tech.id]
+                    score, listing = self.get_assets(related)
+                except KeyError:
+                    pass
             entry["score"] = score
             entry["comment"] = ", ".join(listing)
         return temp
@@ -222,7 +255,7 @@ class OverviewLayerGenerator:
         :return: layer object with annotated techniques
         """
         typeChecker(type(self).__name__, obj_type, str, "type")
-        categoryChecker(type(self).__name__, obj_type, ["group", "software", "mitigation", "datasource"], "type")
+        categoryChecker(type(self).__name__, obj_type, ["group", "software", "mitigation", "datasource", "campaign", "asset"], "type")
         initial_list = self.get_matrix_template()
         updated_list = self.update_template(obj_type, initial_list)
         if obj_type == "group":
@@ -234,6 +267,12 @@ class OverviewLayerGenerator:
         elif obj_type == "datasource":
             p_name = "data sources"
             r_type = "detecting"
+        elif obj_type == "campaign":
+            p_name = "campaigns"
+            r_type = "using"
+        elif obj_type == "asset":
+            p_name = "assets"
+            r_type = "targeted by"
         else:  # mitigation case
             p_name = "mitigations"
             r_type = "mitigating"
