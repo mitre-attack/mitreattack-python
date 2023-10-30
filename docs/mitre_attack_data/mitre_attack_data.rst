@@ -38,10 +38,10 @@ examples of retrieving data by STIX ID, ATT&CK ID, type, etc. can be found in th
     from mitreattack.stix20 import MitreAttackData
 
     mitre_attack_data = MitreAttackData("enterprise-attack.json")
-    groups = mitre_attack_data.get_groups() 
+    groups = mitre_attack_data.get_groups()
 
-A large part of working with ATT&CK revolves around parsing relationships between objects. It is 
-useful to track not only the related object but the relationship itself because a description is 
+A large part of working with ATT&CK revolves around parsing relationships between objects. It is
+useful to track not only the related object but the relationship itself because a description is
 often present to contextualize the nature of the relationship. This library can be used to build
 a lookup table of STIX ID to related objects and relationships.
 
@@ -64,9 +64,9 @@ a lookup table of STIX ID to related objects and relationships.
     #     }
     # ]
 
-When working with functions to return objects based on a set of characteristics, it is likely that a few objects 
-may be returned which are no longer maintained by ATT&CK. These are objects marked as deprecated or revoked. 
-We recommend filtering out revoked and deprecated objects whenever possible since they are no longer maintained 
+When working with functions to return objects based on a set of characteristics, it is likely that a few objects
+may be returned which are no longer maintained by ATT&CK. These are objects marked as deprecated or revoked.
+We recommend filtering out revoked and deprecated objects whenever possible since they are no longer maintained
 by ATT&CK.
 
 **Example: Removing revoked and deprecated objects**
@@ -90,8 +90,8 @@ To separately remove revoked and deprecated objects from the results of a method
     mitigations = mitre_attack_data.remove_revoked_deprecated(mitigations)
 
 
-Please refer to the `STIX2 Python API Documentation`_ for more information on how to work with 
-STIX programmatically. We also recommend reading the `ATT&CK Design and Philosophy Paper`_, which 
+Please refer to the `STIX2 Python API Documentation`_ for more information on how to work with
+STIX programmatically. We also recommend reading the `ATT&CK Design and Philosophy Paper`_, which
 describes high-level overall approach, intention, and usage of ATT&CK.
 
 
