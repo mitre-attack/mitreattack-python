@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import stix2
 from loguru import logger
 
 from mitreattack.attackToExcel import attackToExcel
@@ -24,34 +25,34 @@ def check_excel_files_exist(excel_folder: Path, domain: str):
     assert (excel_folder / f"{domain}-techniques.xlsx").exists()
 
 
-def test_enterprise_latest(tmp_path: Path, stix_file_enterprise_latest: str):
+def test_enterprise_latest(tmp_path: Path, memstore_enterprise_latest: stix2.MemoryStore):
     """Test most recent enterprise to excel spreadsheet functionality"""
     logger.debug(f"{tmp_path=}")
     domain = "enterprise-attack"
 
-    attackToExcel.export(domain=domain, output_dir=str(tmp_path), stix_file=stix_file_enterprise_latest)
+    attackToExcel.export(domain=domain, output_dir=str(tmp_path), mem_store=memstore_enterprise_latest)
 
     excel_folder = tmp_path / domain
     check_excel_files_exist(excel_folder=excel_folder, domain=domain)
 
 
-def test_mobile_latest(tmp_path: Path, stix_file_mobile_latest: str):
+def test_mobile_latest(tmp_path: Path, memstore_mobile_latest: stix2.MemoryStore):
     """Test most recent mobile to excel spreadsheet functionality"""
     logger.debug(f"{tmp_path=}")
     domain = "mobile-attack"
 
-    attackToExcel.export(domain="mobile-attack", output_dir=str(tmp_path), stix_file=stix_file_mobile_latest)
+    attackToExcel.export(domain="mobile-attack", output_dir=str(tmp_path), mem_store=memstore_mobile_latest)
 
     excel_folder = tmp_path / domain
     check_excel_files_exist(excel_folder=excel_folder, domain=domain)
 
 
-def test_ics_latest(tmp_path: Path, stix_file_ics_latest: str):
+def test_ics_latest(tmp_path: Path, memstore_ics_latest: stix2.MemoryStore):
     """Test most recent ics to excel spreadsheet functionality"""
     logger.debug(f"{tmp_path=}")
     domain = "ics-attack"
 
-    attackToExcel.export(domain="ics-attack", output_dir=str(tmp_path), stix_file=stix_file_ics_latest)
+    attackToExcel.export(domain="ics-attack", output_dir=str(tmp_path), mem_store=memstore_ics_latest)
 
     excel_folder = tmp_path / domain
     check_excel_files_exist(excel_folder=excel_folder, domain=domain)

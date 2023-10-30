@@ -1,11 +1,12 @@
 """MitreAttackData Library."""
 
-import stix2
-
-from dateutil import parser
 from itertools import chain
+
+import stix2
+from dateutil import parser
 from stix2 import Filter
 from stix2.utils import get_type_from_id
+
 from mitreattack.stix20.custom_attack_objects import StixObjectFactory
 
 

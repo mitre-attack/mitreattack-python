@@ -1,5 +1,4 @@
 import shutil
-from pathlib import Path
 
 import pytest
 from loguru import logger
@@ -8,6 +7,7 @@ from stix2 import MemoryStore
 from mitreattack.download_stix import download_domains
 from mitreattack.navlayers import Layer
 from mitreattack.release_info import LATEST_VERSION
+from mitreattack.stix20 import MitreAttackData
 
 from .resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 
@@ -44,30 +44,48 @@ def stix_file_ics_latest(attack_stix_dir):
 
 
 @pytest.fixture(scope="session")
-def memstore_enterprise_latest(attack_stix_dir):
+def memstore_enterprise_latest(stix_file_enterprise_latest):
     logger.debug("Loading STIX memstore for Enterprise ATT&CK")
-    stix_file = f"{attack_stix_dir}/v{LATEST_VERSION}/enterprise-attack.json"
     mem_store = MemoryStore()
-    mem_store.load_from_file(stix_file)
+    mem_store.load_from_file(stix_file_enterprise_latest)
     return mem_store
 
 
 @pytest.fixture(scope="session")
-def memstore_mobile_latest(attack_stix_dir):
+def memstore_mobile_latest(stix_file_mobile_latest):
     logger.debug("Loading STIX memstore for Mobile ATT&CK")
-    stix_file = f"{Path.cwd()}/{attack_stix_dir}/v{LATEST_VERSION}/mobile-attack.json"
     mem_store = MemoryStore()
-    mem_store.load_from_file(stix_file)
+    mem_store.load_from_file(stix_file_mobile_latest)
     return mem_store
 
 
 @pytest.fixture(scope="session")
-def memstore_ics_latest(attack_stix_dir):
+def memstore_ics_latest(stix_file_ics_latest):
     logger.debug("Loading STIX memstore for ICS ATT&CK")
-    stix_file = f"{attack_stix_dir}/v{LATEST_VERSION}/ics-attack.json"
     mem_store = MemoryStore()
-    mem_store.load_from_file(stix_file)
+    mem_store.load_from_file(stix_file_ics_latest)
     return mem_store
+
+
+@pytest.fixture(scope="session")
+def mitre_attack_data_enterprise(memstore_enterprise_latest):
+    logger.debug("Loading STIX memstore for Enterprise ATT&CK")
+    mitre_attack_data = MitreAttackData(src=memstore_enterprise_latest)
+    return mitre_attack_data
+
+
+@pytest.fixture(scope="session")
+def mitre_attack_data_mobile(memstore_mobile_latest):
+    logger.debug("Loading STIX memstore for Mobile ATT&CK")
+    mitre_attack_data = MitreAttackData(src=memstore_mobile_latest)
+    return mitre_attack_data
+
+
+@pytest.fixture(scope="session")
+def mitre_attack_data_ics(memstore_ics_latest):
+    logger.debug("Loading STIX memstore for ICS ATT&CK")
+    mitre_attack_data = MitreAttackData(src=memstore_ics_latest)
+    return mitre_attack_data
 
 
 @pytest.fixture()
