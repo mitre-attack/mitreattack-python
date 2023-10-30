@@ -13,6 +13,14 @@ ignore = [
     ]
 # On top of the defaults (E, F), enable pydocstyle (D) and isort (I).
 select = ["E", "F", "D", "I"]
+exclude = [
+    ".venv",
+    "__pypackages__",
+    "build",
+    "dist",
+    "venv",
+    "tests",
+]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
