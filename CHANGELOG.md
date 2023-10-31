@@ -1,11 +1,11 @@
-# 3.0.0 - Upcoming Changes
+# v3.0.0 - 10/31/2023
 
 ## Features
 
 - Added support for Assets to the `MitreAttackData`, `attackToExcel`, `diffStix`, and `navlayers` modules.
 - Updated `navlayers` module to support Navigator Layer File Format version 4.5. [#98](https://github.com/mitre-attack/mitreattack-python/issues/98)
 
-# 2.1.1 10/18/2023
+# v2.1.1 - 10/18/2023
 
 ## Fixes
 
@@ -15,7 +15,7 @@
 
 - mitreattack.stix20.MitreAttackData can now be initialized with a stix2.MemoryStore instead of just a STIX file.
 
-# 2.1.0 10/13/2023
+# v2.1.0 - 10/13/2023
 
 ## Fixes
 
@@ -27,69 +27,69 @@
 
 - Updated documentation to include links to all the latest example scripts.
 
-# 2.0.14 6/30/2023
+# v2.0.14 - 6/30/2023
 
 ## Fixes
 
 - Downloading STIX in changelog_helper is more resilient
 
-# 2.0.13 6/9/2023
+# v2.0.13 - 6/9/2023
 
 ## Fixes
 
 - Fix issue with minimum version of drawsvg in setup.py
 
-# 2.0.12 6/9/2023
+# v2.0.12 - 6/9/2023
 
 ## Features
 
 - Changelog Helper: Ignore order when creating diff
 - Changelog Helper: Attempt to download STIX multiple times
 
-# 2.0.11 5/9/2023
+# v2.0.11 - 5/9/2023
 
 ## Features
 
 - Update release information for ATT&CK 13.1
 
-# 2.0.10 4/25/2023
+# v2.0.10 - 4/25/2023
 
 ## Features
 
 - Add ATT&CK v13.0 release SHA256 hashes
 
-# 2.0.9 4/23/2023
+# v2.0.9 - 4/23/2023
 
 ## Fixes
 
 - Update sorting logic for detections and mitigations in changelog JSON format
 
-# 2.0.8 4/20/2023
+# v2.0.8 - 4/20/2023
 
 ## Fixes
 
 - Fix logic error for handling versions of ATT&CK objects in changelog helper
 
-# 2.0.7 4/18/2023
+# v2.0.7 - 4/18/2023
 
 ## Fixes
 
 - [Fix bug in get_all_software_used_by_all_groups()](https://github.com/mitre-attack/mitreattack-python/pull/109) (Credit: @jmsarn)
 - Update categories for changelog helper script
 
-# v2.0.6 3/13/2023
+# v2.0.6 - 3/13/2023
 
 ## Fixes
 
 - Fix issue with getting revoked STIX objects
 
-# v2.0.5 3/6/2023
+# v2.0.5 - 3/6/2023
 
 ## Fixes
 
 - Fix dependency on drawSvg, pinning it to <2.0.0
 
-# v2.0.4 1/30/2023
+# v2.0.4 - 1/30/2023
 
 ## Features
 
@@ -99,7 +99,7 @@
 
 - Add full docstrings to most functions in `mitreattack/diffStix/changelog_helper.py`.
 
-# v2.0.3 1/23/2023
+# v2.0.3 - 1/23/2023
 
 ## Features
 
@@ -115,19 +115,19 @@
 
 - Fix links to example scripts [#100](https://github.com/mitre-attack/mitreattack-python/pull/100)
 
-# v2.0.2 1/10/2023
+# v2.0.2 - 1/10/2023
 
 ## Fixes
 
 - Fix issue with diff_stix entrypoint when using the mitre/cti repository as the upstream source
 
-# v2.0.1 1/10/2023
+# v2.0.1 - 1/10/2023
 
 ## Fixes
 
 - Fix issue with Excel generation for Tactic names.
 
-# v2.0.0 1/10/2023
+# v2.0.0 - 1/10/2023
 
 ## Fixes
 
@@ -140,7 +140,7 @@
 - Add a new library module, `MitreAttackData`, for working with ATT&CK data, including the functions and relationships microlibrary from the
 [CTI USAGE document](https://github.com/mitre/cti/blob/master/USAGE.md). [#90](https://github.com/mitre-attack/mitreattack-python/issues/90)
 
-# v1.7.3 12/6/2022
+# v1.7.3 - 12/6/2022
 
 ## Fixes
 
@@ -149,37 +149,37 @@
 - Fix parsing of link dividers in layer files [#94](https://github.com/mitre-attack/mitreattack-python/issues/94)
 - Fix issue with retrieving technique ATT&CK IDs when generating a Navigator layer from the taxii server [#82](https://github.com/mitre-attack/mitreattack-python/issues/82)
 
-# v1.7.2 10/24/2022
+# v1.7.2 - 10/24/2022
 
 ## Fixes
 
 - Fix data component parsing in diffStix changelog script
 
-# v1.7.1 10/23/2022
+# v1.7.1 - 10/23/2022
 
 ## Fixes
 
 - Fix JSON support for diffStix changelog script
 
-# v1.7.0 10/21/2022
+# v1.7.0 - 10/21/2022
 
 ## Improvements
 
 - Add support for campaigns to the diffStix changelog script [#93](https://github.com/mitre-attack/mitreattack-python/pull/93)
 
-# v1.6.2 9/7/2022
+# v1.6.2 - 9/7/2022
 
 ## Fixes
 
 - Fix SVG export functionality [#74](https://github.com/mitre-attack/mitreattack-python/issues/74)
 
-# v1.6.1 9/7/2022
+# v1.6.1 - 9/7/2022
 
 ## Fixes
 
 - Finish switching from `outputDir` to `output_dir` (the breaking change broke ourselves! But this itself isn't a breaking change)
 
-# v1.6.0 9/7/2022
+# v1.6.0 - 9/7/2022
 
 ## Fixes
 
@@ -189,13 +189,13 @@
 
 - Changed attackToExcel's `write_excel()` and `export()` function parameters to use snake case instead of camel case (`outputDir` became `output_dir`)
 
-# v1.5.10 8/24/2022
+# v1.5.10 - 8/24/2022
 
 ## Misc
 
 - Fix GitHub Actions pipeline to be able to publish to PyPI
 
-# v1.5.9 8/24/2022
+# v1.5.9 - 8/24/2022
 
 ## Fixes
 
@@ -206,44 +206,44 @@
 - GitHub Actions now publish releases from tags instead of from local development environments
 - Autoformatted code with black, and set up flake8 to lint as a GitHub Action going forward
 
-# v1.5.8 8/23/2022
+# v1.5.8 - 8/23/2022
 
 ## Fixes
 
 - Fix ability to construct SVG files from TAXII data [#76](https://github.com/mitre-attack/mitreattack-python/issues/76)
 - Filter subtechniques in platforms in attacktoexcel [#84](https://github.com/mitre-attack/mitreattack-python/issues/84)
 
-# v1.5.7 5/2/2022
+# v1.5.7 - 5/2/2022
 
 ## Fixes
 
 - Gracefully handle missing kill chain phases
 
-# v1.5.6 4/24/2022
+# v1.5.6 - 4/24/2022
 
 ## Fixes
 
 - Fix Excel parsing for x-data-components
 
-# v1.5.5 4/23/2022
+# v1.5.5 - 4/23/2022
 
 ## Fixes
 
 - Fix logic error in Excel export when exporting from local file
 
-# v1.5.4 4/23/2022
+# v1.5.4 - 4/23/2022
 
 ## Improvements
 
 - Allow Excel to be exported from local STIX file without needing to download from GitHub
 
-# v1.5.3 4/15/2022
+# v1.5.3 - 4/15/2022
 
 ## Fixes
 
 - Fix Excel output for datasources/components to display correctly
 
-# v1.5.2 4/13/2022
+# v1.5.2 - 4/13/2022
 
 ## Fixes
 
