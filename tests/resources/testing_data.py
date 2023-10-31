@@ -28,7 +28,7 @@ compat = {
         "showName": True,
         "showAggregateScores": False,
         "countUnscored": False,
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "hideDisabled": False,
     "techniques": [],
@@ -58,7 +58,7 @@ agg_layer_1 = """
         "showID": false,
         "showName": true,
         "showAggregateScores": true,
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "techniques": [
         {
@@ -107,7 +107,7 @@ agg_layer_2 = """
         "showName": true,
         "showAggregateScores": true,
         "aggregateFunction": "min",
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "techniques": [
         {
@@ -157,7 +157,7 @@ agg_layer_3 = """
         "showName": true,
         "showAggregateScores": true,
         "aggregateFunction": "min",
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "techniques": [
         {
@@ -222,7 +222,7 @@ agg_layer_5 = """
         "showName": true,
         "showAggregateScores": true,
         "countUnscored": false,
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "hideDisabled": false,
     "techniques": [
@@ -264,7 +264,7 @@ agg_layer_5 = """
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
     "selectSubtechniquesWithParent": false,
-    "selectVisibleTechniques": false,
+    "selectVisibleTechniques": false
 }"""
 
 agg_layer_6 = """
@@ -300,7 +300,7 @@ agg_layer_6 = """
         "showName": true,
         "showAggregateScores": true,
         "countUnscored": false,
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "hideDisabled": false,
     "techniques": [
@@ -352,7 +352,7 @@ agg_layer_6 = """
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
     "selectSubtechniquesWithParent": false,
-    "selectVisibleTechniques": false,
+    "selectVisibleTechniques": false
 }
 """
 
@@ -373,7 +373,7 @@ agg_layer_7 = """
         "showName": true,
         "showAggregateScores": true,
         "aggregateFunction": "average",
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "techniques": [
         {
@@ -833,7 +833,7 @@ example_layer_v3_longer = """
     "tacticRowBackground": "#4400ff",
     "selectTechniquesAcrossTactics": false,
     "selectSubtechniquesWithParent": false,
-    "selectVisibleTechniques": false,
+    "selectVisibleTechniques": false
 }
 """
 
@@ -7374,7 +7374,7 @@ example_layer_v3_all = """{
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
     "selectSubtechniquesWithParent": false,
-    "selectVisibleTechniques": false,
+    "selectVisibleTechniques": false
 }"""
 
 example_layer_v41 = """
@@ -7605,7 +7605,7 @@ example_layer_v41_vbug = """{
     "tacticRowBackground": "#dddddd",
     "selectTechniquesAcrossTactics": true,
     "selectSubtechniquesWithParent": false,
-    "selectVisibleTechniques": false,
+    "selectVisibleTechniques": false
 }"""
 
 example_layer_v3_dict = {
@@ -7669,7 +7669,7 @@ example_layer_v43_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "hideDisabled": False,
     "techniques": [
@@ -7738,7 +7738,7 @@ example_layer_v42_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
-        "expandedSubtechniques": "annotated",
+        "expandedSubtechniques": "annotated"
     },
     "hideDisabled": False,
     "techniques": [

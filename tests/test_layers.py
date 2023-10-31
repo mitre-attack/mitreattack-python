@@ -110,11 +110,20 @@ def test_upgrades():
         [
             (out3[x] == out1[x], x)
             for x in out3
-            if x not in ["versions", "techniques", "metadata", "gradient", "selectSubtechniquesWithParent", "layout"]
+            if x
+            not in [
+                "versions",
+                "techniques",
+                "metadata",
+                "gradient",
+                "selectSubtechniquesWithParent",
+                "layout",
+                "selectVisibleTechniques",
+            ]
         ]
     )
     assert all([out3[x] == out2[x] for x in out3 if x not in ["versions", "techniques", "metadata", "gradient"]])
-    assert all(["4.4" == x["versions"]["layer"] for x in [out1, out2, out3]])
+    assert all(["4.5" == x["versions"]["layer"] for x in [out1, out2, out3]])
 
 
 def test_layer_ops():

@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, handler
+from mitreattack.navlayers.core.exceptions import UNSETVALUE, categoryChecker, handler, typeChecker
 
 
 class Aggregates(Enum):
@@ -120,7 +120,10 @@ class Layout:
 
     @expandedSubtechniques.setter
     def expandedSubtechniques(self, expandedSubtechniques):
-        typeChecker(type(self).__name__, expandedSubtechniques, bool, "expandedSubtechniques")
+        typeChecker(type(self).__name__, expandedSubtechniques, str, "expandedSubtechniques")
+        categoryChecker(
+            type(self).__name__, expandedSubtechniques, ["none", "all", "annotated"], "expandedSubtechniques"
+        )
         self.__expandedSubtechniques = expandedSubtechniques
 
     @property
