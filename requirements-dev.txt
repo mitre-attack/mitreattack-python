@@ -29,4 +29,5 @@ isort
 pyinstrument
 pytest
 pytest-cov
+pytest-dotenv
 ruff
