@@ -267,7 +267,7 @@ class DiffStix(object):
                     ##########################
                     elif new_stix_obj.get("x_mitre_deprecated"):
                         # if previously deprecated, not a change
-                        if "x_mitre_deprecated" not in old_stix_obj:
+                        if not old_stix_obj.get("x_mitre_deprecated"):
                             deprecations.add(stix_id)
 
                     #############################################################
