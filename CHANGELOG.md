@@ -1,3 +1,13 @@
+# v3.0.1 - 11/14/2023
+
+## Features
+
+- Update release information for ATT&CK 14.1
+
+## Fixes
+
+- Fix logic for finding deprecated ATT&CK objects in `changelog_helper.py`.
+
 # v3.0.0 - 10/31/2023
 
 ## Features
