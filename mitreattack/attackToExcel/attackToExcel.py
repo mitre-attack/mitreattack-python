@@ -105,10 +105,8 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "mitigations": stixToDf.mitigationsToDf(src),
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
+        "datasources": stixToDf.datasourcesToDf(src)
     }
-    # get each ATT&CK type
-    if domain in ["enterprise-attack", "ics-attack"]:
-        df["datasources"] = stixToDf.datasourcesToDf(src)
     return df
 
 

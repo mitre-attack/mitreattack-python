@@ -12,12 +12,10 @@ from mitreattack.attackToExcel import attackToExcel
 def check_excel_files_exist(excel_folder: Path, domain: str):
     assert (excel_folder / f"{domain}.xlsx").exists()
     # TODO: add in check for assets for ICS after ATT&CK v14 is released
-    # if domain == "ics-attack":
-    #     # Only ICS has Assets
-    #     assert (excel_folder / f"{domain}-assets.xlsx").exists()
-    if domain in ["enterprise-attack", "ics-attack"]:
-        # Mobile domain does not have datasources
-        assert (excel_folder / f"{domain}-datasources.xlsx").exists()
+    if domain == "ics-attack":
+        # Only ICS has Assets
+        assert (excel_folder / f"{domain}-assets.xlsx").exists()
+    assert (excel_folder / f"{domain}-datasources.xlsx").exists()
     assert (excel_folder / f"{domain}-campaigns.xlsx").exists()
     assert (excel_folder / f"{domain}-groups.xlsx").exists()
     assert (excel_folder / f"{domain}-matrices.xlsx").exists()
@@ -77,3 +75,4 @@ def test_enterprise_legacy(tmp_path: Path):
     assert (excel_folder / f"enterprise-attack-{version}-mitigations.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-matrices.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-groups.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-datasources.xlsx").exists()
