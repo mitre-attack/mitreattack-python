@@ -1,3 +1,9 @@
+# v3.0.2 - 11/22/2023
+
+## Fixes
+
+- Add mobile datasources to excel output. 
+
 # v3.0.1 - 11/14/2023
 
 ## Features
