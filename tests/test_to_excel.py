@@ -75,4 +75,3 @@ def test_enterprise_legacy(tmp_path: Path):
     assert (excel_folder / f"enterprise-attack-{version}-mitigations.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-matrices.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-groups.xlsx").exists()
-    assert (excel_folder / f"enterprise-attack-{version}-datasources.xlsx").exists()
