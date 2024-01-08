@@ -74,7 +74,7 @@ please see the [Contributors Guide](https://github.com/mitre-attack/mitreattack-
 
 ## Notice
 
-Copyright 2023 The MITRE Corporation
+Copyright 2024 The MITRE Corporation
 
 Approved for Public Release; Distribution Unlimited. Case Number 19-0486.
 
