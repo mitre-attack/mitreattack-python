@@ -372,7 +372,16 @@ class MitreAttackData:
                 # filter for objects of given type
                 objects = self.src.query([Filter("type", "=", object_type)])
 
-        objects = list(filter(lambda t: content.lower() in t.description.lower(), objects))
+        # replaced: 'filter(lambda t: content.lower() in t.description.lower(), objects)'
+        # it broke because 'objects' is not an iterable.
+        matched_objects = []
+        for obj in self.src.sink._data.values():
+            if (
+                    hasattr(obj, 'all_versions') and
+                    content.lower() in tuple(obj.all_versions.values())[0].get('description', '').lower()
+            ):
+                matched_objects.append(obj)
+
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
         return objects
