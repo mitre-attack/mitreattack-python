@@ -406,15 +406,15 @@ layer2 = handle.generate_layer(match='Adups')
 
 ## sum_generator.py
 
-`sum_generator.py` provides the `SumLayerGenerator` class, which is designed to allow users to
+`sum_generator.py` provides the `BatchGenerator` class, which is designed to allow users to
 generate a collection of ATT&CK layers that, on a per technique basis, have a score that corresponds to all instances
 of the specified ATT&CK object type (group, mitigation, etc.), and a comment that lists all matching instance.
 Each one of the generated layers will correspond to a single instance of the specified ATT&CK object type.
 
-### SumLayerGenerator()
+### BatchGenerator()
 
 ```python
-x = SumLayerGenerator(source='taxii', domain='enterprise', resource=None)
+x = BatchGenerator(source='taxii', domain='enterprise', resource=None)
 ```
 
 The initialization function for `SumGeneratorLayer`, like `ToSVG` and `ToExcel`, requires the specification of where
