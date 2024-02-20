@@ -354,7 +354,7 @@ class MitreAttackData:
         object_type : str, optional
             the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
             'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
+            'x-mitre-data-source', 'x-mitre-data-component', 'x-mitre-asset', or 'relationship')
         remove_revoked_deprecated : bool, optional
             remove revoked or deprecated objects from the query, by default False
 
@@ -363,28 +363,22 @@ class MitreAttackData:
         list
             a list of objects where the given content string appears in the description
         """
-        objects = self.src
-        if object_type:
-            if object_type not in self.stix_types:
-                # invalid object type
-                raise ValueError(f"object_type must be one of {self.stix_types}")
-            else:
-                # filter for objects of given type
-                objects = self.src.query([Filter("type", "=", object_type)])
+        if object_type and object_type not in self.stix_types and object_type != 'relationship':
+            # invalid object type
+            raise ValueError(f"object_type must be one of {self.stix_types} or 'relationship'")
+        
+        filters = [Filter("type", "=", object_type)] if object_type else []
+        objects = self.src.query(filters)
 
-        # replaced: 'filter(lambda t: content.lower() in t.description.lower(), objects)'
-        # it broke because 'objects' is not an iterable.
         matched_objects = []
-        for obj in self.src.sink._data.values():
-            if (
-                    hasattr(obj, 'all_versions') and
-                    content.lower() in tuple(obj.all_versions.values())[0].get('description', '').lower()
-            ):
+        for obj in objects:
+            if content.lower() in obj.get("description", "").lower():
                 matched_objects.append(obj)
 
         if remove_revoked_deprecated:
-            objects = self.remove_revoked_deprecated(objects)
-        return objects
+            matched_objects = self.remove_revoked_deprecated(matched_objects)
+
+        return matched_objects
 
     def get_techniques_by_platform(self, platform: str, remove_revoked_deprecated=False) -> list:
         """Retrieve techniques under a specific platform.
