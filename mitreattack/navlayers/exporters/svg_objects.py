@@ -440,6 +440,7 @@ class SVG_Technique:
             gp.append(subtech)
             gp.append(subtext)
             new_offset = new_offset + height
+        y_offset = height * (count + 2)
         if count > 0:
             g.append(
                 drawsvg.Lines(
@@ -456,6 +457,7 @@ class SVG_Technique:
                     close=True,
                     fill=tBC,
                     stroke=tBC,
+                    transform=f'translate(0,{y_offset})'
                 )
             )
         return g, offset + new_offset
