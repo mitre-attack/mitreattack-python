@@ -1,3 +1,17 @@
+# v3.0.3 - 3/7/2024
+
+## Features
+
+-  Added support for searching relationships by content in `get_objects_by_content.py`.
+-  Updated README.
+-  Updated copyright year.
+
+## Fixes
+
+- Fixed the placement of the grey subtechnique bars in `svg_objects.py`.
+- Fixed readthedocs build.
+- Fixed bug where self.src wasn't iterable in `get_objects_by_content()`.
+
 # v3.0.2 - 11/22/2023
 
 ## Fixes
