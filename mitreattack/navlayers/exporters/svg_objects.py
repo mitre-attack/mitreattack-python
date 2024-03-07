@@ -115,7 +115,7 @@ def _find_breaks(num_spaces, num_breaks=3):
     return breaks
 
 
-def _optimalFontSize(st, width, height, maxFontSize=12):
+def _optimalFontSize(st, width, height, config, maxFontSize=12):
     """Calculate the optimal fontsize and word layout for a box of width x height.
 
     :param st: string to fit
@@ -293,7 +293,7 @@ class SVG_HeaderBlock:
                 theight = height - 8
                 if bu:
                     theight = theight / 2
-                fs, patch_text = _optimalFontSize(t1text, width, theight, maxFontSize=28)
+                fs, patch_text = _optimalFontSize(t1text, width, theight, config, maxFontSize=28)
                 lines = len(patch_text)
                 y = theight / 2 + 2.1
                 if lines > 1:
@@ -307,7 +307,7 @@ class SVG_HeaderBlock:
                     upper_fs = fs
                     lower_offset = theight + 2.1
                     lower = G(tx=0, ty=lower_offset)
-                    fs, patch_text = _optimalFontSize(t2text, width, (height - (height / 3 + upper_fs)), maxFontSize=28)
+                    fs, patch_text = _optimalFontSize(t2text, width, (height - (height / 3 + upper_fs)), config, maxFontSize=28)
                     y = theight / 2 + 5.1
                     lines = len(patch_text)
                     adju = "\n".join(patch_text)
@@ -343,7 +343,7 @@ class SVG_HeaderBlock:
                     off = (block_width - (5 * (1 + len(tblob)))) / 2
                     if off < 0:
                         off = 0
-                    fs, _ = _optimalFontSize("0", width / len(gradient_colors), height)
+                    fs, _ = _optimalFontSize("0", width / len(gradient_colors), height, config)
                     label = Text(tblob, fs, ctype="label", ty=25, tx=off)
                     cell.append(label)
             if len(legend_colors):
@@ -370,7 +370,7 @@ class SVG_HeaderBlock:
                     off = (block_width - (5 * (1 + len(legendLabel)))) / 2
                     if off < 0:
                         off = 0
-                    fs, _ = _optimalFontSize("0", width / len(legend_colors), height)
+                    fs, _ = _optimalFontSize("0", width / len(legend_colors), height, config)
                     textLabel = Text(legendLabel, fs, ctype="label", ty=25, tx=off)
                     cell.append(textLabel)
         return g
@@ -390,6 +390,7 @@ class SVG_Technique:
         technique,
         height,
         width,
+        config,
         tBC,
         subtechniques=[],
         exclude=[],
@@ -403,6 +404,7 @@ class SVG_Technique:
         :param technique: The technique to build a block for
         :param height: The height of the technique block
         :param width: The width of the technique block
+        :param config: SVG configuration object
         :param tBC: The hex code of the technique block's border
         :param subtechniques: List of any visible subtechniques for this technique
         :param exclude: List of excluded techniques
@@ -418,7 +420,7 @@ class SVG_Technique:
             id=technique.id,
             color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
         )
-        tech, text = self._block(t, height, width, tBC=tBC)
+        tech, text = self._block(t, height, width, config, tBC=tBC)
         g.append(tech)
         g.append(text)
         new_offset = height
@@ -436,7 +438,7 @@ class SVG_Technique:
                 id=entry.id,
                 color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
             )
-            subtech, subtext = self._block(st, height, width - width / 5, tBC=tBC)
+            subtech, subtext = self._block(st, height, width - width / 5, config, tBC=tBC)
             gp.append(subtech)
             gp.append(subtext)
             new_offset = new_offset + height
@@ -463,18 +465,19 @@ class SVG_Technique:
         return g, offset + new_offset
 
     @staticmethod
-    def _block(technique, height, width, tBC):
+    def _block(technique, height, width, config, tBC):
         """Build a technique block element.
 
         :param technique: Technique data dictionary
         :param height: Block height
         :param width: Block width
+        :param config: SVG configuration object
         :param tBC: Block border color
         :return: Block object, fit text object
         """
         tech = Cell(height, width, technique["color"], ctype=technique["id"], tBC=tBC)
 
-        fs, patch_text = _optimalFontSize(technique["name"], width, height)
+        fs, patch_text = _optimalFontSize(technique["name"], width, height, config, config.fontSize)
         adjusted = "\n".join(patch_text)
 
         lines = adjusted.count("\n")

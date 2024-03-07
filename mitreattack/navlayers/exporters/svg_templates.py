@@ -340,6 +340,7 @@ class SvgTemplates:
             technique,
             height,
             width,
+            config,
             subtechniques=subtechniques,
             exclude=exclude,
             mode=mode,
@@ -435,7 +436,7 @@ class SvgTemplates:
             # create header text
             header_glob = G(tx=index, ty=header_offset)
             text_glob = G(tx=technique_width / 2, ty=technique_height / 2)
-            font_size, _ = _optimalFontSize(displayStr, technique_width, technique_height, maxFontSize=28)
+            font_size, _ = _optimalFontSize(displayStr, technique_width, technique_height, config, maxFontSize=8)
             text = Text(ctype="TacticName", font_size=font_size, text=displayStr, position="middle")
             text_glob.append(text)
             header_glob.append(text_glob)
