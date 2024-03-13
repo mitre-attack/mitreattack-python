@@ -2,14 +2,13 @@
 
 ## Features
 
-- Added support for searching relationships by content in `get_objects_by_content.py`.
-- Updated README.
+- Added support for searching relationships by content in `get_objects_by_content.py`. [#164](https://github.com/mitre-attack/mitreattack-python/pull/164)
 - Updated copyright year.
 - Add font size parameter to svg config. [#160](https://github.com/mitre-attack/mitreattack-python/issues/160)
 
 ## Fixes
 
-- Fixed the placement of the grey subtechnique bars in `svg_objects.py`.
+- Fixed the placement of the grey subtechnique bars in `svg_objects.py`. [#166](https://github.com/mitre-attack/mitreattack-python/issues/166)
 - Fixed readthedocs build.
 - Fixed bug where self.src wasn't iterable in `get_objects_by_content()`.
 
