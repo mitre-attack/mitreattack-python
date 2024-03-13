@@ -390,6 +390,7 @@ class SVG_Technique:
         technique,
         height,
         width,
+        config,
         tBC,
         subtechniques=[],
         exclude=[],
@@ -403,6 +404,7 @@ class SVG_Technique:
         :param technique: The technique to build a block for
         :param height: The height of the technique block
         :param width: The width of the technique block
+        :param config: SVG configuration object
         :param tBC: The hex code of the technique block's border
         :param subtechniques: List of any visible subtechniques for this technique
         :param exclude: List of excluded techniques
@@ -418,7 +420,7 @@ class SVG_Technique:
             id=technique.id,
             color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
         )
-        tech, text = self._block(t, height, width, tBC=tBC)
+        tech, text = self._block(t, height, width, config, tBC=tBC)
         g.append(tech)
         g.append(text)
         new_offset = height
@@ -436,7 +438,7 @@ class SVG_Technique:
                 id=entry.id,
                 color=tuple(int(c[i : i + 2], 16) for i in (0, 2, 4)),
             )
-            subtech, subtext = self._block(st, height, width - width / 5, tBC=tBC)
+            subtech, subtext = self._block(st, height, width - width / 5, config, tBC=tBC)
             gp.append(subtech)
             gp.append(subtext)
             new_offset = new_offset + height
@@ -463,18 +465,19 @@ class SVG_Technique:
         return g, offset + new_offset
 
     @staticmethod
-    def _block(technique, height, width, tBC):
+    def _block(technique, height, width, config, tBC):
         """Build a technique block element.
 
         :param technique: Technique data dictionary
         :param height: Block height
         :param width: Block width
+        :param config: SVG configuration object
         :param tBC: Block border color
         :return: Block object, fit text object
         """
         tech = Cell(height, width, technique["color"], ctype=technique["id"], tBC=tBC)
 
-        fs, patch_text = _optimalFontSize(technique["name"], width, height)
+        fs, patch_text = _optimalFontSize(technique["name"], width, height, config.fontSize)
         adjusted = "\n".join(patch_text)
 
         lines = adjusted.count("\n")

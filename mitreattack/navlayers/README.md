@@ -267,7 +267,7 @@ If not provided, the configuration for the export will be set to default values.
 y = SVGConfig(width=8.5, height=11, headerHeight=1, unit="in", showSubtechniques="expanded",
                  font="sans-serif", tableBorderColor="#6B7279", showHeader=True, legendDocked=True,
                  legendX=0, legendY=0, legendWidth=2, legendHeight=1, showLegend=True, showFilters=True,
-                 showAbout=True, showDomain=True, border=0.104)
+                 showAbout=True, showDomain=True, border=0.104, fontSize=4)
 ```
 
 The `SVGConfig` object is used to configure how an SVG export behaves.
@@ -297,7 +297,7 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 | showDomain | Whether or not to show the Domain and Version Header Block | bool | True |
 | showAbout | Whether or not to show the About Header Block | bool | True |
 | border | What default border width to use | number | 0.104 |
-
+| fontSize | What font size to use | number | 4 |
 ### .to_svg() Method
 
 ```python

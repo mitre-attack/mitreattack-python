@@ -36,6 +36,7 @@ class SVGConfig:
         showAbout=True,
         showDomain=True,
         border=0.104,
+        fontSize=4
     ):
         """Define parameters to configure SVG export.
 
@@ -57,6 +58,8 @@ class SVGConfig:
         :param showAbout: Whether or not to show the About Header Block
         :param showDomain: Whether or not to show the Domain Version Header Block
         :param border: What default border width to use
+        :param font: What font size to use
+
         """
         self.width = width
         self.height = height
@@ -76,6 +79,7 @@ class SVGConfig:
         self.showFilters = showFilters
         self.showAbout = showAbout
         self.border = border
+        self.fontSize = fontSize
 
     def load_from_file(self, filename=""):
         """Load config from a json file.
@@ -120,6 +124,7 @@ class SVGConfig:
             showFilters=self.showFilters,
             showAbout=self.showAbout,
             border=self.border,
+            fontSize=self.fontSize
         )
         with open(filename, "w", encoding="utf-16") as file:
             json.dump(out, file, ensure_ascii=False)
@@ -144,7 +149,8 @@ class SVGConfig:
             f"- showLegend: {self.showLegend}\n"
             f"- showFilters: {self.showFilters}\n"
             f"- showAbout: {self.showAbout}\n"
-            f"- border: {self.border}"
+            f"- border: {self.border}\n"
+            f"- fontSize: {self.fontSize}"
         )
 
     @property
@@ -234,6 +240,20 @@ class SVGConfig:
             self.__font = font
         else:
             print(f'[Warning] - Unable to set font to {font}: not one of ["serif", "sans-serif", "monospace"]')
+
+    @property
+    def fontSize(self):
+        """Font size getter."""
+        if self.__fontSize is not None:
+            return self.__fontSize
+
+    @fontSize.setter
+    def fontSize(self, fontSize):
+        """Font size setter."""
+        if isinstance(fontSize, (int, float)):
+            self.__fontSize = fontSize
+        else:
+            print(f'[Warning] - Unable to set font to {fontSize}: not a number')
 
     @property
     def tableBorderColor(self):
