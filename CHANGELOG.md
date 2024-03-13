@@ -1,10 +1,11 @@
-# v3.0.3 - 3/7/2024
+# v3.0.3 - 3/13/2024
 
 ## Features
 
--  Added support for searching relationships by content in `get_objects_by_content.py`.
--  Updated README.
--  Updated copyright year.
+- Added support for searching relationships by content in `get_objects_by_content.py`.
+- Updated README.
+- Updated copyright year.
+- Add font size parameter to svg config. [#160](https://github.com/mitre-attack/mitreattack-python/issues/160)
 
 ## Fixes
 
@@ -16,7 +17,7 @@
 
 ## Fixes
 
-- Add mobile datasources to excel output. 
+- Add mobile datasources to excel output.
 
 # v3.0.1 - 11/14/2023
 
