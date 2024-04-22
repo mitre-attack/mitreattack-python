@@ -363,10 +363,10 @@ class MitreAttackData:
         list
             a list of objects where the given content string appears in the description
         """
-        if object_type and object_type not in self.stix_types and object_type != 'relationship':
+        if object_type and object_type not in self.stix_types and object_type != "relationship":
             # invalid object type
             raise ValueError(f"object_type must be one of {self.stix_types} or 'relationship'")
-        
+
         filters = [Filter("type", "=", object_type)] if object_type else []
         objects = self.src.query(filters)
 
