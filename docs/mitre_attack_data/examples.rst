@@ -49,6 +49,9 @@ Getting Multiple ATT&CK Objects
 Related Objects
 -------------------
 
+Technique:Procedure Examples
+* `get_procedure_examples_by_technique.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_procedure_examples_by_technique.py>`_
+
 Technique:Group Relationships
 
 * `get_all_groups_using_all_techniques.py <https://github.com/mitre-attack/mitreattack-python/tree/master/examples/get_all_groups_using_all_techniques.py>`_

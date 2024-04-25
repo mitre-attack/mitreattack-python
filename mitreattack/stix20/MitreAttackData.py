@@ -490,6 +490,28 @@ class MitreAttackData:
                 technique_tactics.append(tactic)
 
         return technique_tactics
+    
+    def get_procedure_examples_by_technique(self, stix_id) -> list:
+        """Retrieve the list of procedure examples by technique.
+
+        Parameters
+        ----------
+        stix_id : str
+            the stix id of the technique.
+
+        Returns
+        -------
+        list
+            a list of the Tool, Malware, IntrusionSet, and Campaign objects using the technique.
+        """
+        procedures = self.src.query(
+            [
+                Filter("type", "=", "relationship"),
+                Filter("relationship_type", "=", "uses"),
+                Filter("target_ref", "=", stix_id),
+            ]
+        )
+        return procedures
 
     def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
         """Retrieve objects which have been created after a given time.
