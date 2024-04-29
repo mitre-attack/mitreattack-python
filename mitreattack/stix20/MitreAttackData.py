@@ -502,7 +502,7 @@ class MitreAttackData:
         Returns
         -------
         list
-            a list of the Tool, Malware, IntrusionSet, and Campaign objects using the technique.
+            a list of stix2.v20.Relationship objectss describing the software, groups, and campaigns using the technique.
         """
         procedures = self.src.query(
             [
