@@ -1,3 +1,7 @@
+# v3.0.5 - Changes staged
+
+- Added functionality to `MitreAttackData` to retrieve a list of Procedure Examples by technique. [#172](https://github.com/mitre-attack/mitreattack-python/pull/172)
+
 # v3.0.4 - 4/23/2024
 
 ## Features
