@@ -1,6 +1,12 @@
 # v3.0.5 - Changes staged
 
+## Features
+
 - Added functionality to `MitreAttackData` to retrieve a list of Procedure Examples by technique. [#172](https://github.com/mitre-attack/mitreattack-python/pull/172)
+
+## Fixes
+
+- Fixed a layer comparison issue causing false warnings to appear during layer operations. [#173](https://github.com/mitre-attack/mitreattack-python/issues/173).
 
 # v3.0.4 - 4/23/2024
 
