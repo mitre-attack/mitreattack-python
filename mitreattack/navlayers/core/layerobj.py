@@ -462,7 +462,7 @@ class _LayerObj:
             if not field.endswith("s"):
                 # force upgrade
                 print("[Version] - V3 version field detected. Upgrading to V4 Versions object.")
-                ver_obj = dict(layer="4.0", navigator="4.0")
+                ver_obj = dict(layer="4.5", navigator="5.0.0")
                 self.versions = ver_obj
             else:
                 self.versions = data

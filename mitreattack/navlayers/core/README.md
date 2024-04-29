@@ -28,7 +28,7 @@ layer_example = navlayers.Layer()
 layer_example.from_dict(dict(name="example", domain="enterprise-attack"))  # arguments required for every layer
 
 # configure the versions object
-layer_example.layer.versions = dict(layer="4.2", attack="9.1", navigator="4.2")
+layer_example.layer.versions = dict(layer="4.5", attack="15", navigator="5.0.0")
 
 # set a description
 layer_example.layer.description = "This is a demonstration of how to set up a layer piece by piece"

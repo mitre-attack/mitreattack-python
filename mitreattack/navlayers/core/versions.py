@@ -2,7 +2,7 @@
 
 from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
 
-defaults = dict(layer="4.5", navigator="4.9.0")
+defaults = dict(layer="4.5", navigator="5.0.0")
 
 
 class Versions:
@@ -42,9 +42,9 @@ class Versions:
     def navigator(self, navigator):
         """Setter for navigator."""
         typeChecker(type(self).__name__, navigator, str, "navigator")
-        if not navigator.startswith("4."):
+        if not navigator.startswith("5."):
             print(
-                f"[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 4.X schema, "
+                f"[WARNING] - unrecognized navigator version {navigator}. Defaulting to the 5.X.X schema, "
                 f"this may result in unexpected behavior."
             )
             navigator = defaults["navigator"]

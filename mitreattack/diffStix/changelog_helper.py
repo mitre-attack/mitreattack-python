@@ -1052,8 +1052,8 @@ class DiffStix(object):
             # build layer structure
             layer_json = {
                 "versions": {
-                    "layer": "4.4",
-                    "navigator": "4.8.0",
+                    "layer": "4.5",
+                    "navigator": "5.0.0",
                     "attack": self.data["new"][domain]["attack_release_version"],
                 },
                 "name": f"{thedate} {self.domain_to_domain_label[domain]} Updates",
