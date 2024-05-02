@@ -1,3 +1,9 @@
+# v3.0.6 - 5/2/2024
+
+## Fixes
+
+- Update release information for ATT&CK 15.1... for real this time
+
 # v3.0.5 - 5/2/2024
 
 ## Features
