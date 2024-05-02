@@ -1,7 +1,8 @@
-# v3.0.5 - Changes staged
+# v3.0.5 - 5/2/2024
 
 ## Features
 
+- Update release information for ATT&CK 15.1
 - Added functionality to `MitreAttackData` to retrieve a list of Procedure Examples by technique. [#172](https://github.com/mitre-attack/mitreattack-python/pull/172)
 - Updated `navlayers` module to support Navigator version 5.0.0.
 
