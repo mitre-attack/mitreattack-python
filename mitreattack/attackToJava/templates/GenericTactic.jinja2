@@ -1,0 +1,20 @@
+package {{ package_name }};
+/**
+* This Generic class represents the {{ class_name }} in attack matrix and can be used in case there is no technique that fits the description of the attack matrix.
+*
+{{description_lines |safe}}
+
+*/
+public class Generic{{ class_name }} extends {{ package_name }}.AbstractTactic implements {{ package_name }}.{{ class_name }}
+{
+    public Generic{{ class_name }}() {
+        super.name = "{{ name }}";
+        super.domain = "{{ domain }}";
+        super.id = "{{ ID }}";
+        super.url = "{{ url }}";
+        super.version = "{{ version }}";
+        {% if verbose_class %}
+        super.description = "{{ description_field }}";
+        {% endif %}
+    }
+}

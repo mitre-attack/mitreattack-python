@@ -1,0 +1,16 @@
+package {{ package_name }};
+/**
+* This interface represents the {{ class_name }} tactic in the MITRE ATT&CK framework.
+* For each of the tactics, there are techniques that are associated with it which implement an interface for each of the tactics they are associated with.
+* Each tactic also has an Abstract class that represents the tactic itself.
+*/
+public interface {{ class_name }} 
+{
+
+    String getName();
+    String getDomain();
+    String getId();
+    String getUrl();
+    String getVersion();
+
+}

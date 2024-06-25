@@ -1,0 +1,94 @@
+package {{ package_name }};
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
+
+public abstract class MitreTTP {
+    protected String name;
+    protected String domain;
+    protected String id;
+    protected String url;
+    protected String version;
+
+
+
+    {% if verbose_class %}
+    protected final String detection;
+
+    protected ArrayList<MitreAttackDatasource> dataSources = new ArrayList<MitreAttackDatasource>();
+    protected ArrayList<MitreAttackDefensesBypassed> defencesBypassed = new ArrayList<MitreAttackDefensesBypassed>();
+    protected ArrayList<MitreAttackPlatform> platforms = new ArrayList<MitreAttackPlatform>();
+
+    {% endif %}
+
+    // Getters
+    public String getName() {
+        return name;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+
+    /**
+      * Override equals() to use the id as the unique identifier
+      * This is sufficient as the classes are immiutable, that is no setters, no runtime changes
+      */
+    @Override
+    public boolean equals(Object obj) {
+    if (this == obj) {
+        return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+        return false;
+    }
+    
+    MitreTTP that = (MitreTTP) obj;
+    return this.id.equals(that.id);
+    }
+
+    /**
+      * Override hashCode() to use the id as the hashcode
+      * This is sufficient as the classes are immiutable, that is no setters, no runtime changes
+      */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+
+
+    {% if verbose_class %}
+    
+    public String getDescription() {
+        return description;
+    }
+
+    public ArrayList<MitreAttackDatasource> getDataSources() {
+        return Collections.unmodifiableList(new ArrayList<>(dataSources));
+    }
+
+    public ArrayList<MitreAttackDefensesBypassed> getDefencesBypassed() {
+        return Collections.unmodifiableList(new ArrayList<>(defencesBypassed);
+    }
+
+    public ArrayList<MitreAttackPlatform> getPlatforms() {
+        return Collections.unmodifiableList(new ArrayList<>(platforms);
+    }
+
+    {% endif %}
+}
