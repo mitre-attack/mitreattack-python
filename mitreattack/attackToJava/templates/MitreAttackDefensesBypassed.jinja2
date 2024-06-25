@@ -1,0 +1,46 @@
+package {{ package_name }};
+
+/** Represents critical assert, source code, or data that attacker is trying to reach */
+public enum MitreAttackDefensesBypassed {
+
+  {% for key, value in all_defenses_bypassed.items() %}
+        {% if not loop.last %}
+        {{ key }}("{{ value }}"),
+        {% else %}
+        {{ key }}("{{ value }}");
+        {% endif %}
+  {% endfor %}
+
+  private final String value;
+
+  MitreAttackDefensesBypassed(String value) {
+    this.value = value;
+  }
+
+  /**
+   * Gets the string value of the report confidence.
+   *
+   * @return The string value of the report confidence.
+   */
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * Converts a string value to the corresponding MitreAttackDefensesBypassed enum value. If no matching value is
+   * found a RuntimeException is thrown
+   *
+   * @param value The string value to convert.
+   * @return The corresponding MitreAttackDefensesBypassed enum value.
+   * @throws RuntimeException if the value does not match any MitreAttackDefensesBypassed enum value.
+   */
+  public static MitreAttackDefensesBypassed fromValue(String value) {
+    for (MitreAttackDefensesBypassed ac : MitreAttackDefensesBypassed.values()) {
+      if (ac.getValue().equals(value)) {
+        return ac;
+      }
+    }
+
+    throw new RuntimeException("Invalid MitreAttackDefensesBypassed value: " + value);
+  }
+}
