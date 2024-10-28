@@ -5,6 +5,9 @@
 MITRE_ATTACK_ID_SOURCE_NAMES = ["mitre-attack", "mobile-attack", "mitre-mobile-attack", "mitre-ics-attack"]
 MITRE_ATTACK_DOMAIN_STRINGS = ["mitre-attack", "mitre-mobile-attack", "mitre-ics-attack"]
 
+# Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
+#   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
+#   of a platform at the top level of this lookup indicates the existence of subplatforms.
 PLATFORMS_LOOKUP = {
     "enterprise-attack": [
         "PRE",
@@ -12,16 +15,15 @@ PLATFORMS_LOOKUP = {
         "macOS",
         "Linux",
         "Cloud",
-        "Office 365",
-        "Azure AD",
-        "Google Workspace",
+        "Office Suite",
+        "Identity Provider",
         "SaaS",
         "IaaS",
         "Network",
         "Containers",
     ],
     "mobile-attack": ["Android", "iOS"],
-    "Cloud": ["Office 365", "Azure AD", "Google Workspace", "SaaS", "IaaS"],
+    "Cloud": ["Office Suite", "Identity Provider", "SaaS", "IaaS"],
     "ics-attack": [
         "Field Controller/RTU/PLC/IED",
         "Safety Instrumented System/Protection Relay",

@@ -11,41 +11,8 @@ from loguru import logger
 from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
-from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
+from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES, PLATFORMS_LOOKUP
 from mitreattack.stix20 import MitreAttackData
-
-# Lookup module for Platforms - each matrix has a list of possible platforms, and each platform with multiple
-#   subplatforms has a corresponding entry. This allows for a pseudo-recursive lookup of subplatforms, as the presence
-#   of a platform at the top level of this lookup indicates the existence of subplatforms.
-MATRIX_PLATFORMS_LOOKUP = {
-    "enterprise-attack": [
-        "PRE",
-        "Windows",
-        "macOS",
-        "Linux",
-        "Cloud",
-        "Office 365",
-        "Azure AD",
-        "Google Workspace",
-        "SaaS",
-        "IaaS",
-        "Network",
-        "Containers",
-    ],
-    "mobile-attack": ["Android", "iOS"],
-    "Cloud": ["Office 365", "Azure AD", "Google Workspace", "SaaS", "IaaS"],
-    "ics-attack": [
-        "Field Controller/RTU/PLC/IED",
-        "Safety Instrumented System/Protection Relay",
-        "Control Server",
-        "Input/Output Server",
-        "Windows",
-        "Human-Machine Interface",
-        "Engineering Workstation",
-        "Data Historian",
-    ],
-}
-
 
 def remove_revoked_deprecated(stix_objects):
     """Remove any revoked or deprecated objects from queries made to the data source."""
@@ -686,7 +653,7 @@ def build_technique_and_sub_columns(
             if platform:
                 subtechniques = filter_platforms(
                     subtechniques,
-                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
+                    PLATFORMS_LOOKUP[platform] if platform in PLATFORMS_LOOKUP else [platform],
                 )
 
             subtechniques = remove_revoked_deprecated(subtechniques)
@@ -801,7 +768,7 @@ def matricesToDf(src, domain):
         sub_matrices_grid = dict()
         sub_matrices_merges = dict()
         sub_matrices_columns = dict()
-        for entry in MATRIX_PLATFORMS_LOOKUP[domain]:
+        for entry in PLATFORMS_LOOKUP[domain]:
             sub_matrices_grid[entry] = []
             sub_matrices_merges[entry] = []
             sub_matrices_columns[entry] = []
@@ -847,13 +814,13 @@ def matricesToDf(src, domain):
                 tactic_name=tactic["name"],
             )
 
-            for platform in MATRIX_PLATFORMS_LOOKUP[domain]:
+            for platform in PLATFORMS_LOOKUP[domain]:
                 # In order to support "groups" of platforms, each platform is checked against the lookup a second time.
                 # If an second entry can be found, the results from that query will be used, otherwise, the singular
                 # platform will be.
                 a_techs = filter_platforms(
                     techniques,
-                    MATRIX_PLATFORMS_LOOKUP[platform] if platform in MATRIX_PLATFORMS_LOOKUP else [platform],
+                    PLATFORMS_LOOKUP[platform] if platform in PLATFORMS_LOOKUP else [platform],
                 )
                 if a_techs:
                     sub_matrices_columns[platform].append(tactic["name"])
