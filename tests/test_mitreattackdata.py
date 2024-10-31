@@ -1,3 +1,5 @@
+import pytest
+
 from mitreattack.constants import PLATFORMS_LOOKUP
 from mitreattack.stix20 import MitreAttackData
 
