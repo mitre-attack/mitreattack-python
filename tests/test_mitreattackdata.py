@@ -58,6 +58,7 @@ class TestMitreAttackData:
     # Get STIX Objects by Value
     # TODO: Finish this section
     ###################################
+    @pytest.mark.skip(reason="We need to find a better way to test when platforms change names.")
     def test_techniques_by_platform(self, mitre_attack_data_enterprise: MitreAttackData):
         for platform in PLATFORMS_LOOKUP["enterprise-attack"]:
             if platform == "Cloud":
