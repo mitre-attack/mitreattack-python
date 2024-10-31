@@ -3,6 +3,9 @@
 In order to release a new version of mitreattack-python, follow the process outlined here:
 
 1. Verify that all changes desired in the next release are present in the `master` branch.
+
+    - If this is for an ATT&CK release, make sure to update the `LATEST_VERSION` in `mitreattack/release_info.py`.
+
 2. Verify that all changes are documented in the CHANGELOG staged in the `master` branch.
 3. Build the _mitreattack-python_ package from source and install it locally:
    1. [Optional] Activate a virtualenv. e.g., `source ./venv/bin/activate`
