@@ -1,6 +1,12 @@
+# v3.0.8 - 12 November 2024
+
+## Features
+
+- Update library to work with ATT&CK v16.1
+
 # v3.0.7 - 31 October 2024
 
-## Fixes
+## Features
 
 - Update library to work with ATT&CK v16.0 new platform names
 
