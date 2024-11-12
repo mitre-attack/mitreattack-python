@@ -52,7 +52,6 @@ setuptools.setup(
         "requests",
         "rich",
         "stix2",
-        "stix2-elevator",
         "tabulate",
         "taxii2-client",
         "tqdm",

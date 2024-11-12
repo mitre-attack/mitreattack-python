@@ -6,8 +6,6 @@ import json
 import traceback
 from uuid import uuid4
 from datetime import datetime
-from stix2elevator.stix_stepper import step_bundle
-from stix2elevator.options import initialize_options, ElevatorOptions
 
 # https://github.com/mitre-attack/attack-stix-data/blob/docs/data-sources/USAGE.md#the-attck-spec
 X_MITRE_SPEC_VERSION = "2.1.0"
@@ -32,28 +30,7 @@ class STIXToCollection:
                 return bundle
 
         bundle_version = bundle.get("spec_version", "")
-        if bundle_version == "2.0":
-            try:
-                print(
-                    "[NOTE] - version 2.0 spec detected. Forcibly upgrading the bundle to 2.1 to support "
-                    "collections."
-                )
-                initialize_options(ElevatorOptions(custom_property_prefix="mitre", silent=True))
-                working_bundle = step_bundle(working_bundle)
-                print(
-                    "[NOTE] - NOTICE: ATT&CK in STIX 2.1 includes additional fields which were not present on the "
-                    "STIX 2.0 data. These fields have not been added automatically and their absence may affect "
-                    "compatibility with ingesting software. Please see "
-                    "https://github.com/mitre-attack/attack-stix-data/blob/master/USAGE.md for more information."
-                )
-            except Exception as e:
-                print(
-                    f"[ERROR] - Unexpected issue encountered when trying to upgrade from 2.0 to 2.1: {e}. "
-                    f"Terminating..."
-                )
-                print(f"[ERROR] - Full Error trace: {traceback.print_exc(e)}")
-                return None
-        elif bundle_version != "2.1":
+        if bundle_version != "2.1":
             print(
                 f"[ERROR] - version {bundle_version or '[NOT FOUND]'} is not one of [2.0, 2.1]. "
                 f"This module only processes stix 2.0 and stix 2.1 bundles."
