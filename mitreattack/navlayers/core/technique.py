@@ -94,12 +94,8 @@ class Technique:
     @score.setter
     def score(self, score):
         """Setter for score."""
-        try:
-            typeChecker(type(self).__name__, score, int, "score")
-            self.__score = score
-        except BadType:
-            typeChecker(type(self).__name__, score, float, "score")
-            self.__score = int(score)
+        typeChecker(type(self).__name__, score, [int, float], "score")
+        self.__score = score
 
     @property
     def color(self):
