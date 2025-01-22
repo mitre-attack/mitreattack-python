@@ -1,6 +1,6 @@
 colour>=0.1.5
 deepdiff>=6.6.0
-drawsvg==2.3.0
+drawsvg==2.4.0
 loguru>=0.6.0
 Markdown>=3.5
 numpy>=1.26.1
