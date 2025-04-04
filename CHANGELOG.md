@@ -1,3 +1,9 @@
+# next version - unreleased
+
+## Fixes
+
+- Fix detailed changelog HTML generation
+
 # v3.0.8 - 12 November 2024
 
 ## Features

@@ -1552,7 +1552,7 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         ),
     ]
 
-    with open(html_file_detailed, "w") as file:
+    with open(html_file_detailed, "w", encoding="utf-8", errors="xmlcharrefreplace") as file:
         file.writelines(frontmatter)
         lines = []
         for object_type, domain_data in diffStix.data["changes"].items():
@@ -1611,7 +1611,7 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                         if change_type in ["additions", "revocations", "deprecations", "deletions"]:
                             if stix_object.get("description"):
-                                lines.append(f"<p><b>Description</b>: {stix_object['description']}</p>")
+                                lines.append(f"<p><b>Description</b>: {markdown.markdown(stix_object['description'])}</p>")
 
                         if change_type == "revocations":
                             revoked_by_id = get_attack_id(stix_object["revoked_by"])
