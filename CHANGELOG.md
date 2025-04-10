@@ -1,4 +1,4 @@
-# next version - unreleased
+# v3.0.9 - 10 April 2025
 
 ## Fixes
 
