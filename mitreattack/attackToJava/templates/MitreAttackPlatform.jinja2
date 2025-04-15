@@ -1,0 +1,47 @@
+package {{ package_name }};
+
+/** Represents critical assert, source code, or data that attacker is trying to reach */
+public enum MitreAttackPlatform {
+
+
+  {% for key, value in all_platforms.items() %}
+        {% if not loop.last %}
+        {{ key }}("{{ value }}"),
+        {% else %}
+        {{ key }}("{{ value }}");
+        {% endif %}
+  {% endfor %}
+
+  private final String value;
+
+  MitreAttackPlatform(String value) {
+    this.value = value;
+  }
+
+  /**
+   * Gets the string value of the report confidence.
+   *
+   * @return The string value of the report confidence.
+   */
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * Converts a string value to the corresponding MitreAttackPlatform enum value. If no matching value is
+   * found a RuntimeException is thrown
+   *
+   * @param value The string value to convert.
+   * @return The corresponding MitreAttackPlatform enum value.
+   * @throws RuntimeException if the value does not match any MitreAttackPlatform enum value.
+   */
+  public static MitreAttackPlatform fromValue(String value) {
+    for (MitreAttackPlatform ac : MitreAttackPlatform.values()) {
+      if (ac.getValue().equals(value)) {
+        return ac;
+      }
+    }
+
+    throw new RuntimeException("Invalid MitreAttackPlatform value: " + value);
+  }
+}
