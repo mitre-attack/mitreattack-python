@@ -55,13 +55,18 @@ def typeChecker(caller, testee, desired_type, field):
     :param caller: the entity that called this function (used for error
         messages)
     :param testee: the element to test
-    :param desired_type: the type the element should be
+    :param desired_type: the type the element should be or a list of
+        allowed types
     :param field: what the element is to be used as (used for error
         messages)
     :raises BadType: error denoting the testee element is not of the
         correct type
     """
-    if not isinstance(testee, desired_type):
+    if isinstance(desired_type, list):
+        if not any(isinstance(testee, t) for t in desired_type):
+            handler(caller, f"{testee} [{field}] is not one of {str(desired_type)}")
+            raise BadType
+    elif not isinstance(testee, desired_type):
         handler(caller, f"{testee} [{field}] is not a {str(desired_type)}")
         raise BadType
 
