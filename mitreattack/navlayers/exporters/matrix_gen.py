@@ -4,9 +4,8 @@ import json
 
 import requests
 from loguru import logger
-from stix2 import Filter, MemoryStore, TAXIICollectionSource
+from stix2 import Filter, MemoryStore
 from stix2.datastore.memory import _add
-from taxii2client.v20 import Collection, Server
 
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
@@ -125,29 +124,21 @@ class Tactic:
 class MatrixGen:
     """A MatrixGen object."""
 
-    def __init__(self, source="taxii", resource=None, domain="enterprise"):
+    def __init__(self, source="local", resource=None, domain="enterprise"):
         """Initialize - Creates a matrix generator object.
 
-        :param source: Source to utilize (taxii, remote, or local)
+        :param source: Source to utilize (remote or local)
         :param resource: string path to local cache of stix data (local) or url of an ATT&CK Workbench (remote)
         """
         self.convert_data = {}
         self.collections = dict()
-        if source.lower() not in ["taxii", "local", "remote", "memorystore"]:
+        if source.lower() not in ["local", "remote", "memorystore"]:
             logger.error(
-                f"Unable to generate matrix, source {source} is not one of [taxii | remote | local | memorystore]"
+                f"Unable to generate matrix, source {source} is not one of [remote | local | memorystore]"
             )
             raise ValueError
 
-        if source.lower() == "taxii":
-            self.server = Server("https://cti-taxii.mitre.org/taxii")
-            self.api_root = self.server.api_roots[0]
-            for collection in self.api_root.collections:
-                if collection.title != "PRE-ATT&CK":
-                    tc = Collection("https://cti-taxii.mitre.org/stix/collections/" + collection.id)
-                    self.collections[collection.title.split(" ")[0].lower()] = TAXIICollectionSource(tc)
-
-        elif source.lower() == "local":
+        if source.lower() == "local":
             if resource is not None:
                 hd = MemoryStore()
                 hd.load_from_file(resource)

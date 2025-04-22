@@ -15,7 +15,7 @@ class BadTemplateException(Exception):
 class ExcelTemplates:
     """An ExcelTemplates object."""
 
-    def __init__(self, source="taxii", resource=None, domain="enterprise"):
+    def __init__(self, source="local", resource=None, domain="enterprise"):
         """Initialize - Creates a ExcelTemplate object.
 
         :param source: Source to use when compiling the matrix

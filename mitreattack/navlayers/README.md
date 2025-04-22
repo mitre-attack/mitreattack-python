@@ -49,7 +49,7 @@ and version 4.X layers, upgrading them to version 4.3.
 | script | description |
 |:-------|:------------|
 | [excel_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/excel_templates.py) | Provides a means by which to convert a matrix into a clean excel matrix template. |
-| [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from the ATT&CK TAXII server, from a local STIX Bundle, or from an ATT&CK Workbench instance (via url). |
+| [matrix_gen](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/matrix_gen.py) | Provides a means by which to generate a matrix from raw data, either from a local STIX Bundle or from an ATT&CK Workbench instance (via url). |
 | [svg_templates](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_templates.py) | Provides a means by which to convert a layer file into a marked up svg file. |
 | [svg_objects](https://github.com/mitre-attack/mitreattack-python/blob/master/mitreattack/navlayers/exporters/svg_objects.py) | Provides raw templates and supporting functionality for generating svg objects. |
 
@@ -194,19 +194,18 @@ out_layer6.to_file("C:\demo_layer6.json")                     # Save combined co
 
 `to_excel.py` provides the `ToExcel` class, which is a way to export an existing layer file as an Excel spreadsheet.
 The `ToExcel` class has an optional parameter for the initialization function, that tells the exporter what data source to use when building the output matrix.
-Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
+Valid options include using a local STIX bundle, or retrieving data from an ATT&CK Workbench instance.
 
 ### ToExcel()
 
 ```python
-x = ToExcel(domain='enterprise', source='taxii', resource=None)
+x = ToExcel(domain='enterprise', source='local', resource=None)
 ```
 
 The `ToExcel` constructor takes domain, server, and resource arguments during instantiation.
 The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the official ATT&CK Taxii Server (`cti-taxii`) when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that
+The `local` option indicates that it should use a local bundle, and the `remote` option indicates that
 it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path
 to a local stix bundle, or if the source is set to `remote`, in which case it should be the url of a ATT&CK workbench instance.
@@ -227,12 +226,9 @@ from mitreattack.navlayers import ToExcel
 
 lay = Layer()
 lay.from_file("path/to/layer/file.json")
-# Using taxii server for template
-t = ToExcel(domain=lay.layer.domain, source='taxii')
-t.to_xlsx(layerInit=lay, filepath="demo.xlsx")
 # Using local stix data for template
 t2 = ToExcel(domain='mobile', source='local', resource='path/to/local/stix.json')
-t2.to_xlsx(layerInit=lay, filepath="demo2.xlsx")
+t2.to_xlsx(layerInit=lay, filepath="demo.xlsx")
 # Using remote ATT&CK Workbench instance for template
 workbench_url = 'localhost:3000'
 t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
@@ -243,19 +239,18 @@ t3 = ToExcel(domain='ics', source='remote', resource=workbench_url)
 `to_svg.py` provides the `ToSvg` class, which is a way to export an existing layer file as an SVG image file.
 The `ToSvg` class, like the `ToExcel` class, has an optional parameter for the initialization function,
 that tells the exporter what data source to use when building the output matrix.
-Valid options include using live data from cti-taxii.mitre.org, using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
+Valid options include using a local STIX bundle, or utilizing a remote ATT&CK Workbench instance.
 
 ### ToSvg()
 
 ```python
-x = ToSvg(domain='enterprise', source='taxii', resource=None, config=None)
+x = ToSvg(domain='enterprise', source='local', resource='path/to/local/stix.json', config=None)
 ```
 
 The `ToSvg` constructor, just like the `ToExcel` constructor, takes domain, server, and resource arguments during instantiation.
 The domain can be either `enterprise` or `mobile`, and can be pulled directly from a layer file as `layer.domain`.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
 or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
 The `config` parameter is an optional `SVGConfig` object that can be used to configure the export as desired.
@@ -298,6 +293,7 @@ or stored to one using the `.save_to_file(filename="path/to/file.json)` method.
 | showAbout | Whether or not to show the About Header Block | bool | True |
 | border | What default border width to use | number | 0.104 |
 | fontSize | What font size to use | number | 4 |
+
 ### .to_svg() Method
 
 ```python
@@ -314,20 +310,17 @@ from mitreattack.navlayers import ToSvg, SVGConfig
 
 lay = Layer()
 lay.from_file("path/to/layer/file.json")
-# Using taxii server for template
-t = ToSvg(domain=lay.layer.domain, source='taxii')
-t.to_svg(layerInit=lay, filepath="demo.svg")
-#Using local stix data for template
 
+#Using local stix data for template
 conf = SVGConfig()
 conf.load_from_file(filename="path/to/poster/config.json")
 
-t2 = ToSvg(domain='mobile', source='local', resource='path/to/local/stix.json', config=conf)
-t2.to_svg(layerInit=lay, filepath="demo2.svg")
+t = ToSvg(domain='mobile', source='local', resource='path/to/local/stix.json', config=conf)
+t.to_svg(layerInit=lay, filepath="demo2.svg")
 
 workbench_url = "localhost:3000"
-t3 = ToSvg(domain='enterprise', source='remote', resource=workbench_url, config=conf)
-t3.to_svg(layerInit=lay, filepath="demo3.svg")
+t2 = ToSvg(domain='enterprise', source='remote', resource=workbench_url, config=conf)
+t2.to_svg(layerInit=lay, filepath="demo3.svg")
 ```
 
 ## overview_generator.py
@@ -339,15 +332,14 @@ of the specified ATT&CK object type (group, mitigation, etc.), and a comment tha
 ### OverviewLayerGenerator()
 
 ```python
-x = OverviewLayerGenerator(source='taxii', domain='enterprise', resource=None)
+x = OverviewLayerGenerator(source='local', domain='enterprise', resource=None)
 ```
 
 The initialization function for `OverviewLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.).
+to retrieve data from.
 The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
 or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
@@ -371,15 +363,14 @@ and can be referenced by ID or by any alias when provided to the generator.
 ### UsageLayerGenerator()
 
 ```python
-x = UsageLayerGenerator(source='taxii', domain='enterprise', resource=None)
+x = UsageLayerGenerator(source='local', domain='enterprise', resource=None)
 ```
 
 The initialization function for `UsageLayerGenerator`, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.).
+to retrieve data from.
 The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
 or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
@@ -398,7 +389,7 @@ Valid values include `ATT&CK ID`, `name`, or any known `alias` for `group`, `mit
 ```python
 from mitreattack.navlayers import UsageLayerGenerator
 
-handle = UsageLayerGenerator(source='taxii', domain='enterprise')
+handle = UsageLayerGenerator(source='local', domain='enterprise')
 
 layer1 = handle.generate_layer(match='G0018')
 layer2 = handle.generate_layer(match='Adups')
@@ -414,15 +405,14 @@ Each one of the generated layers will correspond to a single instance of the spe
 ### BatchGenerator()
 
 ```python
-x = BatchGenerator(source='taxii', domain='enterprise', resource=None)
+x = BatchGenerator(source='local', domain='enterprise', resource=None)
 ```
 
 The initialization function for `SumGeneratorLayer`, like `ToSVG` and `ToExcel`, requires the specification of where
-to retrieve data from (taxii server etc.).
+to retrieve data from.
 The domain can be either `enterprise`, `mobile`, or `ics`, and can be pulled directly from a layer file as `layer.domain`.
 The source argument tells the matrix generation tool which data source to use when building the matrix.
-`taxii` indicates that the tool should utilize the `cti-taxii` server when building the matrix,
-while the `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
+The `local` option indicates that it should use a local bundle, and the `remote` option indicates that it should utilize a remote ATT&CK Workbench instance.
 The `resource` argument is only required if the source is set to `local`, in which case it should be a path to a local stix bundle,
 or if the source is set to `remote`, in which case it should be the url of an ATT&CK Workbench instance.
 If not provided, the configuration for the generator will be set to default values.
@@ -446,7 +436,7 @@ entry within the navlayers module documentation.
 
 ```commandline
 C:\Users\attack>layerExporter_cli -h
-usage: layerExporter_cli [-h] -m {svg,excel} [-s {taxii,local,remote}]
+usage: layerExporter_cli [-h] -m {svg,excel} [-s {local,remote}]
                             [--resource RESOURCE] -o OUTPUT [OUTPUT ...]
                             [-l LOAD_SETTINGS] [-d WIDTH HEIGHT]
                             input [input ...]
@@ -460,7 +450,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -m {svg,excel}, --mode {svg,excel}
                         The form to export the layers in
-  -s {taxii,local,remote}, --source {taxii,local,remote}
+  -s {local,remote}, --source {local,remote}
                         What source to utilize when building the matrix
   --resource RESOURCE   Path to the local resource if --source=local, or url
                         of an ATT&CK Workbench instance if --source=remote
@@ -472,8 +462,8 @@ optional arguments:
   -d WIDTH HEIGHT, --size WIDTH HEIGHT
                         [SVG Only] X and Y size values (in inches) for SVG
                         export (use -l for other settings)
-                        
-C:\Users\attack>layerExporter_cli -m svg -s taxii -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json       
+
+C:\Users\attack>layerExporter_cli -m svg -s local -l settings/config.json -o output/svg1.json output/svg2.json files/layer1.json files/layer2.json
 ```
 
 ## layerGenerator_cli.py
@@ -487,7 +477,7 @@ C:\Users\attack>layerGenerator_cli -h
 usage: layerGenerator_cli [-h]
                              (--overview-type {group,software,mitigation,datasource} | --mapped-to MAPPED_TO | --batch-type {group,software,mitigation,datasource})
                              [-o OUTPUT] [--domain {enterprise,mobile,ics}]
-                             [--source {taxii,local,remote}]
+                             [--source {local,remote}]
                              [--resource RESOURCE]
 
 Generate an ATT&CK Navigator layer
@@ -499,7 +489,7 @@ optional arguments:
                         summarized across the entire dataset.
   --mapped-to MAPPED_TO
                         Output layer file with techniques mapped to the given
-                        group, software, mitigation, or data component. Argument 
+                        group, software, mitigation, or data component. Argument
                         can be name, associated group/software, or ATT&CK ID.
   --batch-type {group,software,mitigation,datasource}
                         Output a collection of layer files to the specified
@@ -509,13 +499,13 @@ optional arguments:
                         Path to the output layer file/directory
   --domain {enterprise,mobile,ics}
                         Which domain to build off of
-  --source {taxii,local,remote}
+  --source {local,remote}
                         What source to utilize when building the layer files
   --resource RESOURCE   Path to the local resource if --source=local, or url
                         of an ATT&CK Workbench instance if --source=remote
-  
-C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --mapped-to S0065 --output generated_layer.json
-C:\Users\attack>layerGenerator_cli --domain mobile --source taxii --overview-type mitigation --output generated_layer2.json
-C:\Users\attack>layerGenerator_cli --domain ics --source taxii --batch-type software
-C:\Users\attack>layerGenerator_cli --domain enterprise --source taxii --overview-type datasource --output generated_layer3.json
+
+C:\Users\attack>layerGenerator_cli --domain enterprise --source local --mapped-to S0065 --output generated_layer.json
+C:\Users\attack>layerGenerator_cli --domain mobile --source local --overview-type mitigation --output generated_layer2.json
+C:\Users\attack>layerGenerator_cli --domain ics --source local --batch-type software
+C:\Users\attack>layerGenerator_cli --domain enterprise --source local --overview-type datasource --output generated_layer3.json
 ```

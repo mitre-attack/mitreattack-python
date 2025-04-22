@@ -347,8 +347,7 @@ def main():
         "-remote",
         type=str,
         default=None,
-        help="remote url of an ATT&CK workbench server. If omitted, stix data will be acquired from the"
-        " official ATT&CK Taxii server (cti-taxii.mitre.org)",
+        help="remote url of an ATT&CK workbench server.",
     )
     parser.add_argument(
         "-stix-file",

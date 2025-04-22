@@ -17,8 +17,8 @@ def main(argv=None):
     parser.add_argument(
         "-s",
         "--source",
-        choices=["taxii", "local", "remote"],
-        default="taxii",
+        choices=["local", "remote"],
+        default="local",
         help="What source to utilize when building the matrix",
     )
     parser.add_argument(

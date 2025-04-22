@@ -35,8 +35,8 @@ def main(argv=None):
     )
     parser.add_argument(
         "--source",
-        choices=["taxii", "local", "remote"],
-        default="taxii",
+        choices=["local", "remote"],
+        default="local",
         help="What source to utilize when building the layer files",
     )
     parser.add_argument(

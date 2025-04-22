@@ -12,10 +12,10 @@ from mitreattack.navlayers.exporters import ExcelTemplates
 class ToExcel:
     """Class that assists in converting data to Excel files."""
 
-    def __init__(self, domain="enterprise", source="taxii", resource=None):
+    def __init__(self, domain="enterprise", source="local", resource=None):
         """Set up exporting system, builds underlying matrix.
 
-        :param source: Source to generate the matrix from, one of (taxii, local, or remote)
+        :param source: Source to generate the matrix from, one of (local or remote)
         :param resource: Optional string path to local cache of stix data (local) or url of workbench to reach out
                             to (remote)
         """

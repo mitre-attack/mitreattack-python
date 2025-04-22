@@ -24,11 +24,11 @@ class BadTemplateException(Exception):
 class SvgTemplates:
     """An SvgTemplates object."""
 
-    def __init__(self, source="taxii", domain="enterprise", resource=None):
+    def __init__(self, source="local", domain="enterprise", resource=None):
         """Initialize - Creates a SvgTemplate object.
 
         :param domain: Which domain to utilize for the underlying matrix layout
-        :param source: Use the taxii server or local data
+        :param source: Use local data
         :param resource: string path to local cache of stix data (local) or url of workbench to reach out
                             to (remote)
         """

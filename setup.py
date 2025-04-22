@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mitreattack-python",
-    version="3.0.9",
+    version="4.0.0",
     author="MITRE ATT&CK, MITRE Corporation",
     author_email="attack@mitre.org",
     description="MITRE ATT&CK python library",
@@ -24,7 +24,6 @@ setuptools.setup(
             "layerGenerator_cli=mitreattack.navlayers.layerGenerator_cli:main",
             "indexToMarkdown_cli=mitreattack.collections.index_to_markdown:main",
             "collectionToIndex_cli=mitreattack.collections.collection_to_index:main",
-            "stixToCollection_cli=mitreattack.collections.stix_to_collection:main",
             "diff_stix=mitreattack.diffStix.changelog_helper:main",
             "download_attack_stix=mitreattack.download_stix:app",
         ]
@@ -52,9 +51,7 @@ setuptools.setup(
         "requests",
         "rich",
         "stix2",
-        "stix2-elevator",
         "tabulate",
-        "taxii2-client",
         "tqdm",
         "typer",
         "xlsxwriter",

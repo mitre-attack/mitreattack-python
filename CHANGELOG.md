@@ -1,4 +1,8 @@
-# v3.0.9 - 10 April 2025
+# v4.0.0 - 22 April 2025
+
+## Breaking change
+
+- Removed TAXII 2.0 functionality for multiple scripts due to cti-taxii.mitre.org going offline December 2024
 
 ## Fixes
 
