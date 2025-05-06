@@ -1,3 +1,9 @@
+# v4.0.1 - 6 May 2025
+
+## Features
+
+- Update library to work with ATT&CK v17.1
+
 # v4.0.0 - 22 April 2025
 
 ## Breaking change
