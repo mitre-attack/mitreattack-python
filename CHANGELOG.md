@@ -1,3 +1,9 @@
+# v4.0.2 - 7 May 2025
+
+## Fixes
+
+- Update STIX 2.1 SHA256 sums for ATT&CK v17.1
+
 # v4.0.1 - 6 May 2025
 
 ## Features
