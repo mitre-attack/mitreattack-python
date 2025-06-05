@@ -1498,10 +1498,25 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
     old_version = diffStix.data["old"]["enterprise-attack"]["attack_release_version"]
     new_version = diffStix.data["new"]["enterprise-attack"]["attack_release_version"]
 
+    #TODO: make output path dependent on the location of the layer file
+    version_string = f"v{new_version}" if new_version else "new content"
     if new_version:
-        header = f"<h1>ATT&CK Changes Between v{old_version} and v{new_version}</h1>"
+        output_path= f"/docs/changelogs/v{old_version}-v{new_version}"
     else:
-        header = f"<h1>ATT&CK Changes Between v{old_version} and new content</h1>"
+        output_path = ""
+
+
+    header = f"<h1>ATT&CK Changes Between v{old_version} and {version_string}</h1>"
+    navigator_paragraph =  f"""
+    <h2>Additional formats</h2>
+    <p>These ATT&CK Navigator layer files can be uploaded to ATT&CK Navigator manually.</p>
+    <ul>
+        <li><a href="{output_path}/layer-enterprise.json">Enterprise changes</a></li>
+        <li><a href="{output_path}/layer-mobile.json">Mobile changes</a></li>
+        <li><a href="{output_path}/layer-ics.json">ICS changes</a></li>
+    </ul>
+    <p>This JSON file contains the machine readable output used to create this page: <a href="{output_path}/changelog.json">changelog.json</a></p>
+    """
 
     frontmatter = [
         textwrap.dedent(
@@ -1528,28 +1543,21 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         markdown.markdown(diffStix.get_md_key()),
         textwrap.dedent(
             """\
-        <table class=diff summary=Legends>
-            <tr>
-                <td>
-                    <table border= summary=Colors>
-                        <tr><th>Colors for description field</th></tr>
-                        <tr><td class=diff_add>Added</td></tr>
-                        <tr><td class=diff_chg>Changed</td></tr>
-                        <tr><td class=diff_sub>Deleted</td></tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        <h2>Additional formats</h2>
-        <p>These ATT&CK Navigator layer files can be uploaded to ATT&CK Navigator manually.</p>
-        <ul>
-            <li><a href="layer-enterprise.json">Enterprise changes</a></li>
-            <li><a href="layer-mobile.json">Mobile changes</a></li>
-            <li><a href="layer-ics.json">ICS changes</a></li>
-        </ul>
-        <p>This JSON file contains the machine readble output used to create this page: <a href="changelog.json">changelog.json</a></p>
-        """
+            <table class=diff summary=Legends>
+                <tr>
+                    <td>
+                        <table border= summary=Colors>
+                            <tr><th>Colors for description field</th></tr>
+                            <tr><td class=diff_add>Added</td></tr>
+                            <tr><td class=diff_chg>Changed</td></tr>
+                            <tr><td class=diff_sub>Deleted</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            """
         ),
+        navigator_paragraph
     ]
 
     with open(html_file_detailed, "w", encoding="utf-8", errors="xmlcharrefreplace") as file:
@@ -1914,6 +1922,7 @@ def get_new_changelog_md(
     html_file: Optional[str] = None,
     html_file_detailed: Optional[str] = None,
     json_file: Optional[str] = None,
+    output_folder: Optional[str] = "output",
 ) -> str:
     """Get a Markdown string representation of differences between two ATT&CK versions.
 
