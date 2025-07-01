@@ -66,9 +66,9 @@ class DiffStix(object):
     def __init__(
         self,
         domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
-        layers: List[str] = None,
+        layers: Optional[List[str]] = None,
         unchanged: bool = False,
-        old: str = "old",
+        old: Optional[str] = "old",
         new: str = "new",
         show_key: bool = False,
         site_prefix: str = "",
@@ -944,7 +944,7 @@ class DiffStix(object):
 
         return key
 
-    def get_markdown_string(self):
+    def get_markdown_string(self) -> str:
         """Return a markdown string summarizing detected differences."""
         logger.info("Generating markdown output")
         content = ""
@@ -1107,15 +1107,15 @@ class DiffStix(object):
         return changes_dict
 
 
-def has_subtechniques(stix_object: dict, subtechnique_relationships: List[dict]) -> bool:
+def has_subtechniques(stix_object: dict, subtechnique_relationships: Dict[str, dict]) -> bool:
     """Return true or false depending on whether the SDO has sub-techniques.
 
     Parameters
     ----------
     stix_object : dict
         An ATT&CK STIX Domain Object (SDO).
-    subtechnique_relationships : List[dict]
-        List of STIX Relationship Object (SRO) dictionaries.
+    subtechnique_relationships : Dict[str, dict]
+        Dictionary of STIX ID: Relationship Object (SRO).
 
     Returns
     -------
@@ -1198,7 +1198,7 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
 
 
 def version_increment_is_valid(
-    old_version: AttackObjectVersion, new_version: AttackObjectVersion, section: str
+    old_version: AttackObjectVersion | None, new_version: AttackObjectVersion | None, section: str
 ) -> bool:
     """Validate version increment between old and new STIX objects.
 
@@ -1211,10 +1211,10 @@ def version_increment_is_valid(
 
     Parameters
     ----------
-    old_version : AttackObjectVersion
-        Old version of an ATT&CK STIX Domain Object (SDO).
-    new_version : AttackObjectVersion
-        New version of an ATT&CK STIX Domain Object (SDO).
+    old_version : AttackObjectVersion | None
+        Old version of an ATT&CK STIX Domain Object (SDO). Can be None for additions.
+    new_version : AttackObjectVersion | None
+        New version of an ATT&CK STIX Domain Object (SDO). Can be None for deletions.
     section : str
         Section change type, e.g major_version_change, revocations, etc.
 
@@ -1242,6 +1242,11 @@ def version_increment_is_valid(
 
 def is_major_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is a major change."""
+    if old_version is None or new_version is None:
+        return False
+    # Check if inputs are the correct type
+    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
+        return False
     next_major_num = old_version.major + 1
     next_major_version = AttackObjectVersion(major=next_major_num, minor=0)
     if new_version == next_major_version:
@@ -1251,6 +1256,11 @@ def is_major_version_change(old_version: AttackObjectVersion, new_version: Attac
 
 def is_minor_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is a minor change."""
+    if old_version is None or new_version is None:
+        return False
+    # Check if inputs are the correct type
+    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
+        return False
     next_minor_num = old_version.minor + 1
     next_minor_version = AttackObjectVersion(major=old_version.major, minor=next_minor_num)
     if new_version == next_minor_version:
@@ -1260,6 +1270,11 @@ def is_minor_version_change(old_version: AttackObjectVersion, new_version: Attac
 
 def is_other_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
     """Determine if the new version is an unexpected change."""
+    if old_version is None or new_version is None:
+        return False
+    # Check if inputs are the correct type
+    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
+        return False
     # either stayed the same or was a normal version change
     if is_major_version_change(old_version=old_version, new_version=new_version):
         return False
@@ -1903,7 +1918,7 @@ def get_new_changelog_md(
     domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
     layers: List[str] = layer_defaults,
     unchanged: bool = False,
-    old: str = None,
+    old: Optional[str] = None,
     new: str = "new",
     show_key: bool = False,
     site_prefix: str = "",
