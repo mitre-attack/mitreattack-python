@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 compat = {
     "name": "layer",
@@ -7784,7 +7785,11 @@ example_layer_v42_dict = {
     ],
 }
 
-with open("resources/collection-1.json", "r", encoding="utf-16") as input_file:
+# Get the directory of this file to create absolute path
+current_dir = Path(__file__).parent
+collection_path = current_dir / "collection-1.json"
+
+with open(collection_path, "r", encoding="utf-16") as input_file:
     collection = json.load(input_file)
 
 
