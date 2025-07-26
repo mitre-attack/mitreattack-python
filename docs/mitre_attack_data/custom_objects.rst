@@ -4,17 +4,17 @@ Custom Objects
 **Note**: This section includes nonessential information that is only relevant to users
 who want a more advanced understanding of how this library is implemented.
 
-ATT&CK uses a mix of predefined and custom STIX objects to implement ATT&CK concepts. More 
-information about the mapping of ATT&CK concepts to STIX 2.0 objects can be found in the the 
-`ATT&CK Data Model documentation`_. The ``MitreAttackData`` library implements the following 
+ATT&CK uses a mix of predefined and custom STIX objects to implement ATT&CK concepts. More
+information about the mapping of ATT&CK concepts to STIX 2.0 objects can be found in the the
+`ATT&CK Data Model documentation`_. The ``MitreAttackData`` library implements the following
 `custom STIX object types`_:
 
 .. autoclass:: mitreattack.stix20.Matrix
 
     **Custom Properties:**
 
-    * **tactic_refs** (*list[str]*) - The matrix array that contains an ordered list of 
-      ``x-mitre-tactic`` STIX IDs corresponding to the tactics of the matrix. The order of 
+    * **tactic_refs** (*list[str]*) - The matrix array that contains an ordered list of
+      ``x-mitre-tactic`` STIX IDs corresponding to the tactics of the matrix. The order of
       ``tactic_refs`` determines the order the tactics should appear within the matrix.
 
 
@@ -22,8 +22,8 @@ information about the mapping of ATT&CK concepts to STIX 2.0 objects can be foun
 
     **Custom Properties:**
 
-    * **x_mitre_shortname** (*str*) - The shortname of the tactic that is used for mapping 
-      techniques to the tactic. This corresponds to the ``kill_chain_phases.phase_name`` 
+    * **x_mitre_shortname** (*str*) - The shortname of the tactic that is used for mapping
+      techniques to the tactic. This corresponds to the ``kill_chain_phases.phase_name``
       of the techniques in the tactic.
 
 .. autoclass:: mitreattack.stix20.DataSource
@@ -31,14 +31,14 @@ information about the mapping of ATT&CK concepts to STIX 2.0 objects can be foun
     **Custom Properties:**
 
     * **x_mitre_platforms** (*list[str]*) - The list of platforms that apply to the data source.
-    * **x_mitre_collection_layers** (*list[str]*) - The list of places the data can be 
+    * **x_mitre_collection_layers** (*list[str]*) - The list of places the data can be
       collected from.
 
 .. autoclass:: mitreattack.stix20.DataComponent
 
     **Custom Properties:**
 
-    * **x_mitre_data_source_ref** (*str*) - The STIX ID of the data source this component 
+    * **x_mitre_data_source_ref** (*str*) - The STIX ID of the data source this component
       is a part of.
 
 .. autoclass:: mitreattack.stix20.Asset
@@ -51,7 +51,7 @@ information about the mapping of ATT&CK concepts to STIX 2.0 objects can be foun
 STIX Object Factory
 -------------------
 
-The return type of the ``MitreAttackData`` methods are determined by the StixObjectFactory method, 
+The return type of the ``MitreAttackData`` methods are determined by the StixObjectFactory method,
 which converts STIX 2.0 content into a stix2 Custom Object or returns a `STIX 2.0 Domain Object`_.
 
 .. automethod:: mitreattack.stix20.StixObjectFactory
