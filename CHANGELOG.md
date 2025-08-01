@@ -1,3 +1,10 @@
+# v5.0.0 - 1 August 2025
+
+## Features
+
+- Update minimum python version to be 3.11 for type hinting
+- Update GitHub Actions to use Python version 3.11
+
 # v4.0.3 - 1 August 2025
 
 ## Features
