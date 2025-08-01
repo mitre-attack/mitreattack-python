@@ -1,3 +1,9 @@
+# v4.0.3 - 1 August 2025
+
+## Features
+
+- Add type hints to MitreAttackData class
+
 # v4.0.2 - 7 May 2025
 
 ## Fixes
