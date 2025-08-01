@@ -1,6 +1,7 @@
 # mitreattack-python specific
 output/
 attack-releases/
+.envrc
 
 # STIX bundles
 enterprise-attack.json

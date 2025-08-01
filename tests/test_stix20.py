@@ -1,4 +1,8 @@
+import pytest
+import stix2.exceptions
+
 from mitreattack.stix20.custom_attack_objects import DataComponent, DataSource, Matrix, StixObjectFactory, Tactic, Asset
+import stix2
 
 
 class TestCustomAttackObjects:
@@ -40,8 +44,12 @@ class TestCustomAttackObjects:
             assert instance.name == object_name
             assert instance.type == type_id
 
-        data = {"something": "else"}
-        assert StixObjectFactory(data) == data
+        with pytest.raises(stix2.exceptions.ParseError) as exc:
+            data = {"something": "else"}
+            StixObjectFactory(data)
+
+        assert "Can't parse object with no 'type' property" in str(exc.value)
+        assert exc.type is stix2.exceptions.ParseError
 
     def test_tactic(self):
         name = "Tactic"

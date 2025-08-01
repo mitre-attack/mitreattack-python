@@ -1,20 +1,42 @@
 """The classes found here are how ATT&CK objects can be represented as custom STIX objects instead of python dictionaries."""
 
+from typing import Any, Union
+
+import stix2
+import stix2.v20
 from stix2 import CustomObject, ExternalReference
 from stix2.properties import (
-    StringProperty,
-    ListProperty,
-    TypeProperty,
-    IDProperty,
-    ReferenceProperty,
-    TimestampProperty,
     BooleanProperty,
     DictionaryProperty,
+    IDProperty,
+    ListProperty,
+    ReferenceProperty,
+    StringProperty,
+    TimestampProperty,
+    TypeProperty,
 )
 
 
 class CustomStixObject(object):
-    """Custom STIX object used for ATT&CK objects."""
+    """Custom STIX object used for ATT&CK objects.
+
+    Note: This class supports dynamic attributes as defined by the STIX 2.0 specification.
+    """
+
+    # id: str
+    # name: str
+
+    def __getattr__(self, name: str):
+        # Try dynamic attribute (for STIX2 custom objects)
+        if name in self.__dict__:
+            return self.__dict__[name]
+        # Try dict-like access (if this object is dict-like)
+        if hasattr(self, "get") and callable(getattr(self, "get")):
+            value = self.get(name, None)
+            if value is not None:
+                return value
+        # Fallback: raise AttributeError as usual
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
 
     def get_version(self) -> str:
         """Get the version of the object.
@@ -24,10 +46,17 @@ class CustomStixObject(object):
         str
             the object version
         """
-        return self.x_mitre_version
+        version = getattr(self, "x_mitre_version", None)
+        if version is None:
+            raise AttributeError("x_mitre_version attribute is missing")
+        return version
+
+    def serialize(self, pretty: bool = True) -> str:
+        """Serialize the object to a JSON string."""
+        raise NotImplementedError("serialize() should be provided by the STIX2 base class.")
 
 
-def StixObjectFactory(data: dict) -> object:
+def StixObjectFactory(data: dict) -> Union[CustomStixObject, stix2.v20.sdo._DomainObject, dict[str, Any]]:
     """Convert STIX 2 content into a STIX object (factory method).
 
     Parameters
@@ -38,8 +67,11 @@ def StixObjectFactory(data: dict) -> object:
 
     Returns
     -------
-    stix2.CustomObject | stix2.v20.sdo._DomainObject
-        an instantiated Python STIX object
+    CustomStixObject | dict
+        If the input data is a recognized custom ATT&CK object type,
+        returns an instance of the corresponding CustomStixObject subclass
+        (e.g., Matrix, Tactic, DataSource, DataComponent, Asset).
+        Otherwise, returns the original dictionary.
     """
     stix_type_to_custom_class = {
         "x-mitre-matrix": Matrix,
@@ -53,7 +85,7 @@ def StixObjectFactory(data: dict) -> object:
 
     if data and stix_type in stix_type_to_custom_class:
         return stix_type_to_custom_class[stix_type](**data, allow_custom=True)
-    return data
+    return stix2.parse(data=data, allow_custom=True)
 
 
 @CustomObject(
@@ -126,7 +158,10 @@ class Tactic(CustomStixObject, object):
         str
             the shortname of the tactic
         """
-        return self.x_mitre_shortname
+        shortname = getattr(self, "x_mitre_shortname", None)
+        if shortname is None:
+            raise AttributeError("x_mitre_shortname attribute is missing")
+        return shortname
 
 
 @CustomObject(

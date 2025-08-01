@@ -1,13 +1,59 @@
 """MitreAttackData Library."""
 
 from itertools import chain
+from typing import Any, Generic, Optional, Protocol, TypedDict, TypeVar, Union
 
 import stix2
+import stix2.v20
 from dateutil import parser
 from stix2 import Filter
 from stix2.utils import get_type_from_id
 
-from mitreattack.stix20.custom_attack_objects import StixObjectFactory
+from mitreattack.stix20.custom_attack_objects import (
+    Asset,
+    CustomStixObject,
+    DataComponent,
+    DataSource,
+    Matrix,
+    StixObjectFactory,
+    Tactic,
+)
+
+AttackStixObject = Union[CustomStixObject, stix2.v20.sdo._DomainObject]
+
+Technique = stix2.v20.sdo.AttackPattern
+Malware = stix2.v20.sdo.Malware
+Tool = stix2.v20.sdo.Tool
+Software = Malware | Tool
+Group = stix2.v20.sdo.IntrusionSet
+Campaign = stix2.v20.sdo.Campaign
+Mitigation = stix2.v20.sdo.CourseOfAction
+Relationship = stix2.v20.sro.Relationship
+
+
+class SupportsGet(Protocol):
+    def get(self, key: str, default: Any = ...) -> Any: ...
+
+
+T = TypeVar("T", bound=SupportsGet)
+
+
+class RelationshipEntry(TypedDict, Generic[T]):
+    """Represents a relationship entry mapping an object to its relationships.
+
+    Attributes
+    ----------
+    object : T
+        The STIX object.
+    relationships : list[Relationship]
+        List of relationships between the object and another entity.
+    """
+
+    object: T
+    relationships: list[Relationship]
+
+
+RelationshipMapT = dict[str, list[RelationshipEntry[T]]]
 
 
 class MitreAttackData:
@@ -27,46 +73,60 @@ class MitreAttackData:
         "x-mitre-asset",
     ]
 
-    # software:group
-    all_software_used_by_all_groups = None
-    all_groups_using_all_software = None
-    # software:campaign
-    all_software_used_by_all_campaigns = None
-    all_campaigns_using_all_software = None
-    # group:campaign
-    all_groups_attributing_to_all_campaigns = None
-    all_campaigns_attributed_to_all_groups = None
-    # technique:group
-    all_techniques_used_by_all_groups = None
-    all_groups_using_all_techniques = None
-    # technique:campaign
-    all_techniques_used_by_all_campaigns = None
-    all_campaigns_using_all_techniques = None
-    # technique:software
-    all_techniques_used_by_all_software = None
-    all_software_using_all_techniques = None
-    # technique:mitigation
-    all_techniques_mitigated_by_all_mitigations = None
-    all_mitigations_mitigating_all_techniques = None
-    # technique:subtechnique
-    all_parent_techniques_of_all_subtechniques = None
-    all_subtechniques_of_all_techniques = None
-    # technique:data-component
-    all_techniques_detected_by_all_datacomponents = None
-    all_datacomponents_detecting_all_techniques = None
-    # technique:asset
-    all_techniques_targeting_all_assets = None
-    all_assets_targeted_by_all_techniques = None
+    # --- Software/Group Relationships ---
+    all_software_used_by_all_groups: Optional[RelationshipMapT[Software]] = None
+    all_groups_using_all_software: Optional[RelationshipMapT[Group]] = None
 
-    def __init__(self, stix_filepath: str = None, src: stix2.MemoryStore = None):
+    # --- Software/Campaign Relationships ---
+    all_software_used_by_all_campaigns: Optional[RelationshipMapT[Software]] = None
+    all_campaigns_using_all_software: Optional[RelationshipMapT[Campaign]] = None
+
+    # --- Group/Campaign Relationships ---
+    all_groups_attributing_to_all_campaigns: Optional[RelationshipMapT[Group]] = None
+    all_campaigns_attributed_to_all_groups: Optional[RelationshipMapT[Campaign]] = None
+
+    # --- Technique/Group Relationships ---
+    all_techniques_used_by_all_groups: Optional[RelationshipMapT[Technique]] = None
+    all_groups_using_all_techniques: Optional[RelationshipMapT[Group]] = None
+
+    # --- Technique/Campaign Relationships ---
+    all_techniques_used_by_all_campaigns: Optional[RelationshipMapT[Technique]] = None
+    all_campaigns_using_all_techniques: Optional[RelationshipMapT[Campaign]] = None
+
+    # --- Technique/Software Relationships ---
+    all_techniques_used_by_all_software: Optional[RelationshipMapT[Technique]] = None
+    all_software_using_all_techniques: Optional[RelationshipMapT[Software]] = None
+
+    # --- Technique/Mitigation Relationships ---
+    all_techniques_mitigated_by_all_mitigations: Optional[RelationshipMapT[Technique]] = None
+    all_mitigations_mitigating_all_techniques: Optional[RelationshipMapT[Mitigation]] = None
+
+    # --- Technique/Subtechnique Relationships ---
+    all_parent_techniques_of_all_subtechniques: Optional[RelationshipMapT[Technique]] = None
+    all_subtechniques_of_all_techniques: Optional[RelationshipMapT[Technique]] = None
+
+    # --- Technique/Data Component Relationships ---
+    all_techniques_detected_by_all_datacomponents: Optional[RelationshipMapT[Technique]] = None
+    all_datacomponents_detecting_all_techniques: Optional[RelationshipMapT[DataComponent]] = None
+
+    # --- Technique/Asset Relationships ---
+    all_techniques_targeting_all_assets: Optional[RelationshipMapT[Technique]] = None
+    all_assets_targeted_by_all_techniques: Optional[RelationshipMapT[Asset]] = None
+
+    def __init__(self, stix_filepath: str | None = None, src: stix2.MemoryStore | None = None):
         """Initialize a MitreAttackData object.
 
         Parameters
         ----------
-        stix_file : str, optional
+        stix_filepath : str | None, optional
             Filepath to a STIX 2.0 bundle. Mutually exclusive with `src`.
-        src : stix2.MemoryStore, optional
-            A STIX 2.0 bundle that has already been loaded into memory. Mutually exclusive with `stix_file`.
+        src : stix2.MemoryStore | None, optional
+            A STIX 2.0 bundle already loaded into memory. Mutually exclusive with `stix_filepath`.
+
+        Raises
+        ------
+        TypeError
+            If neither or both of `stix_filepath` and `src` are provided, or if `stix_filepath` is not a string.
         """
         if not stix_filepath and not src:
             raise TypeError("MitreAttackData cannot be initialized without one of `stix_filepath` or `src`.")
@@ -76,48 +136,68 @@ class MitreAttackData:
         if stix_filepath and not isinstance(stix_filepath, str):
             raise TypeError(f"Argument stix_filepath must be of type str, not {type(stix_filepath)}")
 
-        self.stix_filepath = None
-        self.src = None
-
         if stix_filepath:
             self.stix_filepath = stix_filepath
             self.src = stix2.MemoryStore()
             self.src.load_from_file(stix_filepath)
         elif src:
+            self.stix_filepath = None
             self.src = src
 
     ###################################
     # Utilities
     ###################################
 
-    def print_stix_object(self, object: object, pretty=True):
+    def print_stix_object(self, obj: AttackStixObject, pretty: bool = True):
         """Print a STIX object.
 
         Parameters
         ----------
-        object : object
-            the object to print
+        obj : AttackStixObject
+            The object to print.
         pretty : bool, optional
-            pretty print the object, by default True
+            Pretty print the object, by default True.
         """
-        print(object.serialize(pretty))
+        print(obj.serialize(pretty))
+
+    @staticmethod
+    def get_field(obj, field, default=None):
+        """Get a field from a dict or object.
+
+        Parameters
+        ----------
+        obj : dict or object with attributes
+            Source to retrieve the field from.
+        field : str
+            Field name or key.
+        default : any, optional
+            Value to return if field is missing, by default None.
+
+        Returns
+        -------
+        Any
+            Field value or default.
+        """
+        if isinstance(obj, dict):
+            return obj.get(field, default)
+        return getattr(obj, field, default)
 
     ###################################
     # STIX Objects Section
     ###################################
 
-    def remove_revoked_deprecated(self, stix_objects: list) -> list:
+    def remove_revoked_deprecated(self, stix_objects: list[T]) -> list[T]:
         """Remove revoked or deprecated objects from queries made to the data source.
 
         Parameters
         ----------
-        stix_objects : list
-            list of STIX objects from a query made to the data source
+        stix_objects : list[T]
+            List of STIX objects from a query made to the data source.
 
         Returns
         -------
-        list
-            list of STIX objects with revoked and deprecated objects filtered out
+        list[T]
+            List of STIX objects with revoked and deprecated objects filtered out.
         """
         # Note we use .get() because the property may not be present in the JSON data. The default is False
         # if the property is not set.
@@ -127,50 +207,52 @@ class MitreAttackData:
             )
         )
 
-    def get_matrices(self, remove_revoked_deprecated=False) -> list:
+    def get_matrices(self, remove_revoked_deprecated: bool = False) -> list[Matrix]:
         """Retrieve all matrix objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of Matrix objects
+        list[Matrix]
+            A list of Matrix objects.
         """
         return self.get_objects_by_type("x-mitre-matrix", remove_revoked_deprecated)
 
-    def get_tactics(self, remove_revoked_deprecated=False) -> list:
+    def get_tactics(self, remove_revoked_deprecated: bool = False) -> list[Tactic]:
         """Retrieve all tactic objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of Tactic objects
+        list[Tactic]
+            A list of Tactic objects.
         """
         return self.get_objects_by_type("x-mitre-tactic", remove_revoked_deprecated)
 
-    def get_techniques(self, include_subtechniques=True, remove_revoked_deprecated=False) -> list:
+    def get_techniques(
+        self, include_subtechniques: bool = True, remove_revoked_deprecated: bool = False
+    ) -> list[Technique]:
         """Retrieve all technique objects.
 
         Parameters
         ----------
         include_subtechniques : bool, optional
-            include sub-techniques in the result, by default True
+            Include sub-techniques in the result, by default True.
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of AttackPattern objects
+        list[Technique]
+            A list of Technique objects.
         """
         filters = [Filter("type", "=", "attack-pattern")]
         if not include_subtechniques:
@@ -184,18 +266,18 @@ class MitreAttackData:
 
         return techniques
 
-    def get_subtechniques(self, remove_revoked_deprecated=False) -> list:
+    def get_subtechniques(self, remove_revoked_deprecated: bool = False) -> list[Technique]:
         """Retrieve all sub-technique objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of AttackPattern objects
+        list[Technique]
+            A list of Technique objects that are sub-techniques.
         """
         subtechniques = self.src.query(
             [Filter("type", "=", "attack-pattern"), Filter("x_mitre_is_subtechnique", "=", True)]
@@ -206,111 +288,111 @@ class MitreAttackData:
 
         return subtechniques
 
-    def get_mitigations(self, remove_revoked_deprecated=False) -> list:
+    def get_mitigations(self, remove_revoked_deprecated: bool = False) -> list[Mitigation]:
         """Retrieve all mitigation objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of CourseOfAction objects
+        list[Mitigation]
+            A list of Mitigation objects.
         """
         return self.get_objects_by_type("course-of-action", remove_revoked_deprecated)
 
-    def get_groups(self, remove_revoked_deprecated=False) -> list:
+    def get_groups(self, remove_revoked_deprecated: bool = False) -> list[Group]:
         """Retrieve all group objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of IntrusionSet objects
+        list[Group]
+            A list of Group objects.
         """
         return self.get_objects_by_type("intrusion-set", remove_revoked_deprecated)
 
-    def get_software(self, remove_revoked_deprecated=False) -> list:
+    def get_software(self, remove_revoked_deprecated: bool = False) -> list[Software]:
         """Retrieve all software objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of Tool and Malware objects
+        list[Software]
+            A list of Software (Tool and Malware) objects.
         """
         software = self.get_objects_by_type("tool", remove_revoked_deprecated)
         malware = self.get_objects_by_type("malware", remove_revoked_deprecated)
         software.extend(malware)
         return software
 
-    def get_campaigns(self, remove_revoked_deprecated=False) -> list:
+    def get_campaigns(self, remove_revoked_deprecated: bool = False) -> list[Campaign]:
         """Retrieve all campaign objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of Campaign objects
+        list[Campaign]
+            A list of Campaign objects.
         """
         return self.get_objects_by_type("campaign", remove_revoked_deprecated)
 
-    def get_assets(self, remove_revoked_deprecated=False) -> list:
+    def get_assets(self, remove_revoked_deprecated: bool = False) -> list[Asset]:
         """Retrieve all asset objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of Asset objects
+        list[Asset]
+            A list of Asset objects.
         """
         return self.get_objects_by_type("x-mitre-asset", remove_revoked_deprecated)
 
-    def get_datasources(self, remove_revoked_deprecated=False) -> list:
+    def get_datasources(self, remove_revoked_deprecated: bool = False) -> list[DataSource]:
         """Retrieve all data source objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of DataSource objects
+        list[DataSource]
+            A list of DataSource objects.
         """
         return self.get_objects_by_type("x-mitre-data-source", remove_revoked_deprecated)
 
-    def get_datacomponents(self, remove_revoked_deprecated=False) -> list:
+    def get_datacomponents(self, remove_revoked_deprecated: bool = False) -> list[DataComponent]:
         """Retrieve all data component objects.
 
         Parameters
         ----------
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of DataComponent objects
+        list[DataComponent]
+            A list of DataComponent objects.
         """
         return self.get_objects_by_type("x-mitre-data-component", remove_revoked_deprecated)
 
@@ -318,20 +400,20 @@ class MitreAttackData:
     # Get STIX Objects by Value
     ###################################
 
-    def get_objects_by_type(self, stix_type: str, remove_revoked_deprecated=False) -> list:
+    def get_objects_by_type(self, stix_type: str, remove_revoked_deprecated: bool = False) -> list[AttackStixObject]:
         """Retrieve objects by STIX type.
 
         Parameters
         ----------
         stix_type : str
-            the STIX type of the objects to retrieve
+            The STIX type of the objects to retrieve.
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects
+        list[AttackStixObject]
+            A list of STIX 2.0 Domain Objects or Custom ATT&CK objects.
         """
         objects = self.src.query([Filter("type", "=", stix_type)])
 
@@ -342,26 +424,33 @@ class MitreAttackData:
             return []
 
         # since ATT&CK has custom objects, we need to reconstruct the query results
-        return [StixObjectFactory(o) for o in objects]
+        return [StixObjectFactory(obj) for obj in objects]
 
-    def get_objects_by_content(self, content: str, object_type: str = None, remove_revoked_deprecated=False) -> list:
+    def get_objects_by_content(
+        self, content: str, object_type: str | None = None, remove_revoked_deprecated: bool = False
+    ) -> list[AttackStixObject]:
         """Retrieve objects by the content of their description.
+
+        Note: the query by content is not case sensitive.
 
         Parameters
         ----------
         content : str
-            the content string to search for
-        object_type : str, optional
-            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
-            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', 'x-mitre-data-component', 'x-mitre-asset', or 'relationship')
+            The content string to search for.
+        object_type : str | None, optional
+            The STIX object type (must be one of self.stix_types or 'relationship').
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of objects where the given content string appears in the description
+        list[AttackStixObject]
+            A list of objects where the given content string appears in the description.
+
+        Raises
+        ------
+        ValueError
+            If `object_type` is not a valid STIX type or 'relationship'.
         """
         if object_type and object_type not in self.stix_types and object_type != "relationship":
             # invalid object type
@@ -380,20 +469,20 @@ class MitreAttackData:
 
         return matched_objects
 
-    def get_techniques_by_platform(self, platform: str, remove_revoked_deprecated=False) -> list:
+    def get_techniques_by_platform(self, platform: str, remove_revoked_deprecated: bool = False) -> list[Technique]:
         """Retrieve techniques under a specific platform.
 
         Parameters
         ----------
         platform : str
-            platform to search
+            Platform to search.
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of AttackPattern objects under the given platform
+        list[Technique]
+            A list of Technique objects under the given platform.
         """
         filters = [Filter("type", "=", "attack-pattern"), Filter("x_mitre_platforms", "contains", platform)]
         techniques = self.src.query(filters)
@@ -401,22 +490,24 @@ class MitreAttackData:
             techniques = self.remove_revoked_deprecated(techniques)
         return techniques
 
-    def get_techniques_by_tactic(self, tactic_shortname: str, domain: str, remove_revoked_deprecated=False) -> list:
+    def get_techniques_by_tactic(
+        self, tactic_shortname: str, domain: str, remove_revoked_deprecated: bool = False
+    ) -> list[Technique]:
         """Retrieve techniques by tactic.
 
         Parameters
         ----------
         tactic_shortname : str
-            the x_mitre_shortname of the tactic (e.g. 'defense-evasion')
+            The x_mitre_shortname of the tactic (e.g. 'defense-evasion').
         domain : str
-            domain of the tactic (must be 'enterprise-attack', 'mobile-attack', or 'ics-attack')
+            Domain of the tactic (must be 'enterprise-attack', 'mobile-attack', or 'ics-attack').
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of AttackPattern objects under the given tactic
+        list[Technique]
+            A list of Technique objects under the given tactic.
         """
         # validate domain input
         domain_to_kill_chain = {
@@ -439,15 +530,15 @@ class MitreAttackData:
             techniques = self.remove_revoked_deprecated(techniques)
         return techniques
 
-    def get_tactics_by_matrix(self) -> dict:
+    def get_tactics_by_matrix(self) -> dict[str, list[Tactic]]:
         """Retrieve the structured list of tactics within each matrix.
 
         The order of the tactics in the list matches the ordering of tactics in that matrix.
 
         Returns
         -------
-        dict
-            a mapping of tactics to matrices {matrix_name: [Tactics]}
+        dict[str, list[Tactic]]
+            A mapping of matrix name to a list of Tactic objects.
         """
         tactics = {}
         matrices = self.src.query(
@@ -462,47 +553,57 @@ class MitreAttackData:
 
         return tactics
 
-    def get_tactics_by_technique(self, stix_id) -> list:
+    def get_tactics_by_technique(self, stix_id: str) -> list[Tactic]:
         """Retrieve the list of tactics within a particular technique.
 
         Parameters
         ----------
         stix_id : str
-            the stix id of the technique to be queried.
+            The STIX ID of the technique to be queried.
 
         Returns
         -------
-        list
-            a list of tactics that the technique to be queried contains.
+        list[Tactic]
+            A list of Tactic objects that the technique contains.
         """
         technique = self.get_object_by_stix_id(stix_id)
+        if technique is None:
+            return []
+
+        # Try to get kill_chain_phases as attribute, fallback to dict access
+        kill_chain_phases = MitreAttackData.get_field(technique, "kill_chain_phases")
+
+        if not kill_chain_phases:
+            return []
 
         # get tactic shortnames from technique
-        shortnames = []
-        for phase in technique.get("kill_chain_phases"):
-            shortnames.append(phase["phase_name"])
+        shortnames = [phase["phase_name"] for phase in kill_chain_phases if "phase_name" in phase]
 
         # map shortnames to tactic objects
         all_tactics = self.get_tactics()
         technique_tactics = []
         for tactic in all_tactics:
-            if tactic.get_shortname() in shortnames:
+            # Use get_field to get x_mitre_shortname or fallback to get_shortname()
+            shortname = MitreAttackData.get_field(tactic, "x_mitre_shortname")
+            if shortname is None and hasattr(tactic, "get_shortname"):
+                shortname = tactic.get_shortname()
+            if shortname in shortnames:
                 technique_tactics.append(tactic)
 
         return technique_tactics
-    
-    def get_procedure_examples_by_technique(self, stix_id) -> list:
+
+    def get_procedure_examples_by_technique(self, stix_id: str) -> list[Relationship]:
         """Retrieve the list of procedure examples by technique.
 
         Parameters
         ----------
         stix_id : str
-            the stix id of the technique.
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of stix2.v20.Relationship objects describing the software, groups, and campaigns using the technique.
+        list[Relationship]
+            A list of Relationship objects describing the software, groups, and campaigns using the technique.
         """
         procedures = self.src.query(
             [
@@ -513,40 +614,42 @@ class MitreAttackData:
         )
         return procedures
 
-    def get_objects_created_after(self, timestamp: str, remove_revoked_deprecated=False) -> list:
+    def get_objects_created_after(
+        self, timestamp: str, remove_revoked_deprecated: bool = False
+    ) -> list[AttackStixObject]:
         """Retrieve objects which have been created after a given time.
 
         Parameters
         ----------
         timestamp : str
-            timestamp to search (e.g. "2018-10-01T00:14:20.652Z")
+            Timestamp to search (e.g. "2018-10-01T00:14:20.652Z").
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects created after the given time
+        list[AttackStixObject]
+            A list of AttackStixObject objects created after the given time.
         """
         objects = self.src.query([Filter("created", ">", timestamp)])
         if remove_revoked_deprecated:
             objects = self.remove_revoked_deprecated(objects)
         return objects
 
-    def get_objects_modified_after(self, date: str, remove_revoked_deprecated=False) -> list:
+    def get_objects_modified_after(self, date: str, remove_revoked_deprecated: bool = False) -> list[AttackStixObject]:
         """Retrieve objects which have been modified after a given time.
 
         Parameters
         ----------
         date : str
-            date to search (e.g. "2022-10-01", "2022-10-01T00:00:00.000Z", "October 1, 2022", etc.)
+            Date to search (e.g. "2022-10-01", "2022-10-01T00:00:00.000Z", "October 1, 2022", etc.).
         remove_revoked_deprecated : bool, optional
-            remove revoked or deprecated objects from the query, by default False
+            Remove revoked or deprecated objects from the query, by default False.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo._DomainObject or CustomStixObject objects created after the given time
+        list[AttackStixObject]
+            A list of AttackStixObject objects modified after the given time.
         """
         date_parser = parser.parse(date)
         date_parser = date_parser.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -557,7 +660,7 @@ class MitreAttackData:
             objects = self.remove_revoked_deprecated(objects)
         return objects
 
-    def get_techniques_used_by_group_software(self, group_stix_id: str) -> list:
+    def get_techniques_used_by_group_software(self, group_stix_id: str) -> list[Technique]:
         """Get techniques used by a group's software.
 
         Because a group uses software, and software uses techniques, groups can be considered indirect users
@@ -567,12 +670,12 @@ class MitreAttackData:
         Parameters
         ----------
         group_stix_id : str
-            the STIX ID of the group object
+            The STIX ID of the group object.
 
         Returns
         -------
-        list
-            a list of AttackPattern objects used by the group's software.
+        list[Technique]
+            A list of Technique objects used by the group's software.
         """
         # get the malware, tools that the group uses
         group_uses = [
@@ -599,18 +702,23 @@ class MitreAttackData:
     # Get STIX Object by Value
     ###################################
 
-    def get_object_by_stix_id(self, stix_id: str) -> object:
+    def get_object_by_stix_id(self, stix_id: str) -> AttackStixObject:
         """Retrieve a single object by STIX ID.
 
         Parameters
         ----------
         stix_id : str
-            the STIX ID of the object to retrieve
+            The STIX ID of the object to retrieve.
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject | CustomStixObject
-            the STIX Domain Object specified by the STIX ID
+        AttackStixObject
+            The STIX Domain Object specified by the STIX ID.
+
+        Raises
+        ------
+        ValueError
+            If no object with the given STIX ID is found.
         """
         sdo = self.src.get(stix_id)
 
@@ -619,10 +727,10 @@ class MitreAttackData:
 
         return StixObjectFactory(sdo)
 
-    def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> object:
+    def get_object_by_attack_id(self, attack_id: str, stix_type: str) -> AttackStixObject | None:
         """Retrieve a single object by its ATT&CK ID.
 
-        Note: in prior versions of ATT&CK, mitigations had 1:1 relationships with techniques and shared their
+        Note: In prior versions of ATT&CK, mitigations had 1:1 relationships with techniques and shared their
         technique's ID. Searching by ATT&CK ID alone does not work properly for techniques since
         technique ATT&CK IDs are not truly unique. The STIX type must be specified when searching by ATT&CK
         ID to avoid this issue.
@@ -630,16 +738,19 @@ class MitreAttackData:
         Parameters
         ----------
         attack_id : str
-            the ATT&CK ID of the object to retrieve
+            The ATT&CK ID of the object to retrieve.
         stix_type : str
-            the object STIX type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
-            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
+            The object STIX type (must be one of self.stix_types).
 
         Returns
         -------
-        stix2.v20.sdo._DomainObject | CustomStixObject
-            the STIX Domain Object specified by the ATT&CK ID
+        AttackStixObject | None
+            The STIX Domain Object specified by the ATT&CK ID, or None if not found.
+
+        Raises
+        ------
+        ValueError
+            If `stix_type` is not a valid STIX type.
         """
         # validate type
         if stix_type not in self.stix_types:
@@ -657,7 +768,7 @@ class MitreAttackData:
 
         return StixObjectFactory(sdo[0])
 
-    def get_objects_by_name(self, name: str, stix_type: str) -> list:
+    def get_objects_by_name(self, name: str, stix_type: str) -> list[AttackStixObject]:
         """Retrieve objects by name.
 
         Note: the query by name is case sensitive.
@@ -665,16 +776,19 @@ class MitreAttackData:
         Parameters
         ----------
         name : str
-            the name of the object to retrieve
+            The name of the object to retrieve.
         stix_type : str
-            the STIX object type (must be 'attack-pattern', 'malware', 'tool', 'intrusion-set',
-            'campaign', 'course-of-action', 'x-mitre-matrix', 'x-mitre-tactic',
-            'x-mitre-data-source', 'x-mitre-data-component', or 'x-mitre-asset')
+            The STIX object type (must be one of self.stix_types).
 
         Returns
         -------
-        list
-            a list of STIX Domain Objects specified by the name and type
+        list[AttackStixObject]
+            A list of STIX Domain Objects specified by the name and type.
+
+        Raises
+        ------
+        ValueError
+            If `stix_type` is not a valid STIX type.
         """
         # validate type
         if stix_type not in self.stix_types:
@@ -687,9 +801,9 @@ class MitreAttackData:
             return []
 
         # since ATT&CK has custom objects, we need to reconstruct the query results
-        return [StixObjectFactory(o) for o in objects]
+        return [StixObjectFactory(obj) for obj in objects]
 
-    def get_groups_by_alias(self, alias: str) -> list:
+    def get_groups_by_alias(self, alias: str) -> list[Group]:
         """Retrieve the groups corresponding to a given alias.
 
         Note: the query by alias is case sensitive.
@@ -697,17 +811,17 @@ class MitreAttackData:
         Parameters
         ----------
         alias : str
-            the alias of the group
+            The alias of the group.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo.IntrusionSet objects corresponding to the alias
+        list[Group]
+            A list of Group objects corresponding to the alias.
         """
         filters = [Filter("type", "=", "intrusion-set"), Filter("aliases", "contains", alias)]
         return self.src.query(filters)
 
-    def get_campaigns_by_alias(self, alias: str) -> list:
+    def get_campaigns_by_alias(self, alias: str) -> list[Campaign]:
         """Retrieve the campaigns corresponding to a given alias.
 
         Note: the query by alias is case sensitive.
@@ -715,17 +829,17 @@ class MitreAttackData:
         Parameters
         ----------
         alias : str
-            the alias of the campaign
+            The alias of the campaign.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo.Campaign objects corresponding to the alias
+        list[Campaign]
+            A list of Campaign objects corresponding to the alias.
         """
         filters = [Filter("type", "=", "campaign"), Filter("aliases", "contains", alias)]
         return self.src.query(filters)
 
-    def get_software_by_alias(self, alias: str) -> list:
+    def get_software_by_alias(self, alias: str) -> list[Software]:
         """Retrieve the software corresponding to a given alias.
 
         Note: the query by alias is case sensitive.
@@ -733,12 +847,12 @@ class MitreAttackData:
         Parameters
         ----------
         alias : str
-            the alias of the software
+            The alias of the software.
 
         Returns
         -------
-        list
-            a list of stix2.v20.sdo.Tool and stix2.v20.sdo.Malware objects corresponding to the alias
+        list[Software]
+            A list of Software objects corresponding to the alias.
         """
         malware_filter = [Filter("type", "=", "malware"), Filter("x_mitre_aliases", "contains", alias)]
         tool_filter = [Filter("type", "=", "tool"), Filter("x_mitre_aliases", "contains", alias)]
@@ -755,12 +869,12 @@ class MitreAttackData:
         Parameters
         ----------
         stix_id : str
-            the STIX ID of the object
+            The STIX ID of the object.
 
         Returns
         -------
-        str
-            the ATT&CK ID of the object
+        str | None
+            The ATT&CK ID of the object, or None if not found.
         """
         obj = self.get_object_by_stix_id(stix_id)
         external_references = obj.get("external_references")
@@ -776,54 +890,58 @@ class MitreAttackData:
         Parameters
         ----------
         stix_id : str
-            the STIX ID of the object
+            The STIX ID of the object.
 
         Returns
         -------
         str
-            the STIX type of the object
+            The STIX type of the object.
         """
         return get_type_from_id(stix_id)
 
-    def get_name(self, stix_id: str) -> str:
+    def get_name(self, stix_id: str) -> str | None:
         """Get the object's name.
 
         Parameters
         ----------
         stix_id : str
-            the STIX ID of the object
+            The STIX ID of the object.
 
         Returns
         -------
-        str
-            the name of the object
+        str | None
+            The value of the 'name' property of the STIX object, or None if not present.
         """
         obj = self.get_object_by_stix_id(stix_id)
-        return obj.get("name") if obj.get("name") else None
+        # name = MitreAttackData.get_field(obj, "name")
+        name = obj.get("name")
+        return name if name is not None else None
 
     ###################################
     # Relationship Section
     ###################################
 
-    def get_related(self, source_type: str, relationship_type: str, target_type: str, reverse: bool = False) -> dict:
+    def get_related(
+        self, source_type: str, relationship_type: str, target_type: str, reverse: bool = False
+    ) -> RelationshipMapT[AttackStixObject]:
         """Build relationship mappings.
 
         Parameters
         ----------
         source_type : str
-            source type for the relationships, e.g. 'intrusion-set'
+            Source type for the relationships, e.g. 'intrusion-set'.
         relationship_type : str
-            relationship type for the relationships, e.g. 'uses'
+            Relationship type for the relationships, e.g. 'uses'.
         target_type : str
-            target type for the relationships, e.g. 'attack-pattern'
+            Target type for the relationships, e.g. 'attack-pattern'.
         reverse : bool, optional
-            build reverse mapping of target to source, by default False
+            Build reverse mapping of target to source, by default False.
 
         Returns
         -------
-        dict
-            if reverse=False, relationship mapping of source_object_id => [{target_object, relationship[]}];
-            if reverse=True, relationship mapping of target_object_id => [{source_object, relationship[]}]
+        RelationshipMapT[AttackStixObject]
+            If reverse=False, relationship mapping of source_object_id => [RelationshipEntry[AttackStixObject]];
+            if reverse=True, relationship mapping of target_object_id => [RelationshipEntry[AttackStixObject]].
         """
         relationships = self.src.query(
             [
@@ -893,20 +1011,20 @@ class MitreAttackData:
             output[stix_id] = value
         return output
 
-    def merge(self, map_a: dict, map_b: dict) -> dict:
+    def merge(self, map_a: RelationshipMapT[T], map_b: RelationshipMapT[T]) -> RelationshipMapT[T]:
         """Merge two relationship mappings resulting from `get_related()`.
 
         Parameters
         ----------
-        map_a : dict
-            the first relationship mapping
-        map_b : dict
-            the second relationship mapping
+        map_a : RelationshipMapT[T]
+            The first relationship mapping.
+        map_b : RelationshipMapT[T]
+            The second relationship mapping.
 
         Returns
         -------
-        dict
-            the merged relationship mapping
+        RelationshipMapT[T]
+            The merged relationship mapping.
         """
         for id in map_b:
             if id in map_a:
@@ -917,17 +1035,22 @@ class MitreAttackData:
 
     def add_inherited_campaign_relationships(
         self, related_campaigns, inherited_campaign_relationships, object_relationships
-    ) -> dict:
+    ) -> RelationshipMapT[T]:
         """Add inherited relationships to list of [{"object": object, "relationships": [relationship]}].
 
         Parameters
         ----------
-        related_campaigns : dict
-            campaigns related to the object: [object_stix_id => [ {campaign, [campaign_uses_object]} ]]
-        inherited_campaign_relationships : dict
-            relationships to be inherited from campaigns: [campaign_id => [ {related_object, [campaign_uses_related_object]} ]]
-        object_relationships : dict
-            direct relationships with the object itself: [object_stix_id => [ {related_object, [relationship]} ]]
+        related_campaigns : RelationshipMapT[Any]
+            Campaigns related to the object: [object_stix_id => [RelationshipEntry[Campaign]]].
+        inherited_campaign_relationships : RelationshipMapT[Any]
+            Relationships to be inherited from campaigns: [campaign_id => [RelationshipEntry[Any]]].
+        object_relationships : RelationshipMapT[Any]
+            Direct relationships with the object itself: [object_stix_id => [RelationshipEntry[Any]]].
+
+        Returns
+        -------
+        RelationshipMapT[T]
+            Relationship mapping with inherited campaign relationships added.
         """
         for stix_id, campaigns in related_campaigns.items():
             for campaign in campaigns:
@@ -955,8 +1078,19 @@ class MitreAttackData:
         object_relationships = self.remove_duplicates(object_relationships)
         return object_relationships
 
-    def remove_duplicates(self, relationship_map) -> dict:
-        """Remove duplicate objects in a list of [{"object": object, "relationships": [relationship]}]."""
+    def remove_duplicates(self, relationship_map) -> RelationshipMapT[T]:
+        """Remove duplicate objects in a list of RelationshipEntry[T].
+
+        Parameters
+        ----------
+        relationship_map : RelationshipMapT[T]
+            The relationship mapping to deduplicate.
+
+        Returns
+        -------
+        RelationshipMapT[T]
+            Deduplicated relationship mapping.
+        """
         deduplicated_map = {}  # {stix_id => [{"object": object, "relationships": []}]}
         for stix_id, sdos in relationship_map.items():
             sdo_list = []
@@ -978,14 +1112,14 @@ class MitreAttackData:
     # Software/Group Relationships
     ###################################
 
-    def get_all_software_used_by_all_groups(self) -> dict:
+    def get_all_software_used_by_all_groups(self) -> RelationshipMapT[Software]:
         """Retrieve all software used by all groups.
 
         Returns
         -------
-        dict
-            a mapping of group_stix_id => [{"object": Malware|Tool, "relationships": Relationship[]}] for each software used by the group and each software used
-            by campaigns attributed to the group
+        RelationshipMapT[Software]
+            Mapping of group_stix_id to RelationshipEntry[Software] for each software used by the group
+            and each software used by campaigns attributed to the group.
         """
         # return data if it has already been fetched
         if self.all_software_used_by_all_groups:
@@ -1012,31 +1146,29 @@ class MitreAttackData:
         self.all_software_used_by_all_groups = software_used_by_groups
         return software_used_by_groups
 
-    def get_software_used_by_group(self, group_stix_id: str) -> list:
+    def get_software_used_by_group(self, group_stix_id: str) -> list[RelationshipEntry[Software]]:
         """Get all software used by a group.
 
         Parameters
         ----------
         group_stix_id : str
-            the STIX ID of the group
+            The STIX ID of the group.
 
         Returns
         -------
-        list
-            a list of {"object": Malware|Tool, "relationships": Relationship[]} for each software used by the group and each software used
-            by campaigns attributed to the group
+        list[RelationshipEntry[Software]]
+            List of RelationshipEntry[Software] for each software used by the group including software used by campaigns attributed to the group.
         """
         software_used_by_groups = self.get_all_software_used_by_all_groups()
         return software_used_by_groups[group_stix_id] if group_stix_id in software_used_by_groups else []
 
-    def get_all_groups_using_all_software(self) -> dict:
+    def get_all_groups_using_all_software(self) -> RelationshipMapT[Group]:
         """Get all groups using all software.
 
         Returns
         -------
-        dict
-            a mapping of software_stix_id => [{"object": IntrusionSet, "relationships": Relationship[]}] for each group using the software and each attributed campaign
-            using the software
+        RelationshipMapT[Group]
+            Mapping of software_stix_id to RelationshipEntry[Group] for each group using the software and each attributed campaign using the software.
         """
         # return data if it has already been fetched
         if self.all_groups_using_all_software:
@@ -1063,19 +1195,18 @@ class MitreAttackData:
         self.all_groups_using_all_software = groups_using_software
         return groups_using_software
 
-    def get_groups_using_software(self, software_stix_id: str) -> list:
+    def get_groups_using_software(self, software_stix_id: str) -> list[RelationshipEntry[Group]]:
         """Get all groups using a software.
 
         Parameters
         ----------
-        stix_id : str
-            the STIX ID of the software
+        software_stix_id : str
+            The STIX ID of the software.
 
         Returns
         -------
-        list
-            a list of {"object": IntrusionSet, "relationships": Relationship[]} for each group using the software and each attributed campaign
-            using the software
+        list[RelationshipEntry[Group]]
+            List of RelationshipEntry[Group] for each group using the software and each attributed campaign using the software.
         """
         groups_using_software = self.get_all_groups_using_all_software()
         return groups_using_software[software_stix_id] if software_stix_id in groups_using_software else []
@@ -1084,13 +1215,13 @@ class MitreAttackData:
     # Software/Campaign Relationships
     ###################################
 
-    def get_all_software_used_by_all_campaigns(self) -> dict:
+    def get_all_software_used_by_all_campaigns(self) -> RelationshipMapT[Software]:
         """Get all software used by all campaigns.
 
         Returns
         -------
-        dict
-            a mapping of campaign_stix_id => [{"object": Malware|Tool, "relationships": Relationship[]}] for each software used by the campaign
+        RelationshipMapT[Software]
+            Mapping of campaign_stix_id to RelationshipEntry[Software] for each software used by the campaign.
         """
         # return data if it has already been fetched
         if self.all_software_used_by_all_campaigns:
@@ -1102,29 +1233,29 @@ class MitreAttackData:
 
         return self.all_software_used_by_all_campaigns
 
-    def get_software_used_by_campaign(self, campaign_stix_id: str) -> list:
+    def get_software_used_by_campaign(self, campaign_stix_id: str) -> list[RelationshipEntry[Software]]:
         """Get all software used by a campaign.
 
         Parameters
         ----------
         campaign_stix_id : str
-            the STIX ID of the campaign
+            The STIX ID of the campaign.
 
         Returns
         -------
-        list
-            a list of {"object": Malware|Tool, "relationships": Relationship[]} for each software used by the campaign
+        list[RelationshipEntry[Software]]
+            List of RelationshipEntry[Software] for each software used by the campaign.
         """
         software_used_by_campaigns = self.get_all_software_used_by_all_campaigns()
         return software_used_by_campaigns[campaign_stix_id] if campaign_stix_id in software_used_by_campaigns else []
 
-    def get_all_campaigns_using_all_software(self) -> dict:
+    def get_all_campaigns_using_all_software(self) -> RelationshipMapT[Campaign]:
         """Get all campaigns using all software.
 
         Returns
         -------
-        dict
-            a mapping of software_stix_id => [{"object": Campaign, "relationships": Relationship[]}] for each campaign using the software
+        RelationshipMapT[Campaign]
+            Mapping of software_stix_id to RelationshipEntry[Campaign] for each campaign using the software.
         """
         # return data if it has already been fetched
         if self.all_campaigns_using_all_software:
@@ -1136,18 +1267,18 @@ class MitreAttackData:
 
         return self.all_campaigns_using_all_software
 
-    def get_campaigns_using_software(self, software_stix_id: str) -> list:
+    def get_campaigns_using_software(self, software_stix_id: str) -> list[RelationshipEntry[Campaign]]:
         """Get all campaigns using a software.
 
         Parameters
         ----------
         software_stix_id : str
-            the STIX ID of the software
+            The STIX ID of the software.
 
         Returns
         -------
-        list
-            a list of {"object": Campaign, "relationships": Relationship[]} for each campaign using the software
+        list[RelationshipEntry[Campaign]]
+            List of RelationshipEntry[Campaign] for each campaign using the software.
         """
         campaigns_using_software = self.get_all_campaigns_using_all_software()
         return campaigns_using_software[software_stix_id] if software_stix_id in campaigns_using_software else []
@@ -1156,13 +1287,13 @@ class MitreAttackData:
     # Campaign/Group Relationships
     ###################################
 
-    def get_all_groups_attributing_to_all_campaigns(self) -> dict:
+    def get_all_groups_attributing_to_all_campaigns(self) -> RelationshipMapT[Group]:
         """Get all groups attributing to all campaigns.
 
         Returns
         -------
-        dict
-            a mapping of campaign_stix_id => [{"object": IntrusionSet, "relationships: Relationship[]}] for each group attributing to the campaign
+        RelationshipMapT[Group]
+            Mapping of campaign_stix_id to RelationshipEntry[Group] for each group attributing to the campaign.
         """
         # return data if it has already been fetched
         if self.all_groups_attributing_to_all_campaigns:
@@ -1172,18 +1303,18 @@ class MitreAttackData:
 
         return self.all_groups_attributing_to_all_campaigns
 
-    def get_groups_attributing_to_campaign(self, campaign_stix_id: str) -> list:
+    def get_groups_attributing_to_campaign(self, campaign_stix_id: str) -> list[RelationshipEntry[Group]]:
         """Get all groups attributing to a campaign.
 
         Parameters
         ----------
         campaign_stix_id : str
-            the STIX ID of the campaign
+            The STIX ID of the campaign.
 
         Returns
         -------
-        list
-            a list of {"object": IntrusionSet, "relationships": Relationship[]} for each group attributing to the campaign
+        list[RelationshipEntry[Group]]
+            List of RelationshipEntry[Group] for each group attributing to the campaign.
         """
         groups_attributing_to_campaigns = self.get_all_groups_attributing_to_all_campaigns()
         return (
@@ -1192,13 +1323,13 @@ class MitreAttackData:
             else []
         )
 
-    def get_all_campaigns_attributed_to_all_groups(self) -> dict:
+    def get_all_campaigns_attributed_to_all_groups(self) -> RelationshipMapT[Campaign]:
         """Get all campaigns attributed to all groups.
 
         Returns
         -------
-        dict
-            a mapping of group_stix_id => [{"object": Campaign, "relationships": Relationship[]}] for each campaign attributed to the group
+        RelationshipMapT[Campaign]
+            Mapping of group_stix_id to RelationshipEntry[Campaign] for each campaign attributed to the group.
         """
         # return data if it has already been fetched
         if self.all_campaigns_attributed_to_all_groups:
@@ -1210,18 +1341,18 @@ class MitreAttackData:
 
         return self.all_campaigns_attributed_to_all_groups
 
-    def get_campaigns_attributed_to_group(self, group_stix_id: str) -> list:
+    def get_campaigns_attributed_to_group(self, group_stix_id: str) -> list[RelationshipEntry[Campaign]]:
         """Get all campaigns attributed to a group.
 
         Parameters
         ----------
         group_stix_id : str
-            the STIX ID of the group
+            The STIX ID of the group.
 
         Returns
         -------
-        list
-            a list of {"object": Campaign, "relationships": Relationship[]} for each campaign attributed to the group
+        list[RelationshipEntry[Campaign]]
+            List of RelationshipEntry[Campaign] for each campaign attributed to the group.
         """
         campaigns_attributed_to_groups = self.get_all_campaigns_attributed_to_all_groups()
         return campaigns_attributed_to_groups[group_stix_id] if group_stix_id in campaigns_attributed_to_groups else []
@@ -1230,14 +1361,13 @@ class MitreAttackData:
     # Technique/Group Relationships
     ###################################
 
-    def get_all_techniques_used_by_all_groups(self) -> dict:
+    def get_all_techniques_used_by_all_groups(self) -> RelationshipMapT[Technique]:
         """Get all techniques used by all groups.
 
         Returns
         -------
-        dict
-            a mapping of group_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] for each technique used by the group and
-            each technique used by campaigns attributed to the group
+        RelationshipMapT[Technique]
+            Mapping of group_stix_id to RelationshipEntry[Technique] for each technique used by the group and each technique used by campaigns attributed to the group.
         """
         # return data if it has already been fetched
         if self.all_techniques_used_by_all_groups:
@@ -1260,31 +1390,30 @@ class MitreAttackData:
         self.all_techniques_used_by_all_groups = techniques_used_by_groups
         return techniques_used_by_groups
 
-    def get_techniques_used_by_group(self, group_stix_id: str) -> list:
+    def get_techniques_used_by_group(self, group_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all techniques used by a group.
 
         Parameters
         ----------
         group_stix_id : str
-            the STIX ID of the group
+            The STIX ID of the group.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique used by the group and
-            each technique used by campaigns attributed to the group
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique used by the group and each technique used by campaigns attributed to the group.
         """
         techniques_used_by_groups = self.get_all_techniques_used_by_all_groups()
         return techniques_used_by_groups[group_stix_id] if group_stix_id in techniques_used_by_groups else []
 
-    def get_all_groups_using_all_techniques(self) -> dict:
+    def get_all_groups_using_all_techniques(self) -> RelationshipMapT[Group]:
         """Get all groups using all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": IntrusionSet, "relationships": Relationship[]}] for each group using the
-            technique and each campaign attributed to groups using the technique
+        RelationshipMapT[Group]
+            Mapping of technique_stix_id to RelationshipEntry[Group] for each group using the technique
+            and each campaign attributed to groups using the technique.
         """
         # return data if it has already been fetched
         if self.all_groups_using_all_techniques:
@@ -1307,19 +1436,18 @@ class MitreAttackData:
         self.all_groups_using_all_techniques = groups_using_techniques
         return groups_using_techniques
 
-    def get_groups_using_technique(self, technique_stix_id: str) -> list:
+    def get_groups_using_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Group]]:
         """Get all groups using a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": IntrusionSet, "relationships": Relationship[]} for each group using the technique and each campaign attributed to
-            groups using the technique
+        list[RelationshipEntry[Group]]
+            List of RelationshipEntry[Group] for each group using the technique and each campaign attributed to groups using the technique.
         """
         groups_using_techniques = self.get_all_groups_using_all_techniques()
         return groups_using_techniques[technique_stix_id] if technique_stix_id in groups_using_techniques else []
@@ -1328,13 +1456,13 @@ class MitreAttackData:
     # Technique/Campaign Relationships
     ###################################
 
-    def get_all_techniques_used_by_all_campaigns(self) -> dict:
+    def get_all_techniques_used_by_all_campaigns(self) -> RelationshipMapT[Technique]:
         """Get all techniques used by all campaigns.
 
         Returns
         -------
-        dict
-            a mapping of campaign_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] for each technique used by the campaign
+        RelationshipMapT[Technique]
+            Mapping of campaign_stix_id to RelationshipEntry[Technique] for each technique used by the campaign.
         """
         # return data if it has already been fetched
         if self.all_techniques_used_by_all_campaigns:
@@ -1344,31 +1472,31 @@ class MitreAttackData:
 
         return self.all_techniques_used_by_all_campaigns
 
-    def get_techniques_used_by_campaign(self, campaign_stix_id: str) -> list:
+    def get_techniques_used_by_campaign(self, campaign_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all techniques used by a campaign.
 
         Parameters
         ----------
         campaign_stix_id : str
-            the STIX ID of the campaign
+            The STIX ID of the campaign.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique used by the campaign
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique used by the campaign.
         """
         techniques_used_by_campaigns = self.get_all_techniques_used_by_all_campaigns()
         return (
             techniques_used_by_campaigns[campaign_stix_id] if campaign_stix_id in techniques_used_by_campaigns else []
         )
 
-    def get_all_campaigns_using_all_techniques(self) -> dict:
+    def get_all_campaigns_using_all_techniques(self) -> RelationshipMapT[Campaign]:
         """Get all campaigns using all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": Campaign, "relationships": Relationship[]}] for each campaign using the technique
+        RelationshipMapT[Campaign]
+            Mapping of technique_stix_id to RelationshipEntry[Campaign] for each campaign using the technique.
         """
         # return data if it has already been fetched
         if self.all_campaigns_using_all_techniques:
@@ -1378,18 +1506,18 @@ class MitreAttackData:
 
         return self.all_campaigns_using_all_techniques
 
-    def get_campaigns_using_technique(self, technique_stix_id: str) -> list:
+    def get_campaigns_using_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Campaign]]:
         """Get all campaigns using a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": Campaign, "relationships": Relationship[]} for each campaign using the technique
+        list[RelationshipEntry[Campaign]]
+            List of RelationshipEntry[Campaign] for each campaign using the technique.
         """
         campaigns_using_techniques = self.get_all_campaigns_using_all_techniques()
         return campaigns_using_techniques[technique_stix_id] if technique_stix_id in campaigns_using_techniques else []
@@ -1398,13 +1526,13 @@ class MitreAttackData:
     # Technique/Software Relationships
     ###################################
 
-    def get_all_techniques_used_by_all_software(self) -> dict:
+    def get_all_techniques_used_by_all_software(self) -> RelationshipMapT[Technique]:
         """Get all techniques used by all software.
 
         Returns
         -------
-        dict
-            a mapping of software_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] for each technique used by the software
+        RelationshipMapT[Technique]
+            Mapping of software_stix_id to RelationshipEntry[Technique] for each technique used by the software.
         """
         # return data if it has already been fetched
         if self.all_techniques_used_by_all_software:
@@ -1416,29 +1544,29 @@ class MitreAttackData:
 
         return self.all_techniques_used_by_all_software
 
-    def get_techniques_used_by_software(self, software_stix_id: str) -> list:
+    def get_techniques_used_by_software(self, software_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all techniques used by a software.
 
         Parameters
         ----------
         software_stix_id : str
-            the STIX ID of the software
+            The STIX ID of the software.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique used by the software
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique used by the software.
         """
         techniques_used_by_software = self.get_all_techniques_used_by_all_software()
         return techniques_used_by_software[software_stix_id] if software_stix_id in techniques_used_by_software else []
 
-    def get_all_software_using_all_techniques(self) -> dict:
+    def get_all_software_using_all_techniques(self) -> RelationshipMapT[Software]:
         """Get all software using all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": Malware|Tool, "relationships": Relationship[]}] for each software using the technique
+        RelationshipMapT[Software]
+            Mapping of technique_stix_id to RelationshipEntry[Software] for each software using the technique.
         """
         # return data if it has already been fetched
         if self.all_software_using_all_techniques:
@@ -1450,18 +1578,18 @@ class MitreAttackData:
 
         return self.all_software_using_all_techniques
 
-    def get_software_using_technique(self, technique_stix_id: str) -> list:
+    def get_software_using_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Software]]:
         """Get all software using a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": Malware|Tool, "relationships": Relationship[]} for each software using the technique
+        list[RelationshipEntry[Software]]
+            List of RelationshipEntry[Software] for each software using the technique.
         """
         software_using_techniques = self.get_all_software_using_all_techniques()
         return software_using_techniques[technique_stix_id] if technique_stix_id in software_using_techniques else []
@@ -1470,13 +1598,13 @@ class MitreAttackData:
     # Technique/Mitigation Relationships
     ###################################
 
-    def get_all_techniques_mitigated_by_all_mitigations(self) -> dict:
+    def get_all_techniques_mitigated_by_all_mitigations(self) -> RelationshipMapT[Technique]:
         """Get all techniques mitigated by all mitigations.
 
         Returns
         -------
-        dict
-            a mapping of mitigation_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] for each technique mitigated by the mitigation
+        RelationshipMapT[Technique]
+            Mapping of mitigation_stix_id to RelationshipEntry[Technique] for each technique mitigated by the mitigation.
         """
         # return data if it has already been fetched
         if self.all_techniques_mitigated_by_all_mitigations:
@@ -1488,18 +1616,18 @@ class MitreAttackData:
 
         return self.all_techniques_mitigated_by_all_mitigations
 
-    def get_techniques_mitigated_by_mitigation(self, mitigation_stix_id: str) -> list:
+    def get_techniques_mitigated_by_mitigation(self, mitigation_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all techniques being mitigated by a mitigation.
 
         Parameters
         ----------
         mitigation_stix_id : str
-            the STIX ID of the mitigation
+            The STIX ID of the mitigation.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique mitigated by the mitigation
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique mitigated by the mitigation.
         """
         techniques_mitigated_by_mitigations = self.get_all_techniques_mitigated_by_all_mitigations()
         return (
@@ -1508,13 +1636,13 @@ class MitreAttackData:
             else []
         )
 
-    def get_all_mitigations_mitigating_all_techniques(self) -> dict:
+    def get_all_mitigations_mitigating_all_techniques(self) -> RelationshipMapT[Mitigation]:
         """Get all mitigations mitigating all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": CourseOfAction, "relationships": Relationship[]}] for each mitigation mitigating the technique
+        RelationshipMapT[Mitigation]
+            Mapping of technique_stix_id to RelationshipEntry[Mitigation] for each mitigation mitigating the technique.
         """
         # return data if it has already been fetched
         if self.all_mitigations_mitigating_all_techniques:
@@ -1526,18 +1654,18 @@ class MitreAttackData:
 
         return self.all_mitigations_mitigating_all_techniques
 
-    def get_mitigations_mitigating_technique(self, technique_stix_id: str) -> list:
+    def get_mitigations_mitigating_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Mitigation]]:
         """Get all mitigations mitigating a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": CourseOfAction, "relationships": Relationship[]} for each mitigation mitigating the technique
+        list[RelationshipEntry[Mitigation]]
+            List of RelationshipEntry[Mitigation] for each mitigation mitigating the technique.
         """
         mitigations_mitigating_techniques = self.get_all_mitigations_mitigating_all_techniques()
         return (
@@ -1550,13 +1678,13 @@ class MitreAttackData:
     # Technique/Subtechnique Relationships
     ###################################
 
-    def get_all_parent_techniques_of_all_subtechniques(self) -> dict:
+    def get_all_parent_techniques_of_all_subtechniques(self) -> RelationshipMapT[Technique]:
         """Get all parent techniques of all sub-techniques.
 
         Returns
         -------
-        dict
-            a mapping of subtechnique_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] describing the parent technique of the subtechnique
+        RelationshipMapT[Technique]
+            Mapping of subtechnique_stix_id to RelationshipEntry[Technique] describing the parent technique of the subtechnique.
         """
         # return data if it has already been fetched
         if self.all_parent_techniques_of_all_subtechniques:
@@ -1568,33 +1696,29 @@ class MitreAttackData:
 
         return self.all_parent_techniques_of_all_subtechniques
 
-    def get_parent_technique_of_subtechnique(self, subtechnique_stix_id: str) -> dict:
+    def get_parent_technique_of_subtechnique(self, subtechnique_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get the parent technique of a sub-technique.
 
         Parameters
         ----------
         subtechnique_stix_id : str
-            the STIX ID of the sub-technique
+            The STIX ID of the sub-technique.
 
         Returns
         -------
-        dict
-            {"object": AttackPattern, "relationships": Relationship[]} describing the parent technique of the sub-technique
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] describing the parent technique of the sub-technique.
         """
         parent_techniques_of_subtechniques = self.get_all_parent_techniques_of_all_subtechniques()
-        return (
-            parent_techniques_of_subtechniques[subtechnique_stix_id]
-            if subtechnique_stix_id in parent_techniques_of_subtechniques
-            else []
-        )
+        return parent_techniques_of_subtechniques.get(subtechnique_stix_id, [])
 
-    def get_all_subtechniques_of_all_techniques(self) -> dict:
+    def get_all_subtechniques_of_all_techniques(self) -> RelationshipMapT[Technique]:
         """Get all subtechniques of all parent techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] for each subtechnique of the technique
+        RelationshipMapT[Technique]
+            Mapping of technique_stix_id to RelationshipEntry[Technique] for each subtechnique of the technique.
         """
         # return data if it has already been fetched
         if self.all_subtechniques_of_all_techniques:
@@ -1606,18 +1730,18 @@ class MitreAttackData:
 
         return self.all_subtechniques_of_all_techniques
 
-    def get_subtechniques_of_technique(self, technique_stix_id: str) -> list:
+    def get_subtechniques_of_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all subtechniques of a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each subtechnique of the technique
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each subtechnique of the technique.
         """
         subtechniques_of_techniques = self.get_all_subtechniques_of_all_techniques()
         return (
@@ -1628,13 +1752,13 @@ class MitreAttackData:
     # Technique/Data Component Relationships
     ###################################
 
-    def get_all_techniques_detected_by_all_datacomponents(self) -> dict:
+    def get_all_techniques_detected_by_all_datacomponents(self) -> RelationshipMapT[Technique]:
         """Get all techniques detected by all data components.
 
         Returns
         -------
-        dict
-            a mapping of datacomponent_stix_id => [{"object": AttackPattern, "relationships": Relationship[]}] describing the detections of the data component
+        RelationshipMapT[Technique]
+            Mapping of datacomponent_stix_id to RelationshipEntry[Technique] describing the detections of the data component.
         """
         # return data if it has already been fetched
         if self.all_techniques_detected_by_all_datacomponents:
@@ -1646,18 +1770,20 @@ class MitreAttackData:
 
         return self.all_techniques_detected_by_all_datacomponents
 
-    def get_techniques_detected_by_datacomponent(self, datacomponent_stix_id: str) -> list:
+    def get_techniques_detected_by_datacomponent(
+        self, datacomponent_stix_id: str
+    ) -> list[RelationshipEntry[Technique]]:
         """Get all techniques detected by a data component.
 
         Parameters
         ----------
         datacomponent_stix_id : str
-            the STIX ID of the data component
+            The STIX ID of the data component.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} describing the detections of the data component
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] describing the detections of the data component.
         """
         techniques_detected_by_datacomponents = self.get_all_techniques_detected_by_all_datacomponents()
         return (
@@ -1666,13 +1792,13 @@ class MitreAttackData:
             else []
         )
 
-    def get_all_datacomponents_detecting_all_techniques(self) -> dict:
+    def get_all_datacomponents_detecting_all_techniques(self) -> RelationshipMapT[DataComponent]:
         """Get all data components detecting all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{"object": DataComponent, "relationships": Relationship[]}] describing the data components that can detect the technique
+        RelationshipMapT[DataComponent]
+            Mapping of technique_stix_id to RelationshipEntry[DataComponent] describing the data components that can detect the technique.
         """
         # return data if it has already been fetched
         if self.all_datacomponents_detecting_all_techniques:
@@ -1684,18 +1810,18 @@ class MitreAttackData:
 
         return self.all_datacomponents_detecting_all_techniques
 
-    def get_datacomponents_detecting_technique(self, technique_stix_id: str) -> list:
+    def get_datacomponents_detecting_technique(self, technique_stix_id: str) -> list[RelationshipEntry[DataComponent]]:
         """Get all data components detecting a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": DataComponent, "relationships": Relationship[]} describing the data components that can detect the technique
+        list[RelationshipEntry[DataComponent]]
+            List of RelationshipEntry[DataComponent] describing the data components that can detect the technique.
         """
         datacomponents_detecting_techniques = self.get_all_datacomponents_detecting_all_techniques()
         return (
@@ -1704,18 +1830,18 @@ class MitreAttackData:
             else []
         )
 
-    def get_revoking_object(self, revoked_stix_id: str = "") -> object:
+    def get_revoking_object(self, revoked_stix_id: str = "") -> AttackStixObject | None:
         """Given the STIX ID of a revoked object, retrieve the STIX object that replaced ("revoked") it.
 
         Parameters
         ----------
         revoked_stix_id : str
-            the STIX ID of the object that has been revoked
+            The STIX ID of the object that has been revoked.
 
         Returns
         -------
-        object
-            the object that replaced ("revoked") it
+        AttackStixObject | None
+            The object that replaced ("revoked") it, or None if not found.
         """
         relations = self.src.relationships(revoked_stix_id, "revoked-by", source_only=True)
         revoked_by = self.src.query([Filter("id", "in", [r.target_ref for r in relations])])
@@ -1723,19 +1849,20 @@ class MitreAttackData:
         if not revoked_by:
             return None
 
-        return revoked_by[0]
+        # return revoked_by[0]
+        return StixObjectFactory(revoked_by[0])
 
     ###################################
     # Technique/Asset Relationships
     ###################################
 
-    def get_all_techniques_targeting_all_assets(self) -> dict:
+    def get_all_techniques_targeting_all_assets(self) -> RelationshipMapT[Technique]:
         """Get all techniques targeting all assets.
 
         Returns
         -------
-        dict
-            a mapping of asset_stix_id => [{'object': AttackPattern, 'relationships': Relationship[]}] for each technique targeting the asset
+        RelationshipMapT[Technique]
+            Mapping of asset_stix_id to RelationshipEntry[Technique] for each technique targeting the asset.
         """
         # return data if it has already been fetched
         if self.all_techniques_targeting_all_assets:
@@ -1747,29 +1874,29 @@ class MitreAttackData:
 
         return self.all_techniques_targeting_all_assets
 
-    def get_techniques_targeting_asset(self, asset_stix_id: str) -> list:
+    def get_techniques_targeting_asset(self, asset_stix_id: str) -> list[RelationshipEntry[Technique]]:
         """Get all techniques targeting an asset.
 
         Parameters
         ----------
         asset_stix_id : str
-            the STIX ID of the asset
+            The STIX ID of the asset.
 
         Returns
         -------
-        list
-            a list of {"object": AttackPattern, "relationships": Relationship[]} for each technique targeting the asset
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique targeting the asset.
         """
         techniques_targeting_assets = self.get_all_techniques_targeting_all_assets()
         return techniques_targeting_assets[asset_stix_id] if asset_stix_id in techniques_targeting_assets else []
 
-    def get_all_assets_targeted_by_all_techniques(self) -> dict:
+    def get_all_assets_targeted_by_all_techniques(self) -> RelationshipMapT[Asset]:
         """Get all assets targeted by all techniques.
 
         Returns
         -------
-        dict
-            a mapping of technique_stix_id => [{'object': Asset, 'relationships': Relationship[]}] for each asset targeted by the technique
+        RelationshipMapT[Asset]
+            Mapping of technique_stix_id to RelationshipEntry[Asset] for each asset targeted by the technique.
         """
         # return data if it has already been fetched
         if self.all_assets_targeted_by_all_techniques:
@@ -1779,18 +1906,18 @@ class MitreAttackData:
 
         return self.all_assets_targeted_by_all_techniques
 
-    def get_assets_targeted_by_technique(self, technique_stix_id: str) -> list:
+    def get_assets_targeted_by_technique(self, technique_stix_id: str) -> list[RelationshipEntry[Asset]]:
         """Get all assets targeted by a technique.
 
         Parameters
         ----------
         technique_stix_id : str
-            the STIX ID of the technique
+            The STIX ID of the technique.
 
         Returns
         -------
-        list
-            a list of {"object": Asset, "relationships": Relationship[]} for each asset targeted by the technique
+        list[RelationshipEntry[Asset]]
+            List of RelationshipEntry[Asset] for each asset targeted by the technique.
         """
         assets_targeted_by_techniques = self.get_all_assets_targeted_by_all_techniques()
         return (

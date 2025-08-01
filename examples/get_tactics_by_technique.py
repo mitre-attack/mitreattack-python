@@ -6,7 +6,7 @@ def main():
     technique_id = "attack-pattern--7e150503-88e7-4861-866b-ff1ac82c4475"
 
     tactics = mitre_attack_data.get_tactics_by_technique(technique_id)
-    
+
     print(f"Retrieved {len(tactics)} tactic(s):")
 
     for t in tactics:

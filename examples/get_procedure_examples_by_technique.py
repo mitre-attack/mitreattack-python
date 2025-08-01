@@ -6,7 +6,7 @@ def main():
     technique_id = "attack-pattern--03259939-0b57-482f-8eb5-87c0e0d54334"
 
     procedure_examples = mitre_attack_data.get_procedure_examples_by_technique(technique_id)
-    
+
     print(f"Retrieved {len(procedure_examples)} procedure example(s):")
 
     for procedure_example in procedure_examples:

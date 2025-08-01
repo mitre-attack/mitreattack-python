@@ -15,8 +15,10 @@ STRING_RE = "Analytic(\s|.)*"
 
 
 def pruneString(in_string):
-    result = re.search(STRING_RE, in_string).group(0)
-    return result
+    match = re.search(STRING_RE, in_string)
+    if match is not None:
+        return match.group(0)
+    return ""
 
 
 if __name__ == "__main__":
