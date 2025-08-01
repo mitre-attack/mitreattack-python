@@ -8,10 +8,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -23,10 +23,10 @@ jobs:
         run: flake8 mitreattack/ --count --exit-zero --statistics
 
       # should turn these back on once they take less than 10 minutes to run
-      # - name: Run pytest
-      #   run: |
-      #     cd tests
-      #     pytest --cov=mitreattack --cov-report html
+      - name: Run pytest
+        run: |
+          cd tests
+          pytest --cov=mitreattack --cov-report html
 
   publish:
     needs: lint-test
@@ -40,10 +40,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
