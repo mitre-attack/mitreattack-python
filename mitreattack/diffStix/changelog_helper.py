@@ -517,6 +517,8 @@ class DiffStix(object):
                 data_store = self.get_datastore_from_mitre_cti(domain=domain, datastore_version=datastore_version)
             else:
                 directory = self.old if datastore_version == "old" else self.new
+                if directory is None:
+                    raise ValueError(f"Directory path for {datastore_version} data cannot be None when not using MITRE CTI")
                 stix_file = os.path.join(directory, f"{domain}.json")
 
                 attack_version = release_info.get_attack_version(domain=domain, stix_file=stix_file)
@@ -1380,11 +1382,11 @@ def deep_copy_stix(stix_objects: List[dict]) -> List[dict]:
         # more details here: https://github.com/mitre/cti/issues/17#issuecomment-395768815
         stix_object = dict(stix_object)
         if "external_references" in stix_object:
-            for i in range(len(stix_object["external_references"])):
-                stix_object["external_references"][i] = dict(stix_object["external_references"][i])
+            # Create a new list to ensure deep copy
+            stix_object["external_references"] = [dict(ref) for ref in stix_object["external_references"]]
         if "kill_chain_phases" in stix_object:
-            for i in range(len(stix_object["kill_chain_phases"])):
-                stix_object["kill_chain_phases"][i] = dict(stix_object["kill_chain_phases"][i])
+            # Create a new list to ensure deep copy
+            stix_object["kill_chain_phases"] = [dict(phase) for phase in stix_object["kill_chain_phases"]]
 
         if "modified" in stix_object:
             stix_object["modified"] = str(stix_object["modified"])
@@ -1995,9 +1997,7 @@ def get_new_changelog_md(
         include_contributors=include_contributors,
     )
 
-    md_string = None
-    if markdown_file or html_file:
-        md_string = diffStix.get_markdown_string()
+    md_string = diffStix.get_markdown_string()
 
     if markdown_file:
         logger.info("Writing markdown to file")
