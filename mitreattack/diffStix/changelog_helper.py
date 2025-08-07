@@ -1707,8 +1707,11 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                                 if detailed_change_type == "values_changed":
                                     for detailed_change, values in detailed_changes.items():
                                         matches = re.search(regex, detailed_change)
-                                        top_stix_key = matches.group("top_stix_key")
-                                        the_rest = matches.group("the_rest")
+                                        if matches:
+                                            top_stix_key = matches.group("top_stix_key")
+                                            the_rest = matches.group("the_rest")
+                                        else:
+                                            continue
                                         stix_field = f"{top_stix_key}{the_rest}"
 
                                         old_value = values["old_value"]
@@ -1721,7 +1724,10 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                                 elif detailed_change_type == "iterable_item_added":
                                     for detailed_change, new_value in detailed_changes.items():
-                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        match = re.search(regex, detailed_change)
+                                        if not match:
+                                            continue
+                                        stix_field = match.group("top_stix_key")
                                         lines.append("<tr>")
                                         lines.append(f"<td {table_inline_css}>{stix_field}</td>")
                                         lines.append(f"<td {table_inline_css}></td>")
@@ -1730,7 +1736,10 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                                 elif detailed_change_type == "iterable_item_removed":
                                     for detailed_change, old_value in detailed_changes.items():
-                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        match = re.search(regex, detailed_change)
+                                        if not match:
+                                            continue
+                                        stix_field = match.group("top_stix_key")
                                         lines.append("<tr>")
                                         lines.append(f"<td {table_inline_css}>{stix_field}</td>")
                                         lines.append(f"<td {table_inline_css}>{old_value}</td>")
@@ -1739,7 +1748,10 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                                 elif detailed_change_type == "dictionary_item_added":
                                     for detailed_change, new_value in detailed_changes.items():
-                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        match = re.search(regex, detailed_change)
+                                        if not match:
+                                            continue
+                                        stix_field = match.group("top_stix_key")
                                         lines.append("<tr>")
                                         lines.append(f"<td {table_inline_css}>{stix_field}</td>")
                                         lines.append(f"<td {table_inline_css}></td>")
@@ -1748,7 +1760,10 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                                 elif detailed_change_type == "dictionary_item_removed":
                                     for detailed_change, old_value in detailed_changes.items():
-                                        stix_field = re.search(regex, detailed_change).group("top_stix_key")
+                                        match = re.search(regex, detailed_change)
+                                        if not match:
+                                            continue
+                                        stix_field = match.group("top_stix_key")
                                         lines.append("<tr>")
                                         lines.append(f"<td {table_inline_css}>{stix_field}</td>")
                                         lines.append(f"<td {table_inline_css}>{old_value}</td>")
