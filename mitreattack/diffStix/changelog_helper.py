@@ -306,7 +306,7 @@ class DiffStix(object):
                         new_lines_unique = [line for line in new_lines if line not in old_lines]
                         if old_lines_unique or new_lines_unique:
                             html_diff = difflib.HtmlDiff(wrapcolumn=60)
-                            html_diff._legend = ""
+                            html_diff._legend = ""  # type: ignore[attr-defined]
                             delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
                             new_stix_obj["description_change_table"] = delta
 
