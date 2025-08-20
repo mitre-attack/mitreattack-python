@@ -108,7 +108,16 @@ class DiffStix(object):
         self.new = new
         self.show_key = show_key
         self.site_prefix = site_prefix
-        self.types = ["techniques", "software", "groups", "campaigns", "assets", "mitigations", "datasources", "datacomponents"]
+        self.types = [
+            "techniques",
+            "software",
+            "groups",
+            "campaigns",
+            "assets",
+            "mitigations",
+            "datasources",
+            "datacomponents"
+        ]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
         self.include_contributors = include_contributors
