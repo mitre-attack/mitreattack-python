@@ -1,0 +1,713 @@
+{
+  "versions": {
+    "layer": "4.5",
+    "navigator": "5.0.0",
+    "attack": "17.0"
+  },
+  "name": "June 2025 ICS Updates",
+  "description": "ICS updates for the June 2025 release of ATT&CK",
+  "domain": "ics-attack",
+  "techniques": [
+    {
+      "techniqueID": "T0800",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0830",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0878",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0802",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0895",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0803",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0804",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0805",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0806",
+      "tactic": "impair-process-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0892",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0858",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0858",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0807",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0885",
+      "tactic": "command-and-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0884",
+      "tactic": "command-and-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0879",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0809",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0811",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0893",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0812",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0813",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0814",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0815",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0868",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0816",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0817",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0871",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0819",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0820",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0890",
+      "tactic": "privilege-escalation",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0866",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0866",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0822",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0823",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0891",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0891",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0874",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0874",
+      "tactic": "privilege-escalation",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0877",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0872",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0883",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0867",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0826",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0827",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0828",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0837",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0880",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0829",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0835",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0831",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0832",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0849",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0838",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0821",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0836",
+      "tactic": "impair-process-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0889",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0839",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0839",
+      "tactic": "impair-process-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0801",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0834",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0840",
+      "tactic": "discovery",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0842",
+      "tactic": "discovery",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0861",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0843",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0845",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0873",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0886",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0886",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0846",
+      "tactic": "discovery",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0888",
+      "tactic": "discovery",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0847",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0848",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0851",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0851",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0852",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0853",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0881",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0865",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0856",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0856",
+      "tactic": "impair-process-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0869",
+      "tactic": "command-and-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0862",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0894",
+      "tactic": "evasion",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0857",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0857",
+      "tactic": "inhibit-response-function",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0882",
+      "tactic": "impact",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0864",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0855",
+      "tactic": "impair-process-control",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0863",
+      "tactic": "execution",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0859",
+      "tactic": "persistence",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0859",
+      "tactic": "lateral-movement",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0860",
+      "tactic": "initial-access",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0887",
+      "tactic": "discovery",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    },
+    {
+      "techniqueID": "T0887",
+      "tactic": "collection",
+      "enabled": true,
+      "color": "#B99095",
+      "comment": "patche"
+    }
+  ],
+  "sorting": 0,
+  "hideDisabled": false,
+  "legendItems": [
+    {
+      "color": "#a1d99b",
+      "label": "additions: ATT&CK objects which are only present in the new release."
+    },
+    {
+      "color": "#fcf3a2",
+      "label": "major_version_changes: ATT&CK objects that have a major version change. (e.g. 1.0 \u2192 2.0)"
+    },
+    {
+      "color": "#c7c4e0",
+      "label": "minor_version_changes: ATT&CK objects that have a minor version change. (e.g. 1.0 \u2192 1.1)"
+    },
+    {
+      "color": "#B5E5CF",
+      "label": "other_version_changes: ATT&CK objects that have a version change of any other kind. (e.g. 1.0 \u2192 1.2)"
+    },
+    {
+      "color": "#B99095",
+      "label": "patches: ATT&CK objects that have been patched while keeping the version the same. (e.g., 1.0 \u2192 1.0 but something like a typo, a URL, or some metadata was fixed)"
+    },
+    {
+      "color": "#ff9000",
+      "label": "revocations: ATT&CK objects which are revoked by a different object."
+    },
+    {
+      "color": "#ff6363",
+      "label": "deprecations: ATT&CK objects which are deprecated and no longer in use, and not replaced."
+    },
+    {
+      "color": "#ff00e1",
+      "label": "deletions: ATT&CK objects which are no longer found in the STIX data."
+    },
+    {
+      "color": "#ffffff",
+      "label": "unchanged: ATT&CK objects which did not change between the two versions."
+    }
+  ],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#205b8f",
+  "selectTechniquesAcrossTactics": true
+}
