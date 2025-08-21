@@ -41,7 +41,7 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
 
 
 def download_domains(
-    domains: List[str], download_dir: str, all_versions: bool, stix_version: str, specific_versions: List[str] = None
+    domains: List[str], download_dir: str, all_versions: bool, stix_version: str, attack_versions: List[str] = None
 ):
     """Download ATT&CK domains specified.
 
@@ -55,8 +55,8 @@ def download_domains(
         Whether or not to download all versions of the domains.
     stix_version : str
         Version of STIX to download. Options are "2.0" or "2.1"
-    specific_versions : List[str], optional
-        List of specific versions to download. If provided, overrides all_versions behavior.
+    attack_versions : List[str], optional
+        List of specific ATT&CK versions to download. If provided, overrides all_versions behavior.
     """
     for domain in domains:
         if domain == "pre" and stix_version == "2.1":
@@ -79,10 +79,10 @@ def download_domains(
             if stix_version == "2.0":
                 releases = stix_hash_data["pre"]
 
-        if specific_versions:
-            # Download specific versions
-            logger.info(f"Downloading STIX {stix_version} specific versions for the {domain} domain to {download_dir}")
-            for version in specific_versions:
+        if attack_versions:
+            # Download ATT&CK versions
+            for version in attack_versions:
+                logger.info(f"Downloading STIX {stix_version}, ATT&CK version {version} for the {domain} domain to {download_dir}")
                 if version in releases:
                     known_hash = releases[version]
                     download_stix(
@@ -177,7 +177,7 @@ def download_attack_stix(
     all_versions: bool = typer.Option(
         False, "--all", "-a", help="Download all ATT&CK releases. Mutually exclusive with --version."
     ),
-    versions: List[str] = typer.Option(
+    attack_versions: List[str] = typer.Option(
         None,
         "--version",
         "-v",
@@ -189,16 +189,34 @@ def download_attack_stix(
     """Download the ATT&CK STIX data from GitHub in JSON format.
 
     By default, only the latest ATT&CK release will be downloaded in STIX 2.0 format.
-    Use --version to specify particular versions, or --all to download all versions.
+    Use --version to specify particular ATT&CK versions, or --all to download all ATT&CK versions.
+
+    \b
+    Examples:
+    \b
+    # Download latest version:
+    download_attack_stix
+    \b
+    # Download specific versions:
+    download_attack_stix -v 16.1
+    \b
+    # Download all ATT&CK versions in both STIX formats:
+    download_attack_stix --all --stix21
+    \b
+    # Download only STIX 2.1:
+    download_attack_stix --no-stix20 --stix21
+    \b
+    # Download multiple versions:
+    download_attack_stix -d my-attack-data -v 13.1 -v 14.0 -v 15.0 --stix21
     """
     # Validate mutually exclusive options
-    if all_versions and versions:
+    if all_versions and attack_versions:
         logger.error("Cannot specify both --all and --version. Use one or the other.")
         raise typer.Exit(code=1)
 
-    # Validate specified versions exist
-    if versions:
-        _validate_versions(versions, stix20, stix21)
+    # Validate specified ATT&CK versions exist
+    if attack_versions:
+        _validate_versions(attack_versions, stix20, stix21)
 
     domains = ["enterprise", "mobile", "ics", "pre"]
 
@@ -210,7 +228,7 @@ def download_attack_stix(
             download_dir=stix20_download_dir,
             all_versions=all_versions,
             stix_version="2.0",
-            specific_versions=versions,
+            attack_versions=attack_versions,
         )
 
     if stix21:
@@ -221,5 +239,5 @@ def download_attack_stix(
             download_dir=stix21_download_dir,
             all_versions=all_versions,
             stix_version="2.1",
-            specific_versions=versions,
+            attack_versions=attack_versions,
         )
