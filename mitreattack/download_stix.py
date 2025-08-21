@@ -1,7 +1,7 @@
 """A helper script to download ATT&CK releases in STIX/JSON format."""
 
 import pathlib
-from typing import List
+from typing import List, Optional
 
 import pooch
 import typer
@@ -41,7 +41,7 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
 
 
 def download_domains(
-    domains: List[str], download_dir: str, all_versions: bool, stix_version: str, attack_versions: List[str] = None
+    domains: List[str], download_dir: str, all_versions: bool, stix_version: str, attack_versions: Optional[List[str]] = None
 ):
     """Download ATT&CK domains specified.
 
@@ -177,7 +177,7 @@ def download_attack_stix(
     all_versions: bool = typer.Option(
         False, "--all", "-a", help="Download all ATT&CK releases. Mutually exclusive with --version."
     ),
-    attack_versions: List[str] = typer.Option(
+    attack_versions: Optional[List[str]] = typer.Option(
         None,
         "--version",
         "-v",
@@ -208,7 +208,7 @@ def download_attack_stix(
     \b
     # Download multiple versions:
     download_attack_stix -d my-attack-data -v 13.1 -v 14.0 -v 15.0 --stix21
-    """
+    """  # noqa: D301
     # Validate mutually exclusive options
     if all_versions and attack_versions:
         logger.error("Cannot specify both --all and --version. Use one or the other.")
