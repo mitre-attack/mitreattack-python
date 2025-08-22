@@ -119,7 +119,7 @@ class DiffStix(object):
             "datacomponents",
             "detectionstrategies",
             "analytics",
-            "logsources"
+            "logsources",
         ]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
