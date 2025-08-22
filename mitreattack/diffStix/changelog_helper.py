@@ -52,12 +52,12 @@ class AttackObjectVersion:
 class AttackChangesEncoder(json.JSONEncoder):
     """Custom JSON encoder for changes made to ATT&CK between releases."""
 
-    def default(self, obj):
+    def default(self, o):
         """Handle custom object types so they can be serialized to JSON."""
-        if isinstance(obj, AttackObjectVersion):
-            return str(obj)
+        if isinstance(o, AttackObjectVersion):
+            return str(o)
 
-        return json.JSONEncoder.default(self, obj)
+        return json.JSONEncoder.default(self, o)
 
 
 class DiffStix(object):
@@ -898,6 +898,7 @@ class DiffStix(object):
             Final return string to be displayed in the Changelog.
         """
         datastore_version = "old" if section == "deletions" else "new"
+        placard_string = ""
 
         if section == "deletions":
             placard_string = stix_object["name"]
@@ -952,6 +953,7 @@ class DiffStix(object):
     def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
         """Parse a list of STIX objects in a section and return a string for the whole section."""
         sectionString = ""
+        placard_string = ""
         for grouping in groupings:
             if grouping["parentInSection"]:
                 placard_string = self.placard(stix_object=grouping["parent"], section=section, domain=domain)
