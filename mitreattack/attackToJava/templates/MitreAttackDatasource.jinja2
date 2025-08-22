@@ -1,0 +1,47 @@
+package {{ package_name }};
+
+/** Represents critical assert, source code, or data that attacker is trying to reach */
+public enum MitreAttackDatasource {
+
+
+  {% for key, value in all_data_sources.items() %}
+        {% if not loop.last %}
+        {{ key }}("{{ value }}"),
+        {% else %}
+        {{ key }}("{{ value }}");
+        {% endif %}
+  {% endfor %}
+
+  private final String value;
+
+  MitreAttackDatasource(String value) {
+    this.value = value;
+  }
+
+  /**
+   * Gets the string value of the report confidence.
+   *
+   * @return The string value of the report confidence.
+   */
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * Converts a string value to the corresponding MitreAttackDatasource enum value. If no matching value is
+   * found a RuntimeException is thrown
+   *
+   * @param value The string value to convert.
+   * @return The corresponding MitreAttackDatasource enum value.
+   * @throws RuntimeException if the value does not match any MitreAttackDatasource enum value.
+   */
+  public static MitreAttackDatasource fromValue(String value) {
+    for (MitreAttackDatasource ac : MitreAttackDatasource.values()) {
+      if (ac.getValue().equals(value)) {
+        return ac;
+      }
+    }
+
+    throw new RuntimeException("Invalid MitreAttackDatasource value: " + value);
+  }
+}

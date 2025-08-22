@@ -30,5 +30,6 @@ other modules in this library under "Additional Modules".
 
    additional_modules/navlayers
    additional_modules/attackToExcel
+   additional_modules/attackToJava
    additional_modules/collections
    additional_modules/diffStix
