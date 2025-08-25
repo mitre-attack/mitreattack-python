@@ -1,4 +1,3 @@
-import json
 from argparse import Namespace
 from pathlib import Path
 
@@ -11,8 +10,10 @@ from .resources.testing_data import collection, index
 
 
 class TestCollectionToIndex:
+    """Test converting a collection to an index."""
+
     def test_invalid_arguments(self, capsys):
-        """Test converting a collection to an index with invalid arguments provided"""
+        """Test converting a collection to an index with invalid arguments provided."""
         index = CollectionToIndex.generate_index(
             name="name",
             description="description",
@@ -29,7 +30,7 @@ class TestCollectionToIndex:
         )
 
     def test_files(self):
-        """Test converting a collection to an index with files provided"""
+        """Test converting a collection to an index with files provided."""
         name = "Files Example"
         description = "Files index"
         index = CollectionToIndex.generate_index(
@@ -39,11 +40,12 @@ class TestCollectionToIndex:
             files=[str(Path(__file__).parent / "resources" / "collection-1.json")],
         )
 
+        assert index is not None
         assert index["name"] == name
         assert index["description"] == description
 
     def test_folders(self):
-        """Test converting a collection to an index with folders provided"""
+        """Test converting a collection to an index with folders provided."""
         name = "Folders Example"
         description = "Folders index"
         index = CollectionToIndex.generate_index(
@@ -53,11 +55,12 @@ class TestCollectionToIndex:
             folders=[str(Path(__file__).parent / "resources")],
         )
 
+        assert index is not None
         assert index["name"] == name
         assert index["description"] == description
 
     def test_sets(self):
-        """Test converting a collection to an index with sets provided"""
+        """Test converting a collection to an index with sets provided."""
         name = "Sets Example"
         description = "Sets index"
         index = CollectionToIndex.generate_index(
@@ -67,11 +70,12 @@ class TestCollectionToIndex:
             sets=[collection],
         )
 
+        assert index is not None
         assert index["name"] == name
         assert index["description"] == description
 
     def test_main(self, tmp_path: Path):
-        """Test converting a collection to an index main method"""
+        """Test converting a collection to an index main method."""
         ics_bundle_collection = Path(__file__).parent / "resources" / "collection-1.json"
         output_path = tmp_path / "output.idx"
 
@@ -94,8 +98,10 @@ class TestCollectionToIndex:
 
 
 class TestIndexToMarkdown:
+    """Test converting index file to markdown."""
+
     def test_headers(self):
-        """Test converting index file to a markdown headers"""
+        """Test converting index file to a markdown headers."""
         markdown = IndexToMarkdown.index_to_markdown(index)
 
         assert "### MITRE ATT&CK Collections" in markdown
@@ -104,7 +110,7 @@ class TestIndexToMarkdown:
         assert "#### ICS ATT&CK" in markdown
 
     def test_main(self, tmp_path: Path):
-        """Test converting index file to a markdown main method"""
+        """Test converting index file to a markdown main method."""
         index_path = Path(__file__).parent / "resources" / "index.json"
         output_path = tmp_path / "output.idx"
         ITM_main(

@@ -1,13 +1,18 @@
 import uuid
 from pathlib import Path
+from typing import Optional
 
 from loguru import logger
 from stix2 import MemoryStore
 
-from mitreattack.navlayers import Layer, SVGConfig, ToExcel, ToSvg
+from mitreattack.navlayers import Layer, Layout, SVGConfig, ToExcel, ToSvg
+from mitreattack.navlayers.core import _LayerObj
 
 
-def check_svg_generation(layer: Layer, path: Path, resource: MemoryStore, config: SVGConfig = None):
+def check_svg_generation(layer: Layer, path: Path, resource: MemoryStore, config: Optional[SVGConfig] = None):
+    """Test that an SVG file is generated."""
+    assert isinstance(layer.layer, _LayerObj)
+
     t = ToSvg(domain=layer.layer.domain, source="memorystore", resource=resource, config=config)
     svg_output = path / f"{uuid.uuid4()}.svg"
     t.to_svg(layerInit=layer, filepath=str(svg_output))
@@ -15,6 +20,9 @@ def check_svg_generation(layer: Layer, path: Path, resource: MemoryStore, config
 
 
 def check_xlsx_generation(layer: Layer, path: Path, resource: MemoryStore):
+    """Test that an XLSX file is generated."""
+    assert isinstance(layer.layer, _LayerObj)
+
     e = ToExcel(domain=layer.layer.domain, source="memorystore", resource=resource)
     xlsx_output = path / f"{uuid.uuid4()}.xlsx"
     e.to_xlsx(layerInit=layer, filepath=str(xlsx_output))
@@ -22,7 +30,9 @@ def check_xlsx_generation(layer: Layer, path: Path, resource: MemoryStore):
 
 
 def test_showSubtechniques(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: Displaying Subtechniques"""
+    """Test SVG export: Displaying Subtechniques."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+
     logger.debug(f"{tmp_path=}")
     showSubtechniques = "all"
     showHeader = True
@@ -35,7 +45,9 @@ def test_showSubtechniques(tmp_path: Path, layer_v3_all: Layer, memstore_enterpr
 
 
 def test_dimensions(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: dimensions"""
+    """Test SVG export: dimensions."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+
     logger.debug(f"{tmp_path=}")
     width = 8.5
     height = 11
@@ -50,7 +62,9 @@ def test_dimensions(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_lat
 
 
 def test_legendWidth(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: legend width variations"""
+    """Test SVG export: legend width variations."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+
     logger.debug(f"{tmp_path=}")
     legendWidth = 3
     legendHeight = 1
@@ -71,7 +85,9 @@ def test_legendWidth(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_la
 
 
 def test_showFilters(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: customization options"""
+    """Test SVG export: customization options."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+
     logger.debug(f"{tmp_path=}")
     showFilters = True
     showAbout = True
@@ -86,7 +102,9 @@ def test_showFilters(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_la
 
 
 def test_borders(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: borders"""
+    """Test SVG export: borders."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+
     logger.debug(f"{tmp_path=}")
     border = 0.2
     tableBorderColor = "#ddd"
@@ -98,7 +116,9 @@ def test_borders(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest
 
 
 def test_counts(tmp_path: Path, layer_v3_all: Layer, memstore_enterprise_latest: MemoryStore):
-    """Test SVG export: scores/aggregation"""
+    """Test SVG export: scores/aggregation."""
+    assert isinstance(layer_v3_all.layer, _LayerObj)
+    assert isinstance(layer_v3_all.layer.layout, Layout)
     logger.debug(f"{tmp_path=}")
     countUnscored = True
     aggregateFunction = "average"
