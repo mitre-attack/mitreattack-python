@@ -57,6 +57,9 @@ class TestDiffStixOutputGeneration:
             "mitigations",
             "datasources",
             "datacomponents",
+            "detectionstrategies",
+            "logsources",
+            "analytics",
         ]
         for obj_type in expected_types:
             assert obj_type in domain_data, f"Missing object type: {obj_type}"

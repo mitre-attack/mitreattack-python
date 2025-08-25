@@ -67,6 +67,9 @@ def assert_json_structure_valid(json_data: Dict[str, Any], expected_domains: Lis
             "mitigations",
             "datasources",
             "datacomponents",
+            "detectionstrategies",
+            "logsources",
+            "analytics",
         ]
         for obj_type in expected_types:
             if obj_type in domain_data:  # Not all domains may have all types
