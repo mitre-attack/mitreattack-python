@@ -1009,11 +1009,11 @@ class DiffStix(object):
 
             for domain in self.data["changes"][object_type]:
                 # e.g "Enterprise"
-                domains += f"### {self.domain_to_domain_label[domain]}\n\n"
+                next_domain = f"### {self.domain_to_domain_label[domain]}\n\n"
                 # Skip mobile section for data sources
                 if domain == "mobile-attack" and object_type == "datasource":
                     logger.debug("Skipping - ATT&CK for Mobile does not support data sources")
-                    domains += "ATT&CK for Mobile does not support data sources\n\n"
+                    next_domain += "ATT&CK for Mobile does not support data sources\n\n"
                     continue
                 domain_sections = ""
                 for section, stix_objects in self.data["changes"][object_type][domain].items():
@@ -1031,10 +1031,12 @@ class DiffStix(object):
                         domain_sections += f"{header}\n\n{section_items}\n"
 
                 # add domain sections
-                domains += f"{domain_sections}"
+                if domain_sections != "":
+                    domains += f"{next_domain}{domain_sections}"
 
             # e.g "techniques"
-            content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
+            if domains != "":
+                content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
 
         # Add contributors if requested by argument
         if self.include_contributors:
