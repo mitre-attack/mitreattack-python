@@ -3,8 +3,7 @@ name = "mitreattack-python"
 description = "MITRE ATT&CK python library"
 version = "5.0.0"
 authors = [
-    { name = "Jared Ondricek", email = "jondricek@mitre.org"},
-    { name = "Evan Lucchesi Leon", email = "elucchesileon@mitre.org"}
+    { name = "MITRE ATT&CK", email = "attack@mitre.org"},
 ]
 license = { text = "Apache-2.0" }
 readme="README.md"
