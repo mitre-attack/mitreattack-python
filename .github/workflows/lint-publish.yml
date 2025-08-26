@@ -1,65 +1,60 @@
 name: Lint, test, and publish
 
-on: [push]
+on: push
 
 jobs:
-  lint-test:
+  lint-format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "poetry"
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          pip install .
+        run: poetry install --with=dev
 
-      - name: Lint with flake8
-        run: flake8 mitreattack/ --count --exit-zero --statistics
+      - name: Lint with ruff
+        run: poetry run ruff check --exit-zero --output-format github
 
-      # should turn these back on once they take less than 10 minutes to run
-      # - name: Run pytest
-      #   run: |
-      #     cd tests
-      #     pytest --cov=mitreattack --cov-report html
+      - name: Check ruff format
+        run: poetry run ruff format --check
 
   publish:
-    needs: lint-test
+    needs: lint-format
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
-    # required for PyPI Trusted Publisher setup
-    # https://docs.pypi.org/trusted-publishers/using-a-publisher/
     environment: release
+    # this permission is required for PyPI Trusted Publisher setup
+    # https://docs.pypi.org/trusted-publishers/using-a-publisher/
     permissions:
       id-token: write
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "poetry"
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          pip install .
+        run: poetry install --with=dev
 
       - name: Run pytest
-        run: |
-          cd tests
-          pytest --cov=mitreattack --cov-report html
-          cd ..
+        run: poetry run pytest --cov=mitreattack
 
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: poetry build
 
       - name: Publish package
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1

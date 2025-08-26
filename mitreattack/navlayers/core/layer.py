@@ -3,7 +3,7 @@
 import json
 import traceback
 
-from mitreattack.navlayers.core.exceptions import UninitializedLayer, BadType, BadInput, handler
+from mitreattack.navlayers.core.exceptions import BadInput, BadType, UninitializedLayer, handler
 from mitreattack.navlayers.core.layerobj import _LayerObj
 
 
@@ -61,6 +61,7 @@ class Layer:
         :param filename: the target filename to load from
         """
         fallback = False
+        raw = ""
         with open(filename, "r", encoding="utf-16") as fio:
             try:
                 raw = fio.read()

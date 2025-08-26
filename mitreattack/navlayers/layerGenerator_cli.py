@@ -41,8 +41,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--resource",
-        help="Path to the local resource if --source=local, or url of an ATT&CK Workbench"
-        " instance if --source=remote",
+        help="Path to the local resource if --source=local, or url of an ATT&CK Workbench instance if --source=remote",
         default=None,
     )
     args = parser.parse_args(args=argv)

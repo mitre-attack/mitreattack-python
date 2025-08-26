@@ -1,9 +1,10 @@
 """Helper classes and functions for working with SVG objects."""
 
-import drawsvg
 import colorsys
-import numpy as np
 import os
+
+import drawsvg
+import numpy as np
 from PIL import ImageFont
 
 from mitreattack.navlayers.core.gradient import Gradient
@@ -459,7 +460,7 @@ class SVG_Technique:
                     close=True,
                     fill=tBC,
                     stroke=tBC,
-                    transform=f'translate(0,{y_offset})'
+                    transform=f"translate(0,{y_offset})",
                 )
             )
         return g, offset + new_offset

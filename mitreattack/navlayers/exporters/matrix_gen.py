@@ -133,9 +133,7 @@ class MatrixGen:
         self.convert_data = {}
         self.collections = dict()
         if source.lower() not in ["local", "remote", "memorystore"]:
-            logger.error(
-                f"Unable to generate matrix, source {source} is not one of [remote | local | memorystore]"
-            )
+            logger.error(f"Unable to generate matrix, source {source} is not one of [remote | local | memorystore]")
             raise ValueError
 
         if source.lower() == "local":

@@ -154,8 +154,7 @@ class SvgTemplates:
                     psych += 1
                 if showAgg:
                     t1 = (
-                        f"showing aggregate scores using the {self.lhandle.layout.aggregateFunction} "
-                        f"aggregate function"
+                        f"showing aggregate scores using the {self.lhandle.layout.aggregateFunction} aggregate function"
                     )
                     stub = "does not include"
                     if self.lhandle.layout.countUnscored:

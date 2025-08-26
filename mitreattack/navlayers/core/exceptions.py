@@ -1,6 +1,5 @@
 """Contains custom exceptions."""
 
-
 UNSETVALUE = "(x)"
 
 

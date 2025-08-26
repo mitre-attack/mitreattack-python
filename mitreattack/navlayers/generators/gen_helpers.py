@@ -1,4 +1,5 @@
 """Helper functions."""
+
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES
 
 
@@ -57,7 +58,7 @@ def build_data_strings(data_sources, data_components):
             out[component["id"]] = name
         except IndexError:
             print(
-                f'[generator] - (WARNING): no matching data source{ref} found for data component {component["id"]}. '
+                f"[generator] - (WARNING): no matching data source{ref} found for data component {component['id']}. "
                 f"Skipping..."
             )
             pass

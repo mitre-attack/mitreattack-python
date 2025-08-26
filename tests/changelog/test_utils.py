@@ -6,7 +6,7 @@ multiple changelog test files to reduce code duplication and improve maintainabi
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 # ========================================
 # Common Assertion Patterns
@@ -67,6 +67,9 @@ def assert_json_structure_valid(json_data: Dict[str, Any], expected_domains: Lis
             "mitigations",
             "datasources",
             "datacomponents",
+            "detectionstrategies",
+            "logsources",
+            "analytics",
         ]
         for obj_type in expected_types:
             if obj_type in domain_data:  # Not all domains may have all types
@@ -355,7 +358,10 @@ def create_layer_file_paths(tmp_path: Path, domains: List[str], prefix: str = "t
 
 
 def validate_comprehensive_output_generation(
-    markdown_result: str, file_paths: Dict[str, str], expected_domains: List[str], layer_files: List[str] = None
+    markdown_result: str,
+    file_paths: Dict[str, str],
+    expected_domains: List[str],
+    layer_files: Optional[List[str]] = None,
 ) -> None:
     """Validate comprehensive output generation scenario.
 

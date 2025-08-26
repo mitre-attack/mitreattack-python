@@ -109,7 +109,6 @@ __all__ = [
     "validate_json_file",
     "validate_layer_file",
     # CLI argument testing helper fixtures
-    "create_mock_args",
     "setup_monkeypatch_args",
 ]
 
@@ -1940,56 +1939,8 @@ def validate_layer_file():
 
 
 @pytest.fixture
-def create_mock_args():
-    """Create mock CLI argument objects with configurable parameters."""
-
-    def _create_mock_args(**overrides):
-        """Create a mock args object with default values, allowing selective overrides.
-
-        Parameters
-        ----------
-        **overrides : dict
-            Dictionary of argument names to override with custom values
-
-        Returns
-        -------
-        Mock
-            Mock object with all CLI arguments as attributes
-        """
-        # Default argument values matching the CLI parser defaults
-        defaults = {
-            "domains": ["enterprise-attack", "mobile-attack", "ics-attack"],
-            "layers": None,
-            "unchanged": False,
-            "old": "old",
-            "new": "new",
-            "show_key": False,
-            "site_prefix": "",
-            "use_mitre_cti": False,
-            "verbose": False,
-            "contributors": True,
-            "markdown_file": None,
-            "html_file": None,
-            "html_file_detailed": None,
-            "json_file": None,
-        }
-
-        # Apply any overrides
-        defaults.update(overrides)
-
-        # Create mock object with all attributes
-        mock_args = Mock()
-        for key, value in defaults.items():
-            setattr(mock_args, key, value)
-
-        return mock_args
-
-    return _create_mock_args
-
-
-@pytest.fixture
 def setup_monkeypatch_args():
-    """Helper to set up monkeypatch for CLI argument testing."""
+    """Set up monkeypatch for CLI argument testing."""
 
     def _setup_args(argv_list, monkeypatch):
         """Set up sys.argv with monkeypatch for argument parsing tests."""

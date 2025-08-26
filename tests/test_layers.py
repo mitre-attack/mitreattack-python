@@ -16,13 +16,16 @@ from mitreattack.navlayers import (
     ToExcel,
     ToSvg,
 )
+from mitreattack.navlayers.core import _LayerObj
 
 from .resources import testing_data
 
 
 def test_depreciated_tactics_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
-    """Test exporting a layer with depreciated tactics"""
+    """Test exporting a layer with depreciated tactics."""
     lay = Layer(testing_data.example_layer_v3_longer)
+    assert isinstance(lay.layer, _LayerObj)
+
     xlsx_output = tmp_path / "test.xlsx"
     svg_output = tmp_path / "test.svg"
 
@@ -36,10 +39,12 @@ def test_depreciated_tactics_export(tmp_path: Path, memstore_enterprise_latest: 
 
 
 def test_colormap_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
-    """Test exporting a layer with a gradiant of scores"""
+    """Test exporting a layer with a gradiant of scores."""
     lay = Layer()
     dir = os.path.dirname(__file__)
     lay.from_file(os.path.join(dir, "resources", "heatmap_example.json"))
+    assert isinstance(lay.layer, _LayerObj)
+
     xlsx_output = tmp_path / "layer.xlsx"
     svg_output = tmp_path / "layer.svg"
 
@@ -54,8 +59,10 @@ def test_colormap_export(tmp_path: Path, memstore_enterprise_latest: MemoryStore
 
 @pytest.mark.skip(reason="For some reason there is a Unicode decode error here, possibly with the test data?")
 def test_config_load(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
-    """Test loading a SVG config"""
+    """Test loading a SVG config."""
     lay = Layer(testing_data.example_layer_v3_all)
+    assert isinstance(lay.layer, _LayerObj)
+
     svg_output = tmp_path / "example.svg"
 
     svg_exporter = ToSvg(domain=lay.layer.domain, source="memorystore", resource=memstore_enterprise_latest)
@@ -66,7 +73,7 @@ def test_config_load(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
 
 
 def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
-    """Test aggregate layer exports (agg configurations are present in each layer)"""
+    """Test aggregate layer exports (agg configurations are present in each layer)."""
     listing = [
         testing_data.agg_layer_1,
         testing_data.agg_layer_2,
@@ -78,6 +85,7 @@ def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
     for lay in listing:
         test_layer = Layer()
         test_layer.from_str(lay)
+        assert isinstance(test_layer.layer, _LayerObj)
         xlsx_output = tmp_path / f"layer-{test_layer.layer.name}.xlsx"
         svg_output = tmp_path / f"layer-{test_layer.layer.name}.svg"
 
@@ -94,7 +102,7 @@ def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
 
 
 def test_upgrades():
-    """Test layer version auto-upgrade functionality"""
+    """Test layer version auto-upgrade functionality."""
     lay = Layer()
     lay2 = Layer()
     lay3 = Layer()
@@ -105,6 +113,10 @@ def test_upgrades():
     out1 = lay.to_dict()
     out2 = lay2.to_dict()
     out3 = lay3.to_dict()
+
+    assert isinstance(out1, dict)
+    assert isinstance(out2, dict)
+    assert isinstance(out3, dict)
 
     assert all(
         [
@@ -127,7 +139,7 @@ def test_upgrades():
 
 
 def test_layer_ops():
-    """Test layer lambda computation functionality"""
+    """Test layer lambda computation functionality."""
 
     def get_layers_by_name(test_layers):
         layers_dict["Endgame"] = Layer()

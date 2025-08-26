@@ -1818,14 +1818,6 @@
 * [Maroochy Water Breach](/campaigns/C0020) <small style="color:#929393">(v1.0)</small>
 * [Triton Safety Instrumented System Attack](/campaigns/C0030) <small style="color:#929393">(v1.0)</small>
 
-## Assets
-
-### Enterprise
-
-### Mobile
-
-### ICS
-
 ## Mitigations
 
 ### Enterprise
