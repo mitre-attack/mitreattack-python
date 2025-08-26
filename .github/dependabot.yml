@@ -12,4 +12,4 @@ updates:
       day: "saturday"
       time: "09:00"
       timezone: "America/New_York"
-    target-branch: "master"
+    target-branch: "main"
