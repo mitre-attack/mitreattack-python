@@ -75,12 +75,12 @@ class CollectionToIndex:
                         )
                         cleaned_bundles.append(potentially_valid_bundle)
                     else:
-                        print(f"cannot use bundle {potentially_valid_bundle.id} due to lack of collection object")
+                        print(f"cannot use bundle {potentially_valid_bundle['id']} due to lack of collection object")
                 else:
-                    print(f"cannot use bundle {potentially_valid_bundle.id} due to lack of collection object")
+                    print(f"cannot use bundle {potentially_valid_bundle['id']} due to lack of collection object")
 
-        index_created = None
-        index_modified = None
+        index_created = isoparse("9999-12-31T23:59:59.999Z")
+        index_modified = isoparse("9999-12-31T23:59:59.999Z")
         collections = {}  # STIX ID -> collection object
 
         if files:

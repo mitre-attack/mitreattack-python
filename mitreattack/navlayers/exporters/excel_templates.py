@@ -1,7 +1,7 @@
 """Contains ExcelTemplates class."""
 
 import openpyxl
-from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 from mitreattack.navlayers.exporters.matrix_gen import MatrixGen
 

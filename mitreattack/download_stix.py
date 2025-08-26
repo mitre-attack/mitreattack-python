@@ -27,6 +27,11 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
         ATT&CK release to download.
     known_hash : str
         SHA256 hash of the ATT&CK release.
+
+    Raises
+    ------
+    ValueError
+        Raised if `stix_version` is not "2.0" or "2.1".
     """
     release_download_dir = pathlib.Path(f"{download_dir}/v{release}")
     release_download_dir.mkdir(parents=True, exist_ok=True)
@@ -36,6 +41,8 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
         download_url = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-v{release}/{domain}-attack/{fname}"
     elif stix_version == "2.1":
         download_url = f"https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/{domain}-attack/{domain}-attack-{release}.json"
+    else:
+        raise ValueError(f"Invalid STIX version: {stix_version}")
 
     pooch.retrieve(download_url, known_hash=known_hash, fname=fname, path=str(release_download_dir))
 
@@ -57,6 +64,11 @@ def download_domains(
         Version of STIX to download. Options are "2.0" or "2.1"
     attack_versions : List[str], optional
         List of specific ATT&CK versions to download. If provided, overrides all_versions behavior.
+
+    Raises
+    ------
+    ValueError
+        Raised if `stix_version` is not "2.0" or "2.1".
     """
     for domain in domains:
         if domain == "pre" and stix_version == "2.1":
@@ -67,6 +79,8 @@ def download_domains(
             stix_hash_data = release_info.STIX20
         elif stix_version == "2.1":
             stix_hash_data = release_info.STIX21
+        else:
+            raise ValueError(f"Invalid STIX version: {stix_version}")
 
         releases = {}
         if domain == "enterprise":

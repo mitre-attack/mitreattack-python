@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pandas as pd
 import requests
@@ -16,7 +16,7 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain: str, version: str = None, remote: str = None, stix_file: str = None) -> MemoryStore:
+def get_stix_data(domain: str, version: Optional[str] = None, remote: Optional[str] = None, stix_file: Optional[str] = None) -> MemoryStore:
     """Download the ATT&CK STIX data for the given domain and version from MITRE/CTI (or just domain if a remote workbench is specified).
 
     Parameters
@@ -110,7 +110,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     return df
 
 
-def write_excel(dataframes: Dict, domain: str, version: str = None, output_dir: str = ".") -> List:
+def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, output_dir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
     Parameters
@@ -262,11 +262,11 @@ def write_excel(dataframes: Dict, domain: str, version: str = None, output_dir: 
 
 def export(
     domain: str = "enterprise-attack",
-    version: str = None,
+    version: Optional[str] = None,
     output_dir: str = ".",
-    remote: str = None,
-    stix_file: str = None,
-    mem_store: MemoryStore = None,
+    remote: Optional[str] = None,
+    stix_file: Optional[str] = None,
+    mem_store: Optional[MemoryStore] = None,
 ):
     """Download ATT&CK data from MITRE/CTI and convert it to Excel spreadsheets.
 
@@ -298,6 +298,8 @@ def export(
     ------
     TypeError
         Raised when missing exactly one of `remote`, `stix_file`, or `mem_store`.
+    ValueError
+        Raised when `mem_store` fails to load.
     """
     if (
         (remote and stix_file and mem_store)
@@ -311,6 +313,9 @@ def export(
 
     if get_stix_from_github or remote or stix_file:
         mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
+
+    if mem_store is None:
+        raise ValueError("`mem_store` is empty - this should not be possible!")
 
     logger.info(f"************ Exporting {domain} to Excel ************")
 
