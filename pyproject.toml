@@ -13,7 +13,7 @@ dynamic = [ "classifiers" ]
 dependencies = [
     "colour>=0.1.5",
     "deepdiff>=6.6.0",
-    "drawsvg==2.3.0",
+    "drawsvg>=2.4.0",
     "loguru>=0.6.0",
     "Markdown>=3.5",
     "numpy>=1.26.1",
@@ -50,7 +50,7 @@ download_attack_stix = 'mitreattack.download_stix:app'
 packages = [ { include = "mitreattack"} ]
 include = [
     { path = "mitreattack/navlayers/exporters/fonts/*.ttf", format = ["sdist", "wheel"] },
-]    
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Security",
