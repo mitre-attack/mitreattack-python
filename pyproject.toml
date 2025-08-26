@@ -1,29 +1,85 @@
-[tool.black]
-line-length = 120
+[project]
+name = "mitreattack-python"
+description = "MITRE ATT&CK python library"
+version = "5.0.0"
+authors = [
+    { name = "Jared Ondricek", email = "jondricek@mitre.org"},
+    { name = "Evan Lucchesi Leon", email = "elucchesileon@mitre.org"}
+]
+license = { text = "Apache-2.0" }
+readme="README.md"
+requires-python = ">=3.11"
+dynamic = [ "classifiers" ]
+dependencies = [
+    "colour>=0.1.5",
+    "deepdiff>=6.6.0",
+    "drawsvg==2.3.0",
+    "loguru>=0.6.0",
+    "Markdown>=3.5",
+    "numpy>=1.26.1",
+    "openpyxl>=3.1.2",
+    "pandas>=2.1.1",
+    "pooch>=1.7.0",
+    "python-dateutil>=2.8.2",
+    "Pillow>=10.1.0",
+    "requests>=2.31.0",
+    "rich>=13.6.0",
+    "stix2>=3.0.1",
+    "tabulate>=0.9.0",
+    "tqdm>=4.66.1",
+    "typer>=0.9.0",
+    "wheel>=0.41.2",
+    "xlsxwriter>=3.1.8",
+]
 
-[tool.isort]
-profile = "black"
+[project.urls]
+homepage = "https://github.com/mitre-attack/mitreattack-python/"
+repository = "https://github.com/mitre-attack/mitreattack-python/"
+documentation = "https://mitreattack-python.readthedocs.io/"
+
+[project.scripts]
+attackToExcel_cli = 'mitreattack.attackToExcel.attackToExcel:main'
+layerExporter_cli = 'mitreattack.navlayers.layerExporter_cli:main'
+layerGenerator_cli = 'mitreattack.navlayers.layerGenerator_cli:main'
+indexToMarkdown_cli = 'mitreattack.collections.index_to_markdown:main'
+collectionToIndex_cli = 'mitreattack.collections.collection_to_index:main'
+diff_stix = 'mitreattack.diffStix.changelog_helper:main'
+download_attack_stix = 'mitreattack.download_stix:app'
+
+[tool.poetry]
+packages = [ { include = "mitreattack"} ]
+include = [
+    { path = "mitreattack/navlayers/exporters/fonts/*.ttf", format = ["sdist", "wheel"] },
+]    
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+check-wheel-contents = ">=0.6.1"
+pytest = ">=8.3.5"
+pytest-cov = ">=6.0.0"
+pytest-dotenv = ">=0.5.2"
+ruff = ">=0.9.9"
+responses = ">=0.25.8"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
-exclude = [
-    ".venv",
-    "__pypackages__",
-    "build",
-    "dist",
-    "venv",
-    # "tests",
-]
 
 [tool.ruff.lint]
-ignore = [
-    "E501",  # line-too-long
-    "D100",  # Missing docstring in public module
-    "D105",  # undocumented-magic-method
-    ]
-# On top of the defaults (E, F), enable pydocstyle (D) and isort (I).
-select = ["E", "F", "D", "I"]
-
+# On top of the defaults (E, F), enable pydocstyle (D), isort (I), and bugbear (B).
+select = ["E", "F", "D", "I", "B"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
