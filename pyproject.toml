@@ -69,6 +69,13 @@ pytest-dotenv = ">=0.5.2"
 ruff = ">=0.9.9"
 responses = ">=0.25.8"
 
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = ">=8.2.3"
+sphinx_rtd_theme = ">=3.0.2"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
