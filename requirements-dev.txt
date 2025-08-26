@@ -30,3 +30,4 @@ pytest-cov
 pytest-dotenv
 ruff
 setuptools
+responses
