@@ -333,13 +333,13 @@ test = ["pytest (>=8.3.0,<8.4.0)", "pytest-benchmark (>=5.1.0,<5.2.0)", "pytest-
 
 [[package]]
 name = "drawsvg"
-version = "2.3.0"
+version = "2.4.0"
 description = "A Python 3 library for programmatically generating SVG (vector) images and animations.  Drawsvg can also render to PNG, MP4, and display your drawings in Jupyter notebook and Jupyter lab."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "drawsvg-2.3.0-py3-none-any.whl", hash = "sha256:93ad2b465d0da0b98c4e2cde11b64ce0149e2f15f8cdc0bd8e68f8b30a2e0abf"},
+    {file = "drawsvg-2.4.0-py3-none-any.whl", hash = "sha256:85b54044956390f05053bc2651e2414d54a4939b57a2be0a043e5cec2e04f1bb"},
 ]
 
 [package.extras]
@@ -1633,4 +1633,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "739e1c970fdef000c27accd3933a0ba0710c0d17ec1de2b23b5ff80a27a1b4c3"
+content-hash = "4a17f0fb3322fc69c24dfe4577f58e7117d635ac6928d33e42badf3f9c34b18f"
