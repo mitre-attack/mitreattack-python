@@ -460,7 +460,7 @@ class SVG_Technique:
                     close=True,
                     fill=tBC,
                     stroke=tBC,
-                    transform=f'translate(0,{y_offset})'
+                    transform=f"translate(0,{y_offset})",
                 )
             )
         return g, offset + new_offset

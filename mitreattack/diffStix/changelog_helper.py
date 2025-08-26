@@ -497,15 +497,15 @@ class DiffStix(object):
                     old_datasource_id = old_datacomponent["x_mitre_data_source_ref"]
                     old_datasource = all_old_domain_datasources[old_datasource_id]
                     old_datasource_attack_id = get_attack_id(stix_obj=old_datasource)
-                    old_datacomponent_detections[
-                        old_sourceref_id
-                    ] = f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
+                    old_datacomponent_detections[old_sourceref_id] = (
+                        f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
+                    )
                 if old_sourceref_id in all_old_domain_detectionstrategies:
                     old_detectionstrategy = all_old_domain_detectionstrategies[old_sourceref_id]
                     old_detectionstrategy_attack_id = get_attack_id(stix_obj=old_detectionstrategy)
-                    old_detectionstrategy_detections[
-                        old_sourceref_id
-                    ] = f"{old_detectionstrategy_attack_id}: {old_detectionstrategy['name']}"
+                    old_detectionstrategy_detections[old_sourceref_id] = (
+                        f"{old_detectionstrategy_attack_id}: {old_detectionstrategy['name']}"
+                    )
 
         for _, detection_relationship in self.data["new"][domain]["relationships"]["detections"].items():
             if detection_relationship.get("x_mitre_deprecated") or detection_relationship.get("revoked"):
@@ -517,34 +517,52 @@ class DiffStix(object):
                     new_datasource_id = new_datacomponent["x_mitre_data_source_ref"]
                     new_datasource = all_new_domain_datasources[new_datasource_id]
                     new_datasource_attack_id = get_attack_id(stix_obj=new_datasource)
-                    new_datacomponent_detections[
-                        new_sourceref_id
-                    ] = f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
+                    new_datacomponent_detections[new_sourceref_id] = (
+                        f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
+                    )
                 if new_sourceref_id in all_new_domain_detectionstrategies:
                     new_detectionstrategy = all_new_domain_detectionstrategies[new_sourceref_id]
                     new_detectionstrategy_attack_id = get_attack_id(stix_obj=new_detectionstrategy)
-                    new_detectionstrategy_detections[
-                        new_sourceref_id
-                    ] = f"{new_detectionstrategy_attack_id}: {new_detectionstrategy['name']}"
+                    new_detectionstrategy_detections[new_sourceref_id] = (
+                        f"{new_detectionstrategy_attack_id}: {new_detectionstrategy['name']}"
+                    )
 
         shared_datacomponent_detections = old_datacomponent_detections.keys() & new_datacomponent_detections.keys()
         brand_new_datacomponent_detections = new_datacomponent_detections.keys() - old_datacomponent_detections.keys()
         dropped_datacomponent_detections = old_datacomponent_detections.keys() - new_datacomponent_detections.keys()
 
         new_stix_obj["changelog_datacomponent_detections"] = {
-            "shared": sorted([f"{new_datacomponent_detections[stix_id]}" for stix_id in shared_datacomponent_detections]),
-            "new": sorted([f"{new_datacomponent_detections[stix_id]}" for stix_id in brand_new_datacomponent_detections]),
-            "dropped": sorted([f"{old_datacomponent_detections[stix_id]}" for stix_id in dropped_datacomponent_detections]),
+            "shared": sorted(
+                [f"{new_datacomponent_detections[stix_id]}" for stix_id in shared_datacomponent_detections]
+            ),
+            "new": sorted(
+                [f"{new_datacomponent_detections[stix_id]}" for stix_id in brand_new_datacomponent_detections]
+            ),
+            "dropped": sorted(
+                [f"{old_datacomponent_detections[stix_id]}" for stix_id in dropped_datacomponent_detections]
+            ),
         }
 
-        shared_detectionstrategy_detections = old_detectionstrategy_detections.keys() & new_detectionstrategy_detections.keys()
-        brand_new_detectionstrategy_detections = new_detectionstrategy_detections.keys() - old_detectionstrategy_detections.keys()
-        dropped_detectionstrategy_detections = old_detectionstrategy_detections.keys() - new_detectionstrategy_detections.keys()
+        shared_detectionstrategy_detections = (
+            old_detectionstrategy_detections.keys() & new_detectionstrategy_detections.keys()
+        )
+        brand_new_detectionstrategy_detections = (
+            new_detectionstrategy_detections.keys() - old_detectionstrategy_detections.keys()
+        )
+        dropped_detectionstrategy_detections = (
+            old_detectionstrategy_detections.keys() - new_detectionstrategy_detections.keys()
+        )
 
         new_stix_obj["changelog_detectionstrategy_detections"] = {
-            "shared": sorted([f"{new_detectionstrategy_detections[stix_id]}" for stix_id in shared_detectionstrategy_detections]),
-            "new": sorted([f"{new_detectionstrategy_detections[stix_id]}" for stix_id in brand_new_detectionstrategy_detections]),
-            "dropped": sorted([f"{old_detectionstrategy_detections[stix_id]}" for stix_id in dropped_detectionstrategy_detections]),
+            "shared": sorted(
+                [f"{new_detectionstrategy_detections[stix_id]}" for stix_id in shared_detectionstrategy_detections]
+            ),
+            "new": sorted(
+                [f"{new_detectionstrategy_detections[stix_id]}" for stix_id in brand_new_detectionstrategy_detections]
+            ),
+            "dropped": sorted(
+                [f"{old_detectionstrategy_detections[stix_id]}" for stix_id in dropped_detectionstrategy_detections]
+            ),
         }
 
     def load_domain(self, domain: str):
@@ -562,7 +580,9 @@ class DiffStix(object):
             else:
                 directory = self.old if datastore_version == "old" else self.new
                 if directory is None:
-                    raise ValueError(f"Directory path for {datastore_version} data cannot be None when not using MITRE CTI")
+                    raise ValueError(
+                        f"Directory path for {datastore_version} data cannot be None when not using MITRE CTI"
+                    )
                 stix_file = os.path.join(directory, f"{domain}.json")
 
                 attack_version = release_info.get_attack_version(domain=domain, stix_file=stix_file)
@@ -1679,7 +1699,9 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
 
                         if change_type in ["additions", "revocations", "deprecations", "deletions"]:
                             if stix_object.get("description"):
-                                lines.append(f"<p><b>Description</b>: {markdown.markdown(stix_object['description'])}</p>")
+                                lines.append(
+                                    f"<p><b>Description</b>: {markdown.markdown(stix_object['description'])}</p>"
+                                )
 
                         if change_type == "revocations":
                             revoked_by_id = get_attack_id(stix_object["revoked_by"])
@@ -1737,7 +1759,9 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                                     lines.append("</ul>")
                             if stix_object.get("changelog_detectionstrategy_detections"):
                                 new_detections = stix_object["changelog_detectionstrategy_detections"].get("new")
-                                dropped_detections = stix_object["changelog_detectionstrategy_detections"].get("dropped")
+                                dropped_detections = stix_object["changelog_detectionstrategy_detections"].get(
+                                    "dropped"
+                                )
                                 if new_detections:
                                     lines.append("<p><b>New Detections (Detection Strategies -> Technique)</b>:</p>")
                                     lines.append("<ul>")
@@ -1745,7 +1769,9 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                                         lines.append(f"  <li>{detection}</li>")
                                     lines.append("</ul>")
                                 if dropped_detections:
-                                    lines.append("<p><b>Dropped Detections (Detection Strategies -> Technique)</b>:</p>")
+                                    lines.append(
+                                        "<p><b>Dropped Detections (Detection Strategies -> Technique)</b>:</p>"
+                                    )
                                     lines.append("<ul>")
                                     for detection in dropped_detections:
                                         lines.append(f"  <li>{detection}</li>")

@@ -142,7 +142,7 @@ class OverviewLayerGenerator:
         """
         names = [self.source_mapping[x.source_ref] for x in relationships]
         return len(names), names
-    
+
     def get_campaigns(self, relationships):
         """Sort campaigns out of relationships.
 
@@ -255,7 +255,12 @@ class OverviewLayerGenerator:
         :return: layer object with annotated techniques
         """
         typeChecker(type(self).__name__, obj_type, str, "type")
-        categoryChecker(type(self).__name__, obj_type, ["group", "software", "mitigation", "datasource", "campaign", "asset"], "type")
+        categoryChecker(
+            type(self).__name__,
+            obj_type,
+            ["group", "software", "mitigation", "datasource", "campaign", "asset"],
+            "type",
+        )
         initial_list = self.get_matrix_template()
         updated_list = self.update_template(obj_type, initial_list)
         if obj_type == "group":

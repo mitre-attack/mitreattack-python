@@ -29,7 +29,7 @@ compat = {
         "showName": True,
         "showAggregateScores": False,
         "countUnscored": False,
-        "expandedSubtechniques": "annotated"
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [],
@@ -7670,7 +7670,7 @@ example_layer_v43_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
-        "expandedSubtechniques": "annotated"
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [
@@ -7739,7 +7739,7 @@ example_layer_v42_dict = {
         "showAggregateScores": True,
         "countUnscored": True,
         "aggregateFunction": "average",
-        "expandedSubtechniques": "annotated"
+        "expandedSubtechniques": "annotated",
     },
     "hideDisabled": False,
     "techniques": [

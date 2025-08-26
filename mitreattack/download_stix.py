@@ -48,7 +48,11 @@ def download_stix(stix_version: str, domain: str, download_dir: str, release: st
 
 
 def download_domains(
-    domains: List[str], download_dir: str, all_versions: bool, stix_version: str, attack_versions: Optional[List[str]] = None
+    domains: List[str],
+    download_dir: str,
+    all_versions: bool,
+    stix_version: str,
+    attack_versions: Optional[List[str]] = None,
 ):
     """Download ATT&CK domains specified.
 
@@ -96,7 +100,9 @@ def download_domains(
         if attack_versions:
             # Download ATT&CK versions
             for version in attack_versions:
-                logger.info(f"Downloading STIX {stix_version}, ATT&CK version {version} for the {domain} domain to {download_dir}")
+                logger.info(
+                    f"Downloading STIX {stix_version}, ATT&CK version {version} for the {domain} domain to {download_dir}"
+                )
                 if version in releases:
                     known_hash = releases[version]
                     download_stix(

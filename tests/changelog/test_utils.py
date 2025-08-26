@@ -358,7 +358,10 @@ def create_layer_file_paths(tmp_path: Path, domains: List[str], prefix: str = "t
 
 
 def validate_comprehensive_output_generation(
-    markdown_result: str, file_paths: Dict[str, str], expected_domains: List[str], layer_files: Optional[List[str]] = None
+    markdown_result: str,
+    file_paths: Dict[str, str],
+    expected_domains: List[str],
+    layer_files: Optional[List[str]] = None,
 ) -> None:
     """Validate comprehensive output generation scenario.
 

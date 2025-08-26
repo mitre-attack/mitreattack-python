@@ -16,7 +16,9 @@ INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
 
 
-def get_stix_data(domain: str, version: Optional[str] = None, remote: Optional[str] = None, stix_file: Optional[str] = None) -> MemoryStore:
+def get_stix_data(
+    domain: str, version: Optional[str] = None, remote: Optional[str] = None, stix_file: Optional[str] = None
+) -> MemoryStore:
     """Download the ATT&CK STIX data for the given domain and version from MITRE/CTI (or just domain if a remote workbench is specified).
 
     Parameters
@@ -105,7 +107,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "mitigations": stixToDf.mitigationsToDf(src),
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
-        "datasources": stixToDf.datasourcesToDf(src)
+        "datasources": stixToDf.datasourcesToDf(src),
     }
     return df
 

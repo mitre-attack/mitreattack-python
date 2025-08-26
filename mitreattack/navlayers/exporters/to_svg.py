@@ -36,7 +36,7 @@ class SVGConfig:
         showAbout=True,
         showDomain=True,
         border=0.104,
-        fontSize=4
+        fontSize=4,
     ):
         """Define parameters to configure SVG export.
 
@@ -124,7 +124,7 @@ class SVGConfig:
             showFilters=self.showFilters,
             showAbout=self.showAbout,
             border=self.border,
-            fontSize=self.fontSize
+            fontSize=self.fontSize,
         )
         with open(filename, "w", encoding="utf-16") as file:
             json.dump(out, file, ensure_ascii=False)
@@ -253,7 +253,7 @@ class SVGConfig:
         if isinstance(fontSize, (int, float)):
             self.__fontSize = fontSize
         else:
-            print(f'[Warning] - Unable to set font to {fontSize}: not a number')
+            print(f"[Warning] - Unable to set font to {fontSize}: not a number")
 
     @property
     def tableBorderColor(self):

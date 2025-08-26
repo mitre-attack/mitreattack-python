@@ -23,22 +23,21 @@ def main(argv=None):
     )
     parser.add_argument(
         "--resource",
-        help="Path to the local resource if --source=local, or url of an ATT&CK Workbench"
-        " instance if --source=remote",
+        help="Path to the local resource if --source=local, or url of an ATT&CK Workbench instance if --source=remote",
         default=None,
     )
     parser.add_argument("-o", "--output", nargs="+", help="Path(s) to the exported svg/xlsx file", required=True)
     parser.add_argument(
         "-l",
         "--load_settings",
-        help="[SVG Only] Path to a SVG configuration json to use when " "rendering",
+        help="[SVG Only] Path to a SVG configuration json to use when rendering",
         default=None,
     )
     parser.add_argument(
         "-d",
         "--size",
         nargs=2,
-        help="[SVG Only] X and Y size values (in inches) for SVG export (use " "-l for other settings)",
+        help="[SVG Only] X and Y size values (in inches) for SVG export (use -l for other settings)",
         default=[8.5, 11],
         metavar=("WIDTH", "HEIGHT"),
     )

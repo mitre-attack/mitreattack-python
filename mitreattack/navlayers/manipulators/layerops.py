@@ -182,7 +182,7 @@ class LayerOps:
             if entry != "techniques":
                 standard = _raw[entry]
                 layer_entries = [getattr(x.layer, entry) for x in collide]
-                layer_entries = [y.get_dict() if hasattr(y, 'get_dict') else y for y in layer_entries]
+                layer_entries = [y.get_dict() if hasattr(y, "get_dict") else y for y in layer_entries]
                 if any(y != standard for y in layer_entries):
                     if entry == "domain":
                         print("FATAL ERROR! Layer mis-match on domain. Exiting.")
