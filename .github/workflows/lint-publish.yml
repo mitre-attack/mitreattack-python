@@ -21,10 +21,10 @@ jobs:
         run: poetry install --with=dev
 
       - name: Lint with ruff
-        run: ruff check --exit-zero --output-format github
+        run: poetry run ruff check --exit-zero --output-format github
 
       - name: Check ruff format
-        run: ruff format --check
+        run: poetry run ruff format --check
 
   publish:
     needs: lint-format
