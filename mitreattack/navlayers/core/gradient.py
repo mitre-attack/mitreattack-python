@@ -1,7 +1,8 @@
 """Contains Gradient class."""
 
-import colour
 import math
+
+import colour
 
 from mitreattack.navlayers.core.exceptions import typeChecker, typeCheckerArray
 

@@ -4,8 +4,8 @@ import argparse
 import os
 
 from mitreattack.navlayers.generators.overview_generator import OverviewLayerGenerator
-from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 from mitreattack.navlayers.generators.sum_generator import BatchGenerator
+from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 
 
 def main(argv=None):

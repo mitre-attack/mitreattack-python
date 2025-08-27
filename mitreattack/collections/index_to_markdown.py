@@ -2,8 +2,9 @@
 
 import argparse
 import json
-from tabulate import tabulate
+
 from dateutil.parser import isoparse
+from tabulate import tabulate
 
 
 class IndexToMarkdown:

@@ -22,6 +22,7 @@
 # out_layer2.export_file("C:\demo_layer2.json")
 
 import copy
+
 from mitreattack.navlayers.core import Layer
 
 

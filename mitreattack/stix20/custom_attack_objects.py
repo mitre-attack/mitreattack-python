@@ -31,7 +31,7 @@ class CustomStixObject(object):
         if name in self.__dict__:
             return self.__dict__[name]
         # Try dict-like access (if this object is dict-like)
-        if hasattr(self, "get") and callable(getattr(self, "get")):
+        if hasattr(self, "get") and callable(self.get):
             value = self.get(name, None)
             if value is not None:
                 return value

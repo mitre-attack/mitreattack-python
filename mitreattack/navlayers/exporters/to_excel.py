@@ -1,11 +1,12 @@
 """Contains ToExcel class."""
 
-from copy import deepcopy
-from openpyxl.comments import Comment
-from openpyxl.styles import PatternFill, Font
 import colorsys
+from copy import deepcopy
 
-from mitreattack.navlayers.core import Layer, Gradient
+from openpyxl.comments import Comment
+from openpyxl.styles import Font, PatternFill
+
+from mitreattack.navlayers.core import Gradient, Layer
 from mitreattack.navlayers.exporters import ExcelTemplates
 
 

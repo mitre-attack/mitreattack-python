@@ -1,23 +1,23 @@
 """Contains _LayerObj class."""
 
+from mitreattack.navlayers.core.exceptions import (
+    UNSETVALUE,
+    MissingParameters,
+    UnknownLayerProperty,
+    categoryChecker,
+    handler,
+    loadChecker,
+    typeChecker,
+)
 from mitreattack.navlayers.core.filter import Filter
-from mitreattack.navlayers.core.layout import Layout
-from mitreattack.navlayers.core.technique import Technique
 from mitreattack.navlayers.core.gradient import Gradient
+from mitreattack.navlayers.core.helpers import handle_object_placement
+from mitreattack.navlayers.core.layout import Layout
 from mitreattack.navlayers.core.legenditem import LegendItem
 from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
 from mitreattack.navlayers.core.objlink import Link, LinkDiv
+from mitreattack.navlayers.core.technique import Technique
 from mitreattack.navlayers.core.versions import Versions
-from mitreattack.navlayers.core.exceptions import (
-    UNSETVALUE,
-    typeChecker,
-    handler,
-    categoryChecker,
-    UnknownLayerProperty,
-    loadChecker,
-    MissingParameters,
-)
-from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
 class _LayerObj:

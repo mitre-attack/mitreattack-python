@@ -1,8 +1,8 @@
 import pytest
+import stix2
 import stix2.exceptions
 
-from mitreattack.stix20.custom_attack_objects import DataComponent, DataSource, Matrix, StixObjectFactory, Tactic, Asset
-import stix2
+from mitreattack.stix20.custom_attack_objects import Asset, DataComponent, DataSource, Matrix, StixObjectFactory, Tactic
 
 
 class TestCustomAttackObjects:

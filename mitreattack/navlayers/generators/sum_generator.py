@@ -1,10 +1,11 @@
 """Contains BatchGenerator class."""
 
 from stix2 import Filter, datastore
-from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
-from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker
-from mitreattack.navlayers.generators.gen_helpers import remove_revoked_depreciated, get_attack_id
 from tqdm import tqdm
+
+from mitreattack.navlayers.core.exceptions import categoryChecker, typeChecker
+from mitreattack.navlayers.generators.gen_helpers import get_attack_id, remove_revoked_depreciated
+from mitreattack.navlayers.generators.usage_generator import UsageLayerGenerator
 
 
 class BatchGenerator:
