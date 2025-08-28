@@ -34,7 +34,7 @@ class ExcelTemplates:
         else:
             raise BadTemplateException
 
-    def _build_raw(self, showName=True, showID=False, sort=0, scores=[], subtechs=[], exclude=[]):
+    def _build_raw(self, showName=True, showID=False, sort=0, scores=None, subtechs=None, exclude=None):
         """Build a raw, not-yet-marked-up excel document based on the specifications.
 
         :param showName: Whether or not to display names for each entry
@@ -44,6 +44,12 @@ class ExcelTemplates:
         :param exclude: List of of techniques to exclude from the matrix
         :return: a openpyxl workbook object containing the raw matrix
         """
+        if scores is None:
+            scores = []
+        if subtechs is None:
+            subtechs = []
+        if exclude is None:
+            exclude = []
         self.codex = self.h._adjust_ordering(self.codex, sort, scores)
         template, joins = self.h._construct_panop(self.codex, subtechs, exclude)
         self.template = template
@@ -107,7 +113,7 @@ class ExcelTemplates:
 
         return wb
 
-    def export(self, showName, showID, filters=None, sort=0, scores=[], subtechs=[], exclude=[]):
+    def export(self, showName, showID, filters=None, sort=0, scores=None, subtechs=None, exclude=None):
         """Export a raw customized excel template.
 
         :param showName: Whether or not to display names for each entry
@@ -119,6 +125,12 @@ class ExcelTemplates:
         :param exclude: List of of techniques to exclude from the matrix
         return: a openpyxl workbook object containing the raw matrix
         """
+        if scores is None:
+            scores = []
+        if subtechs is None:
+            subtechs = []
+        if exclude is None:
+            exclude = []
         self.codex = self.h.get_matrix(self.mode, filters=filters)
         return self._build_raw(showName, showID, sort, scores, subtechs, exclude)
 

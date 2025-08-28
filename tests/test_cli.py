@@ -1,3 +1,15 @@
+"""Tests for CLI export and generation functionality.
+
+This module contains pytest-based tests for the MITRE ATT&CK Navigator CLI tools,
+including export and overview generation for various domains and resource types.
+
+Functions
+---------
+All functions are test cases for CLI commands, verifying output file creation
+and correct operation for SVG, Excel, overview, mapped, and batch generation modes.
+
+"""
+
 from pathlib import Path
 
 import pytest

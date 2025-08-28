@@ -44,6 +44,7 @@ class AttackObjectVersion:
     minor: int
 
     def __repr__(self):
+        """Return a string representation of the ATT&CK object version."""
         return f"{self.major}.{self.minor}"
 
 
@@ -65,7 +66,7 @@ class DiffStix(object):
 
     def __init__(
         self,
-        domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
+        domains: Optional[List[str]] = None,
         layers: Optional[List[str]] = None,
         unchanged: bool = False,
         old: Optional[str] = "old",
@@ -101,6 +102,8 @@ class DiffStix(object):
         include_contributors : bool, optional
             Include contributor information for new contributors, by default False
         """
+        if domains is None:
+            domains = ["enterprise-attack", "mobile-attack", "ics-attack"]
         self.domains = domains
         self.layers = layers
         self.unchanged = unchanged
@@ -2024,7 +2027,7 @@ def get_parsed_args():
 
 
 def get_new_changelog_md(
-    domains: List[str] = ["enterprise-attack", "mobile-attack", "ics-attack"],
+    domains: Optional[List[str]] = None,
     layers: List[str] = layer_defaults,
     unchanged: bool = False,
     old: Optional[str] = None,
@@ -2080,6 +2083,8 @@ def get_new_changelog_md(
         A Markdown string representation of differences between two ATT&CK versions.
     """
     # the default loguru logger logs up to Debug by default
+    if domains is None:
+        domains = ["enterprise-attack", "mobile-attack", "ics-attack"]
     logger.remove()
     if verbose:
         logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)

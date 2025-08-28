@@ -45,7 +45,7 @@ class SvgTemplates:
             raise BadTemplateException
 
     def _build_headers(
-        self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None, legend=[]
+        self, name, config, domain="Enterprise", version="8", desc=None, filters=None, gradient=None, legend=None
     ):
         """Build the header blocks for the svg.
 
@@ -59,6 +59,8 @@ class SvgTemplates:
         :param legend: List of legend items
         :return: Instantiated SVG header
         """
+        if legend is None:
+            legend = []
         max_x = convertToPx(config.width, config.unit)
         max_y = convertToPx(config.height, config.unit)
         header_height = convertToPx(config.headerHeight, config.unit)
@@ -237,7 +239,7 @@ class SvgTemplates:
         return legend_block
 
     def get_tactic(
-        self, tactic, height, width, config, colors=[], scores=[], subtechs=[], exclude=[], mode=(True, False)
+        self, tactic, height, width, config, colors=None, scores=None, subtechs=None, exclude=None, mode=(True, False)
     ):
         """Build a 'tactic column' svg object.
 
@@ -253,6 +255,14 @@ class SvgTemplates:
         :return: Instantiated tactic column (or none if no techniques were found)
         """
         # create tactic column
+        if colors is None:
+            colors = []
+        if scores is None:
+            scores = []
+        if subtechs is None:
+            subtechs = []
+        if exclude is None:
+            exclude = []
         column = G(ty=2)
         tactic_name = tactic.tactic.name
         excluded_ids = [str(t[0]) + str(t[1]) for t in exclude]
@@ -309,10 +319,10 @@ class SvgTemplates:
         config,
         height,
         width,
-        subtechniques=[],
-        exclude=[],
-        colors=[],
-        subscores=[],
+        subtechniques=None,
+        exclude=None,
+        colors=None,
+        subscores=None,
     ):
         """Retrieve a svg object for a single technique.
 
@@ -330,6 +340,14 @@ class SvgTemplates:
         :return: Tuple (SVG block, new offset)
         """
         # Handle aggregate scoring (v4.2)
+        if subtechniques is None:
+            subtechniques = []
+        if exclude is None:
+            exclude = []
+        if colors is None:
+            colors = []
+        if subscores is None:
+            subscores = []
         if self.lhandle.layout:
             mod = self.lhandle.layout.compute_aggregate(technique, subscores)
             if mod is not None:
@@ -349,7 +367,19 @@ class SvgTemplates:
         )
         return a, b
 
-    def export(self, showName, showID, layer, config, sort=0, scores=[], colors=[], subtechs=[], exclude=[], legend=[]):
+    def export(
+        self,
+        showName,
+        showID,
+        layer,
+        config,
+        sort=0,
+        scores=None,
+        colors=None,
+        subtechs=None,
+        exclude=None,
+        legend=None,
+    ):
         """Export a layer object to an SVG object.
 
         :param showName: Boolean of whether or not to show names
@@ -365,6 +395,16 @@ class SvgTemplates:
         :return:
         """
         # get the matrix list of tactics
+        if scores is None:
+            scores = []
+        if colors is None:
+            colors = []
+        if subtechs is None:
+            subtechs = []
+        if exclude is None:
+            exclude = []
+        if legend is None:
+            legend = []
         self.matrix = self.h.get_matrix(self.mode, filters=layer.filters)
 
         # check for a gradient

@@ -842,7 +842,7 @@ def matricesToDf(src, domain):
         for column in matrix_grid:
             longest_column = max(len(column), longest_column)
         for column in matrix_grid:
-            for i in range((longest_column - len(column))):
+            for _ in range((longest_column - len(column))):
                 column.append("")
 
         for submatrix in sub_matrices_grid:
@@ -850,7 +850,7 @@ def matricesToDf(src, domain):
             for column in mg:
                 longest_column = max(len(column), longest_column)
             for column in mg:
-                for i in range((longest_column - len(column))):
+                for _ in range((longest_column - len(column))):
                     column.append("")
         # matrix is now squared
 

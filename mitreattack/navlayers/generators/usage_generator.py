@@ -37,9 +37,9 @@ class UsageLayerGenerator:
         self.domain = domain
         try:
             self.source_handle = self.matrix_handle.collections[domain]
-        except KeyError:
+        except KeyError as err:
             print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
-            raise BadInput
+            raise BadInput from err
         self.full_matrix = self.matrix_handle.get_matrix(self.domain)
         self.sources = self.source_handle.query([Filter("type", "=", "x-mitre-data-source")])
         self.components = self.source_handle.query([Filter("type", "=", "x-mitre-data-component")])

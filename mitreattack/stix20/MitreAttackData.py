@@ -1,4 +1,20 @@
-"""MitreAttackData Library."""
+"""
+MitreAttackData Library.
+
+This module provides the MitreAttackData class and supporting types for querying, analyzing,
+and mapping relationships between STIX 2.0 objects in the MITRE ATT&CK framework.
+
+Main Classes
+------------
+MitreAttackData
+    Central class for querying and mapping relationships between ATT&CK objects.
+RelationshipEntry
+    TypedDict representing a relationship entry mapping an object to its relationships.
+
+See Also
+--------
+https://github.com/mitre-attack/mitreattack-python
+"""
 
 from itertools import chain
 from typing import Any, Generic, Optional, Protocol, TypedDict, TypeVar, Union
@@ -31,8 +47,9 @@ Mitigation = stix2.v20.sdo.CourseOfAction
 Relationship = stix2.v20.sro.Relationship
 
 
-class SupportsGet(Protocol):
-    def get(self, key: str, default: Any = ...) -> Any: ...
+class SupportsGet(Protocol):  # noqa
+    def get(self, key: str, default: Any = ...) -> Any:  # noqa
+        ...
 
 
 T = TypeVar("T", bound=SupportsGet)
@@ -57,7 +74,25 @@ RelationshipMapT = dict[str, list[RelationshipEntry[T]]]
 
 
 class MitreAttackData:
-    """MitreAttackData object."""
+    """Central class for querying, analyzing, and mapping relationships between STIX 2.0 objects in the MITRE ATT&CK framework.
+
+    This class provides methods to retrieve, filter, and relate ATT&CK objects such as techniques,
+    software, groups, campaigns, mitigations, assets, data sources, and data components. It supports
+    querying by type, content, platform, relationships, and more, with options to filter out revoked
+    or deprecated objects.
+
+    Parameters
+    ----------
+    stix_filepath : str | None, optional
+        Filepath to a STIX 2.0 bundle. Mutually exclusive with `src`.
+    src : stix2.MemoryStore | None, optional
+        A STIX 2.0 bundle already loaded into memory. Mutually exclusive with `stix_filepath`.
+
+    Raises
+    ------
+    TypeError
+        If neither or both of `stix_filepath` and `src` are provided, or if `stix_filepath` is not a string.
+    """
 
     stix_types = [
         "attack-pattern",

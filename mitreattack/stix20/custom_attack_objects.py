@@ -27,6 +27,7 @@ class CustomStixObject(object):
     # name: str
 
     def __getattr__(self, name: str):
+        """Return the value of a dynamic attribute."""
         # Try dynamic attribute (for STIX2 custom objects)
         if name in self.__dict__:
             return self.__dict__[name]

@@ -1,3 +1,11 @@
+"""
+Tests for SVG and XLSX export functionality in MITRE ATT&CK Navigator layers.
+
+This module contains tests for various export options, including subtechniques display,
+dimensions, legend customization, filter options, borders, and score aggregation.
+
+"""
+
 import uuid
 from pathlib import Path
 from typing import Optional
