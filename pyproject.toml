@@ -2,13 +2,11 @@
 name = "mitreattack-python"
 description = "MITRE ATT&CK python library"
 version = "5.0.0"
-authors = [
-    { name = "MITRE ATT&CK", email = "attack@mitre.org"},
-]
+authors = [{ name = "MITRE ATT&CK", email = "attack@mitre.org" }]
 license = { text = "Apache-2.0" }
-readme="README.md"
-requires-python = ">=3.11"
-dynamic = [ "classifiers" ]
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dynamic = ["classifiers"]
 dependencies = [
     "colour>=0.1.5",
     "deepdiff>=6.6.0",
@@ -46,9 +44,12 @@ diff_stix = 'mitreattack.diffStix.changelog_helper:main'
 download_attack_stix = 'mitreattack.download_stix:app'
 
 [tool.poetry]
-packages = [ { include = "mitreattack"} ]
+packages = [{ include = "mitreattack" }]
 include = [
-    { path = "mitreattack/navlayers/exporters/fonts/*.ttf", format = ["sdist", "wheel"] },
+    { path = "mitreattack/navlayers/exporters/fonts/*.ttf", format = [
+        "sdist",
+        "wheel",
+    ] },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -57,10 +58,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[project.optional-dependencies]
-docs = [
-    "sphinx>=8.2.3",
-    "sphinx_rtd_theme>=3.0.2"
+[tool.commitizen]
+version_provider = "pep621" # source of truth is in pyproject.toml
+bump_message = "bump: version $current_version → $new_version"
+update_changelog_on_bump = true
+changelog_incremental = true
+legacy_tag_formats = ["v$version"]
+version_files = [
+    "docs/conf.py:^version = ['\"](.*)['\"]",
+    "docs/conf.py:^release = ['\"](.*)['\"]",
 ]
 
 [tool.poetry.group.dev]
@@ -68,11 +74,19 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 check-wheel-contents = ">=0.6.1"
+commitizen = ">=4.8.3"
 pytest = ">=8.3.5"
 pytest-cov = ">=6.0.0"
 pytest-dotenv = ">=0.5.2"
 ruff = ">=0.9.9"
 responses = ">=0.25.8"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = ">=8.2.3"
+sphinx_rtd_theme = ">=3.0.2"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -80,8 +94,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
+extend-exclude = ["tests/resources/", "examples/", "__init__.py"]
 
 [tool.ruff.lint]
+ignore = [
+    "E501", # line-too-long
+]
 # On top of the defaults (E, F), enable pydocstyle (D), isort (I), and bugbear (B).
 select = ["E", "F", "D", "I", "B"]
 
