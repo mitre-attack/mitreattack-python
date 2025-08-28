@@ -1,5 +1,27 @@
 # Changelog
 
+## 5.1.0 (2025-08-28)
+
+### Feat
+
+- update github workflow for poetry
+- update sphinx copyright date and package version
+- change from setuptools to poetry
+- add new STIX object types to changelog json objects in tests
+- add functionality to download specific version of ATT&CK
+
+### Fix
+
+- run ruff with poetry in GH actions
+- update poetry.lock for drawsvg update
+- install poetry for GH actions
+- add responses as a dev dependency
+- remove unused create_mock_args test fixture
+- various lint fixes
+- leave empty domains/object types out of the changelog markdown
+- pylance errors in changelog_helper
+- add support for detection strategy>technique detection relationships in changelog_helper
+
 ## v5.0.0 - 1 August 2025
 
 ### Features

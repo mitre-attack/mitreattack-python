@@ -52,7 +52,9 @@ poetry run python -c "import mitreattack; print(mitreattack.__version__)"
 
 ## 4. Commit and Tag the Release
 
-Perform the following steps to commit your changes, tag the release, and push to GitHub:
+Make sure that after the above local testing you commit all changes!
+
+Perform the following steps to tag the release and push to GitHub:
 
 ```bash
 # Tag the release
