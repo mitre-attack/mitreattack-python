@@ -1,34 +1,82 @@
 # Release Process
 
-In order to release a new version of mitreattack-python, follow the process outlined here:
+This guide walks maintainers through releasing a new version of **mitreattack-python**.
+The process uses [Poetry](https://python-poetry.org/) for dependency management and building,
+and [GitHub Actions](https://github.com/mitre-attack/mitreattack-python/actions) for automated linting, testing, and publishing to PyPI.
 
-1. Verify that all changes desired in the next release are present in the `main` branch.
+## 1. Prepare for Release
 
-    - If this is for an ATT&CK release, make sure to update the `LATEST_VERSION` in `mitreattack/release_info.py`.
+- Ensure all desired changes are merged into the `main` branch.
+- If releasing for a new ATT&CK version, update `LATEST_VERSION` in `mitreattack/release_info.py`.
 
-2. Verify that all changes are documented in the CHANGELOG staged in the `main` branch.
-3. Build the _mitreattack-python_ package from source and install it locally:
-   1. [Optional] Activate a virtualenv. e.g., `source ./venv/bin/activate`
-   2. Uninstall any older/previously installed versions of mitreattack-python: `pip uninstall mitreattack-python`
-   3. If you have previously built from source, remove older build artifacts: `rm -rf dist/`.
-   4. Build the package: `python setup.py sdist bdist_wheel`.
-   5. Lint the wheel contents with [check-wheel-contents](https://github.com/jwodder/check-wheel-contents): `check-wheel-contents dist/`
-   6. Install the package locally using pip, and import it in a python session to validate the build: `pip install --find-links=./dist mitreattack-python`
+## 2. Update Version and Metadata
 
-4. Run the test suite in `/tests/` with pytest.
+- Run `cz bump --files-only`
+  - This will increment the version field in `pyproject.toml` and other places according to semantic versioning rules.
+  - It will also update the `CHANGELOG.md` with all commit messages that are compatible with [Conventional Commits](https://www.conventionalcommits.org).
+  - NOTE: You should double-check the generated `CHANGELOG.md` file and make sure it looks good.
+- Update other metadata as needed in `pyproject.toml` (dependencies, etc.).
 
-   ```bash
-   # must run from the tests/ directory
-   cd tests/
-   pytest --cov=mitreattack --cov-report html
-   ```
+## 3. Local Validation (Recommended)
 
-5. Edit `setup.py` and increment the version number.
-   Update other fields in setup.py as necessary (used libraries, etc.)
-6. Commit any uncommitted changes.
-7. Tag the release:
-   1. Tag the `main` branch with the version number - `git tag -a "vA.B.C" -m "mitreattack-python version A.B.C"`
-   2. Push both the commit and the tag - `git push`/`git push --tags`
-8. Verify that the package uploaded correctly
-   1. Check that GitHub Actions succeeded: <https://github.com/mitre-attack/mitreattack-python/actions>
-   2. Verify PyPI has expected release: <https://pypi.org/project/mitreattack-python/>
+Before tagging and pushing, validate the release locally. Following these steps:
+
+```bash
+# Pre-requisite: Install Poetry if not already installed
+# https://python-poetry.org/docs/#installing-with-the-official-installer
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Clean previous builds
+rm -rf dist/
+
+# Install dependencies (including dev tools)
+poetry install --with=dev
+
+# Lint and format
+poetry run ruff check
+poetry run ruff format --check
+
+# Run tests
+poetry run pytest --cov=mitreattack --cov-report html
+
+# Build the package
+poetry build
+
+# (Optional) Validate wheel contents
+poetry run check-wheel-contents dist/
+
+# (Optional) Install locally and smoke test
+poetry run pip install --find-links=./dist mitreattack-python
+poetry run python -c "import mitreattack; print(mitreattack.__version__)"
+```
+
+## 4. Commit and Tag the Release
+
+Perform the following steps to commit your changes, tag the release, and push to GitHub:
+
+```bash
+# Tag the release
+git tag -a "vX.Y.Z" -m "mitreattack-python version X.Y.Z"
+
+# Push the commit and tag
+git push
+git push --tags
+```
+
+## 5. Automated Publishing
+
+Once the tag is pushed to GitHub:
+
+- GitHub Actions will automatically lint, test, build, and publish the package to PyPI using the workflow in `.github/workflows/lint-publish.yml`.
+
+## 6. Verify Release
+
+Check the [GitHub Actions](https://github.com/mitre-attack/mitreattack-python/actions) for a successful workflow run.
+
+Confirm the new version is available on [PyPI](https://pypi.org/project/mitreattack-python/).
+
+## Notes
+
+- All build and publish steps are handled by GitHub Actions once you push the tag.
+- Manual local validation is optional but recommended before tagging.
+- Readthedocs is used for documentation builds. [Check the status here](https://app.readthedocs.org/projects/mitreattack-python/).
