@@ -495,14 +495,23 @@ class DiffStix(object):
                 continue
             if stix_id == detection_relationship["target_ref"]:
                 old_sourceref_id = detection_relationship["source_ref"]
+                # Datacomponent -> Data source relation used to exist via x_mitre_data_source_ref.
+                # New STIX may not include parent datasources; attempt explicit ref first, then a heuristic lookup.
                 if old_sourceref_id in all_old_domain_datacomponents:
                     old_datacomponent = all_old_domain_datacomponents[old_sourceref_id]
-                    old_datasource_id = old_datacomponent["x_mitre_data_source_ref"]
-                    old_datasource = all_old_domain_datasources[old_datasource_id]
-                    old_datasource_attack_id = get_attack_id(stix_obj=old_datasource)
-                    old_datacomponent_detections[old_sourceref_id] = (
-                        f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
-                    )
+                    old_datasource_id = old_datacomponent.get("x_mitre_data_source_ref")
+                    if not old_datasource_id:
+                        # Best-effort fallback: try to resolve a parent datasource from available datasource objects.
+                        old_datasource_id = resolve_datacomponent_parent(old_datacomponent, all_old_domain_datasources)
+                    if old_datasource_id and old_datasource_id in all_old_domain_datasources:
+                        old_datasource = all_old_domain_datasources[old_datasource_id]
+                        old_datasource_attack_id = get_attack_id(stix_obj=old_datasource)
+                        old_datacomponent_detections[old_sourceref_id] = (
+                            f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
+                        )
+                    else:
+                        # No parent datasource identified — show the datacomponent name as standalone.
+                        old_datacomponent_detections[old_sourceref_id] = f"{old_datacomponent['name']}"
                 if old_sourceref_id in all_old_domain_detectionstrategies:
                     old_detectionstrategy = all_old_domain_detectionstrategies[old_sourceref_id]
                     old_detectionstrategy_attack_id = get_attack_id(stix_obj=old_detectionstrategy)
@@ -515,14 +524,22 @@ class DiffStix(object):
                 continue
             if stix_id == detection_relationship["target_ref"]:
                 new_sourceref_id = detection_relationship["source_ref"]
+                # Handle datacomponents that may no longer reference a datasource.
                 if new_sourceref_id in all_new_domain_datacomponents:
                     new_datacomponent = all_new_domain_datacomponents[new_sourceref_id]
-                    new_datasource_id = new_datacomponent["x_mitre_data_source_ref"]
-                    new_datasource = all_new_domain_datasources[new_datasource_id]
-                    new_datasource_attack_id = get_attack_id(stix_obj=new_datasource)
-                    new_datacomponent_detections[new_sourceref_id] = (
-                        f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
-                    )
+                    new_datasource_id = new_datacomponent.get("x_mitre_data_source_ref")
+                    if not new_datasource_id:
+                        # Best-effort fallback lookup into datasources
+                        new_datasource_id = resolve_datacomponent_parent(new_datacomponent, all_new_domain_datasources)
+                    if new_datasource_id and new_datasource_id in all_new_domain_datasources:
+                        new_datasource = all_new_domain_datasources[new_datasource_id]
+                        new_datasource_attack_id = get_attack_id(stix_obj=new_datasource)
+                        new_datacomponent_detections[new_sourceref_id] = (
+                            f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
+                        )
+                    else:
+                        # No parent datasource identified — show the datacomponent name as standalone.
+                        new_datacomponent_detections[new_sourceref_id] = f"{new_datacomponent['name']}"
                 if new_sourceref_id in all_new_domain_detectionstrategies:
                     new_detectionstrategy = all_new_domain_detectionstrategies[new_sourceref_id]
                     new_detectionstrategy_attack_id = get_attack_id(stix_obj=new_detectionstrategy)
@@ -813,11 +830,15 @@ class DiffStix(object):
             if datacomponent["id"] not in children:
                 continue
 
-            parent_datasource_id = datacomponent["x_mitre_data_source_ref"]
+            # Prefer explicit reference, otherwise try a heuristic lookup
+            parent_datasource_id = datacomponent.get("x_mitre_data_source_ref")
+            if not parent_datasource_id:
+                parent_datasource_id = resolve_datacomponent_parent(datacomponent, datasources)
             the_datacomponent = children[datacomponent["id"]]
-            if parent_datasource_id not in parentToChildren:
-                parentToChildren[parent_datasource_id] = []
-            parentToChildren[parent_datasource_id].append(the_datacomponent)
+            if parent_datasource_id:
+                if parent_datasource_id not in parentToChildren:
+                    parentToChildren[parent_datasource_id] = []
+                parentToChildren[parent_datasource_id].append(the_datacomponent)
 
         # now group parents and children
         groupings = []
@@ -898,7 +919,11 @@ class DiffStix(object):
                     parent_id = subtechnique_relationship["target_ref"]
                     return techniques[parent_id]
         elif stix_object["type"] == "x-mitre-data-component":
-            return datasources[stix_object.get("x_mitre_data_source_ref")]
+            parent_ref = stix_object.get("x_mitre_data_source_ref")
+            if parent_ref and parent_ref in datasources:
+                return datasources[parent_ref]
+            # No parent datasource available for this datacomponent.
+            return {}
 
         # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
         return {}
@@ -944,12 +969,16 @@ class DiffStix(object):
                 parent_object = self.get_parent_stix_object(
                     stix_object=revoker, datastore_version=datastore_version, domain=domain
                 )
-                parent_name = parent_object.get("name", "ERROR NO PARENT")
-                relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = (
-                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                )
+                if parent_object:
+                    parent_name = parent_object.get("name", "ERROR NO PARENT")
+                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
+                    revoker_link = f"{self.site_prefix}/{relative_url}"
+                    placard_string = (
+                        f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                    )
+                else:
+                    # No parent datasource available — fall back to a plain-text representation.
+                    placard_string = f"{stix_object['name']} (revoked by {revoker['name']})"
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
@@ -964,6 +993,9 @@ class DiffStix(object):
                 if parent_object:
                     relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
                     placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                else:
+                    # No parent datasource available — display datacomponent name as plain text.
+                    placard_string = stix_object["name"]
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=stix_object)
@@ -1271,6 +1303,22 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
             new_values.append(child)
 
     return new_values
+
+
+def resolve_datacomponent_parent(datacomponent: dict, datasources: Dict[str, dict]) -> Optional[str]:
+    """Best-effort resolution of a datacomponent's parent datasource when an explicit x_mitre_data_source_ref is not present.
+
+    Strategy:
+    1. If the datacomponent contains an explicit 'x_mitre_data_source_ref', return it.
+    2. If no match, return None.
+    """
+    # explicit ref
+    parent_ref = datacomponent.get("x_mitre_data_source_ref")
+    if parent_ref:
+        return parent_ref
+
+    # nothing matched
+    return None
 
 
 def version_increment_is_valid(
