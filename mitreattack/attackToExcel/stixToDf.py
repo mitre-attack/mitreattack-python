@@ -974,7 +974,13 @@ def relationshipsToDf(src, relatedType=None):
         relationship_rows.append(row)
 
     citations = get_citations(relationships)
-    relationships = pd.DataFrame(relationship_rows).sort_values(
+
+    relationship_df = pd.DataFrame(relationship_rows)
+    if relationship_df.empty or "mapping type" not in relationship_df.columns:
+        logger.warning(f"No relationships found for relatedType={relatedType}. Returning empty dataframe.")
+        return {}
+
+    relationships = relationship_df.sort_values(
         [
             "mapping type",
             "source type",
