@@ -122,7 +122,6 @@ class DiffStix(object):
             "datacomponents",
             "detectionstrategies",
             "analytics",
-            "logsources",
         ]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
@@ -144,7 +143,6 @@ class DiffStix(object):
             "datacomponents": "Data Components",
             "detectionstrategies": "Detection Strategies",
             "analytics": "Analytics",
-            "logsources": "Log Sources",
         }
 
         self.section_descriptions = {
@@ -675,7 +673,6 @@ class DiffStix(object):
             "datacomponents": [Filter("type", "=", "x-mitre-data-component")],
             "detectionstrategies": [Filter("type", "=", "x-mitre-detection-strategy")],
             "analytics": [Filter("type", "=", "x-mitre-analytic")],
-            "logsources": [Filter("type", "=", "x-mitre-log-source")],
         }
         for object_type, stix_filters in attack_type_to_stix_filter.items():
             raw_data = []
