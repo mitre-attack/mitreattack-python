@@ -1731,16 +1731,12 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                             if parent_object:
                                 nameplate = f"{parent_object.get('name')}: {stix_object['name']}"
                             else:
-                                logger.warning(f"[{stix_object['id']}] {attack_id} has no parent!")
-                                nameplate = f"{stix_object['name']} (No parent object identified. It is likely revoked or deprecated)"
+                                nameplate = f"{stix_object['name']}"
                         else:
                             nameplate = stix_object["name"]
 
                         if attack_id:
                             nameplate = f"[{attack_id}] {nameplate}"
-                        else:
-                            if stix_object["type"] != "x-mitre-data-component":
-                                logger.warning(f"{stix_object['id']} does not have an ATT&CK ID")
 
                         lines.append("<hr>")
                         lines.append(f"<h4>{nameplate}</h4>")
