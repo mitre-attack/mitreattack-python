@@ -1,4 +1,4 @@
-from .custom_attack_objects import Asset, DataComponent, DataSource, Matrix, StixObjectFactory, Tactic
+from .custom_attack_objects import Asset, DataComponent, DataSource, Matrix, StixObjectFactory, Tactic, Analytic, DetectionStrategy
 from .MitreAttackData import MitreAttackData
 
 __all__ = [
@@ -9,4 +9,6 @@ __all__ = [
     "StixObjectFactory",
     "Tactic",
     "MitreAttackData",
+    "Analytic",
+    "DetectionStrategy",
 ]

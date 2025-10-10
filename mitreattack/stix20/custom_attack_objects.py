@@ -339,7 +339,7 @@ class Analytic(CustomStixObject, object):
         ("x_mitre_contributors", ListProperty(StringProperty())),
         ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
         # Detection Strategy Properties
-        ("x_mitre_analytic_refs", ListProperty(StringProperty())),
+        ("x_mitre_analytic_refs", ListProperty(ReferenceProperty(valid_types="x-mitre-analytic", spec_version="2.0"))),
     ],
 )
 class DetectionStrategy(CustomStixObject, object):
