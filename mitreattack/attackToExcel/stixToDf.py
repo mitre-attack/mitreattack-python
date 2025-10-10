@@ -333,6 +333,66 @@ def datasourcesToDf(src):
     return dataframes
 
 
+def analyticsToDf(src):
+    """Parse STIX Analytics from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
+    analytics = remove_revoked_deprecated(analytics)
+
+    analytic_rows = []
+    for analytic in tqdm(analytics, desc="parsing analytics"):
+        analytic_rows.append(parseBaseStix(analytic))
+
+    citations = get_citations(analytics)
+    dataframes = {
+        "analytics": pd.DataFrame(analytic_rows).sort_values("name"),
+    }
+    if not citations.empty:
+        dataframes["citations"] = citations.sort_values("reference")
+
+    return dataframes
+
+
+def detectionstrategiesToDf(src):
+    """Parse STIX Detection Strategies from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
+    detection_strategies = remove_revoked_deprecated(detection_strategies)
+
+    detection_strategy_rows = []
+    for detection_strategy in tqdm(detection_strategies, desc="parsing detection strategies"):
+        detection_strategy_rows.append(parseBaseStix(detection_strategy))
+
+    citations = get_citations(detection_strategies)
+    dataframes = {
+        "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
+    }
+
+    # add relationships
+    codex = relationshipsToDf(src, relatedType="detectionstrategy")
+    dataframes.update(codex)
+    # add relationship references
+    dataframes["detectionstrategies"]["relationship citations"] = _get_relationship_citations(
+        dataframes["detectionstrategies"], codex
+    )
+    # add/merge citations
+    if not citations.empty:
+        if "citations" in dataframes:  # append to existing citations from references
+            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
+        else:  # add citations
+            dataframes["citations"] = citations
+
+        dataframes["citations"].sort_values("reference")
+
+    return dataframes
+
+
 def softwareToDf(src):
     """Parse STIX software from the given data and return corresponding pandas dataframes.
 
@@ -893,6 +953,7 @@ def relationshipsToDf(src, relatedType=None):
         "mitigation": ["course-of-action"],
         "matrix": ["x-mitre-matrix"],
         "datasource": ["x-mitre-data-component"],
+        "detectionstrategy": ["x-mitre-detection-strategy"],
     }
     stixToAttackTerm = {
         "attack-pattern": "technique",
@@ -906,6 +967,7 @@ def relationshipsToDf(src, relatedType=None):
         "x-mitre-data-source": "datasource",
         "campaign": "campaign",
         "x-mitre-asset": "asset",
+        "x-mitre-detection-strategy": "detectionstrategy",
     }
 
     mitre_attack_data = MitreAttackData(src=src)
@@ -1022,6 +1084,7 @@ def relationshipsToDf(src, relatedType=None):
         attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
         relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
         targetedAssets = relationships.query("`mapping type` == 'targets' and `target type` == 'asset'")
+        detectedTechniques = relationships.query("`mapping type` == 'detects' and `source type` == 'detectionstrategy'")
 
         if not relatedGroupSoftware.empty:
             if relatedType == "group":
@@ -1066,6 +1129,13 @@ def relationshipsToDf(src, relatedType=None):
             else:
                 sheet_name = "associated techniques"
             dataframes[sheet_name] = targetedAssets
+
+        if not detectedTechniques.empty:
+            if relatedType == "detectionstrategy":
+                sheet_name = "techniques detected"
+            else:
+                sheet_name = "associated detection strategies"
+            dataframes[sheet_name] = detectedTechniques
 
         if not citations.empty:
             # filter citations by ones actually used

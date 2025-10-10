@@ -108,6 +108,8 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
         "datasources": stixToDf.datasourcesToDf(src),
+        "analytics": stixToDf.analyticsToDf(src),
+        "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
     }
     return df
 
