@@ -981,8 +981,8 @@ class MitreAttackData:
             The ATT&CK ID of the object, or None if not found.
         """
         obj = self.get_object_by_stix_id(stix_id)
-        external_references = obj.get("external_references")
-        if external_references:
+        external_references = self.get_field(obj, "external_references", [])
+        if external_references and len(external_references) > 0:
             attack_source = external_references[0]
             if attack_source.get("external_id") and attack_source.get("source_name") == "mitre-attack":
                 return attack_source["external_id"]
@@ -1018,8 +1018,8 @@ class MitreAttackData:
         """
         obj = self.get_object_by_stix_id(stix_id)
         # name = MitreAttackData.get_field(obj, "name")
-        name = obj.get("name")
-        return name if name is not None else None
+        name = self.get_field(obj, "name")
+        return name
 
     ###################################
     # Relationship Section
