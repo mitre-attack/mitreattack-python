@@ -80,6 +80,8 @@ def StixObjectFactory(data: dict) -> Union[CustomStixObject, stix2.v20.sdo._Doma
         "x-mitre-data-source": DataSource,
         "x-mitre-data-component": DataComponent,
         "x-mitre-asset": Asset,
+        "x-mitre-analytic": Analytic,
+        "x-mitre-detection-strategy": DetectionStrategy,
     }
 
     stix_type = data.get("type")
@@ -220,6 +222,7 @@ class DataSource(CustomStixObject, object):
         ("x_mitre_attack_spec_version", StringProperty()),
         # Data Component Properties
         ("x_mitre_data_source_ref", ReferenceProperty(valid_types="x-mitre-data-source", spec_version="2.0")),
+        ("x_mitre_log_sources", ListProperty(DictionaryProperty())),
     ],
 )
 class DataComponent(CustomStixObject, object):
@@ -228,6 +231,7 @@ class DataComponent(CustomStixObject, object):
     Custom Properties
     -----------------
     x_mitre_data_source_ref: str
+    x_mitre_log_sources: list[object]
     """
 
     pass
@@ -265,6 +269,80 @@ class Asset(CustomStixObject, object):
     -----------------
     x_mitre_platforms: list[str]
     x_mitre_related_assets: list[object]
+    """
+
+    pass
+
+
+@CustomObject(
+    "x-mitre-analytic",
+    [
+        # SDO Common Properties
+        ("id", IDProperty("x-mitre-analytic", spec_version="2.0")),
+        ("type", TypeProperty("x-mitre-analytic", spec_version="2.0")),
+        ("created_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
+        ("created", TimestampProperty(precision="millisecond")),
+        ("modified", TimestampProperty(precision="millisecond")),
+        ("revoked", BooleanProperty(default=lambda: False)),
+        ("external_references", ListProperty(ExternalReference)),
+        ("object_marking_refs", ListProperty(ReferenceProperty(valid_types="marking-definition", spec_version="2.0"))),
+        ("name", StringProperty(required=True)),
+        ("description", StringProperty()),
+        ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
+        ("x_mitre_version", StringProperty()),
+        ("x_mitre_attack_spec_version", StringProperty()),
+        ("x_mitre_domains", ListProperty(StringProperty())),
+        ("x_mitre_contributors", ListProperty(StringProperty())),
+        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        # Analytic Properties
+        ("x_mitre_platforms", ListProperty(StringProperty())),
+        ("x_mitre_log_source_references", ListProperty(DictionaryProperty())),
+        ("x_mitre_mutable_elements", ListProperty(DictionaryProperty())),
+    ],
+)
+class Analytic(CustomStixObject, object):
+    """Custom Analytic object of type stix2.CustomObject.
+
+    Custom Properties
+    -----------------
+    x_mitre_platforms: list[str]
+    x_mitre_log_source_references: list[object]
+    x_mitre_mutable_elements: list[object]
+    """
+
+    pass
+
+
+@CustomObject(
+    "x-mitre-detection-strategy",
+    [
+        # SDO Common Properties
+        ("id", IDProperty("x-mitre-detection-strategy", spec_version="2.0")),
+        ("type", TypeProperty("x-mitre-detection-strategy", spec_version="2.0")),
+        ("created_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
+        ("created", TimestampProperty(precision="millisecond")),
+        ("modified", TimestampProperty(precision="millisecond")),
+        ("revoked", BooleanProperty(default=lambda: False)),
+        ("external_references", ListProperty(ExternalReference)),
+        ("object_marking_refs", ListProperty(ReferenceProperty(valid_types="marking-definition", spec_version="2.0"))),
+        ("name", StringProperty(required=True)),
+        ("description", StringProperty()),
+        ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
+        ("x_mitre_version", StringProperty()),
+        ("x_mitre_attack_spec_version", StringProperty()),
+        ("x_mitre_domains", ListProperty(StringProperty())),
+        ("x_mitre_contributors", ListProperty(StringProperty())),
+        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        # Detection Strategy Properties
+        ("x_mitre_analytic_refs", ListProperty(StringProperty())),
+    ],
+)
+class DetectionStrategy(CustomStixObject, object):
+    """Custom Detection Strategy object of type stix2.CustomObject.
+
+    Custom Properties
+    -----------------
+    x_mitre_analytic_refs: list[str]
     """
 
     pass
