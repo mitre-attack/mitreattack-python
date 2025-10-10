@@ -342,16 +342,21 @@ def analyticsToDf(src):
     analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
     analytics = remove_revoked_deprecated(analytics)
 
-    analytic_rows = []
-    for analytic in tqdm(analytics, desc="parsing analytics"):
-        analytic_rows.append(parseBaseStix(analytic))
+    dataframes = {}
+    if analytics:
+        analytic_rows = []
+        for analytic in tqdm(analytics, desc="parsing analytics"):
+            analytic_rows.append(parseBaseStix(analytic))
 
-    citations = get_citations(analytics)
-    dataframes = {
-        "analytics": pd.DataFrame(analytic_rows).sort_values("name"),
-    }
-    if not citations.empty:
-        dataframes["citations"] = citations.sort_values("reference")
+        citations = get_citations(analytics)
+        dataframes = {
+            "analytics": pd.DataFrame(analytic_rows).sort_values("name"),
+        }
+        if not citations.empty:
+            dataframes["citations"] = citations.sort_values("reference")
+
+    else:
+        logger.warning("No analytics found - nothing to parse")
 
     return dataframes
 
@@ -365,30 +370,35 @@ def detectionstrategiesToDf(src):
     detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
     detection_strategies = remove_revoked_deprecated(detection_strategies)
 
-    detection_strategy_rows = []
-    for detection_strategy in tqdm(detection_strategies, desc="parsing detection strategies"):
-        detection_strategy_rows.append(parseBaseStix(detection_strategy))
+    dataframes = {}
+    if detection_strategies:
+        detection_strategy_rows = []
+        for detection_strategy in tqdm(detection_strategies, desc="parsing detection strategies"):
+            detection_strategy_rows.append(parseBaseStix(detection_strategy))
 
-    citations = get_citations(detection_strategies)
-    dataframes = {
-        "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
-    }
+        citations = get_citations(detection_strategies)
+        dataframes = {
+            "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
+        }
 
-    # add relationships
-    codex = relationshipsToDf(src, relatedType="detectionstrategy")
-    dataframes.update(codex)
-    # add relationship references
-    dataframes["detectionstrategies"]["relationship citations"] = _get_relationship_citations(
-        dataframes["detectionstrategies"], codex
-    )
-    # add/merge citations
-    if not citations.empty:
-        if "citations" in dataframes:  # append to existing citations from references
-            dataframes["citations"] = pd.concat([dataframes["citations"], citations])
-        else:  # add citations
-            dataframes["citations"] = citations
+        # add relationships
+        codex = relationshipsToDf(src, relatedType="detectionstrategy")
+        dataframes.update(codex)
+        # add relationship references
+        dataframes["detectionstrategies"]["relationship citations"] = _get_relationship_citations(
+            dataframes["detectionstrategies"], codex
+        )
+        # add/merge citations
+        if not citations.empty:
+            if "citations" in dataframes:  # append to existing citations from references
+                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
+            else:  # add citations
+                dataframes["citations"] = citations
 
-        dataframes["citations"].sort_values("reference")
+            dataframes["citations"].sort_values("reference")
+
+    else:
+        logger.warning("No detection strategies found - nothing to parse")
 
     return dataframes
 
