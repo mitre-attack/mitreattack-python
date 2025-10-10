@@ -263,7 +263,7 @@ def datasourcesToDf(src):
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     data = list(
-        chain.from_iterable(  # software are the union of the tool and malware types
+        chain.from_iterable(  # collect all data components and data sources
             src.query(f)
             for f in [
                 Filter("type", "=", "x-mitre-data-component"),
@@ -280,9 +280,9 @@ def datasourcesToDf(src):
             if x["type"] == "x-mitre-data-source":
                 source_lookup[x["id"]] = x["name"]
         for data_object in tqdm(refined, desc="parsing data sources"):
-            # add common STIx fields
+            # add common STIX fields
             row = parseBaseStix(data_object)
-            # add software-specific fields
+            # add data source/data component-specific fields
             if "x_mitre_platforms" in data_object:
                 row["platforms"] = ", ".join(sorted(data_object["x_mitre_platforms"]))
             if "x_mitre_collection_layers" in data_object:
@@ -310,7 +310,7 @@ def datasourcesToDf(src):
                 "collection layers",
                 "platforms",
                 "created",
-                "modified",
+                "last modified",
                 "type",
                 "version",
                 "url",
