@@ -1,8 +1,11 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
 def main():
-    mitre_attack_data = MitreAttackData("enterprise-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "enterprise-attack.json")
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
     technique_id = "attack-pattern--03259939-0b57-482f-8eb5-87c0e0d54334"
 
     procedure_examples = mitre_attack_data.get_procedure_examples_by_technique(technique_id)

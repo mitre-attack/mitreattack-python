@@ -1,3 +1,5 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
@@ -12,7 +14,9 @@ def print_procedure_examples(mitre_attack_data, attack_objects_using_technique):
 
 
 def main():
-    mitre_attack_data = MitreAttackData("enterprise-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "enterprise-attack.json")
+
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
     tactics = mitre_attack_data.get_tactics(remove_revoked_deprecated=True)
 
     for tactic in tactics:

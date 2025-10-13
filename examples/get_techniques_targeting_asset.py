@@ -1,8 +1,11 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
 def main():
-    mitre_attack_data = MitreAttackData("ics-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "ics-attack.json")
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
 
     # get techniques targeting A0004
     asset_stix_id = "x-mitre-asset--1769c499-55e5-462f-bab2-c39b8cd5ae32"
