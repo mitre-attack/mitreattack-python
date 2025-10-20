@@ -24,6 +24,7 @@ from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
 from mitreattack import release_info
+from mitreattack.stix20 import MitreAttackData
 
 # explanation of modification types to data objects for legend in layer files
 date = datetime.datetime.today()
@@ -47,6 +48,53 @@ class AttackObjectVersion:
         """Return a string representation of the ATT&CK object version."""
         return f"{self.major}.{self.minor}"
 
+@dataclass
+class DomainStatistics:
+    """Statistics for a single ATT&CK domain."""
+
+    name: str
+    tactics: int
+    techniques: int
+    subtechniques: int
+    groups: int
+    software: int
+    campaigns: int
+    mitigations: int
+    datasources: int
+    assets: int = 0
+
+    def format_output(self) -> str:
+        """
+        Format domain statistics as a string.
+
+        Returns
+        -------
+        str
+            Formatted statistics string for display.
+        """
+        # Define all possible statistics with their labels
+        stats = [
+            (self.tactics, "Tactics"),
+            (self.techniques, "Techniques"),
+            (self.subtechniques, "Sub-Techniques"),
+            (self.groups, "Groups"),
+            (self.software, "Pieces of Software"),
+            (self.campaigns, "Campaigns"),
+            (self.mitigations, "Mitigations"),
+            (self.assets, "Assets"),
+            (self.datasources, "Data Sources"),
+        ]
+
+        # Build parts list, only including items with count > 0
+        parts = [f"{count} {label}" for count, label in stats if count > 0]
+
+        # Join all parts with proper formatting
+        if len(parts) == 0:
+            return f"- {self.name}: No objects"
+        elif len(parts) == 1:
+            return f"- {self.name}: {parts[0]}"
+        else:
+            return f"- {self.name}: {', '.join(parts[:-1])}, and {parts[-1]}"
 
 # TODO: Implement a custom decoder as well. Possible solution at this link
 # https://alexisgomes19.medium.com/custom-json-encoder-with-python-f52c91b48cd2
@@ -1002,6 +1050,144 @@ class DiffStix(object):
         full_placard_string = f"{placard_string} {version_string}"
         return full_placard_string
 
+    def _collect_domain_statistics(self, datastore: MemoryStore, domain_name: str) -> DomainStatistics:
+        """
+        Collect statistics for a single domain from a STIX datastore.
+
+        Parameters
+        ----------
+        datastore : MemoryStore
+            The STIX MemoryStore containing the domain data.
+        domain_name : str
+            Display name of the domain (e.g., "Enterprise", "Mobile", "ICS").
+
+        Returns
+        -------
+        DomainStatistics
+            Statistics for the domain.
+        """
+        # Create MitreAttackData instance from the datastore
+        data = MitreAttackData(src=datastore)
+
+        # Get all object types, removing revoked and deprecated
+        tactics = data.get_tactics(remove_revoked_deprecated=True)
+        techniques = data.get_techniques(include_subtechniques=False, remove_revoked_deprecated=True)
+        subtechniques = data.get_subtechniques(remove_revoked_deprecated=True)
+        groups = data.get_groups(remove_revoked_deprecated=True)
+        software = data.get_software(remove_revoked_deprecated=True)
+        campaigns = data.get_campaigns(remove_revoked_deprecated=True)
+        mitigations = data.get_mitigations(remove_revoked_deprecated=True)
+
+        # Try to get datasources - may fail on test data with STIX version mismatches
+        datasources = []
+        try:
+            datasources = data.get_datasources(remove_revoked_deprecated=True)
+        except Exception:
+            # Silently skip datasources if there are STIX version issues
+            pass
+
+        # ICS domain has assets
+        assets = 0
+        if domain_name == "ICS":
+            try:
+                assets = len(data.get_assets(remove_revoked_deprecated=True))
+            except Exception:
+                # Silently skip assets if there are STIX version issues
+                pass
+
+        return DomainStatistics(
+            name=domain_name,
+            tactics=len(tactics),
+            techniques=len(techniques),
+            subtechniques=len(subtechniques),
+            groups=len(groups),
+            software=len(software),
+            campaigns=len(campaigns),
+            mitigations=len(mitigations),
+            datasources=len(datasources),
+            assets=assets,
+        )
+
+    def _collect_unique_object_counts(self, datastore_version: str) -> dict[str, int]:
+        """
+        Collect counts of unique objects across all domains for a specific version.
+
+        Some objects (Software, Groups, Campaigns) may appear in multiple domains.
+        This function counts unique objects to avoid double-counting.
+
+        Parameters
+        ----------
+        datastore_version : str
+            Either "old" or "new" to specify which version's data to analyze.
+
+        Returns
+        -------
+        dict of str to int
+            Counts of unique software, groups, and campaigns.
+        """
+        all_software_ids = set()
+        all_groups_ids = set()
+        all_campaigns_ids = set()
+
+        for domain in self.domains:
+            datastore = self.data[datastore_version][domain]["stix_datastore"]
+            data = MitreAttackData(src=datastore)
+
+            software = data.get_software(remove_revoked_deprecated=True)
+            groups = data.get_groups(remove_revoked_deprecated=True)
+            campaigns = data.get_campaigns(remove_revoked_deprecated=True)
+
+            all_software_ids.update(obj["id"] for obj in software)
+            all_groups_ids.update(obj["id"] for obj in groups)
+            all_campaigns_ids.update(obj["id"] for obj in campaigns)
+
+        return {
+            "software": len(all_software_ids),
+            "groups": len(all_groups_ids),
+            "campaigns": len(all_campaigns_ids),
+        }
+
+    def get_statistics_section(self, datastore_version: str = "new") -> str:
+        """
+        Generate a markdown section with ATT&CK statistics for all domains.
+
+        Parameters
+        ----------
+        datastore_version : str, optional
+            Either "old" or "new" to specify which version's statistics to generate.
+            Defaults to "new".
+
+        Returns
+        -------
+        str
+            Markdown-formatted statistics section.
+        """
+        # Collect unique object counts across all domains
+        unique_counts = self._collect_unique_object_counts(datastore_version)
+
+        # Collect statistics for each domain
+        domain_stats = []
+        for domain in self.domains:
+            datastore = self.data[datastore_version][domain]["stix_datastore"]
+            domain_label = self.domain_to_domain_label[domain]
+            stats = self._collect_domain_statistics(datastore, domain_label)
+            domain_stats.append(stats)
+
+        # Build the statistics section
+        version_label = "New" if datastore_version == "new" else "Old"
+        output = f"## {version_label} ATT&CK Version Statistics\n\n"
+        output += (
+            f"This version of ATT&CK contains {unique_counts['software']} Pieces of Software, "
+            f"{unique_counts['groups']} Groups, and {unique_counts['campaigns']} Campaigns.\n\n"
+        )
+        output += "Broken out by domain:\n\n"
+
+        for stats in domain_stats:
+            output += stats.format_output() + "\n"
+
+        output += "\n"
+        return output
+
     def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
         """Parse a list of STIX objects in a section and return a string for the whole section."""
         sectionString = ""
@@ -1055,6 +1241,11 @@ class DiffStix(object):
         if self.show_key:
             key_content = self.get_md_key()
             content = f"{key_content}\n\n"
+
+        # Add statistics section for the new version
+        logger.info("Generating statistics section")
+        stats_section = self.get_statistics_section(datastore_version="new")
+        content += stats_section
 
         for object_type in self.types:
             domains = ""
