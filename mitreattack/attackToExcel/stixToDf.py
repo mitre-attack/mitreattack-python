@@ -259,6 +259,8 @@ def tacticsToDf(src):
 def datasourcesToDf(src):
     """Parse STIX Data Sources and their Data components from the given data and return corresponding pandas dataframes.
 
+    This is only used in versions of ATT&CK before v18.
+
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
@@ -290,7 +292,7 @@ def datasourcesToDf(src):
             if "x_mitre_aliases" in data_object:
                 row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
             if data_object["type"] == "x-mitre-data-component":
-                if "x_mitre_data_source_ref" in data_object:
+                if "x_mitre_data_source_ref" in data_object and data_object["x_mitre_data_source_ref"] in source_lookup:
                     row["name"] = f"{source_lookup[data_object['x_mitre_data_source_ref']]}: {data_object['name']}"
                 row["type"] = "datacomponent"
             else:
@@ -329,6 +331,29 @@ def datasourcesToDf(src):
             dataframes["citations"].sort_values("reference")
     else:
         logger.warning("No data components or data sources found - nothing to parse")
+
+    return dataframes
+
+
+def datacomponentsToDf(src):
+    """Parse STIX Data components from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    data_components = src.query([Filter("type", "=", "x-mitre-data-component")])
+    data_components = remove_revoked_deprecated(data_components)
+
+    data_component_rows = []
+    for data_component in tqdm(data_components, desc="parsing data components"):
+        data_component_rows.append(parseBaseStix(data_component))
+
+    citations = get_citations(data_components)
+    dataframes = {
+        "datacomponents": pd.DataFrame(data_component_rows).sort_values("name"),
+    }
+    if not citations.empty:
+        dataframes["citations"] = citations.sort_values("reference")
 
     return dataframes
 
@@ -380,22 +405,9 @@ def detectionstrategiesToDf(src):
         dataframes = {
             "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
         }
-
-        # add relationships
-        codex = relationshipsToDf(src, relatedType="detectionstrategy")
-        dataframes.update(codex)
-        # add relationship references
-        dataframes["detectionstrategies"]["relationship citations"] = _get_relationship_citations(
-            dataframes["detectionstrategies"], codex
-        )
-        # add/merge citations
         if not citations.empty:
             if "citations" in dataframes:  # append to existing citations from references
-                dataframes["citations"] = pd.concat([dataframes["citations"], citations])
-            else:  # add citations
-                dataframes["citations"] = citations
-
-            dataframes["citations"].sort_values("reference")
+                dataframes["citations"] = citations.sort_values("reference")
 
     else:
         logger.warning("No detection strategies found - nothing to parse")

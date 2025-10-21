@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 from typing import Dict, List, Optional
 
 import pandas as pd
@@ -80,10 +81,10 @@ def get_stix_data(
     return mem_store
 
 
-def build_dataframes(src: MemoryStore, domain: str) -> Dict:
+def build_dataframes_pre_v18(src: MemoryStore, domain: str) -> Dict:
     """Build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe.
 
-    :returns:
+    This version of the function is used for ATT&CK versions prior to v18, to account for changes to data components/data sources.
 
     Parameters
     ----------
@@ -108,6 +109,38 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
         "matrices": stixToDf.matricesToDf(src, domain),
         "relationships": stixToDf.relationshipsToDf(src),
         "datasources": stixToDf.datasourcesToDf(src),
+        "analytics": stixToDf.analyticsToDf(src),
+        "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
+    }
+    return df
+
+
+def build_dataframes(src: MemoryStore, domain: str) -> Dict:
+    """Build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe.
+
+    Parameters
+    ----------
+    src : MemoryStore
+        MemoryStore or other stix2 DataSource object
+    domain : str
+        domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+
+    Returns
+    -------
+    dict
+        A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
+    """
+    df = {
+        "techniques": stixToDf.techniquesToDf(src, domain),
+        "tactics": stixToDf.tacticsToDf(src),
+        "software": stixToDf.softwareToDf(src),
+        "groups": stixToDf.groupsToDf(src),
+        "campaigns": stixToDf.campaignsToDf(src),
+        "assets": stixToDf.assetsToDf(src),
+        "mitigations": stixToDf.mitigationsToDf(src),
+        "matrices": stixToDf.matricesToDf(src, domain),
+        "relationships": stixToDf.relationshipsToDf(src),
+        "datacomponents": stixToDf.datacomponentsToDf(src),
         "analytics": stixToDf.analyticsToDf(src),
         "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
     }
@@ -148,7 +181,7 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
         os.makedirs(output_directory)
     # master dataset file
     master_fp = os.path.join(output_directory, f"{domain_version_string}.xlsx")
-    with pd.ExcelWriter(master_fp, engine="xlsxwriter") as master_writer:
+    with pd.ExcelWriter(path=master_fp, engine="xlsxwriter") as master_writer:
         # master list of citations
         citations = pd.DataFrame()
 
@@ -324,6 +357,15 @@ def export(
     logger.info(f"************ Exporting {domain} to Excel ************")
 
     # build dataframes
+    if version:
+        version_pattern = r"v(\d+)\.(\d+)$"
+        match = re.search(version_pattern, version)
+        if match:
+            major_version = int(match.group(1))
+            if major_version < 18:
+                dataframes = build_dataframes_pre_v18(src=mem_store, domain=domain)
+                write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
+
     dataframes = build_dataframes(src=mem_store, domain=domain)
     write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
 
