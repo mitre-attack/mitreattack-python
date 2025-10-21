@@ -365,6 +365,7 @@ def export(
             if major_version < 18:
                 dataframes = build_dataframes_pre_v18(src=mem_store, domain=domain)
                 write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
+                return
 
     dataframes = build_dataframes(src=mem_store, domain=domain)
     write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
