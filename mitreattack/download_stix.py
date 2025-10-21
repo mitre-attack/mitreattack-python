@@ -6,6 +6,7 @@ from typing import List, Optional
 import pooch
 import typer
 from loguru import logger
+from typing_extensions import Annotated
 
 from mitreattack import release_info
 
@@ -191,20 +192,22 @@ def _validate_versions(versions: List[str], stix20: bool, stix21: bool):
 
 @app.command()
 def download_attack_stix(
-    download_dir: str = typer.Option(
-        "attack-releases", "--download-dir", "-d", help="Folder to save downloaded STIX data."
-    ),
-    all_versions: bool = typer.Option(
-        False, "--all", "-a", help="Download all ATT&CK releases. Mutually exclusive with --version."
-    ),
-    attack_versions: Optional[List[str]] = typer.Option(
-        None,
-        "--version",
-        "-v",
-        help="Download specific ATT&CK version(s). Can be specified multiple times. Mutually exclusive with --all.",
-    ),
-    stix20: bool = typer.Option(True, help="Download STIX 2.0 data."),
-    stix21: bool = typer.Option(False, help="Download STIX 2.1 data."),
+    download_dir: Annotated[
+        str, typer.Option("--download-dir", "-d", help="Folder to save downloaded STIX data.")
+    ] = "attack-releases",
+    all_versions: Annotated[
+        bool, typer.Option("--all", "-a", help="Download all ATT&CK releases. Mutually exclusive with --version.")
+    ] = False,
+    attack_versions: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--version",
+            "-v",
+            help="Download specific ATT&CK version(s). Can be specified multiple times. Mutually exclusive with --all.",
+        ),
+    ] = None,
+    stix20: Annotated[bool, typer.Option(help="Download STIX 2.0 data.")] = True,
+    stix21: Annotated[bool, typer.Option(help="Download STIX 2.1 data.")] = False,
 ):
     """Download the ATT&CK STIX data from GitHub in JSON format.
 
