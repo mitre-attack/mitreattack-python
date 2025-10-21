@@ -48,6 +48,7 @@ class AttackObjectVersion:
         """Return a string representation of the ATT&CK object version."""
         return f"{self.major}.{self.minor}"
 
+
 @dataclass
 class DomainStatistics:
     """Statistics for a single ATT&CK domain."""
@@ -95,6 +96,7 @@ class DomainStatistics:
             return f"- {self.name}: {parts[0]}"
         else:
             return f"- {self.name}: {', '.join(parts[:-1])}, and {parts[-1]}"
+
 
 # TODO: Implement a custom decoder as well. Possible solution at this link
 # https://alexisgomes19.medium.com/custom-json-encoder-with-python-f52c91b48cd2
