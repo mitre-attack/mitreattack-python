@@ -225,7 +225,6 @@ class DataSource(CustomStixObject, object):
         ("x_mitre_attack_spec_version", StringProperty()),
         ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
         # Data Component Properties
-        ("x_mitre_data_source_ref", ReferenceProperty(valid_types="x-mitre-data-source", spec_version="2.0")),
         ("x_mitre_log_sources", ListProperty(DictionaryProperty())),
     ],
 )
