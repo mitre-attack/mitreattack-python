@@ -61,8 +61,11 @@ class DomainStatistics:
     software: int
     campaigns: int
     mitigations: int
+    assets: int
     datasources: int
-    assets: int = 0
+    detectionstrategies: int
+    analytics: int
+    datacomponents: int
 
     def format_output(self) -> str:
         """
@@ -79,11 +82,14 @@ class DomainStatistics:
             (self.techniques, "Techniques"),
             (self.subtechniques, "Sub-Techniques"),
             (self.groups, "Groups"),
-            (self.software, "Pieces of Software"),
+            (self.software, "Software"),
             (self.campaigns, "Campaigns"),
             (self.mitigations, "Mitigations"),
             (self.assets, "Assets"),
             (self.datasources, "Data Sources"),
+            (self.detectionstrategies, "Detection Strategies"),
+            (self.analytics, "Analytics"),
+            (self.datacomponents, "Data Components"),
         ]
 
         # Build parts list, only including items with count > 0
@@ -91,11 +97,11 @@ class DomainStatistics:
 
         # Join all parts with proper formatting
         if len(parts) == 0:
-            return f"- {self.name}: No objects"
+            return f"* {self.name}: No objects"
         elif len(parts) == 1:
-            return f"- {self.name}: {parts[0]}"
+            return f"* {self.name}: {parts[0]}"
         else:
-            return f"- {self.name}: {', '.join(parts[:-1])}, and {parts[-1]}"
+            return f"* {self.name}: {', '.join(parts[:-1])}, and {parts[-1]}"
 
 
 # TODO: Implement a custom decoder as well. Possible solution at this link
@@ -1079,23 +1085,11 @@ class DiffStix(object):
         software = data.get_software(remove_revoked_deprecated=True)
         campaigns = data.get_campaigns(remove_revoked_deprecated=True)
         mitigations = data.get_mitigations(remove_revoked_deprecated=True)
-
-        # Try to get datasources - may fail on test data with STIX version mismatches
-        datasources = []
-        try:
-            datasources = data.get_datasources(remove_revoked_deprecated=True)
-        except Exception:
-            # Silently skip datasources if there are STIX version issues
-            pass
-
-        # ICS domain has assets
-        assets = 0
-        if domain_name == "ICS":
-            try:
-                assets = len(data.get_assets(remove_revoked_deprecated=True))
-            except Exception:
-                # Silently skip assets if there are STIX version issues
-                pass
+        assets = data.get_assets(remove_revoked_deprecated=True)
+        datasources = data.get_datasources(remove_revoked_deprecated=True)
+        detectionstrategies = data.get_detectionstrategies(remove_revoked_deprecated=True)
+        analytics = data.get_analytics(remove_revoked_deprecated=True)
+        datacomponents = data.get_datacomponents(remove_revoked_deprecated=True)
 
         return DomainStatistics(
             name=domain_name,
@@ -1106,8 +1100,11 @@ class DiffStix(object):
             software=len(software),
             campaigns=len(campaigns),
             mitigations=len(mitigations),
+            assets=len(assets),
             datasources=len(datasources),
-            assets=assets,
+            detectionstrategies=len(detectionstrategies),
+            analytics=len(analytics),
+            datacomponents=len(datacomponents),
         )
 
     def _collect_unique_object_counts(self, datastore_version: str) -> dict[str, int]:
@@ -1176,10 +1173,9 @@ class DiffStix(object):
             domain_stats.append(stats)
 
         # Build the statistics section
-        version_label = "New" if datastore_version == "new" else "Old"
-        output = f"## {version_label} ATT&CK Version Statistics\n\n"
+        output = "## Statistics\n\n"
         output += (
-            f"This version of ATT&CK contains {unique_counts['software']} Pieces of Software, "
+            f"This version of ATT&CK contains {unique_counts['software']} Software, "
             f"{unique_counts['groups']} Groups, and {unique_counts['campaigns']} Campaigns.\n\n"
         )
         output += "Broken out by domain:\n\n"
@@ -1203,7 +1199,7 @@ class DiffStix(object):
                 placard_string = self.placard(stix_object=child, section=section, domain=domain)
 
                 if grouping["parentInSection"]:
-                    sectionString += f"    * {placard_string}\n"
+                    sectionString += f"  * {placard_string}\n"
                 else:
                     sectionString += f"* {grouping['parent']['name']}: {placard_string}\n"
 
@@ -1240,14 +1236,14 @@ class DiffStix(object):
         logger.info("Generating markdown output")
         content = ""
 
-        if self.show_key:
-            key_content = self.get_md_key()
-            content = f"{key_content}\n\n"
-
         # Add statistics section for the new version
         logger.info("Generating statistics section")
         stats_section = self.get_statistics_section(datastore_version="new")
         content += stats_section
+
+        if self.show_key:
+            key_content = self.get_md_key()
+            content += f"{key_content}\n"
 
         for object_type in self.types:
             domains = ""
