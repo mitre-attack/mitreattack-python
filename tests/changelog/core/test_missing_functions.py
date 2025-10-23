@@ -72,7 +72,6 @@ class TestMissingFunctions:
             "x_mitre_version": "1.0",
             "created": "2023-01-01T00:00:00.000Z",
             "modified": "2023-01-01T00:00:00.000Z",
-            "x_mitre_data_source_ref": "x-mitre-data-source--test-id",
         }
 
         # Test real URL generation

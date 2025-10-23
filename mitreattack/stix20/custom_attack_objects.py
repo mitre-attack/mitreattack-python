@@ -233,7 +233,6 @@ class DataComponent(CustomStixObject, object):
 
     Custom Properties
     -----------------
-    x_mitre_data_source_ref: str
     x_mitre_log_sources: list[object]
     """
 
