@@ -37,11 +37,10 @@ def check_excel_files_exist(excel_folder: Path, domain: str):
     For "ics-attack", also checks for the existence of the assets file.
     """
     assert (excel_folder / f"{domain}.xlsx").exists()
-    # TODO: add in check for assets for ICS after ATT&CK v14 is released
     if domain == "ics-attack":
         # Only ICS has Assets
         assert (excel_folder / f"{domain}-assets.xlsx").exists()
-    assert (excel_folder / f"{domain}-datasources.xlsx").exists()
+    assert (excel_folder / f"{domain}-datacomponents.xlsx").exists()
     assert (excel_folder / f"{domain}-campaigns.xlsx").exists()
     assert (excel_folder / f"{domain}-groups.xlsx").exists()
     assert (excel_folder / f"{domain}-matrices.xlsx").exists()
@@ -50,6 +49,9 @@ def check_excel_files_exist(excel_folder: Path, domain: str):
     assert (excel_folder / f"{domain}-software.xlsx").exists()
     assert (excel_folder / f"{domain}-tactics.xlsx").exists()
     assert (excel_folder / f"{domain}-techniques.xlsx").exists()
+    # TODO: add in check for analytics/detection strategies after ATT&CK v18 is released
+    # assert (excel_folder / f"{domain}-analytics.xlsx").exists()
+    # assert (excel_folder / f"{domain}-detectionstrategies.xlsx").exists()
 
 
 def test_enterprise_latest(tmp_path: Path, memstore_enterprise_latest: stix2.MemoryStore):
@@ -85,7 +87,7 @@ def test_ics_latest(tmp_path: Path, memstore_ics_latest: stix2.MemoryStore):
     check_excel_files_exist(excel_folder=excel_folder, domain=domain)
 
 
-def test_enterprise_legacy(tmp_path: Path):
+def test_enterprise_legacy_v9(tmp_path: Path):
     """Test enterprise v9.0 to excel spreadsheet functionality."""
     logger.debug(f"{tmp_path=}")
     version = "v9.0"
@@ -101,3 +103,22 @@ def test_enterprise_legacy(tmp_path: Path):
     assert (excel_folder / f"enterprise-attack-{version}-mitigations.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-matrices.xlsx").exists()
     assert (excel_folder / f"enterprise-attack-{version}-groups.xlsx").exists()
+
+
+def test_enterprise_legacy_v17(tmp_path: Path):
+    """Test enterprise v17.0 to excel spreadsheet functionality."""
+    logger.debug(f"{tmp_path=}")
+    version = "v17.0"
+
+    attackToExcel.export(domain="enterprise-attack", version=version, output_dir=str(tmp_path))
+
+    excel_folder = tmp_path / f"enterprise-attack-{version}"
+    assert (excel_folder / f"enterprise-attack-{version}.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-techniques.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-tactics.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-software.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-relationships.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-mitigations.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-matrices.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-groups.xlsx").exists()
+    assert (excel_folder / f"enterprise-attack-{version}-datasources.xlsx").exists()
