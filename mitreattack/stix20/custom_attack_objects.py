@@ -4,7 +4,6 @@ from typing import Any, Union
 
 import stix2
 import stix2.v20
-from stix2 import CustomObject, ExternalReference
 from stix2.properties import (
     BooleanProperty,
     DictionaryProperty,
@@ -15,6 +14,7 @@ from stix2.properties import (
     TimestampProperty,
     TypeProperty,
 )
+from stix2.v20 import CustomObject, ExternalReference
 
 
 class CustomStixObject(object):
