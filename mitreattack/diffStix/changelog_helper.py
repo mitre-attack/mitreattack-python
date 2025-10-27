@@ -1786,7 +1786,7 @@ def markdown_to_html(outfile: str, content: str, diffStix: DiffStix):
     html_string = """<div style='max-width: 55em;margin: auto;margin-top:20px;font-family: "Roboto", sans-serif;'>"""
     html_string += "<meta charset='utf-8'>"
     html_string += header
-    html_string += markdown.markdown(content, extensions=['toc'])
+    html_string += markdown.markdown(content, extensions=["toc"])
     html_string += "</div>"
 
     with open(outfile, "w", encoding="utf-8") as outputfile:
