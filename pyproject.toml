@@ -73,12 +73,12 @@ version_files = [
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-check-wheel-contents = ">=0.6.1"
-commitizen = ">=4.8.3"
-pytest = ">=8.3.5"
-pytest-cov = ">=6.0.0"
+check-wheel-contents = ">=0.6.3"
+commitizen = ">=4.9.1"
+pytest = ">=8.4.2"
+pytest-cov = ">=7.0.0"
 pytest-dotenv = ">=0.5.2"
-ruff = ">=0.9.9"
+ruff = ">=0.14.2"
 responses = ">=0.25.8"
 
 [tool.poetry.group.docs]
