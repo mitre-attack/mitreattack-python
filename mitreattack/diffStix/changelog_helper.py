@@ -1236,6 +1236,11 @@ class DiffStix(object):
         logger.info("Generating markdown output")
         content = ""
 
+        # Add contributors if requested by argument
+        if self.include_contributors:
+            content += self.get_contributor_section()
+            content += "\n"
+
         # Add statistics section for the new version
         logger.info("Generating statistics section")
         stats_section = self.get_statistics_section(datastore_version="new")
@@ -1244,6 +1249,9 @@ class DiffStix(object):
         if self.show_key:
             key_content = self.get_md_key()
             content += f"{key_content}\n"
+
+        content += "## Table of Contents\n\n"
+        content += "[TOC]\n\n"
 
         for object_type in self.types:
             domains = ""
@@ -1278,10 +1286,6 @@ class DiffStix(object):
             # e.g "techniques"
             if domains != "":
                 content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
-
-        # Add contributors if requested by argument
-        if self.include_contributors:
-            content += self.get_contributor_section()
 
         return content
 
@@ -1782,7 +1786,7 @@ def markdown_to_html(outfile: str, content: str, diffStix: DiffStix):
     html_string = """<div style='max-width: 55em;margin: auto;margin-top:20px;font-family: "Roboto", sans-serif;'>"""
     html_string += "<meta charset='utf-8'>"
     html_string += header
-    html_string += markdown.markdown(content)
+    html_string += markdown.markdown(content, extensions=['toc'])
     html_string += "</div>"
 
     with open(outfile, "w", encoding="utf-8") as outputfile:

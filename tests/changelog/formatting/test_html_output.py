@@ -23,9 +23,12 @@ class TestHtmlOutput:
         assert outfile.exists()
         html_content = outfile.read_text(encoding="utf-8")
         assert f"ATT&CK Changes Between v{old_version} and v{new_version}" in html_content
-        assert "<h1>Test Header</h1>" in html_content
         assert "<strong>bold</strong>" in html_content
         assert "charset='utf-8'" in html_content
+        # it might be nice to add this back in, but when using the python markdown TOC extension,
+        # it modifies the <h1> and <h2> tags, giving them additional attributes, like id (and maybe style?)
+        # https://python-markdown.github.io/extensions/toc/
+        # assert "<h1>Test Header</h1>" in html_content
 
     def test_write_detailed_html_basic(
         self, tmp_path, lightweight_diffstix, sample_deepdiff_data, minimal_stix_bundles

@@ -1,3 +1,74 @@
+## Contributors to this release
+
+* Aaron Sullivan aka ZerkerEOD
+* Adam Lichters
+* Alden Schmidt
+* Ale Houspanossian
+* Alexey Kleymenov
+* Alon Klayman, Hunters Security
+* Amnon Kushnir, Sygnia
+* Ben Smith, @cyberg3cko
+* Caio Silva
+* Cian Heasley
+* Cristian Souza - Kaspersky GERT
+* Cristóbal Martínez Martín
+* David Hughes, BT Security
+* Dhiraj Mishra (@RandomDhiraj)
+* Dmitry Bestuzhev
+* Dvir Sasson, Reco
+* Eliraz Levi, Hunters Security
+* Fabian Kammel
+* Fernando Bacchin
+* Flavio Costa, Cisco
+* Frank Angiolelli
+* Gabriel Currie
+* Gerardo Santos
+* Harikrishnan Muthu, Cyble
+* Hiroki Nagahama, NEC Corporation
+* Inna Danilevich, U.S. Bank
+* Jaesang Oh, KC7 Foundation
+* Janantha Marasinghe
+* Jennifer Kim Roman
+* Jiraput Thamsongkrah
+* Joas Antonio dos Santos, @C0d3Cr4zy
+* Joe Gumke, U.S. Bank
+* Jun Hirata, NEC Corporation
+* Kaung Zaw Hein
+* Kevin Ward
+* Kori Yoshihiro, NEC Corporation
+* Kyaw Pyiyt Htet, @KyawPyiytHtet
+* Liran Ravich, CardinalOps
+* Lê Phương Nam, Group-IB
+* Manikantan Srinivasan, NEC Corporation India
+* Matt Anderson, @‌nosecurething, Huntress
+* Matt Brenton, Zurich Global Information Security
+* Matt Brenton, Zurich Insurance Group
+* Menachem Goldstein
+* Michael Davis @ ServiceNow Threat Intelligence
+* MyungUk Han, ASEC
+* Natthawut Saexu
+* Nikita Rostovcev, Group-IB
+* Oren Biderman, Sygnia
+* Peter Oakes
+* Pooja Natarajan, NEC Corporation India
+* Raghvendra Mishra
+* ReliaQuest
+* RoseSecurity
+* Rouven Bissinger (SySS GmbH)
+* Ruben Groenewoud (@RFGroenewoud)
+* Ryan Perez
+* Sareena Karapoola, NEC Corporation India
+* seungyoul.yoo@ahnlab.com
+* Sharmine Low, Group-IB
+* Shun Miyazaki, NEC Corporation
+* Shwetank Murarka
+* Sittikorn Sangrattanapitak
+* Suraj Khetani (@r00treaver)
+* Vicky Ray, RayvenX
+* Vijay Lalwani
+* Wietze Beukema @Wietze
+* Yoshihiro Kori, NEC Corporation
+
 ## Statistics
 
 This version of ATT&CK contains 877 Software, 170 Groups, and 50 Campaigns.
@@ -18,6 +89,10 @@ Broken out by domain:
 * Object revocations: ATT&CK objects which are revoked by a different object.
 * Object deprecations: ATT&CK objects which are deprecated and no longer in use, and not replaced.
 * Object deletions: ATT&CK objects which are no longer found in the STIX data.
+
+## Table of Contents
+
+[TOC]
 
 ## Techniques
 
@@ -2226,73 +2301,3 @@ Broken out by domain:
 * [Service Metadata](/datasources/DS0019/#Service%20Metadata) <small style="color:#929393">(v1.0)</small>
 * [Software](/datasources/DS0039/#Software) <small style="color:#929393">(v1.0)</small>
 
-## Contributors to this release
-
-* Aaron Sullivan aka ZerkerEOD
-* Adam Lichters
-* Alden Schmidt
-* Ale Houspanossian
-* Alexey Kleymenov
-* Alon Klayman, Hunters Security
-* Amnon Kushnir, Sygnia
-* Ben Smith, @cyberg3cko
-* Caio Silva
-* Cian Heasley
-* Cristian Souza - Kaspersky GERT
-* Cristóbal Martínez Martín
-* David Hughes, BT Security
-* Dhiraj Mishra (@RandomDhiraj)
-* Dmitry Bestuzhev
-* Dvir Sasson, Reco
-* Eliraz Levi, Hunters Security
-* Fabian Kammel
-* Fernando Bacchin
-* Flavio Costa, Cisco
-* Frank Angiolelli
-* Gabriel Currie
-* Gerardo Santos
-* Harikrishnan Muthu, Cyble
-* Hiroki Nagahama, NEC Corporation
-* Inna Danilevich, U.S. Bank
-* Jaesang Oh, KC7 Foundation
-* Janantha Marasinghe
-* Jennifer Kim Roman
-* Jiraput Thamsongkrah
-* Joas Antonio dos Santos, @C0d3Cr4zy
-* Joe Gumke, U.S. Bank
-* Jun Hirata, NEC Corporation
-* Kaung Zaw Hein
-* Kevin Ward
-* Kori Yoshihiro, NEC Corporation
-* Kyaw Pyiyt Htet, @KyawPyiytHtet
-* Liran Ravich, CardinalOps
-* Lê Phương Nam, Group-IB
-* Manikantan Srinivasan, NEC Corporation India
-* Matt Anderson, @‌nosecurething, Huntress
-* Matt Brenton, Zurich Global Information Security
-* Matt Brenton, Zurich Insurance Group
-* Menachem Goldstein
-* Michael Davis @ ServiceNow Threat Intelligence
-* MyungUk Han, ASEC
-* Natthawut Saexu
-* Nikita Rostovcev, Group-IB
-* Oren Biderman, Sygnia
-* Peter Oakes
-* Pooja Natarajan, NEC Corporation India
-* Raghvendra Mishra
-* ReliaQuest
-* RoseSecurity
-* Rouven Bissinger (SySS GmbH)
-* Ruben Groenewoud (@RFGroenewoud)
-* Ryan Perez
-* Sareena Karapoola, NEC Corporation India
-* seungyoul.yoo@ahnlab.com
-* Sharmine Low, Group-IB
-* Shun Miyazaki, NEC Corporation
-* Shwetank Murarka
-* Sittikorn Sangrattanapitak
-* Suraj Khetani (@r00treaver)
-* Vicky Ray, RayvenX
-* Vijay Lalwani
-* Wietze Beukema @Wietze
-* Yoshihiro Kori, NEC Corporation
