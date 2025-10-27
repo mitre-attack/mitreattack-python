@@ -231,7 +231,7 @@ STIX21 = {
 
 
 def get_attack_version(
-    domain: str, stix_version: str = "2.0", stix_file: str = None, stix_content: bytes = None
+    domain: str, stix_version: str = "2.0", stix_file: Optional[str] = None, stix_content: Optional[bytes] = None
 ) -> Optional[str]:
     """Determine the version of ATT&CK based on either a file or contents of a file.
 
@@ -277,6 +277,9 @@ def get_attack_version(
         stix_hash_data = STIX20
     elif stix_version == "2.1":
         stix_hash_data = STIX21
+    else:
+        logger.error(f"Invalid stix_version given: {stix_version}")
+        return None
 
     releases = {}
     if domain == "enterprise-attack":

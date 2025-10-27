@@ -1,8 +1,11 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
 def main():
-    mitre_attack_data = MitreAttackData("enterprise-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "enterprise-attack.json")
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
 
     # get campaigns related to S0096
     software_stix_id = "tool--7fcbc4e8-1989-441f-9ac5-e7b6ff5806f1"

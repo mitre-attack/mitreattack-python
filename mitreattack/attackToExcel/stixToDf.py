@@ -259,11 +259,13 @@ def tacticsToDf(src):
 def datasourcesToDf(src):
     """Parse STIX Data Sources and their Data components from the given data and return corresponding pandas dataframes.
 
+    This is only used in versions of ATT&CK before v18.
+
     :param src: MemoryStore or other stix2 DataSource object holding the domain data
     :returns: a lookup of labels (descriptors/names) to dataframes
     """
     data = list(
-        chain.from_iterable(  # software are the union of the tool and malware types
+        chain.from_iterable(  # collect all data components and data sources
             src.query(f)
             for f in [
                 Filter("type", "=", "x-mitre-data-component"),
@@ -280,9 +282,9 @@ def datasourcesToDf(src):
             if x["type"] == "x-mitre-data-source":
                 source_lookup[x["id"]] = x["name"]
         for data_object in tqdm(refined, desc="parsing data sources"):
-            # add common STIx fields
+            # add common STIX fields
             row = parseBaseStix(data_object)
-            # add software-specific fields
+            # add data source/data component-specific fields
             if "x_mitre_platforms" in data_object:
                 row["platforms"] = ", ".join(sorted(data_object["x_mitre_platforms"]))
             if "x_mitre_collection_layers" in data_object:
@@ -290,7 +292,8 @@ def datasourcesToDf(src):
             if "x_mitre_aliases" in data_object:
                 row["aliases"] = ", ".join(sorted(data_object["x_mitre_aliases"][1:]))
             if data_object["type"] == "x-mitre-data-component":
-                row["name"] = f"{source_lookup[data_object['x_mitre_data_source_ref']]}: {data_object['name']}"
+                if "x_mitre_data_source_ref" in data_object and data_object["x_mitre_data_source_ref"] in source_lookup:
+                    row["name"] = f"{source_lookup[data_object['x_mitre_data_source_ref']]}: {data_object['name']}"
                 row["type"] = "datacomponent"
             else:
                 row["type"] = "datasource"
@@ -309,7 +312,7 @@ def datasourcesToDf(src):
                 "collection layers",
                 "platforms",
                 "created",
-                "modified",
+                "last modified",
                 "type",
                 "version",
                 "url",
@@ -328,6 +331,86 @@ def datasourcesToDf(src):
             dataframes["citations"].sort_values("reference")
     else:
         logger.warning("No data components or data sources found - nothing to parse")
+
+    return dataframes
+
+
+def datacomponentsToDf(src):
+    """Parse STIX Data components from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    data_components = src.query([Filter("type", "=", "x-mitre-data-component")])
+    data_components = remove_revoked_deprecated(data_components)
+
+    data_component_rows = []
+    for data_component in tqdm(data_components, desc="parsing data components"):
+        data_component_rows.append(parseBaseStix(data_component))
+
+    citations = get_citations(data_components)
+    dataframes = {
+        "datacomponents": pd.DataFrame(data_component_rows).sort_values("name"),
+    }
+    if not citations.empty:
+        dataframes["citations"] = citations.sort_values("reference")
+
+    return dataframes
+
+
+def analyticsToDf(src):
+    """Parse STIX Analytics from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
+    analytics = remove_revoked_deprecated(analytics)
+
+    dataframes = {}
+    if analytics:
+        analytic_rows = []
+        for analytic in tqdm(analytics, desc="parsing analytics"):
+            analytic_rows.append(parseBaseStix(analytic))
+
+        citations = get_citations(analytics)
+        dataframes = {
+            "analytics": pd.DataFrame(analytic_rows).sort_values("name"),
+        }
+        if not citations.empty:
+            dataframes["citations"] = citations.sort_values("reference")
+
+    else:
+        logger.warning("No analytics found - nothing to parse")
+
+    return dataframes
+
+
+def detectionstrategiesToDf(src):
+    """Parse STIX Detection Strategies from the given data and return corresponding pandas dataframes.
+
+    :param src: MemoryStore or other stix2 DataSource object holding the domain data
+    :returns: a lookup of labels (descriptors/names) to dataframes
+    """
+    detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
+    detection_strategies = remove_revoked_deprecated(detection_strategies)
+
+    dataframes = {}
+    if detection_strategies:
+        detection_strategy_rows = []
+        for detection_strategy in tqdm(detection_strategies, desc="parsing detection strategies"):
+            detection_strategy_rows.append(parseBaseStix(detection_strategy))
+
+        citations = get_citations(detection_strategies)
+        dataframes = {
+            "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
+        }
+        if not citations.empty:
+            if "citations" in dataframes:  # append to existing citations from references
+                dataframes["citations"] = citations.sort_values("reference")
+
+    else:
+        logger.warning("No detection strategies found - nothing to parse")
 
     return dataframes
 
@@ -892,6 +975,7 @@ def relationshipsToDf(src, relatedType=None):
         "mitigation": ["course-of-action"],
         "matrix": ["x-mitre-matrix"],
         "datasource": ["x-mitre-data-component"],
+        "detectionstrategy": ["x-mitre-detection-strategy"],
     }
     stixToAttackTerm = {
         "attack-pattern": "technique",
@@ -905,6 +989,7 @@ def relationshipsToDf(src, relatedType=None):
         "x-mitre-data-source": "datasource",
         "campaign": "campaign",
         "x-mitre-asset": "asset",
+        "x-mitre-detection-strategy": "detectionstrategy",
     }
 
     mitre_attack_data = MitreAttackData(src=src)
@@ -973,7 +1058,13 @@ def relationshipsToDf(src, relatedType=None):
         relationship_rows.append(row)
 
     citations = get_citations(relationships)
-    relationships = pd.DataFrame(relationship_rows).sort_values(
+
+    relationship_df = pd.DataFrame(relationship_rows)
+    if relationship_df.empty or "mapping type" not in relationship_df.columns:
+        logger.warning(f"No relationships found for relatedType={relatedType}. Returning empty dataframe.")
+        return {}
+
+    relationships = relationship_df.sort_values(
         [
             "mapping type",
             "source type",
@@ -1015,6 +1106,7 @@ def relationshipsToDf(src, relatedType=None):
         attributedCampaignGroup = relationships.query("`mapping type` == 'attributed-to' and `target type` == 'group'")
         relatedMitigations = relationships.query("`mapping type` == 'mitigates'")
         targetedAssets = relationships.query("`mapping type` == 'targets' and `target type` == 'asset'")
+        detectedTechniques = relationships.query("`mapping type` == 'detects' and `source type` == 'detectionstrategy'")
 
         if not relatedGroupSoftware.empty:
             if relatedType == "group":
@@ -1059,6 +1151,13 @@ def relationshipsToDf(src, relatedType=None):
             else:
                 sheet_name = "associated techniques"
             dataframes[sheet_name] = targetedAssets
+
+        if not detectedTechniques.empty:
+            if relatedType == "detectionstrategy":
+                sheet_name = "techniques detected"
+            else:
+                sheet_name = "associated detection strategies"
+            dataframes[sheet_name] = detectedTechniques
 
         if not citations.empty:
             # filter citations by ones actually used

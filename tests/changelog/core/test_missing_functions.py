@@ -72,7 +72,6 @@ class TestMissingFunctions:
             "x_mitre_version": "1.0",
             "created": "2023-01-01T00:00:00.000Z",
             "modified": "2023-01-01T00:00:00.000Z",
-            "x_mitre_data_source_ref": "x-mitre-data-source--test-id",
         }
 
         # Test real URL generation
@@ -108,7 +107,11 @@ class TestMissingFunctions:
 
         # Verify markdown was converted to HTML
         if "# " in markdown_content:
-            assert "<h1>" in html_content or "<h2>" in html_content  # Headers should be converted
+            # when the python markdown Table of Contents plugin is enabled, it changes the <h1> and <h2> tags
+            # to include id attributes and maybe a style attribute (at least to <h1>) so this assert statement
+            # looks a little funny, but is good enough
+            # https://python-markdown.github.io/extensions/toc/
+            assert "<h1" in html_content or "<h2" in html_content  # Headers should be converted
 
     def test_layers_dict_to_files_real_file_writing(self, mock_layers_dict, tmp_path):
         """Test real layer files generation."""

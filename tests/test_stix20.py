@@ -2,22 +2,33 @@
 Tests for custom STIX 2.0 attack objects in the mitreattack.stix20 module.
 
 This module verifies the correct behavior and properties of custom ATT&CK objects
-such as DataComponent, DataSource, Matrix, Tactic, Asset, and the StixObjectFactory.
+including DataComponent, DataSource, Matrix, Tactic, Asset, Analytic,
+DetectionStrategy, and the StixObjectFactory.
 """
 
 import pytest
 import stix2
 import stix2.exceptions
 
-from mitreattack.stix20.custom_attack_objects import Asset, DataComponent, DataSource, Matrix, StixObjectFactory, Tactic
+from mitreattack.stix20.custom_attack_objects import (
+    Analytic,
+    Asset,
+    DataComponent,
+    DataSource,
+    DetectionStrategy,
+    Matrix,
+    StixObjectFactory,
+    Tactic,
+)
 
 
 class TestCustomAttackObjects:
     """
     Test suite for custom ATT&CK STIX 2.0 objects and their factory.
 
-    This class contains tests for the creation and properties of custom ATT&CK objects,
-    including DataComponent, DataSource, Matrix, Tactic, Asset, and the StixObjectFactory.
+    This class contains tests for the creation and properties of custom ATT&CK objects
+    including DataComponent, DataSource, Matrix, Tactic, Asset, Analytic,
+    DetectionStrategy, and the StixObjectFactory.
     """
 
     def test_data_component(self):
@@ -52,6 +63,8 @@ class TestCustomAttackObjects:
             "x-mitre-matrix": Matrix,
             "x-mitre-tactic": Tactic,
             "x-mitre-asset": Asset,
+            "x-mitre-analytic": Analytic,
+            "x-mitre-detection-strategy": DetectionStrategy,
         }
 
         object_name = "Object name"
@@ -88,3 +101,19 @@ class TestCustomAttackObjects:
 
         assert asset.name == name
         assert asset.type == "x-mitre-asset"
+
+    def test_analytic(self):
+        """Test Analytic creation and properties."""
+        name = "Analytic"
+        analytic = Analytic(name=name)
+
+        assert analytic.name == name
+        assert analytic.type == "x-mitre-analytic"
+
+    def test_detection_strategy(self):
+        """Test Detection Strategy creation and properties."""
+        name = "Detection Strategy"
+        detection_strategy = DetectionStrategy(name=name)
+
+        assert detection_strategy.name == name
+        assert detection_strategy.type == "x-mitre-detection-strategy"

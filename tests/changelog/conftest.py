@@ -340,9 +340,7 @@ def mock_stix_object_factory():
     def _add_custom_mitre_fields(obj, attack_id, object_type):
         """Add fields for custom MITRE object types."""
         # These objects have varying structures - add basic fields
-        if object_type == "x-mitre-data-component":
-            obj["x_mitre_data_source_ref"] = f"x-mitre-data-source--{uuid.uuid4()}"
-        elif object_type == "x-mitre-tactic":
+        if object_type == "x-mitre-tactic":
             obj["x_mitre_shortname"] = attack_id.lower() if attack_id else "test-tactic"
 
     def _generate_external_references(attack_id, object_type, is_subtechnique):
@@ -1240,7 +1238,6 @@ def minimal_stix_bundles(mock_stix_object_factory, mock_relationship_factory):
         stix_type="x-mitre-data-component",
         obj_type="x-mitre-data-component",
     )
-    old_datacomponent1["x_mitre_data_source_ref"] = old_datasource1["id"]
 
     old_datacomponent2 = mock_stix_object_factory(
         name="Data Component To Be Modified",
@@ -1249,7 +1246,6 @@ def minimal_stix_bundles(mock_stix_object_factory, mock_relationship_factory):
         stix_type="x-mitre-data-component",
         obj_type="x-mitre-data-component",
     )
-    old_datacomponent2["x_mitre_data_source_ref"] = old_datasource2["id"]
 
     # Assets (2)
     old_asset1 = mock_stix_object_factory(
@@ -1293,7 +1289,7 @@ def minimal_stix_bundles(mock_stix_object_factory, mock_relationship_factory):
     new_campaign1 = old_campaign1.copy()  # Unchanged
     new_mitigation1 = old_mitigation1.copy()  # Unchanged
     new_datasource1 = old_datasource1.copy()  # Unchanged
-    new_datacomponent1 = old_datacomponent1.copy()  # Unchanged (includes x_mitre_data_source_ref)
+    new_datacomponent1 = old_datacomponent1.copy()  # Unchanged
     new_asset1 = old_asset1.copy()  # Unchanged
 
     # Modified objects (version changes)
@@ -1313,7 +1309,6 @@ def minimal_stix_bundles(mock_stix_object_factory, mock_relationship_factory):
     new_datacomponent2_modified = old_datacomponent2.copy()
     new_datacomponent2_modified["x_mitre_version"] = "1.1"
     new_datacomponent2_modified["modified"] = "2025-01-15T12:00:00.000Z"
-    new_datacomponent2_modified["x_mitre_data_source_ref"] = new_datasource2_modified["id"]
 
     new_asset2_modified = old_asset2.copy()
     new_asset2_modified["x_mitre_version"] = "1.1"

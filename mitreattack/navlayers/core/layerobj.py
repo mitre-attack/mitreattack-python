@@ -52,14 +52,14 @@ class _LayerObj:
     @property
     def version(self):
         """Getter for version."""
-        if self.__versions != UNSETVALUE:
+        if self.__versions != UNSETVALUE and not isinstance(self.__versions, str):
             return self.__versions.layer
 
     @version.setter
     def version(self, version):
         typeChecker(type(self).__name__, version, str, "version")
         categoryChecker(type(self).__name__, version, ["3.0", "4.0", "4.1", "4.2", "4.3"], "version")
-        if self.__versions is UNSETVALUE:
+        if self.__versions is UNSETVALUE or isinstance(self.__versions, str):
             self.__versions = Versions()
         self.__versions.layer = version
 
@@ -350,7 +350,7 @@ class _LayerObj:
     @links.setter
     def links(self, links):
         typeChecker(type(self).__name__, links, list, "links")
-        if not handle_object_placement(self.__links, links, Link):
+        if not handle_object_placement(self.__links, links, Link) or isinstance(self.__links, str):
             self.__links = []
         entry = ""
         try:
@@ -418,21 +418,21 @@ class _LayerObj:
 
         if self.description:
             temp["description"] = self.description
-        if self.versions:
+        if self.versions and not isinstance(self.versions, str):
             temp["versions"] = self.versions.get_dict()
-        if self.filters:
+        if self.filters and not isinstance(self.filters, str):
             temp["filters"] = self.filters.get_dict()
         if self.sorting:
             temp["sorting"] = self.sorting
-        if self.layout:
+        if self.layout and not isinstance(self.layout, str):
             temp["layout"] = self.layout.get_dict()
         if self.hideDisabled is not None:
             temp["hideDisabled"] = self.hideDisabled
-        if self.techniques:
+        if self.techniques and isinstance(self.techniques, list):
             temp["techniques"] = [x.get_dict() for x in self.techniques]
-        if self.gradient:
+        if self.gradient and not isinstance(self.gradient, str):
             temp["gradient"] = self.gradient.get_dict()
-        if self.legendItems:
+        if self.legendItems and isinstance(self.legendItems, list):
             temp["legendItems"] = [x.get_dict() for x in self.legendItems]
         if self.showTacticRowBackground is not None:
             temp["showTacticRowBackground"] = self.showTacticRowBackground
@@ -444,7 +444,7 @@ class _LayerObj:
             temp["selectSubtechniquesWithParent"] = self.selectSubtechniquesWithParent
         if self.selectVisibleTechniques is not None:
             temp["selectVisibleTechniques"] = self.selectVisibleTechniques
-        if self.metadata:
+        if self.metadata and isinstance(self.metadata, list):
             temp["metadata"] = [x.get_dict() for x in self.metadata]
         return temp
 

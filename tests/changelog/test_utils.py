@@ -5,6 +5,7 @@ multiple changelog test files to reduce code duplication and improve maintainabi
 """
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -184,7 +185,7 @@ def assert_diffstix_data_structure_valid(diffstix_instance) -> None:
 
 
 def create_test_files_and_validate(
-    file_paths: Dict[str, Union[str, Path]], validation_funcs: Dict[str, callable]
+    file_paths: Dict[str, Union[str, Path]], validation_funcs: Dict[str, Callable]
 ) -> None:
     """Create test files and validate their contents.
 

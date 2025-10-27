@@ -1,3 +1,84 @@
+## Contributors to this release
+
+* Aaron Sullivan aka ZerkerEOD
+* Adam Lichters
+* Alden Schmidt
+* Ale Houspanossian
+* Alexey Kleymenov
+* Alon Klayman, Hunters Security
+* Amnon Kushnir, Sygnia
+* Ben Smith, @cyberg3cko
+* Caio Silva
+* Cian Heasley
+* Cristian Souza - Kaspersky GERT
+* Cristóbal Martínez Martín
+* David Hughes, BT Security
+* Dhiraj Mishra (@RandomDhiraj)
+* Dmitry Bestuzhev
+* Dvir Sasson, Reco
+* Eliraz Levi, Hunters Security
+* Fabian Kammel
+* Fernando Bacchin
+* Flavio Costa, Cisco
+* Frank Angiolelli
+* Gabriel Currie
+* Gerardo Santos
+* Harikrishnan Muthu, Cyble
+* Hiroki Nagahama, NEC Corporation
+* Inna Danilevich, U.S. Bank
+* Jaesang Oh, KC7 Foundation
+* Janantha Marasinghe
+* Jennifer Kim Roman
+* Jiraput Thamsongkrah
+* Joas Antonio dos Santos, @C0d3Cr4zy
+* Joe Gumke, U.S. Bank
+* Jun Hirata, NEC Corporation
+* Kaung Zaw Hein
+* Kevin Ward
+* Kori Yoshihiro, NEC Corporation
+* Kyaw Pyiyt Htet, @KyawPyiytHtet
+* Liran Ravich, CardinalOps
+* Lê Phương Nam, Group-IB
+* Manikantan Srinivasan, NEC Corporation India
+* Matt Anderson, @‌nosecurething, Huntress
+* Matt Brenton, Zurich Global Information Security
+* Matt Brenton, Zurich Insurance Group
+* Menachem Goldstein
+* Michael Davis @ ServiceNow Threat Intelligence
+* MyungUk Han, ASEC
+* Natthawut Saexu
+* Nikita Rostovcev, Group-IB
+* Oren Biderman, Sygnia
+* Peter Oakes
+* Pooja Natarajan, NEC Corporation India
+* Raghvendra Mishra
+* ReliaQuest
+* RoseSecurity
+* Rouven Bissinger (SySS GmbH)
+* Ruben Groenewoud (@RFGroenewoud)
+* Ryan Perez
+* Sareena Karapoola, NEC Corporation India
+* seungyoul.yoo@ahnlab.com
+* Sharmine Low, Group-IB
+* Shun Miyazaki, NEC Corporation
+* Shwetank Murarka
+* Sittikorn Sangrattanapitak
+* Suraj Khetani (@r00treaver)
+* Vicky Ray, RayvenX
+* Vijay Lalwani
+* Wietze Beukema @Wietze
+* Yoshihiro Kori, NEC Corporation
+
+## Statistics
+
+This version of ATT&CK contains 877 Software, 170 Groups, and 50 Campaigns.
+
+Broken out by domain:
+
+* Enterprise: 14 Tactics, 211 Techniques, 468 Sub-Techniques, 166 Groups, 755 Software, 47 Campaigns, 44 Mitigations, 37 Data Sources, and 106 Data Components
+* Mobile: 12 Tactics, 75 Techniques, 46 Sub-Techniques, 15 Groups, 118 Software, 3 Campaigns, 13 Mitigations, 6 Data Sources, and 17 Data Components
+* ICS: 12 Tactics, 83 Techniques, 14 Groups, 23 Software, 7 Campaigns, 52 Mitigations, 14 Assets, 17 Data Sources, and 36 Data Components
+
 ## Key
 
 * New objects: ATT&CK objects which are only present in the new release.
@@ -9,6 +90,9 @@
 * Object deprecations: ATT&CK objects which are deprecated and no longer in use, and not replaced.
 * Object deletions: ATT&CK objects which are no longer found in the STIX data.
 
+## Table of Contents
+
+[TOC]
 
 ## Techniques
 
@@ -53,122 +137,122 @@
 #### Minor Version Changes
 
 * [Abuse Elevation Control Mechanism](/techniques/T1548) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Bypass User Account Control](/techniques/T1548/002) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
-    * [Elevated Execution with Prompt](/techniques/T1548/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Setuid and Setgid](/techniques/T1548/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Sudo and Sudo Caching](/techniques/T1548/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Bypass User Account Control](/techniques/T1548/002) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Elevated Execution with Prompt](/techniques/T1548/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Setuid and Setgid](/techniques/T1548/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Sudo and Sudo Caching](/techniques/T1548/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Access Token Manipulation](/techniques/T1134) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Create Process with Token](/techniques/T1134/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Make and Impersonate Token](/techniques/T1134/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Parent PID Spoofing](/techniques/T1134/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [SID-History Injection](/techniques/T1134/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Token Impersonation/Theft](/techniques/T1134/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Create Process with Token](/techniques/T1134/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Make and Impersonate Token](/techniques/T1134/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Parent PID Spoofing](/techniques/T1134/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [SID-History Injection](/techniques/T1134/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Token Impersonation/Theft](/techniques/T1134/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Account Access Removal](/techniques/T1531) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Account Discovery](/techniques/T1087) <small style="color:#929393">(v2.5&#8594;v2.6)</small>
-    * [Local Account](/techniques/T1087/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Local Account](/techniques/T1087/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Account Manipulation](/techniques/T1098) <small style="color:#929393">(v2.7&#8594;v2.8)</small>
-    * [SSH Authorized Keys](/techniques/T1098/004) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [SSH Authorized Keys](/techniques/T1098/004) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * Acquire Infrastructure: [Botnet](/techniques/T1583/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * Acquire Infrastructure: [Web Services](/techniques/T1583/006) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Adversary-in-the-Middle](/techniques/T1557) <small style="color:#929393">(v2.4&#8594;v2.5)</small>
-    * [Evil Twin](/techniques/T1557/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Evil Twin](/techniques/T1557/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Application Layer Protocol](/techniques/T1071) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
-    * [DNS](/techniques/T1071/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [File Transfer Protocols](/techniques/T1071/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Mail Protocols](/techniques/T1071/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Publish/Subscribe Protocols](/techniques/T1071/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Web Protocols](/techniques/T1071/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [DNS](/techniques/T1071/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [File Transfer Protocols](/techniques/T1071/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Mail Protocols](/techniques/T1071/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Publish/Subscribe Protocols](/techniques/T1071/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Web Protocols](/techniques/T1071/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Automated Collection](/techniques/T1119) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Automated Exfiltration](/techniques/T1020) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Traffic Duplication](/techniques/T1020/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Traffic Duplication](/techniques/T1020/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [BITS Jobs](/techniques/T1197) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Boot or Logon Autostart Execution](/techniques/T1547) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Active Setup](/techniques/T1547/014) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Authentication Package](/techniques/T1547/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Kernel Modules and Extensions](/techniques/T1547/006) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [LSASS Driver](/techniques/T1547/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Login Items](/techniques/T1547/015) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Port Monitors](/techniques/T1547/010) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Print Processors](/techniques/T1547/012) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Re-opened Applications](/techniques/T1547/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Registry Run Keys / Startup Folder](/techniques/T1547/001) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Security Support Provider](/techniques/T1547/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Shortcut Modification](/techniques/T1547/009) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Time Providers](/techniques/T1547/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Winlogon Helper DLL](/techniques/T1547/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [XDG Autostart Entries](/techniques/T1547/013) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Active Setup](/techniques/T1547/014) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Authentication Package](/techniques/T1547/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Kernel Modules and Extensions](/techniques/T1547/006) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [LSASS Driver](/techniques/T1547/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Login Items](/techniques/T1547/015) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Port Monitors](/techniques/T1547/010) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Print Processors](/techniques/T1547/012) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Re-opened Applications](/techniques/T1547/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Registry Run Keys / Startup Folder](/techniques/T1547/001) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Security Support Provider](/techniques/T1547/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Shortcut Modification](/techniques/T1547/009) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Time Providers](/techniques/T1547/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Winlogon Helper DLL](/techniques/T1547/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [XDG Autostart Entries](/techniques/T1547/013) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Boot or Logon Initialization Scripts](/techniques/T1037) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
-    * [RC Scripts](/techniques/T1037/004) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
-    * [Startup Items](/techniques/T1037/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [RC Scripts](/techniques/T1037/004) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Startup Items](/techniques/T1037/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Browser Session Hijacking](/techniques/T1185) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
 * [Brute Force](/techniques/T1110) <small style="color:#929393">(v2.6&#8594;v2.7)</small>
-    * [Credential Stuffing](/techniques/T1110/004) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Password Cracking](/techniques/T1110/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Password Guessing](/techniques/T1110/001) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Password Spraying](/techniques/T1110/003) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
+  * [Credential Stuffing](/techniques/T1110/004) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
+  * [Password Cracking](/techniques/T1110/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Password Guessing](/techniques/T1110/001) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
+  * [Password Spraying](/techniques/T1110/003) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Cloud Administration Command](/techniques/T1651) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
 * [Cloud Service Dashboard](/techniques/T1538) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Command and Scripting Interpreter](/techniques/T1059) <small style="color:#929393">(v2.5&#8594;v2.6)</small>
-    * [AppleScript](/techniques/T1059/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [AutoHotKey & AutoIT](/techniques/T1059/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Cloud API](/techniques/T1059/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Lua](/techniques/T1059/011) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Network Device CLI](/techniques/T1059/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [PowerShell](/techniques/T1059/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Python](/techniques/T1059/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Unix Shell](/techniques/T1059/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Visual Basic](/techniques/T1059/005) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Windows Command Shell](/techniques/T1059/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [AppleScript](/techniques/T1059/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [AutoHotKey & AutoIT](/techniques/T1059/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Cloud API](/techniques/T1059/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Lua](/techniques/T1059/011) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Network Device CLI](/techniques/T1059/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [PowerShell](/techniques/T1059/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Python](/techniques/T1059/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Unix Shell](/techniques/T1059/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Visual Basic](/techniques/T1059/005) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Windows Command Shell](/techniques/T1059/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Compromise Host Software Binary](/techniques/T1554) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * [Compromise Infrastructure](/techniques/T1584) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [Container Administration Command](/techniques/T1609) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Create Account](/techniques/T1136) <small style="color:#929393">(v2.5&#8594;v2.6)</small>
-    * [Local Account](/techniques/T1136/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Local Account](/techniques/T1136/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * Create or Modify System Process: [Launch Agent](/techniques/T1543/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * Create or Modify System Process: [Launch Daemon](/techniques/T1543/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * Create or Modify System Process: [Systemd Service](/techniques/T1543/002) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * Create or Modify System Process: [Windows Service](/techniques/T1543/003) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [Data Destruction](/techniques/T1485) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Lifecycle-Triggered Deletion](/techniques/T1485/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Lifecycle-Triggered Deletion](/techniques/T1485/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Data Encoding](/techniques/T1132) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Non-Standard Encoding](/techniques/T1132/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Standard Encoding](/techniques/T1132/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Non-Standard Encoding](/techniques/T1132/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Standard Encoding](/techniques/T1132/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Data Encrypted for Impact](/techniques/T1486) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Data Obfuscation](/techniques/T1001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Junk Data](/techniques/T1001/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Protocol or Service Impersonation](/techniques/T1001/003) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Steganography](/techniques/T1001/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Junk Data](/techniques/T1001/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Protocol or Service Impersonation](/techniques/T1001/003) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Steganography](/techniques/T1001/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Data Staged](/techniques/T1074) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Local Data Staging](/techniques/T1074/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Remote Data Staging](/techniques/T1074/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Local Data Staging](/techniques/T1074/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Remote Data Staging](/techniques/T1074/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Data Transfer Size Limits](/techniques/T1030) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Data from Configuration Repository](/techniques/T1602) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Network Device Configuration Dump](/techniques/T1602/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [SNMP (MIB Dump)](/techniques/T1602/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Network Device Configuration Dump](/techniques/T1602/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [SNMP (MIB Dump)](/techniques/T1602/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Data from Local System](/techniques/T1005) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Data from Network Shared Drive](/techniques/T1039) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Data from Removable Media](/techniques/T1025) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Debugger Evasion](/techniques/T1622) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Defacement](/techniques/T1491) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Internal Defacement](/techniques/T1491/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Internal Defacement](/techniques/T1491/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Deobfuscate/Decode Files or Information](/techniques/T1140) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Deploy Container](/techniques/T1610) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Direct Volume Access](/techniques/T1006) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
 * [Disk Wipe](/techniques/T1561) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Disk Content Wipe](/techniques/T1561/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Disk Structure Wipe](/techniques/T1561/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Disk Content Wipe](/techniques/T1561/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Disk Structure Wipe](/techniques/T1561/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Domain or Tenant Policy Modification](/techniques/T1484) <small style="color:#929393">(v3.1&#8594;v3.2)</small>
-    * [Group Policy Modification](/techniques/T1484/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Trust Modification](/techniques/T1484/002) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Group Policy Modification](/techniques/T1484/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Trust Modification](/techniques/T1484/002) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * [Drive-by Compromise](/techniques/T1189) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Dynamic Resolution](/techniques/T1568) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [DNS Calculation](/techniques/T1568/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Domain Generation Algorithms](/techniques/T1568/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Fast Flux DNS](/techniques/T1568/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [DNS Calculation](/techniques/T1568/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Domain Generation Algorithms](/techniques/T1568/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Fast Flux DNS](/techniques/T1568/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * Email Collection: [Local Email Collection](/techniques/T1114/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Encrypted Channel](/techniques/T1573) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Asymmetric Cryptography](/techniques/T1573/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Symmetric Cryptography](/techniques/T1573/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Asymmetric Cryptography](/techniques/T1573/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Symmetric Cryptography](/techniques/T1573/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Escape to Host](/techniques/T1611) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * Event Triggered Execution: [Accessibility Features](/techniques/T1546/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * Event Triggered Execution: [AppCert DLLs](/techniques/T1546/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
@@ -187,20 +271,20 @@
 * Event Triggered Execution: [Unix Shell Configuration Modification](/techniques/T1546/004) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * Event Triggered Execution: [Windows Management Instrumentation Event Subscription](/techniques/T1546/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Execution Guardrails](/techniques/T1480) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Environmental Keying](/techniques/T1480/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Environmental Keying](/techniques/T1480/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Exfiltration Over Alternative Protocol](/techniques/T1048) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
-    * [Exfiltration Over Asymmetric Encrypted Non-C2 Protocol](/techniques/T1048/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Exfiltration Over Symmetric Encrypted Non-C2 Protocol](/techniques/T1048/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Exfiltration Over Unencrypted Non-C2 Protocol](/techniques/T1048/003) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Exfiltration Over Asymmetric Encrypted Non-C2 Protocol](/techniques/T1048/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Exfiltration Over Symmetric Encrypted Non-C2 Protocol](/techniques/T1048/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Exfiltration Over Unencrypted Non-C2 Protocol](/techniques/T1048/003) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * [Exfiltration Over C2 Channel](/techniques/T1041) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
 * Exfiltration Over Other Network Medium: [Exfiltration Over Bluetooth](/techniques/T1011/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Exfiltration Over Physical Medium](/techniques/T1052) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Exfiltration over USB](/techniques/T1052/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Exfiltration over USB](/techniques/T1052/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Exfiltration Over Web Service](/techniques/T1567) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Exfiltration Over Webhook](/techniques/T1567/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Exfiltration to Cloud Storage](/techniques/T1567/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Exfiltration to Code Repository](/techniques/T1567/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Exfiltration to Text Storage Sites](/techniques/T1567/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Exfiltration Over Webhook](/techniques/T1567/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Exfiltration to Cloud Storage](/techniques/T1567/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Exfiltration to Code Repository](/techniques/T1567/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Exfiltration to Text Storage Sites](/techniques/T1567/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Exploit Public-Facing Application](/techniques/T1190) <small style="color:#929393">(v2.6&#8594;v2.7)</small>
 * [Exploitation for Client Execution](/techniques/T1203) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Exploitation for Defense Evasion](/techniques/T1211) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
@@ -212,69 +296,69 @@
 * [Firmware Corruption](/techniques/T1495) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Hardware Additions](/techniques/T1200) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Hide Artifacts](/techniques/T1564) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Hidden File System](/techniques/T1564/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Hidden Files and Directories](/techniques/T1564/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Hidden Window](/techniques/T1564/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [NTFS File Attributes](/techniques/T1564/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Process Argument Spoofing](/techniques/T1564/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Resource Forking](/techniques/T1564/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Run Virtual Instance](/techniques/T1564/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [VBA Stomping](/techniques/T1564/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Hidden File System](/techniques/T1564/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Hidden Files and Directories](/techniques/T1564/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Hidden Window](/techniques/T1564/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [NTFS File Attributes](/techniques/T1564/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Process Argument Spoofing](/techniques/T1564/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Resource Forking](/techniques/T1564/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Run Virtual Instance](/techniques/T1564/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [VBA Stomping](/techniques/T1564/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Hide Infrastructure](/techniques/T1665) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Hijack Execution Flow](/techniques/T1574) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [COR_PROFILER](/techniques/T1574/012) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Dylib Hijacking](/techniques/T1574/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Dynamic Linker Hijacking](/techniques/T1574/006) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Executable Installer File Permissions Weakness](/techniques/T1574/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Path Interception by PATH Environment Variable](/techniques/T1574/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Path Interception by Search Order Hijacking](/techniques/T1574/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Services File Permissions Weakness](/techniques/T1574/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Services Registry Permissions Weakness](/techniques/T1574/011) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [COR_PROFILER](/techniques/T1574/012) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Dylib Hijacking](/techniques/T1574/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Dynamic Linker Hijacking](/techniques/T1574/006) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Executable Installer File Permissions Weakness](/techniques/T1574/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Path Interception by PATH Environment Variable](/techniques/T1574/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Path Interception by Search Order Hijacking](/techniques/T1574/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Services File Permissions Weakness](/techniques/T1574/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Services Registry Permissions Weakness](/techniques/T1574/011) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Impair Defenses](/techniques/T1562) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Disable Windows Event Logging](/techniques/T1562/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Disable or Modify System Firewall](/techniques/T1562/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Disable or Modify Tools](/techniques/T1562/001) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
-    * [Downgrade Attack](/techniques/T1562/010) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Impair Command History Logging](/techniques/T1562/003) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
-    * [Indicator Blocking](/techniques/T1562/006) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Safe Mode Boot](/techniques/T1562/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Disable Windows Event Logging](/techniques/T1562/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Disable or Modify System Firewall](/techniques/T1562/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Disable or Modify Tools](/techniques/T1562/001) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
+  * [Downgrade Attack](/techniques/T1562/010) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Impair Command History Logging](/techniques/T1562/003) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
+  * [Indicator Blocking](/techniques/T1562/006) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Safe Mode Boot](/techniques/T1562/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Implant Internal Image](/techniques/T1525) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * [Indicator Removal](/techniques/T1070) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
-    * [Clear Command History](/techniques/T1070/003) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
-    * [Clear Network Connection History and Configurations](/techniques/T1070/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Clear Persistence](/techniques/T1070/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Clear Windows Event Logs](/techniques/T1070/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [File Deletion](/techniques/T1070/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Network Share Connection Removal](/techniques/T1070/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Relocate Malware](/techniques/T1070/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Timestomp](/techniques/T1070/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Clear Command History](/techniques/T1070/003) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
+  * [Clear Network Connection History and Configurations](/techniques/T1070/007) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Clear Persistence](/techniques/T1070/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Clear Windows Event Logs](/techniques/T1070/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [File Deletion](/techniques/T1070/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Network Share Connection Removal](/techniques/T1070/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Relocate Malware](/techniques/T1070/010) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Timestomp](/techniques/T1070/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Indirect Command Execution](/techniques/T1202) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Ingress Tool Transfer](/techniques/T1105) <small style="color:#929393">(v2.4&#8594;v2.5)</small>
 * [Inhibit System Recovery](/techniques/T1490) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [Input Capture](/techniques/T1056) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Credential API Hooking](/techniques/T1056/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Keylogging](/techniques/T1056/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Web Portal Capture](/techniques/T1056/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Credential API Hooking](/techniques/T1056/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Keylogging](/techniques/T1056/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Web Portal Capture](/techniques/T1056/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Inter-Process Communication](/techniques/T1559) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Component Object Model](/techniques/T1559/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Dynamic Data Exchange](/techniques/T1559/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [XPC Services](/techniques/T1559/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Component Object Model](/techniques/T1559/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Dynamic Data Exchange](/techniques/T1559/002) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [XPC Services](/techniques/T1559/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Lateral Tool Transfer](/techniques/T1570) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Log Enumeration](/techniques/T1654) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Masquerading](/techniques/T1036) <small style="color:#929393">(v1.7&#8594;v1.8)</small>
-    * [Masquerade File Type](/techniques/T1036/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Space after Filename](/techniques/T1036/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Masquerade File Type](/techniques/T1036/008) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Space after Filename](/techniques/T1036/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Modify Authentication Process](/techniques/T1556) <small style="color:#929393">(v2.5&#8594;v2.6)</small>
-    * [Multi-Factor Authentication](/techniques/T1556/006) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Network Device Authentication](/techniques/T1556/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Multi-Factor Authentication](/techniques/T1556/006) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Network Device Authentication](/techniques/T1556/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
 * Modify Cloud Compute Infrastructure: [Revert Cloud Instance](/techniques/T1578/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Modify System Image](/techniques/T1601) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Downgrade System Image](/techniques/T1601/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Patch System Image](/techniques/T1601/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Downgrade System Image](/techniques/T1601/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Patch System Image](/techniques/T1601/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Multi-Stage Channels](/techniques/T1104) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Native API](/techniques/T1106) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
 * [Network Boundary Bridging](/techniques/T1599) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Network Address Translation Traversal](/techniques/T1599/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Network Address Translation Traversal](/techniques/T1599/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Network Service Discovery](/techniques/T1046) <small style="color:#929393">(v3.1&#8594;v3.2)</small>
 * [Network Sniffing](/techniques/T1040) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Non-Application Layer Protocol](/techniques/T1095) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
@@ -282,70 +366,70 @@
 * OS Credential Dumping: [/etc/passwd and /etc/shadow](/techniques/T1003/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * OS Credential Dumping: [NTDS](/techniques/T1003/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Obfuscated Files or Information](/techniques/T1027) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Binary Padding](/techniques/T1027/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Compile After Delivery](/techniques/T1027/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Embedded Payloads](/techniques/T1027/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Encrypted/Encoded File](/techniques/T1027/013) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [HTML Smuggling](/techniques/T1027/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Indicator Removal from Tools](/techniques/T1027/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Polymorphic Code](/techniques/T1027/014) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Software Packing](/techniques/T1027/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Stripped Payloads](/techniques/T1027/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Binary Padding](/techniques/T1027/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Compile After Delivery](/techniques/T1027/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Embedded Payloads](/techniques/T1027/009) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Encrypted/Encoded File](/techniques/T1027/013) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [HTML Smuggling](/techniques/T1027/006) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Indicator Removal from Tools](/techniques/T1027/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Polymorphic Code](/techniques/T1027/014) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Software Packing](/techniques/T1027/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Stripped Payloads](/techniques/T1027/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * Obtain Capabilities: [Artificial Intelligence](/techniques/T1588/007) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Password Policy Discovery](/techniques/T1201) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
 * [Peripheral Device Discovery](/techniques/T1120) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Phishing](/techniques/T1566) <small style="color:#929393">(v2.6&#8594;v2.7)</small>
-    * [Spearphishing Voice](/techniques/T1566/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Spearphishing Voice](/techniques/T1566/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Phishing for Information](/techniques/T1598) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Spearphishing Attachment](/techniques/T1598/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Spearphishing Attachment](/techniques/T1598/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Power Settings](/techniques/T1653) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Pre-OS Boot](/techniques/T1542) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Bootkit](/techniques/T1542/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Component Firmware](/techniques/T1542/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [ROMMONkit](/techniques/T1542/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [System Firmware](/techniques/T1542/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [TFTP Boot](/techniques/T1542/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Bootkit](/techniques/T1542/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Component Firmware](/techniques/T1542/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [ROMMONkit](/techniques/T1542/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [System Firmware](/techniques/T1542/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [TFTP Boot](/techniques/T1542/005) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Process Discovery](/techniques/T1057) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [Process Injection](/techniques/T1055) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Asynchronous Procedure Call](/techniques/T1055/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Dynamic-link Library Injection](/techniques/T1055/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Extra Window Memory Injection](/techniques/T1055/011) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [ListPlanting](/techniques/T1055/015) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Portable Executable Injection](/techniques/T1055/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Proc Memory](/techniques/T1055/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Process Doppelgänging](/techniques/T1055/013) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Process Hollowing](/techniques/T1055/012) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Ptrace System Calls](/techniques/T1055/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Thread Execution Hijacking](/techniques/T1055/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Thread Local Storage](/techniques/T1055/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [VDSO Hijacking](/techniques/T1055/014) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Asynchronous Procedure Call](/techniques/T1055/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Dynamic-link Library Injection](/techniques/T1055/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Extra Window Memory Injection](/techniques/T1055/011) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [ListPlanting](/techniques/T1055/015) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Portable Executable Injection](/techniques/T1055/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Proc Memory](/techniques/T1055/009) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Process Doppelgänging](/techniques/T1055/013) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Process Hollowing](/techniques/T1055/012) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Ptrace System Calls](/techniques/T1055/008) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Thread Execution Hijacking](/techniques/T1055/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Thread Local Storage](/techniques/T1055/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [VDSO Hijacking](/techniques/T1055/014) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Protocol Tunneling](/techniques/T1572) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Proxy](/techniques/T1090) <small style="color:#929393">(v3.1&#8594;v3.2)</small>
-    * [Domain Fronting](/techniques/T1090/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [External Proxy](/techniques/T1090/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Internal Proxy](/techniques/T1090/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Multi-hop Proxy](/techniques/T1090/003) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
+  * [Domain Fronting](/techniques/T1090/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [External Proxy](/techniques/T1090/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Internal Proxy](/techniques/T1090/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Multi-hop Proxy](/techniques/T1090/003) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
 * [Reflective Code Loading](/techniques/T1620) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * Remote Service Session Hijacking: [SSH Hijacking](/techniques/T1563/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Remote Services](/techniques/T1021) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
-    * [Remote Desktop Protocol](/techniques/T1021/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [SMB/Windows Admin Shares](/techniques/T1021/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [SSH](/techniques/T1021/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [VNC](/techniques/T1021/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Remote Desktop Protocol](/techniques/T1021/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [SMB/Windows Admin Shares](/techniques/T1021/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [SSH](/techniques/T1021/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [VNC](/techniques/T1021/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Remote System Discovery](/techniques/T1018) <small style="color:#929393">(v3.5&#8594;v3.6)</small>
 * [Replication Through Removable Media](/techniques/T1091) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Rogue Domain Controller](/techniques/T1207) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
 * [Rootkit](/techniques/T1014) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Scheduled Task/Job](/techniques/T1053) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
-    * [At](/techniques/T1053/002) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
-    * [Container Orchestration Job](/techniques/T1053/007) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Cron](/techniques/T1053/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Scheduled Task](/techniques/T1053/005) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Systemd Timers](/techniques/T1053/006) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [At](/techniques/T1053/002) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
+  * [Container Orchestration Job](/techniques/T1053/007) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [Cron](/techniques/T1053/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Scheduled Task](/techniques/T1053/005) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
+  * [Systemd Timers](/techniques/T1053/006) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Server Software Component](/techniques/T1505) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [IIS Components](/techniques/T1505/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Transport Agent](/techniques/T1505/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Web Shell](/techniques/T1505/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [IIS Components](/techniques/T1505/004) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Transport Agent](/techniques/T1505/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Web Shell](/techniques/T1505/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Serverless Execution](/techniques/T1648) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Service Stop](/techniques/T1489) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Shared Modules](/techniques/T1129) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
@@ -353,80 +437,80 @@
 * [Software Discovery](/techniques/T1518) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Steal Application Access Token](/techniques/T1528) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Steal or Forge Kerberos Tickets](/techniques/T1558) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [AS-REP Roasting](/techniques/T1558/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Golden Ticket](/techniques/T1558/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Kerberoasting](/techniques/T1558/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Silver Ticket](/techniques/T1558/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [AS-REP Roasting](/techniques/T1558/004) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Golden Ticket](/techniques/T1558/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Kerberoasting](/techniques/T1558/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Silver Ticket](/techniques/T1558/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Subvert Trust Controls](/techniques/T1553) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Code Signing](/techniques/T1553/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Code Signing Policy Modification](/techniques/T1553/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Gatekeeper Bypass](/techniques/T1553/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Install Root Certificate](/techniques/T1553/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Mark-of-the-Web Bypass](/techniques/T1553/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [SIP and Trust Provider Hijacking](/techniques/T1553/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Code Signing](/techniques/T1553/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Code Signing Policy Modification](/techniques/T1553/006) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Gatekeeper Bypass](/techniques/T1553/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Install Root Certificate](/techniques/T1553/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Mark-of-the-Web Bypass](/techniques/T1553/005) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [SIP and Trust Provider Hijacking](/techniques/T1553/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [System Binary Proxy Execution](/techniques/T1218) <small style="color:#929393">(v3.1&#8594;v3.2)</small>
-    * [CMSTP](/techniques/T1218/003) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
-    * [Compiled HTML File](/techniques/T1218/001) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
-    * [Control Panel](/techniques/T1218/002) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [InstallUtil](/techniques/T1218/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [MMC](/techniques/T1218/014) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Mshta](/techniques/T1218/005) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Msiexec](/techniques/T1218/007) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Odbcconf](/techniques/T1218/008) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Regsvcs/Regasm](/techniques/T1218/009) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [Regsvr32](/techniques/T1218/010) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
-    * [Rundll32](/techniques/T1218/011) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
-    * [Verclsid](/techniques/T1218/012) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [CMSTP](/techniques/T1218/003) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Compiled HTML File](/techniques/T1218/001) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Control Panel](/techniques/T1218/002) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [InstallUtil](/techniques/T1218/004) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [MMC](/techniques/T1218/014) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Mshta](/techniques/T1218/005) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Msiexec](/techniques/T1218/007) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Odbcconf](/techniques/T1218/008) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Regsvcs/Regasm](/techniques/T1218/009) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [Regsvr32](/techniques/T1218/010) <small style="color:#929393">(v2.1&#8594;v2.2)</small>
+  * [Rundll32](/techniques/T1218/011) <small style="color:#929393">(v2.3&#8594;v2.4)</small>
+  * [Verclsid](/techniques/T1218/012) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
 * [System Information Discovery](/techniques/T1082) <small style="color:#929393">(v2.5&#8594;v2.6)</small>
 * System Location Discovery: [System Language Discovery](/techniques/T1614/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [System Network Configuration Discovery](/techniques/T1016) <small style="color:#929393">(v1.6&#8594;v1.7)</small>
-    * [Internet Connection Discovery](/techniques/T1016/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Internet Connection Discovery](/techniques/T1016/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [System Network Connections Discovery](/techniques/T1049) <small style="color:#929393">(v2.4&#8594;v2.5)</small>
 * [System Owner/User Discovery](/techniques/T1033) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [System Script Proxy Execution](/techniques/T1216) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
-    * [PubPrn](/techniques/T1216/001) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
+  * [PubPrn](/techniques/T1216/001) <small style="color:#929393">(v2.0&#8594;v2.1)</small>
 * [System Services](/techniques/T1569) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [Launchctl](/techniques/T1569/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Service Execution](/techniques/T1569/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Launchctl](/techniques/T1569/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Service Execution](/techniques/T1569/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [System Shutdown/Reboot](/techniques/T1529) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [System Time Discovery](/techniques/T1124) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Taint Shared Content](/techniques/T1080) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [Template Injection](/techniques/T1221) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Traffic Signaling](/techniques/T1205) <small style="color:#929393">(v2.4&#8594;v2.5)</small>
-    * [Port Knocking](/techniques/T1205/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Port Knocking](/techniques/T1205/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Trusted Developer Utilities Proxy Execution](/techniques/T1127) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [ClickOnce](/techniques/T1127/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [MSBuild](/techniques/T1127/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
+  * [ClickOnce](/techniques/T1127/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [MSBuild](/techniques/T1127/001) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
 * [Unsecured Credentials](/techniques/T1552) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Credentials In Files](/techniques/T1552/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Credentials in Registry](/techniques/T1552/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Private Keys](/techniques/T1552/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Credentials In Files](/techniques/T1552/001) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Credentials in Registry](/techniques/T1552/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Private Keys](/techniques/T1552/004) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 * [Use Alternate Authentication Material](/techniques/T1550) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Application Access Token](/techniques/T1550/001) <small style="color:#929393">(v1.7&#8594;v1.8)</small>
-    * [Pass the Hash](/techniques/T1550/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Pass the Ticket](/techniques/T1550/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Web Session Cookie](/techniques/T1550/004) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Application Access Token](/techniques/T1550/001) <small style="color:#929393">(v1.7&#8594;v1.8)</small>
+  * [Pass the Hash](/techniques/T1550/002) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [Pass the Ticket](/techniques/T1550/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Web Session Cookie](/techniques/T1550/004) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [User Execution](/techniques/T1204) <small style="color:#929393">(v1.7&#8594;v1.8)</small>
-    * [Malicious File](/techniques/T1204/002) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Malicious Image](/techniques/T1204/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
-    * [Malicious Link](/techniques/T1204/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Malicious File](/techniques/T1204/002) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Malicious Image](/techniques/T1204/003) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [Malicious Link](/techniques/T1204/001) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Valid Accounts](/techniques/T1078) <small style="color:#929393">(v2.7&#8594;v2.8)</small>
-    * [Cloud Accounts](/techniques/T1078/004) <small style="color:#929393">(v1.8&#8594;v1.9)</small>
-    * [Default Accounts](/techniques/T1078/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Domain Accounts](/techniques/T1078/002) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
-    * [Local Accounts](/techniques/T1078/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Cloud Accounts](/techniques/T1078/004) <small style="color:#929393">(v1.8&#8594;v1.9)</small>
+  * [Default Accounts](/techniques/T1078/001) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Domain Accounts](/techniques/T1078/002) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
+  * [Local Accounts](/techniques/T1078/003) <small style="color:#929393">(v1.4&#8594;v1.5)</small>
 * [Video Capture](/techniques/T1125) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Virtualization/Sandbox Evasion](/techniques/T1497) <small style="color:#929393">(v1.3&#8594;v1.4)</small>
-    * [System Checks](/techniques/T1497/001) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
-    * [Time Based Evasion](/techniques/T1497/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [User Activity Based Checks](/techniques/T1497/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
+  * [System Checks](/techniques/T1497/001) <small style="color:#929393">(v2.2&#8594;v2.3)</small>
+  * [Time Based Evasion](/techniques/T1497/003) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
+  * [User Activity Based Checks](/techniques/T1497/002) <small style="color:#929393">(v1.1&#8594;v1.2)</small>
 * [Weaken Encryption](/techniques/T1600) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Disable Crypto Hardware](/techniques/T1600/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Reduce Key Space](/techniques/T1600/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Disable Crypto Hardware](/techniques/T1600/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Reduce Key Space](/techniques/T1600/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Web Service](/techniques/T1102) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
-    * [Bidirectional Communication](/techniques/T1102/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [Dead Drop Resolver](/techniques/T1102/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
-    * [One-Way Communication](/techniques/T1102/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Bidirectional Communication](/techniques/T1102/002) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [Dead Drop Resolver](/techniques/T1102/001) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
+  * [One-Way Communication](/techniques/T1102/003) <small style="color:#929393">(v1.0&#8594;v1.1)</small>
 * [Windows Management Instrumentation](/techniques/T1047) <small style="color:#929393">(v1.5&#8594;v1.6)</small>
 * [XSL Script Processing](/techniques/T1220) <small style="color:#929393">(v1.2&#8594;v1.3)</small>
 
@@ -445,24 +529,24 @@
 * Account Manipulation: [Device Registration](/techniques/T1098/005) <small style="color:#929393">(v1.3)</small>
 * [Acquire Access](/techniques/T1650) <small style="color:#929393">(v1.0)</small>
 * [Acquire Infrastructure](/techniques/T1583) <small style="color:#929393">(v1.4)</small>
-    * [DNS Server](/techniques/T1583/002) <small style="color:#929393">(v1.0)</small>
-    * [Domains](/techniques/T1583/001) <small style="color:#929393">(v1.4)</small>
-    * [Malvertising](/techniques/T1583/008) <small style="color:#929393">(v1.0)</small>
-    * [Server](/techniques/T1583/004) <small style="color:#929393">(v1.3)</small>
-    * [Serverless](/techniques/T1583/007) <small style="color:#929393">(v1.1)</small>
-    * [Virtual Private Server](/techniques/T1583/003) <small style="color:#929393">(v1.1)</small>
+  * [DNS Server](/techniques/T1583/002) <small style="color:#929393">(v1.0)</small>
+  * [Domains](/techniques/T1583/001) <small style="color:#929393">(v1.4)</small>
+  * [Malvertising](/techniques/T1583/008) <small style="color:#929393">(v1.0)</small>
+  * [Server](/techniques/T1583/004) <small style="color:#929393">(v1.3)</small>
+  * [Serverless](/techniques/T1583/007) <small style="color:#929393">(v1.1)</small>
+  * [Virtual Private Server](/techniques/T1583/003) <small style="color:#929393">(v1.1)</small>
 * [Active Scanning](/techniques/T1595) <small style="color:#929393">(v1.0)</small>
-    * [Scanning IP Blocks](/techniques/T1595/001) <small style="color:#929393">(v1.1)</small>
-    * [Vulnerability Scanning](/techniques/T1595/002) <small style="color:#929393">(v1.0)</small>
-    * [Wordlist Scanning](/techniques/T1595/003) <small style="color:#929393">(v1.0)</small>
+  * [Scanning IP Blocks](/techniques/T1595/001) <small style="color:#929393">(v1.1)</small>
+  * [Vulnerability Scanning](/techniques/T1595/002) <small style="color:#929393">(v1.0)</small>
+  * [Wordlist Scanning](/techniques/T1595/003) <small style="color:#929393">(v1.0)</small>
 * Adversary-in-the-Middle: [ARP Cache Poisoning](/techniques/T1557/002) <small style="color:#929393">(v1.1)</small>
 * Adversary-in-the-Middle: [DHCP Spoofing](/techniques/T1557/003) <small style="color:#929393">(v1.1)</small>
 * Adversary-in-the-Middle: [LLMNR/NBT-NS Poisoning and SMB Relay](/techniques/T1557/001) <small style="color:#929393">(v1.4)</small>
 * [Application Window Discovery](/techniques/T1010) <small style="color:#929393">(v1.3)</small>
 * [Archive Collected Data](/techniques/T1560) <small style="color:#929393">(v1.0)</small>
-    * [Archive via Custom Method](/techniques/T1560/003) <small style="color:#929393">(v1.0)</small>
-    * [Archive via Library](/techniques/T1560/002) <small style="color:#929393">(v1.0)</small>
-    * [Archive via Utility](/techniques/T1560/001) <small style="color:#929393">(v1.3)</small>
+  * [Archive via Custom Method](/techniques/T1560/003) <small style="color:#929393">(v1.0)</small>
+  * [Archive via Library](/techniques/T1560/002) <small style="color:#929393">(v1.0)</small>
+  * [Archive via Utility](/techniques/T1560/001) <small style="color:#929393">(v1.3)</small>
 * [Audio Capture](/techniques/T1123) <small style="color:#929393">(v1.0)</small>
 * Boot or Logon Initialization Scripts: [Login Hook](/techniques/T1037/002) <small style="color:#929393">(v2.0)</small>
 * Boot or Logon Initialization Scripts: [Logon Script (Windows)](/techniques/T1037/001) <small style="color:#929393">(v1.0)</small>
@@ -476,9 +560,9 @@
 * Command and Scripting Interpreter: [JavaScript](/techniques/T1059/007) <small style="color:#929393">(v2.2)</small>
 * [Communication Through Removable Media](/techniques/T1092) <small style="color:#929393">(v1.0)</small>
 * [Compromise Accounts](/techniques/T1586) <small style="color:#929393">(v1.2)</small>
-    * [Cloud Accounts](/techniques/T1586/003) <small style="color:#929393">(v1.1)</small>
-    * [Email Accounts](/techniques/T1586/002) <small style="color:#929393">(v1.1)</small>
-    * [Social Media Accounts](/techniques/T1586/001) <small style="color:#929393">(v1.1)</small>
+  * [Cloud Accounts](/techniques/T1586/003) <small style="color:#929393">(v1.1)</small>
+  * [Email Accounts](/techniques/T1586/002) <small style="color:#929393">(v1.1)</small>
+  * [Social Media Accounts](/techniques/T1586/001) <small style="color:#929393">(v1.1)</small>
 * Compromise Infrastructure: [Botnet](/techniques/T1584/005) <small style="color:#929393">(v1.0)</small>
 * Compromise Infrastructure: [DNS Server](/techniques/T1584/002) <small style="color:#929393">(v1.2)</small>
 * Compromise Infrastructure: [Domains](/techniques/T1584/001) <small style="color:#929393">(v1.4)</small>
@@ -492,47 +576,47 @@
 * Create Account: [Cloud Account](/techniques/T1136/003) <small style="color:#929393">(v1.6)</small>
 * Create Account: [Domain Account](/techniques/T1136/002) <small style="color:#929393">(v1.1)</small>
 * [Create or Modify System Process](/techniques/T1543) <small style="color:#929393">(v1.2)</small>
-    * [Container Service](/techniques/T1543/005) <small style="color:#929393">(v1.0)</small>
+  * [Container Service](/techniques/T1543/005) <small style="color:#929393">(v1.0)</small>
 * [Credentials from Password Stores](/techniques/T1555) <small style="color:#929393">(v1.2)</small>
-    * [Cloud Secrets Management Stores](/techniques/T1555/006) <small style="color:#929393">(v1.0)</small>
-    * [Credentials from Web Browsers](/techniques/T1555/003) <small style="color:#929393">(v1.2)</small>
-    * [Keychain](/techniques/T1555/001) <small style="color:#929393">(v1.1)</small>
-    * [Password Managers](/techniques/T1555/005) <small style="color:#929393">(v1.1)</small>
-    * [Securityd Memory](/techniques/T1555/002) <small style="color:#929393">(v1.2)</small>
-    * [Windows Credential Manager](/techniques/T1555/004) <small style="color:#929393">(v1.1)</small>
+  * [Cloud Secrets Management Stores](/techniques/T1555/006) <small style="color:#929393">(v1.0)</small>
+  * [Credentials from Web Browsers](/techniques/T1555/003) <small style="color:#929393">(v1.2)</small>
+  * [Keychain](/techniques/T1555/001) <small style="color:#929393">(v1.1)</small>
+  * [Password Managers](/techniques/T1555/005) <small style="color:#929393">(v1.1)</small>
+  * [Securityd Memory](/techniques/T1555/002) <small style="color:#929393">(v1.2)</small>
+  * [Windows Credential Manager](/techniques/T1555/004) <small style="color:#929393">(v1.1)</small>
 * [Data Manipulation](/techniques/T1565) <small style="color:#929393">(v1.1)</small>
-    * [Runtime Data Manipulation](/techniques/T1565/003) <small style="color:#929393">(v1.2)</small>
-    * [Stored Data Manipulation](/techniques/T1565/001) <small style="color:#929393">(v1.1)</small>
-    * [Transmitted Data Manipulation](/techniques/T1565/002) <small style="color:#929393">(v1.1)</small>
+  * [Runtime Data Manipulation](/techniques/T1565/003) <small style="color:#929393">(v1.2)</small>
+  * [Stored Data Manipulation](/techniques/T1565/001) <small style="color:#929393">(v1.1)</small>
+  * [Transmitted Data Manipulation](/techniques/T1565/002) <small style="color:#929393">(v1.1)</small>
 * [Data from Cloud Storage](/techniques/T1530) <small style="color:#929393">(v2.2)</small>
 * [Data from Information Repositories](/techniques/T1213) <small style="color:#929393">(v3.4)</small>
-    * [Code Repositories](/techniques/T1213/003) <small style="color:#929393">(v1.2)</small>
-    * [Confluence](/techniques/T1213/001) <small style="color:#929393">(v1.1)</small>
-    * [Customer Relationship Management Software](/techniques/T1213/004) <small style="color:#929393">(v1.0)</small>
-    * [Messaging Applications](/techniques/T1213/005) <small style="color:#929393">(v1.0)</small>
-    * [Sharepoint](/techniques/T1213/002) <small style="color:#929393">(v1.1)</small>
+  * [Code Repositories](/techniques/T1213/003) <small style="color:#929393">(v1.2)</small>
+  * [Confluence](/techniques/T1213/001) <small style="color:#929393">(v1.1)</small>
+  * [Customer Relationship Management Software](/techniques/T1213/004) <small style="color:#929393">(v1.0)</small>
+  * [Messaging Applications](/techniques/T1213/005) <small style="color:#929393">(v1.0)</small>
+  * [Sharepoint](/techniques/T1213/002) <small style="color:#929393">(v1.1)</small>
 * Defacement: [External Defacement](/techniques/T1491/002) <small style="color:#929393">(v1.2)</small>
 * [Develop Capabilities](/techniques/T1587) <small style="color:#929393">(v1.1)</small>
-    * [Code Signing Certificates](/techniques/T1587/002) <small style="color:#929393">(v1.1)</small>
-    * [Digital Certificates](/techniques/T1587/003) <small style="color:#929393">(v1.2)</small>
-    * [Exploits](/techniques/T1587/004) <small style="color:#929393">(v1.0)</small>
-    * [Malware](/techniques/T1587/001) <small style="color:#929393">(v1.2)</small>
+  * [Code Signing Certificates](/techniques/T1587/002) <small style="color:#929393">(v1.1)</small>
+  * [Digital Certificates](/techniques/T1587/003) <small style="color:#929393">(v1.2)</small>
+  * [Exploits](/techniques/T1587/004) <small style="color:#929393">(v1.0)</small>
+  * [Malware](/techniques/T1587/001) <small style="color:#929393">(v1.2)</small>
 * [Device Driver Discovery](/techniques/T1652) <small style="color:#929393">(v1.0)</small>
 * [Domain Trust Discovery](/techniques/T1482) <small style="color:#929393">(v1.2)</small>
 * [Email Collection](/techniques/T1114) <small style="color:#929393">(v2.6)</small>
-    * [Email Forwarding Rule](/techniques/T1114/003) <small style="color:#929393">(v1.4)</small>
-    * [Remote Email Collection](/techniques/T1114/002) <small style="color:#929393">(v1.3)</small>
+  * [Email Forwarding Rule](/techniques/T1114/003) <small style="color:#929393">(v1.4)</small>
+  * [Remote Email Collection](/techniques/T1114/002) <small style="color:#929393">(v1.3)</small>
 * [Endpoint Denial of Service](/techniques/T1499) <small style="color:#929393">(v1.2)</small>
-    * [Application Exhaustion Flood](/techniques/T1499/003) <small style="color:#929393">(v1.3)</small>
-    * [Application or System Exploitation](/techniques/T1499/004) <small style="color:#929393">(v1.3)</small>
-    * [OS Exhaustion Flood](/techniques/T1499/001) <small style="color:#929393">(v1.2)</small>
-    * [Service Exhaustion Flood](/techniques/T1499/002) <small style="color:#929393">(v1.4)</small>
+  * [Application Exhaustion Flood](/techniques/T1499/003) <small style="color:#929393">(v1.3)</small>
+  * [Application or System Exploitation](/techniques/T1499/004) <small style="color:#929393">(v1.3)</small>
+  * [OS Exhaustion Flood](/techniques/T1499/001) <small style="color:#929393">(v1.2)</small>
+  * [Service Exhaustion Flood](/techniques/T1499/002) <small style="color:#929393">(v1.4)</small>
 * [Establish Accounts](/techniques/T1585) <small style="color:#929393">(v1.3)</small>
-    * [Cloud Accounts](/techniques/T1585/003) <small style="color:#929393">(v1.1)</small>
-    * [Email Accounts](/techniques/T1585/002) <small style="color:#929393">(v1.1)</small>
-    * [Social Media Accounts](/techniques/T1585/001) <small style="color:#929393">(v1.1)</small>
+  * [Cloud Accounts](/techniques/T1585/003) <small style="color:#929393">(v1.1)</small>
+  * [Email Accounts](/techniques/T1585/002) <small style="color:#929393">(v1.1)</small>
+  * [Social Media Accounts](/techniques/T1585/001) <small style="color:#929393">(v1.1)</small>
 * [Event Triggered Execution](/techniques/T1546) <small style="color:#929393">(v1.4)</small>
-    * [Udev Rules](/techniques/T1546/017) <small style="color:#929393">(v1.0)</small>
+  * [Udev Rules](/techniques/T1546/017) <small style="color:#929393">(v1.0)</small>
 * Execution Guardrails: [Mutual Exclusion](/techniques/T1480/002) <small style="color:#929393">(v1.0)</small>
 * [Exfiltration Over Other Network Medium](/techniques/T1011) <small style="color:#929393">(v1.2)</small>
 * [Exploitation for Credential Access](/techniques/T1212) <small style="color:#929393">(v1.6)</small>
@@ -542,29 +626,29 @@
 * [Financial Theft](/techniques/T1657) <small style="color:#929393">(v1.2)</small>
 * [Forced Authentication](/techniques/T1187) <small style="color:#929393">(v1.3)</small>
 * [Forge Web Credentials](/techniques/T1606) <small style="color:#929393">(v1.5)</small>
-    * [SAML Tokens](/techniques/T1606/002) <small style="color:#929393">(v1.4)</small>
-    * [Web Cookies](/techniques/T1606/001) <small style="color:#929393">(v1.1)</small>
+  * [SAML Tokens](/techniques/T1606/002) <small style="color:#929393">(v1.4)</small>
+  * [Web Cookies](/techniques/T1606/001) <small style="color:#929393">(v1.1)</small>
 * [Gather Victim Host Information](/techniques/T1592) <small style="color:#929393">(v1.2)</small>
-    * [Client Configurations](/techniques/T1592/004) <small style="color:#929393">(v1.1)</small>
-    * [Firmware](/techniques/T1592/003) <small style="color:#929393">(v1.0)</small>
-    * [Hardware](/techniques/T1592/001) <small style="color:#929393">(v1.1)</small>
-    * [Software](/techniques/T1592/002) <small style="color:#929393">(v1.1)</small>
+  * [Client Configurations](/techniques/T1592/004) <small style="color:#929393">(v1.1)</small>
+  * [Firmware](/techniques/T1592/003) <small style="color:#929393">(v1.0)</small>
+  * [Hardware](/techniques/T1592/001) <small style="color:#929393">(v1.1)</small>
+  * [Software](/techniques/T1592/002) <small style="color:#929393">(v1.1)</small>
 * [Gather Victim Identity Information](/techniques/T1589) <small style="color:#929393">(v1.3)</small>
-    * [Credentials](/techniques/T1589/001) <small style="color:#929393">(v1.2)</small>
-    * [Email Addresses](/techniques/T1589/002) <small style="color:#929393">(v1.2)</small>
-    * [Employee Names](/techniques/T1589/003) <small style="color:#929393">(v1.0)</small>
+  * [Credentials](/techniques/T1589/001) <small style="color:#929393">(v1.2)</small>
+  * [Email Addresses](/techniques/T1589/002) <small style="color:#929393">(v1.2)</small>
+  * [Employee Names](/techniques/T1589/003) <small style="color:#929393">(v1.0)</small>
 * [Gather Victim Network Information](/techniques/T1590) <small style="color:#929393">(v1.0)</small>
-    * [DNS](/techniques/T1590/002) <small style="color:#929393">(v1.2)</small>
-    * [Domain Properties](/techniques/T1590/001) <small style="color:#929393">(v1.1)</small>
-    * [IP Addresses](/techniques/T1590/005) <small style="color:#929393">(v1.0)</small>
-    * [Network Security Appliances](/techniques/T1590/006) <small style="color:#929393">(v1.0)</small>
-    * [Network Topology](/techniques/T1590/004) <small style="color:#929393">(v1.0)</small>
-    * [Network Trust Dependencies](/techniques/T1590/003) <small style="color:#929393">(v1.0)</small>
+  * [DNS](/techniques/T1590/002) <small style="color:#929393">(v1.2)</small>
+  * [Domain Properties](/techniques/T1590/001) <small style="color:#929393">(v1.1)</small>
+  * [IP Addresses](/techniques/T1590/005) <small style="color:#929393">(v1.0)</small>
+  * [Network Security Appliances](/techniques/T1590/006) <small style="color:#929393">(v1.0)</small>
+  * [Network Topology](/techniques/T1590/004) <small style="color:#929393">(v1.0)</small>
+  * [Network Trust Dependencies](/techniques/T1590/003) <small style="color:#929393">(v1.0)</small>
 * [Gather Victim Org Information](/techniques/T1591) <small style="color:#929393">(v1.1)</small>
-    * [Business Relationships](/techniques/T1591/002) <small style="color:#929393">(v1.0)</small>
-    * [Determine Physical Locations](/techniques/T1591/001) <small style="color:#929393">(v1.1)</small>
-    * [Identify Business Tempo](/techniques/T1591/003) <small style="color:#929393">(v1.0)</small>
-    * [Identify Roles](/techniques/T1591/004) <small style="color:#929393">(v1.0)</small>
+  * [Business Relationships](/techniques/T1591/002) <small style="color:#929393">(v1.0)</small>
+  * [Determine Physical Locations](/techniques/T1591/001) <small style="color:#929393">(v1.1)</small>
+  * [Identify Business Tempo](/techniques/T1591/003) <small style="color:#929393">(v1.0)</small>
+  * [Identify Roles](/techniques/T1591/004) <small style="color:#929393">(v1.0)</small>
 * [Group Policy Discovery](/techniques/T1615) <small style="color:#929393">(v1.1)</small>
 * Hide Artifacts: [Email Hiding Rules](/techniques/T1564/008) <small style="color:#929393">(v1.4)</small>
 * Hide Artifacts: [File/Path Exclusions](/techniques/T1564/012) <small style="color:#929393">(v1.0)</small>
@@ -596,47 +680,47 @@
 * Modify Authentication Process: [Pluggable Authentication Modules](/techniques/T1556/003) <small style="color:#929393">(v2.1)</small>
 * Modify Authentication Process: [Reversible Encryption](/techniques/T1556/005) <small style="color:#929393">(v1.1)</small>
 * [Modify Cloud Compute Infrastructure](/techniques/T1578) <small style="color:#929393">(v1.2)</small>
-    * [Create Cloud Instance](/techniques/T1578/002) <small style="color:#929393">(v1.2)</small>
-    * [Create Snapshot](/techniques/T1578/001) <small style="color:#929393">(v1.2)</small>
-    * [Delete Cloud Instance](/techniques/T1578/003) <small style="color:#929393">(v1.2)</small>
-    * [Modify Cloud Compute Configurations](/techniques/T1578/005) <small style="color:#929393">(v2.0)</small>
+  * [Create Cloud Instance](/techniques/T1578/002) <small style="color:#929393">(v1.2)</small>
+  * [Create Snapshot](/techniques/T1578/001) <small style="color:#929393">(v1.2)</small>
+  * [Delete Cloud Instance](/techniques/T1578/003) <small style="color:#929393">(v1.2)</small>
+  * [Modify Cloud Compute Configurations](/techniques/T1578/005) <small style="color:#929393">(v2.0)</small>
 * [Modify Cloud Resource Hierarchy](/techniques/T1666) <small style="color:#929393">(v1.0)</small>
 * [Multi-Factor Authentication Interception](/techniques/T1111) <small style="color:#929393">(v2.1)</small>
 * [Multi-Factor Authentication Request Generation](/techniques/T1621) <small style="color:#929393">(v1.2)</small>
 * [Network Denial of Service](/techniques/T1498) <small style="color:#929393">(v1.2)</small>
-    * [Direct Network Flood](/techniques/T1498/001) <small style="color:#929393">(v1.4)</small>
-    * [Reflection Amplification](/techniques/T1498/002) <small style="color:#929393">(v1.4)</small>
+  * [Direct Network Flood](/techniques/T1498/001) <small style="color:#929393">(v1.4)</small>
+  * [Reflection Amplification](/techniques/T1498/002) <small style="color:#929393">(v1.4)</small>
 * [Network Share Discovery](/techniques/T1135) <small style="color:#929393">(v3.2)</small>
 * [OS Credential Dumping](/techniques/T1003) <small style="color:#929393">(v2.2)</small>
-    * [Cached Domain Credentials](/techniques/T1003/005) <small style="color:#929393">(v1.1)</small>
-    * [DCSync](/techniques/T1003/006) <small style="color:#929393">(v1.1)</small>
-    * [LSA Secrets](/techniques/T1003/004) <small style="color:#929393">(v1.1)</small>
-    * [LSASS Memory](/techniques/T1003/001) <small style="color:#929393">(v1.5)</small>
-    * [Proc Filesystem](/techniques/T1003/007) <small style="color:#929393">(v1.2)</small>
-    * [Security Account Manager](/techniques/T1003/002) <small style="color:#929393">(v1.1)</small>
+  * [Cached Domain Credentials](/techniques/T1003/005) <small style="color:#929393">(v1.1)</small>
+  * [DCSync](/techniques/T1003/006) <small style="color:#929393">(v1.1)</small>
+  * [LSA Secrets](/techniques/T1003/004) <small style="color:#929393">(v1.1)</small>
+  * [LSASS Memory](/techniques/T1003/001) <small style="color:#929393">(v1.5)</small>
+  * [Proc Filesystem](/techniques/T1003/007) <small style="color:#929393">(v1.2)</small>
+  * [Security Account Manager](/techniques/T1003/002) <small style="color:#929393">(v1.1)</small>
 * Obfuscated Files or Information: [Command Obfuscation](/techniques/T1027/010) <small style="color:#929393">(v1.0)</small>
 * Obfuscated Files or Information: [Dynamic API Resolution](/techniques/T1027/007) <small style="color:#929393">(v1.0)</small>
 * Obfuscated Files or Information: [Fileless Storage](/techniques/T1027/011) <small style="color:#929393">(v2.0)</small>
 * Obfuscated Files or Information: [LNK Icon Smuggling](/techniques/T1027/012) <small style="color:#929393">(v1.0)</small>
 * Obfuscated Files or Information: [Steganography](/techniques/T1027/003) <small style="color:#929393">(v1.2)</small>
 * [Obtain Capabilities](/techniques/T1588) <small style="color:#929393">(v1.1)</small>
-    * [Code Signing Certificates](/techniques/T1588/003) <small style="color:#929393">(v1.1)</small>
-    * [Digital Certificates](/techniques/T1588/004) <small style="color:#929393">(v1.2)</small>
-    * [Exploits](/techniques/T1588/005) <small style="color:#929393">(v1.0)</small>
-    * [Malware](/techniques/T1588/001) <small style="color:#929393">(v1.1)</small>
-    * [Tool](/techniques/T1588/002) <small style="color:#929393">(v1.1)</small>
-    * [Vulnerabilities](/techniques/T1588/006) <small style="color:#929393">(v1.0)</small>
+  * [Code Signing Certificates](/techniques/T1588/003) <small style="color:#929393">(v1.1)</small>
+  * [Digital Certificates](/techniques/T1588/004) <small style="color:#929393">(v1.2)</small>
+  * [Exploits](/techniques/T1588/005) <small style="color:#929393">(v1.0)</small>
+  * [Malware](/techniques/T1588/001) <small style="color:#929393">(v1.1)</small>
+  * [Tool](/techniques/T1588/002) <small style="color:#929393">(v1.1)</small>
+  * [Vulnerabilities](/techniques/T1588/006) <small style="color:#929393">(v1.0)</small>
 * [Office Application Startup](/techniques/T1137) <small style="color:#929393">(v1.4)</small>
-    * [Add-ins](/techniques/T1137/006) <small style="color:#929393">(v1.2)</small>
-    * [Office Template Macros](/techniques/T1137/001) <small style="color:#929393">(v1.2)</small>
-    * [Office Test](/techniques/T1137/002) <small style="color:#929393">(v1.3)</small>
-    * [Outlook Forms](/techniques/T1137/003) <small style="color:#929393">(v1.2)</small>
-    * [Outlook Home Page](/techniques/T1137/004) <small style="color:#929393">(v1.2)</small>
-    * [Outlook Rules](/techniques/T1137/005) <small style="color:#929393">(v1.2)</small>
+  * [Add-ins](/techniques/T1137/006) <small style="color:#929393">(v1.2)</small>
+  * [Office Template Macros](/techniques/T1137/001) <small style="color:#929393">(v1.2)</small>
+  * [Office Test](/techniques/T1137/002) <small style="color:#929393">(v1.3)</small>
+  * [Outlook Forms](/techniques/T1137/003) <small style="color:#929393">(v1.2)</small>
+  * [Outlook Home Page](/techniques/T1137/004) <small style="color:#929393">(v1.2)</small>
+  * [Outlook Rules](/techniques/T1137/005) <small style="color:#929393">(v1.2)</small>
 * [Permission Groups Discovery](/techniques/T1069) <small style="color:#929393">(v2.6)</small>
-    * [Cloud Groups](/techniques/T1069/003) <small style="color:#929393">(v1.5)</small>
-    * [Domain Groups](/techniques/T1069/002) <small style="color:#929393">(v1.2)</small>
-    * [Local Groups](/techniques/T1069/001) <small style="color:#929393">(v1.2)</small>
+  * [Cloud Groups](/techniques/T1069/003) <small style="color:#929393">(v1.5)</small>
+  * [Domain Groups](/techniques/T1069/002) <small style="color:#929393">(v1.2)</small>
+  * [Local Groups](/techniques/T1069/001) <small style="color:#929393">(v1.2)</small>
 * Phishing: [Spearphishing Attachment](/techniques/T1566/001) <small style="color:#929393">(v2.2)</small>
 * Phishing: [Spearphishing Link](/techniques/T1566/002) <small style="color:#929393">(v2.7)</small>
 * Phishing: [Spearphishing via Service](/techniques/T1566/003) <small style="color:#929393">(v2.0)</small>
@@ -646,49 +730,49 @@
 * [Plist File Modification](/techniques/T1647) <small style="color:#929393">(v1.0)</small>
 * [Query Registry](/techniques/T1012) <small style="color:#929393">(v1.3)</small>
 * [Remote Service Session Hijacking](/techniques/T1563) <small style="color:#929393">(v1.1)</small>
-    * [RDP Hijacking](/techniques/T1563/002) <small style="color:#929393">(v1.1)</small>
+  * [RDP Hijacking](/techniques/T1563/002) <small style="color:#929393">(v1.1)</small>
 * Remote Services: [Cloud Services](/techniques/T1021/007) <small style="color:#929393">(v1.1)</small>
 * Remote Services: [Direct Cloud VM Connections](/techniques/T1021/008) <small style="color:#929393">(v1.0)</small>
 * Remote Services: [Distributed Component Object Model](/techniques/T1021/003) <small style="color:#929393">(v1.3)</small>
 * Remote Services: [Windows Remote Management](/techniques/T1021/006) <small style="color:#929393">(v1.2)</small>
 * [Resource Hijacking](/techniques/T1496) <small style="color:#929393">(v2.0)</small>
-    * [Bandwidth Hijacking](/techniques/T1496/002) <small style="color:#929393">(v1.0)</small>
-    * [Cloud Service Hijacking](/techniques/T1496/004) <small style="color:#929393">(v1.0)</small>
-    * [Compute Hijacking](/techniques/T1496/001) <small style="color:#929393">(v1.0)</small>
-    * [SMS Pumping](/techniques/T1496/003) <small style="color:#929393">(v1.0)</small>
+  * [Bandwidth Hijacking](/techniques/T1496/002) <small style="color:#929393">(v1.0)</small>
+  * [Cloud Service Hijacking](/techniques/T1496/004) <small style="color:#929393">(v1.0)</small>
+  * [Compute Hijacking](/techniques/T1496/001) <small style="color:#929393">(v1.0)</small>
+  * [SMS Pumping](/techniques/T1496/003) <small style="color:#929393">(v1.0)</small>
 * [Scheduled Transfer](/techniques/T1029) <small style="color:#929393">(v1.1)</small>
 * [Screen Capture](/techniques/T1113) <small style="color:#929393">(v1.1)</small>
 * [Search Closed Sources](/techniques/T1597) <small style="color:#929393">(v1.1)</small>
-    * [Purchase Technical Data](/techniques/T1597/002) <small style="color:#929393">(v1.0)</small>
-    * [Threat Intel Vendors](/techniques/T1597/001) <small style="color:#929393">(v1.0)</small>
+  * [Purchase Technical Data](/techniques/T1597/002) <small style="color:#929393">(v1.0)</small>
+  * [Threat Intel Vendors](/techniques/T1597/001) <small style="color:#929393">(v1.0)</small>
 * [Search Open Technical Databases](/techniques/T1596) <small style="color:#929393">(v1.0)</small>
-    * [CDNs](/techniques/T1596/004) <small style="color:#929393">(v1.0)</small>
-    * [DNS/Passive DNS](/techniques/T1596/001) <small style="color:#929393">(v1.0)</small>
-    * [Digital Certificates](/techniques/T1596/003) <small style="color:#929393">(v1.0)</small>
-    * [Scan Databases](/techniques/T1596/005) <small style="color:#929393">(v1.0)</small>
-    * [WHOIS](/techniques/T1596/002) <small style="color:#929393">(v1.0)</small>
+  * [CDNs](/techniques/T1596/004) <small style="color:#929393">(v1.0)</small>
+  * [DNS/Passive DNS](/techniques/T1596/001) <small style="color:#929393">(v1.0)</small>
+  * [Digital Certificates](/techniques/T1596/003) <small style="color:#929393">(v1.0)</small>
+  * [Scan Databases](/techniques/T1596/005) <small style="color:#929393">(v1.0)</small>
+  * [WHOIS](/techniques/T1596/002) <small style="color:#929393">(v1.0)</small>
 * [Search Open Websites/Domains](/techniques/T1593) <small style="color:#929393">(v1.1)</small>
-    * [Code Repositories](/techniques/T1593/003) <small style="color:#929393">(v1.0)</small>
-    * [Search Engines](/techniques/T1593/002) <small style="color:#929393">(v1.0)</small>
-    * [Social Media](/techniques/T1593/001) <small style="color:#929393">(v1.0)</small>
+  * [Code Repositories](/techniques/T1593/003) <small style="color:#929393">(v1.0)</small>
+  * [Search Engines](/techniques/T1593/002) <small style="color:#929393">(v1.0)</small>
+  * [Social Media](/techniques/T1593/001) <small style="color:#929393">(v1.0)</small>
 * [Search Victim-Owned Websites](/techniques/T1594) <small style="color:#929393">(v1.1)</small>
 * Server Software Component: [SQL Stored Procedures](/techniques/T1505/001) <small style="color:#929393">(v1.1)</small>
 * Server Software Component: [Terminal Services DLL](/techniques/T1505/005) <small style="color:#929393">(v1.0)</small>
 * Software Discovery: [Security Software Discovery](/techniques/T1518/001) <small style="color:#929393">(v1.5)</small>
 * [Stage Capabilities](/techniques/T1608) <small style="color:#929393">(v1.2)</small>
-    * [Drive-by Target](/techniques/T1608/004) <small style="color:#929393">(v1.3)</small>
-    * [Install Digital Certificate](/techniques/T1608/003) <small style="color:#929393">(v1.1)</small>
-    * [Link Target](/techniques/T1608/005) <small style="color:#929393">(v1.4)</small>
-    * [SEO Poisoning](/techniques/T1608/006) <small style="color:#929393">(v1.1)</small>
-    * [Upload Malware](/techniques/T1608/001) <small style="color:#929393">(v1.2)</small>
-    * [Upload Tool](/techniques/T1608/002) <small style="color:#929393">(v1.2)</small>
+  * [Drive-by Target](/techniques/T1608/004) <small style="color:#929393">(v1.3)</small>
+  * [Install Digital Certificate](/techniques/T1608/003) <small style="color:#929393">(v1.1)</small>
+  * [Link Target](/techniques/T1608/005) <small style="color:#929393">(v1.4)</small>
+  * [SEO Poisoning](/techniques/T1608/006) <small style="color:#929393">(v1.1)</small>
+  * [Upload Malware](/techniques/T1608/001) <small style="color:#929393">(v1.2)</small>
+  * [Upload Tool](/techniques/T1608/002) <small style="color:#929393">(v1.2)</small>
 * [Steal Web Session Cookie](/techniques/T1539) <small style="color:#929393">(v1.4)</small>
 * [Steal or Forge Authentication Certificates](/techniques/T1649) <small style="color:#929393">(v1.2)</small>
 * Steal or Forge Kerberos Tickets: [Ccache Files](/techniques/T1558/005) <small style="color:#929393">(v1.0)</small>
 * [Supply Chain Compromise](/techniques/T1195) <small style="color:#929393">(v1.6)</small>
-    * [Compromise Hardware Supply Chain](/techniques/T1195/003) <small style="color:#929393">(v1.1)</small>
-    * [Compromise Software Dependencies and Development Tools](/techniques/T1195/001) <small style="color:#929393">(v1.2)</small>
-    * [Compromise Software Supply Chain](/techniques/T1195/002) <small style="color:#929393">(v1.1)</small>
+  * [Compromise Hardware Supply Chain](/techniques/T1195/003) <small style="color:#929393">(v1.1)</small>
+  * [Compromise Software Dependencies and Development Tools](/techniques/T1195/001) <small style="color:#929393">(v1.2)</small>
+  * [Compromise Software Supply Chain](/techniques/T1195/002) <small style="color:#929393">(v1.1)</small>
 * System Binary Proxy Execution: [Electron Applications](/techniques/T1218/015) <small style="color:#929393">(v1.0)</small>
 * System Binary Proxy Execution: [Mavinject](/techniques/T1218/013) <small style="color:#929393">(v2.0)</small>
 * [System Location Discovery](/techniques/T1614) <small style="color:#929393">(v1.1)</small>
@@ -726,39 +810,39 @@
 #### Patches
 
 * [Abuse Elevation Control Mechanism](/techniques/T1626) <small style="color:#929393">(v1.1)</small>
-    * [Device Administrator Permissions](/techniques/T1626/001) <small style="color:#929393">(v1.1)</small>
+  * [Device Administrator Permissions](/techniques/T1626/001) <small style="color:#929393">(v1.1)</small>
 * [Access Notifications](/techniques/T1517) <small style="color:#929393">(v1.2)</small>
 * [Account Access Removal](/techniques/T1640) <small style="color:#929393">(v1.1)</small>
 * [Application Layer Protocol](/techniques/T1437) <small style="color:#929393">(v1.2)</small>
-    * [Web Protocols](/techniques/T1437/001) <small style="color:#929393">(v1.0)</small>
+  * [Web Protocols](/techniques/T1437/001) <small style="color:#929393">(v1.0)</small>
 * [Archive Collected Data](/techniques/T1532) <small style="color:#929393">(v2.0)</small>
 * [Audio Capture](/techniques/T1429) <small style="color:#929393">(v3.1)</small>
 * [Boot or Logon Initialization Scripts](/techniques/T1398) <small style="color:#929393">(v2.1)</small>
 * [Call Control](/techniques/T1616) <small style="color:#929393">(v1.2)</small>
 * [Command and Scripting Interpreter](/techniques/T1623) <small style="color:#929393">(v1.2)</small>
-    * [Unix Shell](/techniques/T1623/001) <small style="color:#929393">(v1.2)</small>
+  * [Unix Shell](/techniques/T1623/001) <small style="color:#929393">(v1.2)</small>
 * [Compromise Application Executable](/techniques/T1577) <small style="color:#929393">(v1.0)</small>
 * [Compromise Client Software Binary](/techniques/T1645) <small style="color:#929393">(v1.1)</small>
 * [Credentials from Password Store](/techniques/T1634) <small style="color:#929393">(v1.1)</small>
-    * [Keychain](/techniques/T1634/001) <small style="color:#929393">(v1.1)</small>
+  * [Keychain](/techniques/T1634/001) <small style="color:#929393">(v1.1)</small>
 * [Data Encrypted for Impact](/techniques/T1471) <small style="color:#929393">(v3.2)</small>
 * [Data Manipulation](/techniques/T1641) <small style="color:#929393">(v1.1)</small>
-    * [Transmitted Data Manipulation](/techniques/T1641/001) <small style="color:#929393">(v1.1)</small>
+  * [Transmitted Data Manipulation](/techniques/T1641/001) <small style="color:#929393">(v1.1)</small>
 * [Data from Local System](/techniques/T1533) <small style="color:#929393">(v1.1)</small>
 * [Download New Code at Runtime](/techniques/T1407) <small style="color:#929393">(v1.5)</small>
 * [Drive-By Compromise](/techniques/T1456) <small style="color:#929393">(v2.2)</small>
 * [Dynamic Resolution](/techniques/T1637) <small style="color:#929393">(v1.1)</small>
-    * [Domain Generation Algorithms](/techniques/T1637/001) <small style="color:#929393">(v1.1)</small>
+  * [Domain Generation Algorithms](/techniques/T1637/001) <small style="color:#929393">(v1.1)</small>
 * [Encrypted Channel](/techniques/T1521) <small style="color:#929393">(v2.0)</small>
-    * [Asymmetric Cryptography](/techniques/T1521/002) <small style="color:#929393">(v1.0)</small>
-    * [Symmetric Cryptography](/techniques/T1521/001) <small style="color:#929393">(v1.0)</small>
+  * [Asymmetric Cryptography](/techniques/T1521/002) <small style="color:#929393">(v1.0)</small>
+  * [Symmetric Cryptography](/techniques/T1521/001) <small style="color:#929393">(v1.0)</small>
 * [Endpoint Denial of Service](/techniques/T1642) <small style="color:#929393">(v1.1)</small>
 * [Event Triggered Execution](/techniques/T1624) <small style="color:#929393">(v1.1)</small>
-    * [Broadcast Receivers](/techniques/T1624/001) <small style="color:#929393">(v1.1)</small>
+  * [Broadcast Receivers](/techniques/T1624/001) <small style="color:#929393">(v1.1)</small>
 * [Execution Guardrails](/techniques/T1627) <small style="color:#929393">(v1.1)</small>
-    * [Geofencing](/techniques/T1627/001) <small style="color:#929393">(v1.1)</small>
+  * [Geofencing](/techniques/T1627/001) <small style="color:#929393">(v1.1)</small>
 * [Exfiltration Over Alternative Protocol](/techniques/T1639) <small style="color:#929393">(v1.1)</small>
-    * [Exfiltration Over Unencrypted Non-C2 Protocol](/techniques/T1639/001) <small style="color:#929393">(v1.1)</small>
+  * [Exfiltration Over Unencrypted Non-C2 Protocol](/techniques/T1639/001) <small style="color:#929393">(v1.1)</small>
 * [Exfiltration Over C2 Channel](/techniques/T1646) <small style="color:#929393">(v1.1)</small>
 * [Exploitation for Privilege Escalation](/techniques/T1404) <small style="color:#929393">(v2.1)</small>
 * [Exploitation of Remote Services](/techniques/T1428) <small style="color:#929393">(v1.2)</small>
@@ -766,43 +850,43 @@
 * [Foreground Persistence](/techniques/T1541) <small style="color:#929393">(v2.1)</small>
 * [Generate Traffic from Victim](/techniques/T1643) <small style="color:#929393">(v1.1)</small>
 * [Hide Artifacts](/techniques/T1628) <small style="color:#929393">(v1.1)</small>
-    * [User Evasion](/techniques/T1628/002) <small style="color:#929393">(v1.0)</small>
+  * [User Evasion](/techniques/T1628/002) <small style="color:#929393">(v1.0)</small>
 * [Hijack Execution Flow](/techniques/T1625) <small style="color:#929393">(v1.1)</small>
-    * [System Runtime API Hijacking](/techniques/T1625/001) <small style="color:#929393">(v1.1)</small>
+  * [System Runtime API Hijacking](/techniques/T1625/001) <small style="color:#929393">(v1.1)</small>
 * [Hooking](/techniques/T1617) <small style="color:#929393">(v1.0)</small>
 * [Impair Defenses](/techniques/T1629) <small style="color:#929393">(v1.1)</small>
-    * [Device Lockout](/techniques/T1629/002) <small style="color:#929393">(v1.1)</small>
-    * [Disable or Modify Tools](/techniques/T1629/003) <small style="color:#929393">(v1.1)</small>
+  * [Device Lockout](/techniques/T1629/002) <small style="color:#929393">(v1.1)</small>
+  * [Disable or Modify Tools](/techniques/T1629/003) <small style="color:#929393">(v1.1)</small>
 * [Indicator Removal on Host](/techniques/T1630) <small style="color:#929393">(v1.1)</small>
-    * [Disguise Root/Jailbreak Indicators](/techniques/T1630/003) <small style="color:#929393">(v1.1)</small>
-    * [File Deletion](/techniques/T1630/002) <small style="color:#929393">(v1.1)</small>
-    * [Uninstall Malicious Application](/techniques/T1630/001) <small style="color:#929393">(v1.1)</small>
+  * [Disguise Root/Jailbreak Indicators](/techniques/T1630/003) <small style="color:#929393">(v1.1)</small>
+  * [File Deletion](/techniques/T1630/002) <small style="color:#929393">(v1.1)</small>
+  * [Uninstall Malicious Application](/techniques/T1630/001) <small style="color:#929393">(v1.1)</small>
 * [Ingress Tool Transfer](/techniques/T1544) <small style="color:#929393">(v2.2)</small>
 * [Input Capture](/techniques/T1417) <small style="color:#929393">(v2.3)</small>
-    * [GUI Input Capture](/techniques/T1417/002) <small style="color:#929393">(v1.1)</small>
-    * [Keylogging](/techniques/T1417/001) <small style="color:#929393">(v1.1)</small>
+  * [GUI Input Capture](/techniques/T1417/002) <small style="color:#929393">(v1.1)</small>
+  * [Keylogging](/techniques/T1417/001) <small style="color:#929393">(v1.1)</small>
 * [Input Injection](/techniques/T1516) <small style="color:#929393">(v1.2)</small>
 * [Location Tracking](/techniques/T1430) <small style="color:#929393">(v1.2)</small>
-    * [Impersonate SS7 Nodes](/techniques/T1430/002) <small style="color:#929393">(v1.1)</small>
-    * [Remote Device Management Services](/techniques/T1430/001) <small style="color:#929393">(v1.1)</small>
+  * [Impersonate SS7 Nodes](/techniques/T1430/002) <small style="color:#929393">(v1.1)</small>
+  * [Remote Device Management Services](/techniques/T1430/001) <small style="color:#929393">(v1.1)</small>
 * [Masquerading](/techniques/T1655) <small style="color:#929393">(v1.0)</small>
-    * [Match Legitimate Name or Location](/techniques/T1655/001) <small style="color:#929393">(v1.0)</small>
+  * [Match Legitimate Name or Location](/techniques/T1655/001) <small style="color:#929393">(v1.0)</small>
 * [Native API](/techniques/T1575) <small style="color:#929393">(v2.0)</small>
 * [Network Denial of Service](/techniques/T1464) <small style="color:#929393">(v1.3)</small>
 * [Network Service Scanning](/techniques/T1423) <small style="color:#929393">(v1.1)</small>
 * [Non-Standard Port](/techniques/T1509) <small style="color:#929393">(v2.1)</small>
 * [Obfuscated Files or Information](/techniques/T1406) <small style="color:#929393">(v3.1)</small>
-    * [Software Packing](/techniques/T1406/002) <small style="color:#929393">(v1.1)</small>
-    * [Steganography](/techniques/T1406/001) <small style="color:#929393">(v1.0)</small>
+  * [Software Packing](/techniques/T1406/002) <small style="color:#929393">(v1.1)</small>
+  * [Steganography](/techniques/T1406/001) <small style="color:#929393">(v1.0)</small>
 * [Out of Band Data](/techniques/T1644) <small style="color:#929393">(v2.1)</small>
 * [Process Discovery](/techniques/T1424) <small style="color:#929393">(v2.1)</small>
 * [Process Injection](/techniques/T1631) <small style="color:#929393">(v1.1)</small>
-    * [Ptrace System Calls](/techniques/T1631/001) <small style="color:#929393">(v1.1)</small>
+  * [Ptrace System Calls](/techniques/T1631/001) <small style="color:#929393">(v1.1)</small>
 * [Protected User Data](/techniques/T1636) <small style="color:#929393">(v1.1)</small>
-    * [Calendar Entries](/techniques/T1636/001) <small style="color:#929393">(v1.1)</small>
-    * [Call Log](/techniques/T1636/002) <small style="color:#929393">(v1.1)</small>
-    * [Contact List](/techniques/T1636/003) <small style="color:#929393">(v1.1)</small>
-    * [SMS Messages](/techniques/T1636/004) <small style="color:#929393">(v1.1)</small>
+  * [Calendar Entries](/techniques/T1636/001) <small style="color:#929393">(v1.1)</small>
+  * [Call Log](/techniques/T1636/002) <small style="color:#929393">(v1.1)</small>
+  * [Contact List](/techniques/T1636/003) <small style="color:#929393">(v1.1)</small>
+  * [SMS Messages](/techniques/T1636/004) <small style="color:#929393">(v1.1)</small>
 * [Proxy Through Victim](/techniques/T1604) <small style="color:#929393">(v1.1)</small>
 * [Remote Access Software](/techniques/T1663) <small style="color:#929393">(v1.0)</small>
 * [Replication Through Removable Media](/techniques/T1458) <small style="color:#929393">(v2.1)</small>
@@ -810,24 +894,24 @@
 * [Scheduled Task/Job](/techniques/T1603) <small style="color:#929393">(v1.0)</small>
 * [Screen Capture](/techniques/T1513) <small style="color:#929393">(v1.3)</small>
 * [Software Discovery](/techniques/T1418) <small style="color:#929393">(v2.1)</small>
-    * [Security Software Discovery](/techniques/T1418/001) <small style="color:#929393">(v1.1)</small>
+  * [Security Software Discovery](/techniques/T1418/001) <small style="color:#929393">(v1.1)</small>
 * Steal Application Access Token: [URI Hijacking](/techniques/T1635/001) <small style="color:#929393">(v1.1)</small>
 * [Stored Application Data](/techniques/T1409) <small style="color:#929393">(v3.1)</small>
 * [Subvert Trust Controls](/techniques/T1632) <small style="color:#929393">(v1.1)</small>
-    * [Code Signing Policy Modification](/techniques/T1632/001) <small style="color:#929393">(v1.1)</small>
+  * [Code Signing Policy Modification](/techniques/T1632/001) <small style="color:#929393">(v1.1)</small>
 * [Supply Chain Compromise](/techniques/T1474) <small style="color:#929393">(v2.1)</small>
-    * [Compromise Hardware Supply Chain](/techniques/T1474/002) <small style="color:#929393">(v1.1)</small>
-    * [Compromise Software Dependencies and Development Tools](/techniques/T1474/001) <small style="color:#929393">(v1.1)</small>
-    * [Compromise Software Supply Chain](/techniques/T1474/003) <small style="color:#929393">(v1.1)</small>
+  * [Compromise Hardware Supply Chain](/techniques/T1474/002) <small style="color:#929393">(v1.1)</small>
+  * [Compromise Software Dependencies and Development Tools](/techniques/T1474/001) <small style="color:#929393">(v1.1)</small>
+  * [Compromise Software Supply Chain](/techniques/T1474/003) <small style="color:#929393">(v1.1)</small>
 * [System Information Discovery](/techniques/T1426) <small style="color:#929393">(v1.2)</small>
 * [System Network Connections Discovery](/techniques/T1421) <small style="color:#929393">(v2.1)</small>
 * [Video Capture](/techniques/T1512) <small style="color:#929393">(v2.1)</small>
 * [Virtualization/Sandbox Evasion](/techniques/T1633) <small style="color:#929393">(v1.1)</small>
-    * [System Checks](/techniques/T1633/001) <small style="color:#929393">(v1.1)</small>
+  * [System Checks](/techniques/T1633/001) <small style="color:#929393">(v1.1)</small>
 * [Web Service](/techniques/T1481) <small style="color:#929393">(v1.3)</small>
-    * [Bidirectional Communication](/techniques/T1481/002) <small style="color:#929393">(v1.2)</small>
-    * [Dead Drop Resolver](/techniques/T1481/001) <small style="color:#929393">(v1.2)</small>
-    * [One-Way Communication](/techniques/T1481/003) <small style="color:#929393">(v1.2)</small>
+  * [Bidirectional Communication](/techniques/T1481/002) <small style="color:#929393">(v1.2)</small>
+  * [Dead Drop Resolver](/techniques/T1481/001) <small style="color:#929393">(v1.2)</small>
+  * [One-Way Communication](/techniques/T1481/003) <small style="color:#929393">(v1.2)</small>
 
 ### ICS
 
@@ -2217,73 +2301,3 @@
 * [Service Metadata](/datasources/DS0019/#Service%20Metadata) <small style="color:#929393">(v1.0)</small>
 * [Software](/datasources/DS0039/#Software) <small style="color:#929393">(v1.0)</small>
 
-## Contributors to this release
-
-* Aaron Sullivan aka ZerkerEOD
-* Adam Lichters
-* Alden Schmidt
-* Ale Houspanossian
-* Alexey Kleymenov
-* Alon Klayman, Hunters Security
-* Amnon Kushnir, Sygnia
-* Ben Smith, @cyberg3cko
-* Caio Silva
-* Cian Heasley
-* Cristian Souza - Kaspersky GERT
-* Cristóbal Martínez Martín
-* David Hughes, BT Security
-* Dhiraj Mishra (@RandomDhiraj)
-* Dmitry Bestuzhev
-* Dvir Sasson, Reco
-* Eliraz Levi, Hunters Security
-* Fabian Kammel
-* Fernando Bacchin
-* Flavio Costa, Cisco
-* Frank Angiolelli
-* Gabriel Currie
-* Gerardo Santos
-* Harikrishnan Muthu, Cyble
-* Hiroki Nagahama, NEC Corporation
-* Inna Danilevich, U.S. Bank
-* Jaesang Oh, KC7 Foundation
-* Janantha Marasinghe
-* Jennifer Kim Roman
-* Jiraput Thamsongkrah
-* Joas Antonio dos Santos, @C0d3Cr4zy
-* Joe Gumke, U.S. Bank
-* Jun Hirata, NEC Corporation
-* Kaung Zaw Hein
-* Kevin Ward
-* Kori Yoshihiro, NEC Corporation
-* Kyaw Pyiyt Htet, @KyawPyiytHtet
-* Liran Ravich, CardinalOps
-* Lê Phương Nam, Group-IB
-* Manikantan Srinivasan, NEC Corporation India
-* Matt Anderson, @‌nosecurething, Huntress
-* Matt Brenton, Zurich Global Information Security
-* Matt Brenton, Zurich Insurance Group
-* Menachem Goldstein
-* Michael Davis @ ServiceNow Threat Intelligence
-* MyungUk Han, ASEC
-* Natthawut Saexu
-* Nikita Rostovcev, Group-IB
-* Oren Biderman, Sygnia
-* Peter Oakes
-* Pooja Natarajan, NEC Corporation India
-* Raghvendra Mishra
-* ReliaQuest
-* RoseSecurity
-* Rouven Bissinger (SySS GmbH)
-* Ruben Groenewoud (@RFGroenewoud)
-* Ryan Perez
-* Sareena Karapoola, NEC Corporation India
-* seungyoul.yoo@ahnlab.com
-* Sharmine Low, Group-IB
-* Shun Miyazaki, NEC Corporation
-* Shwetank Murarka
-* Sittikorn Sangrattanapitak
-* Suraj Khetani (@r00treaver)
-* Vicky Ray, RayvenX
-* Vijay Lalwani
-* Wietze Beukema @Wietze
-* Yoshihiro Kori, NEC Corporation

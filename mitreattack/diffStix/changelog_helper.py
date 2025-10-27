@@ -24,6 +24,7 @@ from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
 from mitreattack import release_info
+from mitreattack.stix20 import MitreAttackData
 
 # explanation of modification types to data objects for legend in layer files
 date = datetime.datetime.today()
@@ -46,6 +47,61 @@ class AttackObjectVersion:
     def __repr__(self):
         """Return a string representation of the ATT&CK object version."""
         return f"{self.major}.{self.minor}"
+
+
+@dataclass
+class DomainStatistics:
+    """Statistics for a single ATT&CK domain."""
+
+    name: str
+    tactics: int
+    techniques: int
+    subtechniques: int
+    groups: int
+    software: int
+    campaigns: int
+    mitigations: int
+    assets: int
+    datasources: int
+    detectionstrategies: int
+    analytics: int
+    datacomponents: int
+
+    def format_output(self) -> str:
+        """
+        Format domain statistics as a string.
+
+        Returns
+        -------
+        str
+            Formatted statistics string for display.
+        """
+        # Define all possible statistics with their labels
+        stats = [
+            (self.tactics, "Tactics"),
+            (self.techniques, "Techniques"),
+            (self.subtechniques, "Sub-Techniques"),
+            (self.groups, "Groups"),
+            (self.software, "Software"),
+            (self.campaigns, "Campaigns"),
+            (self.mitigations, "Mitigations"),
+            (self.assets, "Assets"),
+            (self.datasources, "Data Sources"),
+            (self.detectionstrategies, "Detection Strategies"),
+            (self.analytics, "Analytics"),
+            (self.datacomponents, "Data Components"),
+        ]
+
+        # Build parts list, only including items with count > 0
+        parts = [f"{count} {label}" for count, label in stats if count > 0]
+
+        # Join all parts with proper formatting
+        if len(parts) == 0:
+            return f"* {self.name}: No objects"
+        elif len(parts) == 1:
+            return f"* {self.name}: {parts[0]}"
+        else:
+            return f"* {self.name}: {', '.join(parts[:-1])}, and {parts[-1]}"
 
 
 # TODO: Implement a custom decoder as well. Possible solution at this link
@@ -122,7 +178,6 @@ class DiffStix(object):
             "datacomponents",
             "detectionstrategies",
             "analytics",
-            "logsources",
         ]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
@@ -144,7 +199,6 @@ class DiffStix(object):
             "datacomponents": "Data Components",
             "detectionstrategies": "Detection Strategies",
             "analytics": "Analytics",
-            "logsources": "Log Sources",
         }
 
         self.section_descriptions = {
@@ -495,14 +549,23 @@ class DiffStix(object):
                 continue
             if stix_id == detection_relationship["target_ref"]:
                 old_sourceref_id = detection_relationship["source_ref"]
+                # Datacomponent -> Data source relation used to exist via x_mitre_data_source_ref.
+                # New STIX may not include parent datasources; attempt explicit ref first, then a heuristic lookup.
                 if old_sourceref_id in all_old_domain_datacomponents:
                     old_datacomponent = all_old_domain_datacomponents[old_sourceref_id]
-                    old_datasource_id = old_datacomponent["x_mitre_data_source_ref"]
-                    old_datasource = all_old_domain_datasources[old_datasource_id]
-                    old_datasource_attack_id = get_attack_id(stix_obj=old_datasource)
-                    old_datacomponent_detections[old_sourceref_id] = (
-                        f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
-                    )
+                    old_datasource_id = old_datacomponent.get("x_mitre_data_source_ref")
+                    if not old_datasource_id:
+                        # Best-effort fallback: try to resolve a parent datasource from available datasource objects.
+                        old_datasource_id = resolve_datacomponent_parent(old_datacomponent, all_old_domain_datasources)
+                    if old_datasource_id and old_datasource_id in all_old_domain_datasources:
+                        old_datasource = all_old_domain_datasources[old_datasource_id]
+                        old_datasource_attack_id = get_attack_id(stix_obj=old_datasource)
+                        old_datacomponent_detections[old_sourceref_id] = (
+                            f"{old_datasource_attack_id}: {old_datasource['name']} ({old_datacomponent['name']})"
+                        )
+                    else:
+                        # No parent datasource identified — show the datacomponent name as standalone.
+                        old_datacomponent_detections[old_sourceref_id] = f"{old_datacomponent['name']}"
                 if old_sourceref_id in all_old_domain_detectionstrategies:
                     old_detectionstrategy = all_old_domain_detectionstrategies[old_sourceref_id]
                     old_detectionstrategy_attack_id = get_attack_id(stix_obj=old_detectionstrategy)
@@ -515,14 +578,22 @@ class DiffStix(object):
                 continue
             if stix_id == detection_relationship["target_ref"]:
                 new_sourceref_id = detection_relationship["source_ref"]
+                # Handle datacomponents that may no longer reference a datasource.
                 if new_sourceref_id in all_new_domain_datacomponents:
                     new_datacomponent = all_new_domain_datacomponents[new_sourceref_id]
-                    new_datasource_id = new_datacomponent["x_mitre_data_source_ref"]
-                    new_datasource = all_new_domain_datasources[new_datasource_id]
-                    new_datasource_attack_id = get_attack_id(stix_obj=new_datasource)
-                    new_datacomponent_detections[new_sourceref_id] = (
-                        f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
-                    )
+                    new_datasource_id = new_datacomponent.get("x_mitre_data_source_ref")
+                    if not new_datasource_id:
+                        # Best-effort fallback lookup into datasources
+                        new_datasource_id = resolve_datacomponent_parent(new_datacomponent, all_new_domain_datasources)
+                    if new_datasource_id and new_datasource_id in all_new_domain_datasources:
+                        new_datasource = all_new_domain_datasources[new_datasource_id]
+                        new_datasource_attack_id = get_attack_id(stix_obj=new_datasource)
+                        new_datacomponent_detections[new_sourceref_id] = (
+                            f"{new_datasource_attack_id}: {new_datasource['name']} ({new_datacomponent['name']})"
+                        )
+                    else:
+                        # No parent datasource identified — show the datacomponent name as standalone.
+                        new_datacomponent_detections[new_sourceref_id] = f"{new_datacomponent['name']}"
                 if new_sourceref_id in all_new_domain_detectionstrategies:
                     new_detectionstrategy = all_new_domain_detectionstrategies[new_sourceref_id]
                     new_detectionstrategy_attack_id = get_attack_id(stix_obj=new_detectionstrategy)
@@ -658,7 +729,6 @@ class DiffStix(object):
             "datacomponents": [Filter("type", "=", "x-mitre-data-component")],
             "detectionstrategies": [Filter("type", "=", "x-mitre-detection-strategy")],
             "analytics": [Filter("type", "=", "x-mitre-analytic")],
-            "logsources": [Filter("type", "=", "x-mitre-log-source")],
         }
         for object_type, stix_filters in attack_type_to_stix_filter.items():
             raw_data = []
@@ -813,11 +883,15 @@ class DiffStix(object):
             if datacomponent["id"] not in children:
                 continue
 
-            parent_datasource_id = datacomponent["x_mitre_data_source_ref"]
+            # Prefer explicit reference, otherwise try a heuristic lookup
+            parent_datasource_id = datacomponent.get("x_mitre_data_source_ref")
+            if not parent_datasource_id:
+                parent_datasource_id = resolve_datacomponent_parent(datacomponent, datasources)
             the_datacomponent = children[datacomponent["id"]]
-            if parent_datasource_id not in parentToChildren:
-                parentToChildren[parent_datasource_id] = []
-            parentToChildren[parent_datasource_id].append(the_datacomponent)
+            if parent_datasource_id:
+                if parent_datasource_id not in parentToChildren:
+                    parentToChildren[parent_datasource_id] = []
+                parentToChildren[parent_datasource_id].append(the_datacomponent)
 
         # now group parents and children
         groupings = []
@@ -898,7 +972,11 @@ class DiffStix(object):
                     parent_id = subtechnique_relationship["target_ref"]
                     return techniques[parent_id]
         elif stix_object["type"] == "x-mitre-data-component":
-            return datasources[stix_object.get("x_mitre_data_source_ref")]
+            parent_ref = stix_object.get("x_mitre_data_source_ref")
+            if parent_ref and parent_ref in datasources:
+                return datasources[parent_ref]
+            # No parent datasource available for this datacomponent.
+            return {}
 
         # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
         return {}
@@ -944,12 +1022,16 @@ class DiffStix(object):
                 parent_object = self.get_parent_stix_object(
                     stix_object=revoker, datastore_version=datastore_version, domain=domain
                 )
-                parent_name = parent_object.get("name", "ERROR NO PARENT")
-                relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = (
-                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                )
+                if parent_object:
+                    parent_name = parent_object.get("name", "ERROR NO PARENT")
+                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
+                    revoker_link = f"{self.site_prefix}/{relative_url}"
+                    placard_string = (
+                        f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                    )
+                else:
+                    # No parent datasource available — fall back to a plain-text representation.
+                    placard_string = f"{stix_object['name']} (revoked by {revoker['name']})"
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
@@ -964,6 +1046,9 @@ class DiffStix(object):
                 if parent_object:
                     relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
                     placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                else:
+                    # No parent datasource available — display datacomponent name as plain text.
+                    placard_string = stix_object["name"]
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=stix_object)
@@ -972,6 +1057,134 @@ class DiffStix(object):
         version_string = get_placard_version_string(stix_object=stix_object, section=section)
         full_placard_string = f"{placard_string} {version_string}"
         return full_placard_string
+
+    def _collect_domain_statistics(self, datastore: MemoryStore, domain_name: str) -> DomainStatistics:
+        """
+        Collect statistics for a single domain from a STIX datastore.
+
+        Parameters
+        ----------
+        datastore : MemoryStore
+            The STIX MemoryStore containing the domain data.
+        domain_name : str
+            Display name of the domain (e.g., "Enterprise", "Mobile", "ICS").
+
+        Returns
+        -------
+        DomainStatistics
+            Statistics for the domain.
+        """
+        # Create MitreAttackData instance from the datastore
+        data = MitreAttackData(src=datastore)
+
+        # Get all object types, removing revoked and deprecated
+        tactics = data.get_tactics(remove_revoked_deprecated=True)
+        techniques = data.get_techniques(include_subtechniques=False, remove_revoked_deprecated=True)
+        subtechniques = data.get_subtechniques(remove_revoked_deprecated=True)
+        groups = data.get_groups(remove_revoked_deprecated=True)
+        software = data.get_software(remove_revoked_deprecated=True)
+        campaigns = data.get_campaigns(remove_revoked_deprecated=True)
+        mitigations = data.get_mitigations(remove_revoked_deprecated=True)
+        assets = data.get_assets(remove_revoked_deprecated=True)
+        datasources = data.get_datasources(remove_revoked_deprecated=True)
+        detectionstrategies = data.get_detectionstrategies(remove_revoked_deprecated=True)
+        analytics = data.get_analytics(remove_revoked_deprecated=True)
+        datacomponents = data.get_datacomponents(remove_revoked_deprecated=True)
+
+        return DomainStatistics(
+            name=domain_name,
+            tactics=len(tactics),
+            techniques=len(techniques),
+            subtechniques=len(subtechniques),
+            groups=len(groups),
+            software=len(software),
+            campaigns=len(campaigns),
+            mitigations=len(mitigations),
+            assets=len(assets),
+            datasources=len(datasources),
+            detectionstrategies=len(detectionstrategies),
+            analytics=len(analytics),
+            datacomponents=len(datacomponents),
+        )
+
+    def _collect_unique_object_counts(self, datastore_version: str) -> dict[str, int]:
+        """
+        Collect counts of unique objects across all domains for a specific version.
+
+        Some objects (Software, Groups, Campaigns) may appear in multiple domains.
+        This function counts unique objects to avoid double-counting.
+
+        Parameters
+        ----------
+        datastore_version : str
+            Either "old" or "new" to specify which version's data to analyze.
+
+        Returns
+        -------
+        dict of str to int
+            Counts of unique software, groups, and campaigns.
+        """
+        all_software_ids = set()
+        all_groups_ids = set()
+        all_campaigns_ids = set()
+
+        for domain in self.domains:
+            datastore = self.data[datastore_version][domain]["stix_datastore"]
+            data = MitreAttackData(src=datastore)
+
+            software = data.get_software(remove_revoked_deprecated=True)
+            groups = data.get_groups(remove_revoked_deprecated=True)
+            campaigns = data.get_campaigns(remove_revoked_deprecated=True)
+
+            all_software_ids.update(obj["id"] for obj in software)
+            all_groups_ids.update(obj["id"] for obj in groups)
+            all_campaigns_ids.update(obj["id"] for obj in campaigns)
+
+        return {
+            "software": len(all_software_ids),
+            "groups": len(all_groups_ids),
+            "campaigns": len(all_campaigns_ids),
+        }
+
+    def get_statistics_section(self, datastore_version: str = "new") -> str:
+        """
+        Generate a markdown section with ATT&CK statistics for all domains.
+
+        Parameters
+        ----------
+        datastore_version : str, optional
+            Either "old" or "new" to specify which version's statistics to generate.
+            Defaults to "new".
+
+        Returns
+        -------
+        str
+            Markdown-formatted statistics section.
+        """
+        # Collect unique object counts across all domains
+        unique_counts = self._collect_unique_object_counts(datastore_version)
+
+        # Collect statistics for each domain
+        domain_stats = []
+        for domain in self.domains:
+            datastore = self.data[datastore_version][domain]["stix_datastore"]
+            domain_label = self.domain_to_domain_label[domain]
+            stats = self._collect_domain_statistics(datastore, domain_label)
+            domain_stats.append(stats)
+
+        # Build the statistics section
+        output = "## Statistics\n\n"
+        output += (
+            f"This version of ATT&CK contains {unique_counts['software']} Software, "
+            f"{unique_counts['groups']} Groups, and {unique_counts['campaigns']} Campaigns.\n\n"
+        )
+        output += "Broken out by domain:\n\n"
+
+        for stats in domain_stats:
+            output += stats.format_output() + "\n"
+
+        output += "\n"
+        return output
 
     def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
         """Parse a list of STIX objects in a section and return a string for the whole section."""
@@ -986,7 +1199,7 @@ class DiffStix(object):
                 placard_string = self.placard(stix_object=child, section=section, domain=domain)
 
                 if grouping["parentInSection"]:
-                    sectionString += f"    * {placard_string}\n"
+                    sectionString += f"  * {placard_string}\n"
                 else:
                     sectionString += f"* {grouping['parent']['name']}: {placard_string}\n"
 
@@ -1023,9 +1236,22 @@ class DiffStix(object):
         logger.info("Generating markdown output")
         content = ""
 
+        # Add contributors if requested by argument
+        if self.include_contributors:
+            content += self.get_contributor_section()
+            content += "\n"
+
+        # Add statistics section for the new version
+        logger.info("Generating statistics section")
+        stats_section = self.get_statistics_section(datastore_version="new")
+        content += stats_section
+
         if self.show_key:
             key_content = self.get_md_key()
-            content = f"{key_content}\n\n"
+            content += f"{key_content}\n"
+
+        content += "## Table of Contents\n\n"
+        content += "[TOC]\n\n"
 
         for object_type in self.types:
             domains = ""
@@ -1060,10 +1286,6 @@ class DiffStix(object):
             # e.g "techniques"
             if domains != "":
                 content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
-
-        # Add contributors if requested by argument
-        if self.include_contributors:
-            content += self.get_contributor_section()
 
         return content
 
@@ -1271,6 +1493,22 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
             new_values.append(child)
 
     return new_values
+
+
+def resolve_datacomponent_parent(datacomponent: dict, datasources: Dict[str, dict]) -> Optional[str]:
+    """Best-effort resolution of a datacomponent's parent datasource when an explicit x_mitre_data_source_ref is not present.
+
+    Strategy:
+    1. If the datacomponent contains an explicit 'x_mitre_data_source_ref', return it.
+    2. If no match, return None.
+    """
+    # explicit ref
+    parent_ref = datacomponent.get("x_mitre_data_source_ref")
+    if parent_ref:
+        return parent_ref
+
+    # nothing matched
+    return None
 
 
 def version_increment_is_valid(
@@ -1548,7 +1786,7 @@ def markdown_to_html(outfile: str, content: str, diffStix: DiffStix):
     html_string = """<div style='max-width: 55em;margin: auto;margin-top:20px;font-family: "Roboto", sans-serif;'>"""
     html_string += "<meta charset='utf-8'>"
     html_string += header
-    html_string += markdown.markdown(content)
+    html_string += markdown.markdown(content, extensions=["toc"])
     html_string += "</div>"
 
     with open(outfile, "w", encoding="utf-8") as outputfile:
@@ -1683,16 +1921,12 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
                             if parent_object:
                                 nameplate = f"{parent_object.get('name')}: {stix_object['name']}"
                             else:
-                                logger.warning(f"[{stix_object['id']}] {attack_id} has no parent!")
-                                nameplate = f"{stix_object['name']} (No parent object identified. It is likely revoked or deprecated)"
+                                nameplate = f"{stix_object['name']}"
                         else:
                             nameplate = stix_object["name"]
 
                         if attack_id:
                             nameplate = f"[{attack_id}] {nameplate}"
-                        else:
-                            if stix_object["type"] != "x-mitre-data-component":
-                                logger.warning(f"{stix_object['id']} does not have an ATT&CK ID")
 
                         lines.append("<hr>")
                         lines.append(f"<h4>{nameplate}</h4>")

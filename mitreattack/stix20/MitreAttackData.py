@@ -26,10 +26,12 @@ from stix2 import Filter
 from stix2.utils import get_type_from_id
 
 from mitreattack.stix20.custom_attack_objects import (
+    Analytic,
     Asset,
     CustomStixObject,
     DataComponent,
     DataSource,
+    DetectionStrategy,
     Matrix,
     StixObjectFactory,
     Tactic,
@@ -106,6 +108,8 @@ class MitreAttackData:
         "x-mitre-data-source",
         "x-mitre-data-component",
         "x-mitre-asset",
+        "x-mitre-analytic",
+        "x-mitre-detection-strategy",
     ]
 
     # --- Software/Group Relationships ---
@@ -147,6 +151,10 @@ class MitreAttackData:
     # --- Technique/Asset Relationships ---
     all_techniques_targeting_all_assets: Optional[RelationshipMapT[Technique]] = None
     all_assets_targeted_by_all_techniques: Optional[RelationshipMapT[Asset]] = None
+
+    # --- Detection Strategy/Technique Relationships ---
+    all_detection_strategies_detecting_all_techniques: Optional[RelationshipMapT[DetectionStrategy]] = None
+    all_techniques_detected_by_all_detection_strategies: Optional[RelationshipMapT[Technique]] = None
 
     def __init__(self, stix_filepath: str | None = None, src: stix2.MemoryStore | None = None):
         """Initialize a MitreAttackData object.
@@ -430,6 +438,36 @@ class MitreAttackData:
             A list of DataComponent objects.
         """
         return self.get_objects_by_type("x-mitre-data-component", remove_revoked_deprecated)
+
+    def get_analytics(self, remove_revoked_deprecated: bool = False) -> list[Analytic]:
+        """Retrieve all analytic objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            Remove revoked or deprecated objects from the query, by default False.
+
+        Returns
+        -------
+        list[Analytic]
+            A list of Analytic objects.
+        """
+        return self.get_objects_by_type("x-mitre-analytic", remove_revoked_deprecated)
+
+    def get_detectionstrategies(self, remove_revoked_deprecated: bool = False) -> list[DetectionStrategy]:
+        """Retrieve all detection strategy objects.
+
+        Parameters
+        ----------
+        remove_revoked_deprecated : bool, optional
+            Remove revoked or deprecated objects from the query, by default False.
+
+        Returns
+        -------
+        list[DetectionStrategy]
+            A list of DetectionStrategy objects.
+        """
+        return self.get_objects_by_type("x-mitre-detection-strategy", remove_revoked_deprecated)
 
     ###################################
     # Get STIX Objects by Value
@@ -733,6 +771,37 @@ class MitreAttackData:
         technique_ids = [r.target_ref for r in software_uses]
         return self.src.query([Filter("type", "=", "attack-pattern"), Filter("id", "in", technique_ids)])
 
+    def get_analytics_by_detection_strategy(
+        self, detection_strategy_stix_id: str, remove_revoked_deprecated: bool = False
+    ) -> list[Analytic]:
+        """Retrieve analytics for a detection strategy.
+
+        Parameters
+        ----------
+        detection_strategy_stix_id: str
+            Detection Strategy to search.
+        remove_revoked_deprecated : bool, optional
+            Remove revoked or deprecated objects from the query, by default False.
+
+        Returns
+        -------
+        list[Analytic]
+            A list of Analytic objects referenced by the given detection strategy.
+
+        Raises
+        ------
+        ValueError
+            If no detection strategy with the given STIX ID is found.
+        """
+        detection_strategy = self.get_object_by_stix_id(detection_strategy_stix_id)
+        analytic_refs = self.get_field(detection_strategy, "x_mitre_analytic_refs", [])
+
+        filters = [Filter("type", "=", "x-mitre-analytic"), Filter("id", "in", analytic_refs)]
+        analytics = self.src.query(filters)
+        if remove_revoked_deprecated:
+            analytics = self.remove_revoked_deprecated(analytics)
+        return analytics
+
     ###################################
     # Get STIX Object by Value
     ###################################
@@ -912,8 +981,8 @@ class MitreAttackData:
             The ATT&CK ID of the object, or None if not found.
         """
         obj = self.get_object_by_stix_id(stix_id)
-        external_references = obj.get("external_references")
-        if external_references:
+        external_references = self.get_field(obj, "external_references", [])
+        if external_references and len(external_references) > 0:
             attack_source = external_references[0]
             if attack_source.get("external_id") and attack_source.get("source_name") == "mitre-attack":
                 return attack_source["external_id"]
@@ -949,8 +1018,8 @@ class MitreAttackData:
         """
         obj = self.get_object_by_stix_id(stix_id)
         # name = MitreAttackData.get_field(obj, "name")
-        name = obj.get("name")
-        return name if name is not None else None
+        name = self.get_field(obj, "name")
+        return name
 
     ###################################
     # Relationship Section
@@ -1958,5 +2027,89 @@ class MitreAttackData:
         return (
             assets_targeted_by_techniques[technique_stix_id]
             if technique_stix_id in assets_targeted_by_techniques
+            else []
+        )
+
+    ############################################
+    # Detection Strategy/Technique Relationships
+    ############################################
+
+    def get_all_detection_strategies_detecting_all_techniques(self) -> RelationshipMapT[DetectionStrategy]:
+        """Get all detection strategies detecting all techniques.
+
+        Returns
+        -------
+        RelationshipMapT[DetectionStrategy]
+            Mapping of asset_stix_id to RelationshipEntry[DetectionStrategy] for each detection strategy detecting the technique.
+        """
+        # return data if it has already been fetched
+        if self.all_detection_strategies_detecting_all_techniques:
+            return self.all_detection_strategies_detecting_all_techniques
+
+        self.all_detection_strategies_detecting_all_techniques = self.get_related(
+            "x-mitre-detection-strategy", "detects", "attack-pattern", reverse=True
+        )
+
+        return self.all_detection_strategies_detecting_all_techniques
+
+    def get_detection_strategies_detecting_technique(
+        self, technique_stix_id: str
+    ) -> list[RelationshipEntry[DetectionStrategy]]:
+        """Get all detection strategies detecting a technique.
+
+        Parameters
+        ----------
+        technique_stix_id : str
+            The STIX ID of the technique.
+
+        Returns
+        -------
+        list[RelationshipEntry[DetectionStrategy]]
+            List of RelationshipEntry[DetectionStrategy] for each detection strategy detecting the technique.
+        """
+        detection_strategies_detecting_techniques = self.get_all_detection_strategies_detecting_all_techniques()
+        return (
+            detection_strategies_detecting_techniques[technique_stix_id]
+            if technique_stix_id in detection_strategies_detecting_techniques
+            else []
+        )
+
+    def get_all_techniques_detected_by_all_detection_strategies(self) -> RelationshipMapT[Technique]:
+        """Get all techniques detected by all detection strategies.
+
+        Returns
+        -------
+        RelationshipMapT[Technique]
+            Mapping of detection_strategy_stix_id to RelationshipEntry[Technique] for each technique detected by the detection strategy.
+        """
+        # return data if it has already been fetched
+        if self.all_techniques_detected_by_all_detection_strategies:
+            return self.all_techniques_detected_by_all_detection_strategies
+
+        self.all_techniques_detected_by_all_detection_strategies = self.get_related(
+            "x-mitre-detection-strategy", "detects", "attack-pattern"
+        )
+
+        return self.all_techniques_detected_by_all_detection_strategies
+
+    def get_techniques_detected_by_detection_strategy(
+        self, detection_strategy_stix_id: str
+    ) -> list[RelationshipEntry[Technique]]:
+        """Get all techniques detected by a detection strategy.
+
+        Parameters
+        ----------
+        detection_strategy_stix_id : str
+            The STIX ID of the detection strategy.
+
+        Returns
+        -------
+        list[RelationshipEntry[Technique]]
+            List of RelationshipEntry[Technique] for each technique detected by the detection strategy.
+        """
+        techniques_detected_by_detection_strategies = self.get_all_techniques_detected_by_all_detection_strategies()
+        return (
+            techniques_detected_by_detection_strategies[detection_strategy_stix_id]
+            if detection_strategy_stix_id in techniques_detected_by_detection_strategies
             else []
         )
