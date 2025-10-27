@@ -1,5 +1,37 @@
 # Changelog
 
+## 5.2.0 (2025-10-28)
+
+### Feat
+
+- add table of contents to generated changelog
+- add statistics section to changelog
+- add analytics and detection strategies to excel outputs
+- add attack spec version 3.3.0 objects to stix20/ code
+
+### Fix
+
+- update excel tests based on v18 changes
+- use stix v2.0 version of CustomObject, ExternalReference
+- remove deprecated x_mitre_data_source_ref field on data components
+- update changelog output and pytest golden output to match it
+- only build excel once when version < 18
+- proper handling of typer.Option in defaults
+- handle missing/deprecated data sources, separate data component parsing in v18+
+- handle empty lists of analytics/detection strategies
+- fix type errors
+- modified date in excel for datasources/datacomponents wasn't showing
+- add tests for previous 2 commits, fix resulting bugs
+- lint errors, add x_mitre_deprecated to stix20/ custom objects
+- remove warnings for data component with no parent
+- handle new detection strategy STIX bundles that have altered how datasources work
+- handle missing x_mitre_data_source_ref in data components
+- update logic to work with new detection strategy objects
+
+### Refactor
+
+- remove unnecessary references to x_mitre_data_sources
+
 ## 5.1.0 (2025-08-28)
 
 ### Feat
