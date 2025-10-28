@@ -8,7 +8,7 @@ def main():
     output_dir = "output/"
 
     # Path to the STIX bundles for each domain (assumes STIX files are downloaded)
-    stix_base_dir = os.environ.get("STIX_BASE_DIR", "attack-releases/stix-2.0/v17.1")
+    stix_base_dir = os.environ.get("STIX_BASE_DIR", "attack-releases/stix-2.0/v18.0")
     stix_files = {
         "enterprise-attack": os.path.join(stix_base_dir, "enterprise-attack.json"),
         "mobile-attack": os.path.join(stix_base_dir, "mobile-attack.json"),

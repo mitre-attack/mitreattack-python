@@ -38,7 +38,7 @@ Setting up these tools is out of scope for this README.
 
 ### Downloading ATT&CK STIX Bundles
 
-Many example scripts require ATT&CK STIX bundles, which must be downloaded and placed in the directory specified in your `.env` file (e.g., `attack-releases/stix-2.0/v17.1`).
+Many example scripts require ATT&CK STIX bundles, which must be downloaded and placed in the directory specified in your `.env` file (e.g., `attack-releases/stix-2.0/v18.0`).
 You can download these bundles using the provided CLI command if you have mitreattack-python installed:
 
 ```sh
