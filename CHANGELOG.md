@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.2.1 (2025-10-28)
+
+### Fix
+
+- remove broken unit tests
+
 ## 5.2.0 (2025-10-28)
 
 ### Feat

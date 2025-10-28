@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 project = "mitreattack-python"
 copyright = "2025, The MITRE Corporation"
-version = "5.2.0"
-release = "5.2.0"
+version = "5.2.1"
+release = "5.2.1"
 
 # -- General configuration ---------------------------------------------------
 extensions = [
