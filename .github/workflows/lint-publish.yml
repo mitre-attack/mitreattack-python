@@ -26,6 +26,9 @@ jobs:
       - name: Check ruff format
         run: poetry run ruff format --check
 
+      - name: Run pytest
+        run: poetry run pytest --cov=mitreattack
+
   publish:
     needs: lint-format
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')

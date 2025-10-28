@@ -3,8 +3,8 @@ from mitreattack.diffStix.changelog_helper import get_new_changelog_md
 
 def main():
     version_pairs = [
-        ("16.1", "17.0"),
         ("17.0", "17.1"),
+        ("17.1", "18.0"),
     ]
     for version_pair in version_pairs:
         old_version = version_pair[0]
