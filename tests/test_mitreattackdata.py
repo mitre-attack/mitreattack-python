@@ -160,11 +160,6 @@ class TestMitreAttackData:
         campaigns = mitre_attack_data_enterprise.get_all_campaigns_using_all_techniques()
         assert campaigns
 
-    # def test_all_datacomponents_detecting_all_techniques(self, mitre_attack_data_enterprise: MitreAttackData):
-    #     """Test that all datacomponents detecting all techniques can be retrieved."""
-    #     datacomponents = mitre_attack_data_enterprise.get_all_datacomponents_detecting_all_techniques()
-    #     assert datacomponents
-
     def test_all_groups_attributing_to_all_campaigns(self, mitre_attack_data_enterprise: MitreAttackData):
         """Test that all groups attributing to all campaigns can be retrieved."""
         groups = mitre_attack_data_enterprise.get_all_groups_attributing_to_all_campaigns()
@@ -209,11 +204,6 @@ class TestMitreAttackData:
         """Test that all subtechniques of all techniques can be retrieved."""
         subtechniques = mitre_attack_data_enterprise.get_all_subtechniques_of_all_techniques()
         assert subtechniques
-
-    # def test_all_techniques_detected_by_all_datacomponents(self, mitre_attack_data_enterprise: MitreAttackData):
-    #     """Test that all techniques detected by all datacomponents can be retrieved."""
-    #     techniques = mitre_attack_data_enterprise.get_all_techniques_detected_by_all_datacomponents()
-    #     assert techniques
 
     def test_all_techniques_mitigated_by_all_mitigations(self, mitre_attack_data_enterprise: MitreAttackData):
         """Test that all techniques mitigated by all mitigations can be retrieved."""

@@ -51,6 +51,8 @@ def build_data_strings(data_sources, data_components):
     """
     out = dict()
     for component in data_components:
+        if "x_mitre_data_source_ref" not in component:
+            continue
         ref = component["x_mitre_data_source_ref"]
         try:
             source = [x for x in data_sources if x["id"] == ref][0]
