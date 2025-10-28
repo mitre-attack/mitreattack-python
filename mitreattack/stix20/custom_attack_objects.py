@@ -108,7 +108,7 @@ def StixObjectFactory(data: dict) -> Union[CustomStixObject, stix2.v20.sdo._Doma
         ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
         ("x_mitre_version", StringProperty()),
         ("x_mitre_attack_spec_version", StringProperty()),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Matrix Properties
         ("tactic_refs", ListProperty(ReferenceProperty(valid_types="x-mitre-tactic", spec_version="2.0"))),
     ],
@@ -142,7 +142,7 @@ class Matrix(CustomStixObject, object):
         ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
         ("x_mitre_version", StringProperty()),
         ("x_mitre_attack_spec_version", StringProperty()),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Tactic Properties
         ("x_mitre_shortname", StringProperty()),
     ],
@@ -188,7 +188,7 @@ class Tactic(CustomStixObject, object):
         ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
         ("x_mitre_version", StringProperty()),
         ("x_mitre_attack_spec_version", StringProperty()),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Data Source Properties
         ("x_mitre_platforms", ListProperty(StringProperty())),
         ("x_mitre_collection_layers", ListProperty(StringProperty())),
@@ -223,7 +223,7 @@ class DataSource(CustomStixObject, object):
         ("x_mitre_modified_by_ref", ReferenceProperty(valid_types="identity", spec_version="2.0")),
         ("x_mitre_version", StringProperty()),
         ("x_mitre_attack_spec_version", StringProperty()),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Data Component Properties
         ("x_mitre_log_sources", ListProperty(DictionaryProperty())),
     ],
@@ -258,7 +258,7 @@ class DataComponent(CustomStixObject, object):
         ("x_mitre_attack_spec_version", StringProperty()),
         ("x_mitre_domains", ListProperty(StringProperty())),
         ("x_mitre_contributors", ListProperty(StringProperty())),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Asset Properties
         ("sectors", ListProperty(StringProperty())),
         ("x_mitre_related_assets", ListProperty(DictionaryProperty())),
@@ -296,7 +296,7 @@ class Asset(CustomStixObject, object):
         ("x_mitre_attack_spec_version", StringProperty()),
         ("x_mitre_domains", ListProperty(StringProperty())),
         ("x_mitre_contributors", ListProperty(StringProperty())),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Analytic Properties
         ("x_mitre_platforms", ListProperty(StringProperty())),
         ("x_mitre_log_source_references", ListProperty(DictionaryProperty())),
@@ -335,7 +335,7 @@ class Analytic(CustomStixObject, object):
         ("x_mitre_attack_spec_version", StringProperty()),
         ("x_mitre_domains", ListProperty(StringProperty())),
         ("x_mitre_contributors", ListProperty(StringProperty())),
-        ("x-mitre-deprecated", BooleanProperty(default=lambda: False)),
+        ("x_mitre_deprecated", BooleanProperty(default=lambda: False)),
         # Detection Strategy Properties
         ("x_mitre_analytic_refs", ListProperty(ReferenceProperty(valid_types="x-mitre-analytic", spec_version="2.0"))),
     ],
