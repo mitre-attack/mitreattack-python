@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from mitreattack.stix20 import MitreAttackData
 
 # Get STIX base directory from environment or use default
-STIX_BASE_DIR = os.environ.get("STIX_BASE_DIR", "attack-releases/stix-2.0/v17.1")
+STIX_BASE_DIR = os.environ.get("STIX_BASE_DIR", "attack-releases/stix-2.0/v18.0")
 
 
 @dataclass
@@ -22,7 +22,10 @@ class DomainStatistics:
     campaigns: int
     mitigations: int
     datasources: int
-    assets: int = 0
+    assets: int
+    datacomponents: int
+    analytics: int
+    detectionstrategies: int
 
     def format_output(self) -> str:
         """
@@ -44,6 +47,9 @@ class DomainStatistics:
             (self.mitigations, "Mitigations"),
             (self.assets, "Assets"),
             (self.datasources, "Data Sources"),
+            (self.detectionstrategies, "Detection Strategies"),
+            (self.analytics, "Analytics"),
+            (self.datacomponents, "Data Components"),
         ]
 
         # Build parts list, only including items with count > 0
@@ -99,11 +105,10 @@ def collect_domain_statistics(data: MitreAttackData, domain_name: str) -> Domain
     campaigns = data.get_campaigns(remove_revoked_deprecated=True)
     mitigations = data.get_mitigations(remove_revoked_deprecated=True)
     datasources = data.get_datasources(remove_revoked_deprecated=True)
-
-    # ICS domain has assets
-    assets = 0
-    if domain_name == "ICS":
-        assets = len(data.get_assets(remove_revoked_deprecated=True))
+    datacomponents = data.get_datacomponents(remove_revoked_deprecated=True)
+    analytics = data.get_analytics(remove_revoked_deprecated=True)
+    detectionstrategies = data.get_detectionstrategies(remove_revoked_deprecated=True)
+    assets = data.get_assets(remove_revoked_deprecated=True)
 
     return DomainStatistics(
         name=domain_name,
@@ -115,7 +120,10 @@ def collect_domain_statistics(data: MitreAttackData, domain_name: str) -> Domain
         campaigns=len(campaigns),
         mitigations=len(mitigations),
         datasources=len(datasources),
-        assets=assets,
+        datacomponents=len(datacomponents),
+        assets=len(assets),
+        analytics=len(analytics),
+        detectionstrategies=len(detectionstrategies),
     )
 
 
