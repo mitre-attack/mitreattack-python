@@ -64,6 +64,7 @@ class OverviewLayerGenerator:
             "x-mitre-data-component": dict(),
             "campaign": dict(),
             "asset": dict(),
+            "x-mitre-detection-strategy": dict(),
         }
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort

@@ -372,15 +372,16 @@ class DiffStix(object):
 
                         # Description changes
                         #####################
-                        old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
-                        new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
-                        old_lines_unique = [line for line in old_lines if line not in new_lines]
-                        new_lines_unique = [line for line in new_lines if line not in old_lines]
-                        if old_lines_unique or new_lines_unique:
-                            html_diff = difflib.HtmlDiff(wrapcolumn=60)
-                            html_diff._legend = ""  # type: ignore[attr-defined]
-                            delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
-                            new_stix_obj["description_change_table"] = delta
+                        if "description" in old_stix_obj and "description" in new_stix_obj:
+                            old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
+                            new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
+                            old_lines_unique = [line for line in old_lines if line not in new_lines]
+                            new_lines_unique = [line for line in new_lines if line not in old_lines]
+                            if old_lines_unique or new_lines_unique:
+                                html_diff = difflib.HtmlDiff(wrapcolumn=60)
+                                html_diff._legend = ""  # type: ignore[attr-defined]
+                                delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
+                                new_stix_obj["description_change_table"] = delta
 
                         # Relationship changes
                         ######################
@@ -1631,16 +1632,17 @@ def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
             return True
 
     # description changed, even though modified date didn't
-    old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
-    new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
-    old_lines_unique = [line for line in old_lines if line not in new_lines]
-    new_lines_unique = [line for line in new_lines if line not in old_lines]
-    if old_lines_unique or new_lines_unique:
-        logger.warning(
-            f"{stix_id} - {attack_id} has a description change "
-            "without the version being incremented or the last modified date changing"
-        )
-        return True
+    if "description" in old_stix_obj and "description" in new_stix_obj:
+        old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
+        new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
+        old_lines_unique = [line for line in old_lines if line not in new_lines]
+        new_lines_unique = [line for line in new_lines if line not in old_lines]
+        if old_lines_unique or new_lines_unique:
+            logger.warning(
+                f"{stix_id} - {attack_id} has a description change "
+                "without the version being incremented or the last modified date changing"
+            )
+            return True
 
     # doesn't meet the definintion of a patch change
     return False

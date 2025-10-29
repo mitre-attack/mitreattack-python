@@ -155,9 +155,8 @@ class UsageLayerGenerator:
         )
         raw_layer["techniques"] = processed_listing
         output_layer = Layer(raw_layer)
-        if matched_obj["type"] != "x-mitre-data-component":
-            name = matched_obj["name"]
-        else:
+        name = matched_obj["name"]
+        if matched_obj["type"] == "x-mitre-data-component" and matched_obj["id"] in self.source_mapping:
             name = self.source_mapping[matched_obj["id"]]
         output_layer.description = (
             f"{self.domain.capitalize() if len(self.domain) > 3 else self.domain.upper()} "

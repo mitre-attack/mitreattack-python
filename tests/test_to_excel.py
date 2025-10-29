@@ -49,9 +49,8 @@ def check_excel_files_exist(excel_folder: Path, domain: str):
     assert (excel_folder / f"{domain}-software.xlsx").exists()
     assert (excel_folder / f"{domain}-tactics.xlsx").exists()
     assert (excel_folder / f"{domain}-techniques.xlsx").exists()
-    # TODO: add in check for analytics/detection strategies after ATT&CK v18 is released
-    # assert (excel_folder / f"{domain}-analytics.xlsx").exists()
-    # assert (excel_folder / f"{domain}-detectionstrategies.xlsx").exists()
+    assert (excel_folder / f"{domain}-analytics.xlsx").exists()
+    assert (excel_folder / f"{domain}-detectionstrategies.xlsx").exists()
 
 
 def test_enterprise_latest(tmp_path: Path, memstore_enterprise_latest: stix2.MemoryStore):
