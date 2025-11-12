@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from mitreattack.diffStix.changelog_helper import get_parsed_args
+from mitreattack.diffStix.cli.argument_parser import get_parsed_args
 
 
 class TestArgumentHandling:

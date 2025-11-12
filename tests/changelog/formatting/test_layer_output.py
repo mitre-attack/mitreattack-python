@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from mitreattack.diffStix.changelog_helper import layers_dict_to_files
+from mitreattack.diffStix.formatters.layer_output import layers_dict_to_files
 
 
 class TestLayerOutput:

@@ -6,7 +6,7 @@ continues to work correctly with real ATT&CK data and matches expected outputs.
 
 import json
 
-from mitreattack.diffStix.changelog_helper import AttackChangesEncoder
+from mitreattack.diffStix.core.attack_changes_encoder import AttackChangesEncoder
 
 
 class TestRegressionBaseline:

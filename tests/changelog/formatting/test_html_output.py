@@ -2,7 +2,7 @@
 
 import json
 
-from mitreattack.diffStix.changelog_helper import markdown_to_html, write_detailed_html
+from mitreattack.diffStix.formatters.html_output import markdown_to_html, write_detailed_html
 
 
 class TestHtmlOutput:

@@ -12,7 +12,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from mitreattack.diffStix.changelog_helper import DiffStix
+from mitreattack.diffStix.core.diff_stix import DiffStix
 
 # Import test utilities
 from tests.changelog.test_utils import (

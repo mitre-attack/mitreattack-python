@@ -1,9 +1,7 @@
 """Tests for change detection and grouping logic."""
 
-from mitreattack.diffStix.changelog_helper import (
-    cleanup_values,
-    is_patch_change,
-)
+from mitreattack.diffStix.utils.stix_utils import cleanup_values
+from mitreattack.diffStix.utils.version_utils import is_patch_change
 
 
 class TestChangeDetection:

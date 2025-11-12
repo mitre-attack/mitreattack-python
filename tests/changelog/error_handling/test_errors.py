@@ -4,10 +4,8 @@ import json
 
 import pytest
 
-from mitreattack.diffStix.changelog_helper import (
-    DiffStix,
-    get_attack_object_version,
-)
+from mitreattack.diffStix.core.diff_stix import DiffStix
+from mitreattack.diffStix.utils.version_utils import get_attack_object_version
 
 
 class TestErrorHandling:

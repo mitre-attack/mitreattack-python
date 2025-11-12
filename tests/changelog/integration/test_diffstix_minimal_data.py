@@ -2,7 +2,7 @@
 
 import json
 
-from mitreattack.diffStix.changelog_helper import DiffStix
+from mitreattack.diffStix.core.diff_stix import DiffStix
 
 
 class TestDiffStixWithMinimalData:

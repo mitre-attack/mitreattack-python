@@ -1,11 +1,7 @@
 """Tests for STIX object processing functionality."""
 
-from mitreattack.diffStix.changelog_helper import (
-    deep_copy_stix,
-    get_attack_id,
-    get_relative_url_from_stix,
-    has_subtechniques,
-)
+from mitreattack.diffStix.utils.stix_utils import deep_copy_stix, get_attack_id, has_subtechniques
+from mitreattack.diffStix.utils.url_utils import get_relative_url_from_stix
 
 
 class TestStixProcessing:

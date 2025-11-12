@@ -4,7 +4,7 @@ import pytest
 import requests
 import responses
 
-from mitreattack.diffStix.changelog_helper import DiffStix
+from mitreattack.diffStix.core.diff_stix import DiffStix
 
 
 class TestNetwork:

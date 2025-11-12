@@ -3,14 +3,11 @@
 import json
 from pathlib import Path
 
-from mitreattack.diffStix.changelog_helper import (
-    AttackChangesEncoder,
-    AttackObjectVersion,
-    get_relative_data_component_url,
-    layers_dict_to_files,
-    markdown_to_html,
-    write_detailed_html,
-)
+from mitreattack.diffStix.core.attack_changes_encoder import AttackChangesEncoder
+from mitreattack.diffStix.formatters.html_output import markdown_to_html, write_detailed_html
+from mitreattack.diffStix.formatters.layer_output import layers_dict_to_files
+from mitreattack.diffStix.utils.url_utils import get_relative_data_component_url
+from mitreattack.diffStix.utils.version_utils import AttackObjectVersion
 
 
 class TestMissingFunctions:

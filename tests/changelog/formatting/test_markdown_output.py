@@ -2,10 +2,8 @@
 
 import pytest
 
-from mitreattack.diffStix.changelog_helper import (
-    AttackObjectVersion,
-    get_placard_version_string,
-)
+from mitreattack.diffStix.formatters.html_output import get_placard_version_string
+from mitreattack.diffStix.utils.version_utils import AttackObjectVersion
 
 
 class TestMarkdownOutput:

@@ -2,7 +2,8 @@
 
 import json
 
-from mitreattack.diffStix.changelog_helper import AttackChangesEncoder, AttackObjectVersion
+from mitreattack.diffStix.core.attack_changes_encoder import AttackChangesEncoder
+from mitreattack.diffStix.utils.version_utils import AttackObjectVersion
 
 
 class TestJsonOutput:

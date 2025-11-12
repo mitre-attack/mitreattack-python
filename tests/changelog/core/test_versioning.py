@@ -2,7 +2,7 @@
 
 import pytest
 
-from mitreattack.diffStix.changelog_helper import (
+from mitreattack.diffStix.utils.version_utils import (
     AttackObjectVersion,
     get_attack_object_version,
     is_major_version_change,
