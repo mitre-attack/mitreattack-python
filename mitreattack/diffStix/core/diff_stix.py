@@ -1050,7 +1050,7 @@ class DiffStix(object):
             Final return string to be displayed in the Changelog.
         """
         # Import here to avoid circular dependency
-        from mitreattack.diffStix.changelog_helper import get_placard_version_string
+        from mitreattack.diffStix.formatters.html_output import get_placard_version_string
 
         datastore_version = "old" if section == "deletions" else "new"
         placard_string = ""
