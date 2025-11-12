@@ -7,62 +7,12 @@ from typing import List, Optional
 from loguru import logger
 from tqdm import tqdm
 
-# Import from CLI modules
 from mitreattack.diffStix.cli.argument_parser import get_parsed_args
-
-# Import from core modules
 from mitreattack.diffStix.core.attack_changes_encoder import AttackChangesEncoder
 from mitreattack.diffStix.core.diff_stix import DiffStix
-from mitreattack.diffStix.core.domain_statistics import DomainStatistics
-
-# Import from formatters modules
-from mitreattack.diffStix.formatters.html_output import (
-    get_placard_version_string,
-    markdown_to_html,
-    write_detailed_html,
-)
+from mitreattack.diffStix.formatters.html_output import markdown_to_html, write_detailed_html
 from mitreattack.diffStix.formatters.layer_output import layers_dict_to_files
-
-# Import from utils
 from mitreattack.diffStix.utils.constants import LAYER_DEFAULTS as layer_defaults
-from mitreattack.diffStix.utils.stix_utils import cleanup_values, deep_copy_stix, get_attack_id, has_subtechniques
-from mitreattack.diffStix.utils.url_utils import get_relative_data_component_url, get_relative_url_from_stix
-from mitreattack.diffStix.utils.version_utils import (
-    AttackObjectVersion,
-    get_attack_object_version,
-    is_major_version_change,
-    is_minor_version_change,
-    is_other_version_change,
-    is_patch_change,
-    version_increment_is_valid,
-)
-
-# Re-export for backward compatibility
-__all__ = [
-    "AttackChangesEncoder",
-    "DiffStix",
-    "DomainStatistics",
-    "AttackObjectVersion",
-    "cleanup_values",
-    "deep_copy_stix",
-    "get_attack_id",
-    "has_subtechniques",
-    "get_attack_object_version",
-    "get_relative_data_component_url",
-    "get_relative_url_from_stix",
-    "is_major_version_change",
-    "is_minor_version_change",
-    "is_other_version_change",
-    "is_patch_change",
-    "version_increment_is_valid",
-    "get_placard_version_string",
-    "markdown_to_html",
-    "layers_dict_to_files",
-    "write_detailed_html",
-    "get_parsed_args",
-    "get_new_changelog_md",
-    "main",
-]
 
 
 def get_new_changelog_md(
