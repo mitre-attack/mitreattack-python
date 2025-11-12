@@ -15,7 +15,6 @@ from typing import Dict, List, Optional
 import markdown
 import requests
 import stix2
-from dateutil import parser as dateparser
 from deepdiff import DeepDiff
 from loguru import logger
 from requests.adapters import HTTPAdapter, Retry
@@ -24,22 +23,10 @@ from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
 from mitreattack import release_info
-from mitreattack.stix20 import MitreAttackData
 
 # Import from new utility modules
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
-from mitreattack.diffStix.utils.constants import DATE as date
-from mitreattack.diffStix.utils.constants import THIS_MONTH as this_month
 from mitreattack.diffStix.utils.constants import LAYER_DEFAULTS as layer_defaults
-from mitreattack.diffStix.utils.version_utils import (
-    AttackObjectVersion,
-    get_attack_object_version,
-    is_major_version_change,
-    is_minor_version_change,
-    is_other_version_change,
-    is_patch_change,
-    version_increment_is_valid,
-)
 from mitreattack.diffStix.utils.stix_utils import (
     cleanup_values,
     deep_copy_stix,
@@ -51,34 +38,16 @@ from mitreattack.diffStix.utils.url_utils import (
     get_relative_data_component_url,
     get_relative_url_from_stix,
 )
-
-# Re-export imported functions for backward compatibility
-__all__ = [
-    "DiffStix",
-    "DomainStatistics",
-    "AttackChangesEncoder",
-    "AttackObjectVersion",
-    "get_attack_object_version",
-    "is_major_version_change",
-    "is_minor_version_change",
-    "is_other_version_change",
-    "is_patch_change",
-    "version_increment_is_valid",
-    "cleanup_values",
-    "deep_copy_stix",
-    "get_attack_id",
-    "has_subtechniques",
-    "resolve_datacomponent_parent",
-    "get_relative_data_component_url",
-    "get_relative_url_from_stix",
-    "get_placard_version_string",
-    "markdown_to_html",
-    "layers_dict_to_files",
-    "write_detailed_html",
-    "get_parsed_args",
-    "get_new_changelog_md",
-    "main",
-]
+from mitreattack.diffStix.utils.version_utils import (
+    AttackObjectVersion,
+    get_attack_object_version,
+    is_major_version_change,
+    is_minor_version_change,
+    is_other_version_change,
+    is_patch_change,
+    version_increment_is_valid,
+)
+from mitreattack.stix20 import MitreAttackData
 
 
 @dataclass

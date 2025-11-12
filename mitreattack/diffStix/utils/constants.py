@@ -63,6 +63,7 @@ SECTION_DESCRIPTIONS = {
     "unchanged": "ATT&CK objects which did not change between the two versions.",
 }
 
+
 # Section headers by object type
 def get_section_headers(object_type: str) -> dict:
     """Get section headers for a specific object type.
@@ -88,6 +89,7 @@ def get_section_headers(object_type: str) -> dict:
         "deletions": "Deletions",
         "unchanged": "Unchanged",
     }
+
 
 # Navigator layer colors for different change types
 LAYER_COLORS = {
