@@ -11,6 +11,7 @@ from loguru import logger
 from rich.progress import track
 from stix2 import Filter, MemoryStore
 
+from mitreattack.diffStix.core.change_detector import ChangeDetector
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
 from mitreattack.diffStix.core.hierarchy_builder import HierarchyBuilder
@@ -197,6 +198,9 @@ class DiffStix(object):
                 for _type in self.types:
                     self.data[datastore_version][domain]["attack_objects"][_type] = {}
 
+        # Initialize change detector before data loading
+        self._change_detector = ChangeDetector(self)
+
         self.load_data()
 
         # Initialize components after data is loaded
@@ -251,28 +255,7 @@ class DiffStix(object):
             True if newly revoked and successfully validated,
             False if validation failed (object should be skipped).
         """
-        # Not revoked at all - continue to deprecation/version checking
-        if not new_obj.get("revoked"):
-            return None
-
-        # Already revoked in old version - not a change, but still revoked
-        # Original code would exit the if block and NOT process as version change
-        if old_obj.get("revoked"):
-            return None
-
-        # Newly revoked - validate the revocation
-        if stix_id not in self.data["new"][domain]["relationships"]["revoked-by"]:
-            logger.error(f"[{stix_id}] revoked object has no revoked-by relationship")
-            return False  # Validation error - skip this object
-
-        revoked_by_key = self.data["new"][domain]["relationships"]["revoked-by"][stix_id][0]["target_ref"]
-        if revoked_by_key not in new_attack_objects:
-            logger.error(f"{stix_id} revoked by {revoked_by_key}, but {revoked_by_key} not found in new STIX bundle!!")
-            return False  # Validation error - skip this object
-
-        revoking_object = new_attack_objects[revoked_by_key]
-        new_obj["revoked_by"] = revoking_object
-        return True  # Successfully detected new revocation
+        return self._change_detector.detect_revocation(stix_id, old_obj, new_obj, new_attack_objects, domain)
 
     def _detect_deprecation(self, old_obj: dict, new_obj: dict) -> bool:
         """Detect if an object has been newly deprecated.
@@ -289,11 +272,7 @@ class DiffStix(object):
         bool
             True if the object was newly deprecated, False otherwise.
         """
-        if not new_obj.get("x_mitre_deprecated"):
-            return False
-
-        # If previously deprecated, not a change
-        return not old_obj.get("x_mitre_deprecated")
+        return self._change_detector.detect_deprecation(old_obj, new_obj)
 
     def _categorize_version_change(
         self, stix_id: str, old_obj: dict, new_obj: dict
@@ -317,27 +296,7 @@ class DiffStix(object):
             - old_version: The old version
             - new_version: The new version
         """
-        # Verify if there are new contributors on the object
-        self.update_contributors(old_object=old_obj, new_object=new_obj)
-
-        old_version = get_attack_object_version(old_obj)
-        new_version = get_attack_object_version(new_obj)
-        new_obj["previous_version"] = old_version
-
-        if is_major_version_change(old_version=old_version, new_version=new_version):
-            return "major", old_version, new_version
-        elif is_minor_version_change(old_version=old_version, new_version=new_version):
-            return "minor", old_version, new_version
-        elif is_other_version_change(old_version=old_version, new_version=new_version):
-            attack_id = get_attack_id(new_obj)
-            logger.warning(
-                f"{stix_id} - Unexpected version increase {old_version} → {new_version}. [{attack_id}] {new_obj['name']}"
-            )
-            return "other", old_version, new_version
-        elif is_patch_change(old_stix_obj=old_obj, new_stix_obj=new_obj):
-            return "patch", old_version, new_version
-        else:
-            return None, old_version, new_version
+        return self._change_detector.categorize_version_change(stix_id, old_obj, new_obj)
 
     def _process_description_changes(self, old_obj: dict, new_obj: dict):
         """Process and store description changes between old and new objects.
@@ -349,19 +308,7 @@ class DiffStix(object):
         new_obj : dict
             The new version of the STIX object.
         """
-        if "description" not in old_obj or "description" not in new_obj:
-            return
-
-        old_lines = old_obj["description"].replace("\n", " ").splitlines()
-        new_lines = new_obj["description"].replace("\n", " ").splitlines()
-        old_lines_unique = [line for line in old_lines if line not in new_lines]
-        new_lines_unique = [line for line in new_lines if line not in old_lines]
-
-        if old_lines_unique or new_lines_unique:
-            html_diff = difflib.HtmlDiff(wrapcolumn=60)
-            html_diff._legend = ""  # type: ignore[attr-defined]
-            delta = html_diff.make_table(old_lines, new_lines, "Old Description", "New Description")
-            new_obj["description_change_table"] = delta
+        return self._change_detector.process_description_changes(old_obj, new_obj)
 
     def _process_relationship_changes(self, new_obj: dict, domain: str):
         """Process relationship changes for attack patterns (techniques).
@@ -373,9 +320,7 @@ class DiffStix(object):
         domain : str
             The ATT&CK domain.
         """
-        if new_obj["type"] == "attack-pattern":
-            self.find_technique_mitigation_changes(new_obj, domain)
-            self.find_technique_detection_changes(new_obj, domain)
+        return self._change_detector.process_relationship_changes(new_obj, domain)
 
     def load_data(self):
         """Load data from files into data dict."""
@@ -559,19 +504,7 @@ class DiffStix(object):
         dict
             Dictionary of related objects keyed by STIX ID.
         """
-        related_objects = {}
-        all_domain_objects = self.data[age][domain]["attack_objects"][object_type]
-
-        for _, relationship in self.data[age][domain]["relationships"][relationship_type].items():
-            if relationship.get("x_mitre_deprecated") or relationship.get("revoked"):
-                continue
-            if stix_id == relationship["target_ref"]:
-                source_ref_id = relationship["source_ref"]
-                if source_ref_id in all_domain_objects:
-                    related_obj = all_domain_objects[source_ref_id]
-                    related_objects[related_obj["id"]] = related_obj
-
-        return related_objects
+        return self._change_detector.collect_related_objects(stix_id, domain, relationship_type, object_type, age)
 
     def _create_changelog_entry(self, old_items: dict, new_items: dict, formatter: callable = None) -> dict:
         """Create a changelog entry with shared, new, and dropped items.
@@ -591,18 +524,7 @@ class DiffStix(object):
         dict
             Dictionary with 'shared', 'new', and 'dropped' keys containing sorted lists.
         """
-        if formatter is None:
-            formatter = lambda obj: f"{get_attack_id(stix_obj=obj)}: {obj['name']}"
-
-        shared = old_items.keys() & new_items.keys()
-        brand_new = new_items.keys() - old_items.keys()
-        dropped = old_items.keys() - new_items.keys()
-
-        return {
-            "shared": sorted([formatter(new_items[stix_id]) for stix_id in shared]),
-            "new": sorted([formatter(new_items[stix_id]) for stix_id in brand_new]),
-            "dropped": sorted([formatter(old_items[stix_id]) for stix_id in dropped]),
-        }
+        return self._change_detector.create_changelog_entry(old_items, new_items, formatter)
 
     def find_technique_mitigation_changes(self, new_stix_obj: dict, domain: str):
         """Find changes in the relationships between Techniques and Mitigations.
@@ -614,12 +536,7 @@ class DiffStix(object):
         domain : str
             An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
         """
-        stix_id = new_stix_obj["id"]
-
-        old_mitigations = self._collect_related_objects(stix_id, domain, "mitigations", "mitigations", "old")
-        new_mitigations = self._collect_related_objects(stix_id, domain, "mitigations", "mitigations", "new")
-
-        new_stix_obj["changelog_mitigations"] = self._create_changelog_entry(old_mitigations, new_mitigations)
+        return self._change_detector.find_technique_mitigation_changes(new_stix_obj, domain)
 
     def _collect_detection_objects(self, stix_id: str, domain: str, age: str) -> tuple[dict[str, str], dict[str, str]]:
         """Collect detection-related objects (datacomponents and detectionstrategies) for a technique.
@@ -640,45 +557,7 @@ class DiffStix(object):
             - datacomponent_detections: formatted detection strings keyed by STIX ID
             - detectionstrategy_detections: formatted detection strings keyed by STIX ID
         """
-        all_datasources = self.data[age][domain]["attack_objects"]["datasources"]
-        all_datacomponents = self.data[age][domain]["attack_objects"]["datacomponents"]
-        all_detectionstrategies = self.data[age][domain]["attack_objects"]["detectionstrategies"]
-
-        datacomponent_detections = {}
-        detectionstrategy_detections = {}
-
-        for _, detection_relationship in self.data[age][domain]["relationships"]["detections"].items():
-            if detection_relationship.get("x_mitre_deprecated") or detection_relationship.get("revoked"):
-                continue
-            if stix_id == detection_relationship["target_ref"]:
-                sourceref_id = detection_relationship["source_ref"]
-
-                # Handle datacomponents with parent datasource resolution
-                if sourceref_id in all_datacomponents:
-                    datacomponent = all_datacomponents[sourceref_id]
-                    datasource_id = datacomponent.get("x_mitre_data_source_ref")
-                    if not datasource_id:
-                        datasource_id = resolve_datacomponent_parent(datacomponent, all_datasources)
-
-                    if datasource_id and datasource_id in all_datasources:
-                        datasource = all_datasources[datasource_id]
-                        datasource_attack_id = get_attack_id(stix_obj=datasource)
-                        datacomponent_detections[sourceref_id] = (
-                            f"{datasource_attack_id}: {datasource['name']} ({datacomponent['name']})"
-                        )
-                    else:
-                        # No parent datasource identified — show standalone
-                        datacomponent_detections[sourceref_id] = f"{datacomponent['name']}"
-
-                # Handle detectionstrategies
-                if sourceref_id in all_detectionstrategies:
-                    detectionstrategy = all_detectionstrategies[sourceref_id]
-                    detectionstrategy_attack_id = get_attack_id(stix_obj=detectionstrategy)
-                    detectionstrategy_detections[sourceref_id] = (
-                        f"{detectionstrategy_attack_id}: {detectionstrategy['name']}"
-                    )
-
-        return datacomponent_detections, detectionstrategy_detections
+        return self._change_detector.collect_detection_objects(stix_id, domain, age)
 
     def find_technique_detection_changes(self, new_stix_obj: dict, domain: str):
         """Find changes in the relationships between Techniques and Datacomponents.
@@ -690,29 +569,7 @@ class DiffStix(object):
         domain : str
             An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
         """
-        stix_id = new_stix_obj["id"]
-
-        # Collect detection objects from old and new data
-        old_datacomponent_detections, old_detectionstrategy_detections = self._collect_detection_objects(
-            stix_id, domain, "old"
-        )
-        new_datacomponent_detections, new_detectionstrategy_detections = self._collect_detection_objects(
-            stix_id, domain, "new"
-        )
-
-        # Create changelog for datacomponent detections
-        new_stix_obj["changelog_datacomponent_detections"] = self._create_changelog_entry(
-            old_datacomponent_detections,
-            new_datacomponent_detections,
-            formatter=lambda obj: obj,  # Already formatted as strings
-        )
-
-        # Create changelog for detectionstrategy detections
-        new_stix_obj["changelog_detectionstrategy_detections"] = self._create_changelog_entry(
-            old_detectionstrategy_detections,
-            new_detectionstrategy_detections,
-            formatter=lambda obj: obj,  # Already formatted as strings
-        )
+        return self._change_detector.find_technique_detection_changes(new_stix_obj, domain)
 
     def load_domain(self, domain: str):
         """Load data from directory according to domain.
