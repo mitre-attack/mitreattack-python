@@ -1,7 +1,6 @@
 """Change detector for analyzing differences between STIX object versions."""
 
 import difflib
-from typing import Dict
 
 from loguru import logger
 

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import datetime
-import difflib
 from typing import Dict, List, Optional
 
 import stix2
 from loguru import logger
 from rich.progress import track
-from stix2 import Filter, MemoryStore
+from stix2 import MemoryStore
 
 from mitreattack.diffStix.core.change_detector import ChangeDetector
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
@@ -21,26 +19,13 @@ from mitreattack.diffStix.formatters.json_generator import JsonGenerator
 from mitreattack.diffStix.formatters.layer_generator import LayerGenerator
 from mitreattack.diffStix.formatters.markdown_generator import MarkdownGenerator
 from mitreattack.diffStix.utils.stix_utils import (
-    cleanup_values,
-    deep_copy_stix,
     get_attack_id,
-    has_subtechniques,
-    resolve_datacomponent_parent,
-)
-from mitreattack.diffStix.utils.url_utils import (
-    get_relative_data_component_url,
-    get_relative_url_from_stix,
 )
 from mitreattack.diffStix.utils.version_utils import (
     AttackObjectVersion,
     get_attack_object_version,
-    is_major_version_change,
-    is_minor_version_change,
-    is_other_version_change,
-    is_patch_change,
     version_increment_is_valid,
 )
-from mitreattack.stix20 import MitreAttackData
 
 
 class DiffStix(object):
