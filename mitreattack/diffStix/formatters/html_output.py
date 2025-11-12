@@ -129,7 +129,7 @@ def write_detailed_html(html_file_detailed: str, diffStix):
         """
         ),
         header,
-        markdown.markdown(diffStix.get_md_key()),
+        markdown.markdown(diffStix.markdown_generator.get_md_key()),
         textwrap.dedent(
             """\
         <table class=diff summary=Legends>
@@ -190,7 +190,7 @@ def write_detailed_html(html_file_detailed: str, diffStix):
                         if stix_object["type"] == "x-mitre-data-component" or stix_object.get(
                             "x_mitre_is_subtechnique"
                         ):
-                            parent_object = diffStix.get_parent_stix_object(
+                            parent_object = diffStix.hierarchy_builder.get_parent_stix_object(
                                 stix_object=stix_object, datastore_version=datastore_version, domain=domain
                             )
                             if parent_object:

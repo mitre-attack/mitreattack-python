@@ -40,12 +40,12 @@ class MarkdownGenerator:
 
         # Add contributors if requested
         if self.diff_stix.include_contributors:
-            content += self.diff_stix.get_contributor_section()
+            content += self.diff_stix.contributor_tracker.get_contributor_section()
             content += "\n"
 
         # Add statistics section for the new version
         logger.info("Generating statistics section")
-        stats_section = self.diff_stix.get_statistics_section(datastore_version="new")
+        stats_section = self.diff_stix.statistics_collector.generate_statistics_section(datastore_version="new")
         content += stats_section
 
         if self.diff_stix.show_key:
@@ -157,7 +157,7 @@ class MarkdownGenerator:
             revoker = stix_object["revoked_by"]
 
             if revoker.get("x_mitre_is_subtechnique"):
-                parent_object = self.diff_stix.get_parent_stix_object(
+                parent_object = self.diff_stix.hierarchy_builder.get_parent_stix_object(
                     stix_object=revoker, datastore_version=datastore_version, domain=domain
                 )
                 parent_name = parent_object.get("name", "ERROR NO PARENT")
@@ -168,7 +168,7 @@ class MarkdownGenerator:
                 )
 
             elif revoker["type"] == "x-mitre-data-component":
-                parent_object = self.diff_stix.get_parent_stix_object(
+                parent_object = self.diff_stix.hierarchy_builder.get_parent_stix_object(
                     stix_object=revoker, datastore_version=datastore_version, domain=domain
                 )
                 if parent_object:
@@ -189,7 +189,7 @@ class MarkdownGenerator:
 
         else:
             if stix_object["type"] == "x-mitre-data-component":
-                parent_object = self.diff_stix.get_parent_stix_object(
+                parent_object = self.diff_stix.hierarchy_builder.get_parent_stix_object(
                     stix_object=stix_object, datastore_version=datastore_version, domain=domain
                 )
                 if parent_object:
