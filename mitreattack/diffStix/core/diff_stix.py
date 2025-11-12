@@ -13,6 +13,7 @@ from stix2 import Filter, MemoryStore
 
 from mitreattack.diffStix.core.change_detector import ChangeDetector
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
+from mitreattack.diffStix.core.data_loader import DataLoader
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
 from mitreattack.diffStix.core.hierarchy_builder import HierarchyBuilder
 from mitreattack.diffStix.core.statistics_collector import StatisticsCollector
@@ -198,7 +199,8 @@ class DiffStix(object):
                 for _type in self.types:
                     self.data[datastore_version][domain]["attack_objects"][_type] = {}
 
-        # Initialize change detector before data loading
+        # Initialize data loader and change detector before data loading
+        self._data_loader = DataLoader(self)
         self._change_detector = ChangeDetector(self)
 
         self.load_data()
@@ -579,31 +581,7 @@ class DiffStix(object):
         domain : str
             An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
         """
-        # Import here to avoid circular dependency
-        import os
-
-        from mitreattack import release_info
-
-        for datastore_version in ["old", "new"]:
-            # only allow github.com/mitre/cti to be used for the old STIX domain
-            if self.use_mitre_cti and datastore_version == "old":
-                data_store = self.get_datastore_from_mitre_cti(domain=domain, datastore_version=datastore_version)
-            else:
-                directory = self.old if datastore_version == "old" else self.new
-                if directory is None:
-                    raise ValueError(
-                        f"Directory path for {datastore_version} data cannot be None when not using MITRE CTI"
-                    )
-                stix_file = os.path.join(directory, f"{domain}.json")
-
-                attack_version = release_info.get_attack_version(domain=domain, stix_file=stix_file)
-                self.data[datastore_version][domain]["attack_release_version"] = attack_version
-
-                data_store = MemoryStore()
-                data_store.load_from_file(stix_file)
-
-            self.data[datastore_version][domain]["stix_datastore"] = data_store
-            self.parse_extra_data(data_store=data_store, domain=domain, datastore_version=datastore_version)
+        return self._data_loader.load_domain(domain)
 
     def get_datastore_from_mitre_cti(self, domain: str, datastore_version: str) -> stix2.MemoryStore:
         """Load data from MITRE CTI repo according to domain.
@@ -620,36 +598,10 @@ class DiffStix(object):
         stix2.MemoryStore
             STIX MemoryStore object representing an ATT&CK domain.
         """
-        # Import here to avoid circular dependency
-        import sys
-
-        import requests
-        from requests.adapters import HTTPAdapter, Retry
-
-        from mitreattack import release_info
-
-        error_message = f"Unable to successfully download ATT&CK STIX data from GitHub for {domain}. Please try again."
-        s = requests.Session()
-        retries = Retry(total=10, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
-        s.mount("http", HTTPAdapter(max_retries=retries))
-        stix_url = f"https://raw.githubusercontent.com/mitre/cti/master/{domain}/{domain}.json"
-        try:
-            stix_response = s.get(stix_url, timeout=60)
-            if stix_response.status_code != 200:
-                logger.error(error_message)
-                sys.exit(1)
-        except (requests.exceptions.ContentDecodingError, requests.exceptions.JSONDecodeError):
-            stix_response = s.get(stix_url, timeout=60)
-            if stix_response.status_code != 200:
-                logger.error(error_message)
-                sys.exit(1)
-
-        stix_json = stix_response.json()
-        attack_version = release_info.get_attack_version(domain=domain, stix_content=stix_response.content)
-        self.data[datastore_version][domain]["attack_release_version"] = attack_version
-
-        data_store = MemoryStore(stix_data=stix_json["objects"])
-        return data_store
+        # Lazy initialization for backward compatibility with tests
+        if not hasattr(self, "_data_loader"):
+            self._data_loader = DataLoader(self)
+        return self._data_loader.get_datastore_from_mitre_cti(domain, datastore_version)
 
     def parse_extra_data(self, data_store: stix2.MemoryStore, domain: str, datastore_version: str):
         """Parse STIX datastore objects and relationships.
@@ -663,74 +615,7 @@ class DiffStix(object):
         datastore_version : str
             The comparative version of the ATT&CK datastore. Choices are either "old" or "new".
         """
-        # Import here to avoid circular dependency
-
-        attack_type_to_stix_filter = {
-            "techniques": [Filter("type", "=", "attack-pattern")],
-            "software": [Filter("type", "=", "malware"), Filter("type", "=", "tool")],
-            "groups": [Filter("type", "=", "intrusion-set")],
-            "campaigns": [Filter("type", "=", "campaign")],
-            "assets": [Filter("type", "=", "x-mitre-asset")],
-            "mitigations": [Filter("type", "=", "course-of-action")],
-            "datasources": [Filter("type", "=", "x-mitre-data-source")],
-            "datacomponents": [Filter("type", "=", "x-mitre-data-component")],
-            "detectionstrategies": [Filter("type", "=", "x-mitre-detection-strategy")],
-            "analytics": [Filter("type", "=", "x-mitre-analytic")],
-        }
-        for object_type, stix_filters in attack_type_to_stix_filter.items():
-            raw_data = []
-            for stix_filter in stix_filters:
-                temp_filtered_list = data_store.query(stix_filter)
-                raw_data.extend(temp_filtered_list)
-
-            raw_data = deep_copy_stix(raw_data)
-            self.data[datastore_version][domain]["attack_objects"][object_type] = {
-                attack_object["id"]: attack_object for attack_object in raw_data
-            }
-
-        subtechnique_relationships = data_store.query(
-            [
-                Filter("type", "=", "relationship"),
-                Filter("relationship_type", "=", "subtechnique-of"),
-            ]
-        )
-        self.data[datastore_version][domain]["relationships"]["subtechniques"] = {
-            relationship["id"]: relationship for relationship in subtechnique_relationships
-        }
-
-        revoked_by_relationships = data_store.query(
-            [
-                Filter("type", "=", "relationship"),
-                Filter("relationship_type", "=", "revoked-by"),
-            ]
-        )
-
-        # use list in case STIX object was revoked more than once
-        for relationship in revoked_by_relationships:
-            source_id = relationship["source_ref"]
-            if source_id not in self.data[datastore_version][domain]["relationships"]["revoked-by"]:
-                self.data[datastore_version][domain]["relationships"]["revoked-by"][source_id] = []
-            self.data[datastore_version][domain]["relationships"]["revoked-by"][source_id].append(relationship)
-
-        mitigating_relationships = data_store.query(
-            [
-                Filter("type", "=", "relationship"),
-                Filter("relationship_type", "=", "mitigates"),
-            ]
-        )
-        self.data[datastore_version][domain]["relationships"]["mitigations"] = {
-            relationship["id"]: relationship for relationship in mitigating_relationships
-        }
-
-        detection_relationships = data_store.query(
-            [
-                Filter("type", "=", "relationship"),
-                Filter("relationship_type", "=", "detects"),
-            ]
-        )
-        self.data[datastore_version][domain]["relationships"]["detections"] = {
-            relationship["id"]: relationship for relationship in detection_relationships
-        }
+        return self._data_loader.parse_extra_data(data_store, domain, datastore_version)
 
     def update_contributors(self, old_object: Optional[dict], new_object: dict):
         """Update contributors list if new object has contributors.
