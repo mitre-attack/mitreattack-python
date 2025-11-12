@@ -26,28 +26,58 @@ from tqdm import tqdm
 from mitreattack import release_info
 from mitreattack.stix20 import MitreAttackData
 
-# explanation of modification types to data objects for legend in layer files
-date = datetime.datetime.today()
-this_month = date.strftime("%B_%Y")
-layer_defaults = [
-    os.path.join("output", f"{this_month}_Updates_Enterprise.json"),
-    os.path.join("output", f"{this_month}_Updates_Mobile.json"),
-    os.path.join("output", f"{this_month}_Updates_ICS.json"),
-    os.path.join("output", f"{this_month}_Updates_Pre.json"),
+# Import from new utility modules
+from mitreattack.diffStix.utils.constants import DATE as date
+from mitreattack.diffStix.utils.constants import THIS_MONTH as this_month
+from mitreattack.diffStix.utils.constants import LAYER_DEFAULTS as layer_defaults
+from mitreattack.diffStix.utils.version_utils import (
+    AttackObjectVersion,
+    get_attack_object_version,
+    is_major_version_change,
+    is_minor_version_change,
+    is_other_version_change,
+    is_patch_change,
+    version_increment_is_valid,
+)
+from mitreattack.diffStix.utils.stix_utils import (
+    cleanup_values,
+    deep_copy_stix,
+    get_attack_id,
+    has_subtechniques,
+    resolve_datacomponent_parent,
+)
+from mitreattack.diffStix.utils.url_utils import (
+    get_relative_data_component_url,
+    get_relative_url_from_stix,
+)
+
+# Re-export imported functions for backward compatibility
+__all__ = [
+    "DiffStix",
+    "DomainStatistics",
+    "AttackChangesEncoder",
+    "AttackObjectVersion",
+    "get_attack_object_version",
+    "is_major_version_change",
+    "is_minor_version_change",
+    "is_other_version_change",
+    "is_patch_change",
+    "version_increment_is_valid",
+    "cleanup_values",
+    "deep_copy_stix",
+    "get_attack_id",
+    "has_subtechniques",
+    "resolve_datacomponent_parent",
+    "get_relative_data_component_url",
+    "get_relative_url_from_stix",
+    "get_placard_version_string",
+    "markdown_to_html",
+    "layers_dict_to_files",
+    "write_detailed_html",
+    "get_parsed_args",
+    "get_new_changelog_md",
+    "main",
 ]
-
-
-@dataclass
-class AttackObjectVersion:
-    """An ATT&CK object version."""
-
-    major: int
-    minor: int
-
-    def __repr__(self):
-        """Return a string representation of the ATT&CK object version."""
-        return f"{self.major}.{self.minor}"
-
 
 @dataclass
 class DomainStatistics:
@@ -1406,28 +1436,6 @@ class DiffStix(object):
         return changes_dict
 
 
-def has_subtechniques(stix_object: dict, subtechnique_relationships: Dict[str, dict]) -> bool:
-    """Return true or false depending on whether the SDO has sub-techniques.
-
-    Parameters
-    ----------
-    stix_object : dict
-        An ATT&CK STIX Domain Object (SDO).
-    subtechnique_relationships : Dict[str, dict]
-        Dictionary of STIX ID: Relationship Object (SRO).
-
-    Returns
-    -------
-    bool
-        Returns True if the stix_object has Subtechniques.
-    """
-    for relationship in subtechnique_relationships.values():
-        if relationship["target_ref"] == stix_object["id"]:
-            return True
-
-    return False
-
-
 def get_placard_version_string(stix_object: dict, section: str) -> str:
     """Get the HTML version representation of the ATT&CK STIX object.
 
@@ -1470,298 +1478,6 @@ def get_placard_version_string(stix_object: dict, section: str) -> str:
         version_display = f"(v{old_version}&#8594;v{object_version})"
 
     return f'<small style="color:{color}">{version_display}</small>'
-
-
-def cleanup_values(groupings: List[dict]) -> List[dict]:
-    """Clean the values found in the initial groupings of ATT&CK Objects.
-
-    Parameters
-    ----------
-    groupings : List[dict]
-        Whatever comes out of DiffStix.get_groupings()
-
-    Returns
-    -------
-    List[dict]
-        A cleaned up version of groupings.
-    """
-    new_values = []
-    for grouping in groupings:
-        if grouping["parentInSection"]:
-            new_values.append(grouping["parent"])
-
-        for child in sorted(grouping["children"], key=lambda child: child["name"]):
-            new_values.append(child)
-
-    return new_values
-
-
-def resolve_datacomponent_parent(datacomponent: dict, datasources: Dict[str, dict]) -> Optional[str]:
-    """Best-effort resolution of a datacomponent's parent datasource when an explicit x_mitre_data_source_ref is not present.
-
-    Strategy:
-    1. If the datacomponent contains an explicit 'x_mitre_data_source_ref', return it.
-    2. If no match, return None.
-    """
-    # explicit ref
-    parent_ref = datacomponent.get("x_mitre_data_source_ref")
-    if parent_ref:
-        return parent_ref
-
-    # nothing matched
-    return None
-
-
-def version_increment_is_valid(
-    old_version: AttackObjectVersion | None, new_version: AttackObjectVersion | None, section: str
-) -> bool:
-    """Validate version increment between old and new STIX objects.
-
-    Valid increments include the following:
-
-        * Major version increases: e.g. 1.2 → 2.0
-        * Minor version increases: e.g. 1.2 → 1.3
-        * New version for new objects must be 1.0
-        * Any value when section is "revocations" or "deprecations"
-
-    Parameters
-    ----------
-    old_version : AttackObjectVersion | None
-        Old version of an ATT&CK STIX Domain Object (SDO). Can be None for additions.
-    new_version : AttackObjectVersion | None
-        New version of an ATT&CK STIX Domain Object (SDO). Can be None for deletions.
-    section : str
-        Section change type, e.g major_version_change, revocations, etc.
-
-    Returns
-    -------
-    bool
-        Returns True when a valid version increment is found
-    """
-    if section in ["revocations", "deprecations"]:
-        return True
-    if section == "additions":
-        if new_version != AttackObjectVersion(major=1, minor=0):
-            return False
-        return True
-    if not (old_version and new_version):
-        return False
-
-    major_change = is_major_version_change(old_version=old_version, new_version=new_version)
-    minor_change = is_minor_version_change(old_version=old_version, new_version=new_version)
-
-    if major_change or minor_change:
-        return True
-    return False
-
-
-def is_major_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
-    """Determine if the new version is a major change."""
-    if old_version is None or new_version is None:
-        return False
-    # Check if inputs are the correct type
-    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
-        return False
-    next_major_num = old_version.major + 1
-    next_major_version = AttackObjectVersion(major=next_major_num, minor=0)
-    if new_version == next_major_version:
-        return True
-    return False
-
-
-def is_minor_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
-    """Determine if the new version is a minor change."""
-    if old_version is None or new_version is None:
-        return False
-    # Check if inputs are the correct type
-    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
-        return False
-    next_minor_num = old_version.minor + 1
-    next_minor_version = AttackObjectVersion(major=old_version.major, minor=next_minor_num)
-    if new_version == next_minor_version:
-        return True
-    return False
-
-
-def is_other_version_change(old_version: AttackObjectVersion, new_version: AttackObjectVersion) -> bool:
-    """Determine if the new version is an unexpected change."""
-    if old_version is None or new_version is None:
-        return False
-    # Check if inputs are the correct type
-    if not isinstance(old_version, AttackObjectVersion) or not isinstance(new_version, AttackObjectVersion):
-        return False
-    # either stayed the same or was a normal version change
-    if is_major_version_change(old_version=old_version, new_version=new_version):
-        return False
-    elif is_minor_version_change(old_version=old_version, new_version=new_version):
-        return False
-    elif (old_version.major == new_version.major) and (old_version.minor == new_version.minor):
-        return False
-
-    # Possible scenarios
-    # * went up by more than 0.1, but not next major version
-    # * version number went down
-    return True
-
-
-def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
-    """Determine if ATT&CK Object changes are considered a patch change.
-
-    Parameters
-    ----------
-    old_stix_obj : dict
-        Old ATT&CK STIX Domain Object (SDO).
-    new_stix_obj : dict
-        New ATT&CK STIX Domain Object (SDO).
-
-    Returns
-    -------
-    bool
-        True if the object changed in such a way as to only be considered a patch change.
-    """
-    stix_id = new_stix_obj["id"]
-    attack_id = get_attack_id(new_stix_obj)
-
-    # Version stayed the same, but the modified date changed
-    old_version = get_attack_object_version(old_stix_obj)
-    new_version = get_attack_object_version(new_stix_obj)
-    if new_version == old_version:
-        old_date = dateparser.parse(old_stix_obj["modified"])
-        new_date = dateparser.parse(new_stix_obj["modified"])
-        if new_date != old_date:
-            return True
-
-    # description changed, even though modified date didn't
-    if "description" in old_stix_obj and "description" in new_stix_obj:
-        old_lines = old_stix_obj["description"].replace("\n", " ").splitlines()
-        new_lines = new_stix_obj["description"].replace("\n", " ").splitlines()
-        old_lines_unique = [line for line in old_lines if line not in new_lines]
-        new_lines_unique = [line for line in new_lines if line not in old_lines]
-        if old_lines_unique or new_lines_unique:
-            logger.warning(
-                f"{stix_id} - {attack_id} has a description change "
-                "without the version being incremented or the last modified date changing"
-            )
-            return True
-
-    # doesn't meet the definintion of a patch change
-    return False
-
-
-def get_relative_url_from_stix(stix_object: dict) -> Optional[str]:
-    """Parse the website url from a stix object.
-
-    Parameters
-    ----------
-    stix_object : dict
-        An ATT&CK STIX Domain Object (SDO).
-
-    Returns
-    -------
-    Optional[str]
-        The relative URL for the ATT&CK object.
-    """
-    is_subtechnique = stix_object["type"] == "attack-pattern" and stix_object.get("x_mitre_is_subtechnique")
-
-    if stix_object.get("external_references"):
-        url = stix_object["external_references"][0]["url"]
-        split_url = url.split("/")
-        splitfrom = -3 if is_subtechnique else -2
-        link = "/".join(split_url[splitfrom:])
-        return link
-    return None
-
-
-def get_relative_data_component_url(datasource: dict, datacomponent: dict) -> str:
-    """Create url of data component with parent data source."""
-    return f"{get_relative_url_from_stix(stix_object=datasource)}/#{'%20'.join(datacomponent['name'].split(' '))}"
-
-
-def deep_copy_stix(stix_objects: List[dict]) -> List[dict]:
-    """Transform STIX to dict and deep copy the dict.
-
-    Parameters
-    ----------
-    stix_objects : List[dict]
-        A list of Python dictionaries of ATT&CK STIX Domain Objects.
-
-    Returns
-    -------
-    List[dict]
-        A slightly easier to work with list of Python dictionaries of ATT&CK STIX Domain Objects.
-    """
-    result = []
-    for stix_object in stix_objects:
-        # TODO: serialize the STIX objects instead of casting them to dict
-        # more details here: https://github.com/mitre/cti/issues/17#issuecomment-395768815
-        stix_object = dict(stix_object)
-        if "external_references" in stix_object:
-            # Create a new list to ensure deep copy
-            stix_object["external_references"] = [dict(ref) for ref in stix_object["external_references"]]
-        if "kill_chain_phases" in stix_object:
-            # Create a new list to ensure deep copy
-            stix_object["kill_chain_phases"] = [dict(phase) for phase in stix_object["kill_chain_phases"]]
-
-        if "modified" in stix_object:
-            stix_object["modified"] = str(stix_object["modified"])
-        if "first_seen" in stix_object:
-            stix_object["first_seen"] = str(stix_object["first_seen"])
-        if "last_seen" in stix_object:
-            stix_object["last_seen"] = str(stix_object["last_seen"])
-
-        if "definition" in stix_object:
-            stix_object["definition"] = dict(stix_object["definition"])
-        stix_object["created"] = str(stix_object["created"])
-        result.append(stix_object)
-    return result
-
-
-def get_attack_id(stix_obj: dict) -> Optional[str]:
-    """Get the object's ATT&CK ID.
-
-    Parameters
-    ----------
-    stix_obj : dict
-        An ATT&CK STIX Domain Object (SDO).
-
-    Returns
-    -------
-    str (optional)
-        The ATT&CK ID of the object. Returns None if not found
-    """
-    attack_id = None
-    external_references = stix_obj.get("external_references")
-    if external_references:
-        attack_source = external_references[0]
-        if attack_source.get("external_id") and attack_source.get("source_name") in [
-            "mitre-attack",
-            "mitre-mobile-attack",
-            "mitre-ics-attack",
-        ]:
-            attack_id = attack_source["external_id"]
-    return attack_id
-
-
-def get_attack_object_version(stix_obj: dict) -> AttackObjectVersion:
-    """Get the object's ATT&CK version.
-
-    Parameters
-    ----------
-    stix_obj : dict
-        An ATT&CK STIX Domain Object (SDO).
-
-    Returns
-    -------
-    AttackObjectVersion
-        The object version of the ATT&CK object.
-    """
-    # ICS objects didn't have x_mitre_version until v11.0, so pretend they were version 0.0
-    version = stix_obj.get("x_mitre_version", "0.0")
-    major, minor = version.split(".")
-    major = int(major)
-    minor = int(minor)
-    object_version = AttackObjectVersion(major=major, minor=minor)
-    return object_version
 
 
 def markdown_to_html(outfile: str, content: str, diffStix: DiffStix):
