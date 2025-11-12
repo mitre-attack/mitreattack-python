@@ -378,16 +378,6 @@ class DiffStix(object):
         """
         return self._change_detector.find_technique_detection_changes(new_stix_obj, domain)
 
-    def load_domain(self, domain: str):
-        """Load data from directory according to domain.
-
-        Parameters
-        ----------
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-        """
-        return self._data_loader.load_domain(domain)
-
     def get_datastore_from_mitre_cti(self, domain: str, datastore_version: str) -> stix2.MemoryStore:
         """Load data from MITRE CTI repo according to domain.
 
@@ -407,20 +397,6 @@ class DiffStix(object):
         if not hasattr(self, "_data_loader"):
             self._data_loader = DataLoader(self)
         return self._data_loader.get_datastore_from_mitre_cti(domain, datastore_version)
-
-    def parse_extra_data(self, data_store: stix2.MemoryStore, domain: str, datastore_version: str):
-        """Parse STIX datastore objects and relationships.
-
-        Parameters
-        ----------
-        data_store : stix2.MemoryStore
-            STIX MemoryStore object representing an ATT&CK domain.
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-        datastore_version : str
-            The comparative version of the ATT&CK datastore. Choices are either "old" or "new".
-        """
-        return self._data_loader.parse_extra_data(data_store, domain, datastore_version)
 
     def update_contributors(self, old_object: Optional[dict], new_object: dict):
         """Update contributors list if new object has contributors.

@@ -74,7 +74,7 @@ class MarkdownGenerator:
                 for section, stix_objects in self.diff_stix.data["changes"][object_type][domain].items():
                     header = f"#### {section_headers[section]}"
                     if stix_objects:
-                        groupings = self.diff_stix.get_groupings(
+                        groupings = self.diff_stix._hierarchy_builder.get_groupings(
                             object_type=object_type,
                             stix_objects=stix_objects,
                             section=section,
