@@ -13,6 +13,8 @@ from stix2 import Filter, MemoryStore
 
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
+from mitreattack.diffStix.formatters.json_generator import JsonGenerator
+from mitreattack.diffStix.formatters.layer_generator import LayerGenerator
 from mitreattack.diffStix.formatters.markdown_generator import MarkdownGenerator
 from mitreattack.diffStix.utils.stix_utils import (
     cleanup_values,
@@ -195,8 +197,10 @@ class DiffStix(object):
 
         self.load_data()
 
-        # Initialize markdown generator after data is loaded
+        # Initialize formatters after data is loaded
         self._markdown_generator = MarkdownGenerator(self)
+        self._layer_generator = LayerGenerator(self)
+        self._json_generator = JsonGenerator(self)
 
     @property
     def release_contributors(self) -> dict:
@@ -1206,112 +1210,8 @@ class DiffStix(object):
 
         Returns a dict mapping domain to its layer dict.
         """
-        logger.info("Generating ATT&CK Navigator layers")
-
-        colors = {
-            "additions": "#a1d99b",  # granny smith apple
-            "major_version_changes": "#fcf3a2",  # yellow-ish
-            "minor_version_changes": "#c7c4e0",  # light periwinkle
-            "other_version_changes": "#B5E5CF",  # mint
-            "patches": "#B99095",  # mauve
-            "deletions": "#ff00e1",  # hot magenta
-            "revocations": "#ff9000",  # dark orange
-            "deprecations": "#ff6363",  # bittersweet red
-            "unchanged": "#ffffff",  # white
-        }
-
-        layers = {}
-        thedate = datetime.datetime.today().strftime("%B %Y")
-        # for each layer file in the domains mapping
-        for domain in self.domains:
-            logger.debug(f"Generating ATT&CK Navigator layer for domain: {domain}")
-            # build techniques list
-            techniques = []
-            for section, technique_stix_objects in self.data["changes"]["techniques"][domain].items():
-                if section == "revocations" or section == "deprecations":
-                    continue
-
-                for technique in technique_stix_objects:
-                    problem_detected = False
-                    if "kill_chain_phases" not in technique:
-                        logger.error(f"{technique['id']}: technique missing a tactic!! {technique['name']}")
-                        problem_detected = True
-                    if "external_references" not in technique:
-                        logger.error(f"{technique['id']}: technique missing external references!! {technique['name']}")
-                        problem_detected = True
-
-                    if problem_detected:
-                        continue
-
-                    for phase in technique["kill_chain_phases"]:
-                        techniques.append(
-                            {
-                                "techniqueID": technique["external_references"][0]["external_id"],
-                                "tactic": phase["phase_name"],
-                                "enabled": True,
-                                "color": colors[section],
-                                # trim the 's' off end of word
-                                "comment": section[:-1] if section != "unchanged" else section,
-                            }
-                        )
-
-            legendItems = []
-            for section, description in self.section_descriptions.items():
-                legendItems.append({"color": colors[section], "label": f"{section}: {description}"})
-
-            # build layer structure
-            layer_json = {
-                "versions": {
-                    "layer": "4.5",
-                    "navigator": "5.0.0",
-                    "attack": self.data["new"][domain]["attack_release_version"],
-                },
-                "name": f"{thedate} {self.domain_to_domain_label[domain]} Updates",
-                "description": f"{self.domain_to_domain_label[domain]} updates for the {thedate} release of ATT&CK",
-                "domain": domain,
-                "techniques": techniques,
-                "sorting": 0,
-                "hideDisabled": False,
-                "legendItems": legendItems,
-                "showTacticRowBackground": True,
-                "tacticRowBackground": "#205b8f",
-                "selectTechniquesAcrossTactics": True,
-            }
-            layers[domain] = layer_json
-
-        return layers
+        return self._layer_generator.generate()
 
     def get_changes_dict(self):
         """Return dict format summarizing detected differences."""
-        logger.info("Generating changes info")
-
-        changes_dict = {}
-        for domain in self.domains:
-            changes_dict[domain] = {}
-
-        for object_type, domains in self.data["changes"].items():
-            for domain, sections in domains.items():
-                changes_dict[domain][object_type] = {}
-
-                for section, stix_objects in sections.items():
-                    groupings = self.get_groupings(
-                        object_type=object_type,
-                        stix_objects=stix_objects,
-                        section=section,
-                        domain=domain,
-                    )
-                    # new_values includes parents & children mixed
-                    # (e.g. techniques/sub-techniques, data sources/components)
-                    new_values = cleanup_values(groupings=groupings)
-                    changes_dict[domain][object_type][section] = new_values
-
-        # always add contributors
-        changes_dict["new-contributors"] = []
-        sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
-        for contributor in sorted_contributors:
-            # do not include ATT&CK as contributor
-            if contributor == "ATT&CK":
-                continue
-            changes_dict["new-contributors"].append(contributor)
-
-        return changes_dict
+        return self._json_generator.generate()
