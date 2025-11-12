@@ -13,6 +13,7 @@ from stix2 import Filter, MemoryStore
 
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
+from mitreattack.diffStix.formatters.markdown_generator import MarkdownGenerator
 from mitreattack.diffStix.utils.stix_utils import (
     cleanup_values,
     deep_copy_stix,
@@ -193,6 +194,9 @@ class DiffStix(object):
                     self.data[datastore_version][domain]["attack_objects"][_type] = {}
 
         self.load_data()
+
+        # Initialize markdown generator after data is loaded
+        self._markdown_generator = MarkdownGenerator(self)
 
     @property
     def release_contributors(self) -> dict:
@@ -1049,68 +1053,7 @@ class DiffStix(object):
         str
             Final return string to be displayed in the Changelog.
         """
-        # Import here to avoid circular dependency
-        from mitreattack.diffStix.formatters.html_output import get_placard_version_string
-
-        datastore_version = "old" if section == "deletions" else "new"
-        placard_string = ""
-
-        if section == "deletions":
-            placard_string = stix_object["name"]
-
-        elif section == "revocations":
-            revoker = stix_object["revoked_by"]
-
-            if revoker.get("x_mitre_is_subtechnique"):
-                parent_object = self.get_parent_stix_object(
-                    stix_object=revoker, datastore_version=datastore_version, domain=domain
-                )
-                parent_name = parent_object.get("name", "ERROR NO PARENT")
-                relative_url = get_relative_url_from_stix(stix_object=revoker)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = (
-                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                )
-
-            elif revoker["type"] == "x-mitre-data-component":
-                parent_object = self.get_parent_stix_object(
-                    stix_object=revoker, datastore_version=datastore_version, domain=domain
-                )
-                if parent_object:
-                    parent_name = parent_object.get("name", "ERROR NO PARENT")
-                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                    revoker_link = f"{self.site_prefix}/{relative_url}"
-                    placard_string = (
-                        f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                    )
-                else:
-                    # No parent datasource available — fall back to a plain-text representation.
-                    placard_string = f"{stix_object['name']} (revoked by {revoker['name']})"
-
-            else:
-                relative_url = get_relative_url_from_stix(stix_object=revoker)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = f"{stix_object['name']} (revoked by [{revoker['name']}]({revoker_link}))"
-
-        else:
-            if stix_object["type"] == "x-mitre-data-component":
-                parent_object = self.get_parent_stix_object(
-                    stix_object=stix_object, datastore_version=datastore_version, domain=domain
-                )
-                if parent_object:
-                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                    placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
-                else:
-                    # No parent datasource available — display datacomponent name as plain text.
-                    placard_string = stix_object["name"]
-
-            else:
-                relative_url = get_relative_url_from_stix(stix_object=stix_object)
-                placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
-
-        version_string = get_placard_version_string(stix_object=stix_object, section=section)
-        full_placard_string = f"{placard_string} {version_string}"
-        return full_placard_string
+        return self._markdown_generator.placard(stix_object, section, domain)
 
     def _collect_domain_statistics(self, datastore: MemoryStore, domain_name: str) -> DomainStatistics:
         """
@@ -1242,22 +1185,7 @@ class DiffStix(object):
 
     def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
         """Parse a list of STIX objects in a section and return a string for the whole section."""
-        sectionString = ""
-        placard_string = ""
-        for grouping in groupings:
-            if grouping["parentInSection"]:
-                placard_string = self.placard(stix_object=grouping["parent"], section=section, domain=domain)
-                sectionString += f"* {placard_string}\n"
-
-            for child in sorted(grouping["children"], key=lambda child: child["name"]):
-                placard_string = self.placard(stix_object=child, section=section, domain=domain)
-
-                if grouping["parentInSection"]:
-                    sectionString += f"  * {placard_string}\n"
-                else:
-                    sectionString += f"* {grouping['parent']['name']}: {placard_string}\n"
-
-        return sectionString
+        return self._markdown_generator.get_markdown_section_data(groupings, section, domain)
 
     def get_md_key(self) -> str:
         """Create string describing each type of difference (change, addition, etc).
@@ -1267,84 +1195,11 @@ class DiffStix(object):
         str
             Key for change types used in Markdown output.
         """
-        # Import here to avoid circular dependency
-        import textwrap
-
-        # end first line with \ to avoid the empty line from dedent()
-        key = textwrap.dedent(
-            f"""\
-            ## Key
-
-            * New objects: {self.section_descriptions["additions"]}
-            * Major version changes: {self.section_descriptions["major_version_changes"]}
-            * Minor version changes: {self.section_descriptions["minor_version_changes"]}
-            * Other version changes: {self.section_descriptions["other_version_changes"]}
-            * Patches: {self.section_descriptions["patches"]}
-            * Object revocations: {self.section_descriptions["revocations"]}
-            * Object deprecations: {self.section_descriptions["deprecations"]}
-            * Object deletions: {self.section_descriptions["deletions"]}
-            """
-        )
-
-        return key
+        return self._markdown_generator.get_md_key()
 
     def get_markdown_string(self) -> str:
         """Return a markdown string summarizing detected differences."""
-        logger.info("Generating markdown output")
-        content = ""
-
-        # Add contributors if requested by argument
-        if self.include_contributors:
-            content += self.get_contributor_section()
-            content += "\n"
-
-        # Add statistics section for the new version
-        logger.info("Generating statistics section")
-        stats_section = self.get_statistics_section(datastore_version="new")
-        content += stats_section
-
-        if self.show_key:
-            key_content = self.get_md_key()
-            content += f"{key_content}\n"
-
-        content += "## Table of Contents\n\n"
-        content += "[TOC]\n\n"
-
-        for object_type in self.types:
-            domains = ""
-
-            for domain in self.data["changes"][object_type]:
-                # e.g "Enterprise"
-                next_domain = f"### {self.domain_to_domain_label[domain]}\n\n"
-                # Skip mobile section for data sources
-                if domain == "mobile-attack" and object_type == "datasource":
-                    logger.debug("Skipping - ATT&CK for Mobile does not support data sources")
-                    next_domain += "ATT&CK for Mobile does not support data sources\n\n"
-                    continue
-                domain_sections = ""
-                for section, stix_objects in self.data["changes"][object_type][domain].items():
-                    header = f"#### {self.section_headers[object_type][section]}"
-                    if stix_objects:
-                        groupings = self.get_groupings(
-                            object_type=object_type,
-                            stix_objects=stix_objects,
-                            section=section,
-                            domain=domain,
-                        )
-                        section_items = self.get_markdown_section_data(
-                            groupings=groupings, section=section, domain=domain
-                        )
-                        domain_sections += f"{header}\n\n{section_items}\n"
-
-                # add domain sections
-                if domain_sections != "":
-                    domains += f"{next_domain}{domain_sections}"
-
-            # e.g "techniques"
-            if domains != "":
-                content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
-
-        return content
+        return self._markdown_generator.generate()
 
     def get_layers_dict(self):
         """Return ATT&CK Navigator layers in dict format summarizing detected differences.
