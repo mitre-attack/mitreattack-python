@@ -134,95 +134,6 @@ class DiffStix(object):
         """
         self._contributor_tracker.release_contributors = value
 
-    def _detect_revocation(self, stix_id: str, old_obj: dict, new_obj: dict, new_attack_objects: dict, domain: str):
-        """Detect if an object has been newly revoked.
-
-        Parameters
-        ----------
-        stix_id : str
-            The STIX ID of the object.
-        old_obj : dict
-            The old version of the STIX object.
-        new_obj : dict
-            The new version of the STIX object.
-        new_attack_objects : dict
-            Dictionary of all new attack objects for this type.
-        domain : str
-            The ATT&CK domain.
-
-        Returns
-        -------
-        None, True, or False
-            None if not a revocation scenario (not revoked or already revoked),
-            True if newly revoked and successfully validated,
-            False if validation failed (object should be skipped).
-        """
-        return self._change_detector.detect_revocation(stix_id, old_obj, new_obj, new_attack_objects, domain)
-
-    def _detect_deprecation(self, old_obj: dict, new_obj: dict) -> bool:
-        """Detect if an object has been newly deprecated.
-
-        Parameters
-        ----------
-        old_obj : dict
-            The old version of the STIX object.
-        new_obj : dict
-            The new version of the STIX object.
-
-        Returns
-        -------
-        bool
-            True if the object was newly deprecated, False otherwise.
-        """
-        return self._change_detector.detect_deprecation(old_obj, new_obj)
-
-    def _categorize_version_change(
-        self, stix_id: str, old_obj: dict, new_obj: dict
-    ) -> tuple[str | None, AttackObjectVersion, AttackObjectVersion]:
-        """Categorize the type of version change for an object.
-
-        Parameters
-        ----------
-        stix_id : str
-            The STIX ID of the object.
-        old_obj : dict
-            The old version of the STIX object.
-        new_obj : dict
-            The new version of the STIX object.
-
-        Returns
-        -------
-        tuple[str | None, AttackObjectVersion, AttackObjectVersion]
-            A tuple containing:
-            - category: 'major', 'minor', 'other', 'patch', or None (unchanged)
-            - old_version: The old version
-            - new_version: The new version
-        """
-        return self._change_detector.categorize_version_change(stix_id, old_obj, new_obj)
-
-    def _process_description_changes(self, old_obj: dict, new_obj: dict):
-        """Process and store description changes between old and new objects.
-
-        Parameters
-        ----------
-        old_obj : dict
-            The old version of the STIX object.
-        new_obj : dict
-            The new version of the STIX object.
-        """
-        return self._change_detector.process_description_changes(old_obj, new_obj)
-
-    def _process_relationship_changes(self, new_obj: dict, domain: str):
-        """Process relationship changes for attack patterns (techniques).
-
-        Parameters
-        ----------
-        new_obj : dict
-            The new version of the STIX object.
-        domain : str
-            The ATT&CK domain.
-        """
-        return self._change_detector.process_relationship_changes(new_obj, domain)
 
     def load_data(self):
         """Orchestrate loading STIX data and detecting changes."""
@@ -232,7 +143,7 @@ class DiffStix(object):
     def _load_all_domains(self):
         """Load STIX data for all configured domains."""
         for domain in track(self.domains, description="Loading domains"):
-            self.load_domain(domain=domain)
+            self._data_loader.load_domain(domain=domain)
 
     def _detect_all_changes(self):
         """Detect and categorize changes across all domains and object types."""
@@ -311,7 +222,9 @@ class DiffStix(object):
             new_stix_obj["detailed_diff"] = ddiff.to_json()
 
             # Check for revocations
-            revocation_result = self._detect_revocation(stix_id, old_stix_obj, new_stix_obj, new_objects, domain)
+            revocation_result = self._change_detector.detect_revocation(
+                stix_id, old_stix_obj, new_stix_obj, new_objects, domain
+            )
             if revocation_result is False:
                 continue  # Validation failed - skip
             elif revocation_result is True:
@@ -321,14 +234,16 @@ class DiffStix(object):
                 continue  # Already revoked - skip
 
             # Check for deprecations
-            if self._detect_deprecation(old_stix_obj, new_stix_obj):
+            if self._change_detector.detect_deprecation(old_stix_obj, new_stix_obj):
                 changes["deprecations"].add(stix_id)
                 continue
             elif new_stix_obj.get("x_mitre_deprecated"):
                 continue  # Already deprecated - skip
 
             # Categorize version changes
-            category, old_version, new_version = self._categorize_version_change(stix_id, old_stix_obj, new_stix_obj)
+            category, old_version, new_version = self._change_detector.categorize_version_change(
+                stix_id, old_stix_obj, new_stix_obj
+            )
 
             if category == "major":
                 changes["major_version_changes"].add(stix_id)
@@ -345,8 +260,8 @@ class DiffStix(object):
                 new_stix_obj["version_change"] = f"{old_version} → {new_version}"
 
             # Process description and relationship changes
-            self._process_description_changes(old_stix_obj, new_stix_obj)
-            self._process_relationship_changes(new_stix_obj, domain)
+            self._change_detector.process_description_changes(old_stix_obj, new_stix_obj)
+            self._change_detector.process_relationship_changes(new_stix_obj, domain)
 
         # Process new objects
         self._process_additions(changes["additions"], new_objects)
@@ -368,7 +283,7 @@ class DiffStix(object):
             attack_id = get_attack_id(new_stix_obj)
 
             # Add contributions from additions
-            self.update_contributors(old_object=None, new_object=new_stix_obj)
+            self._contributor_tracker.update_contributors(old_object=None, new_object=new_stix_obj)
 
             # Verify version is 1.0
             x_mitre_version = get_attack_object_version(stix_obj=new_stix_obj)
@@ -439,51 +354,6 @@ class DiffStix(object):
                 new_objects[stix_id] for stix_id in changes["unchanged"]
             ]
 
-    def _collect_related_objects(
-        self, stix_id: str, domain: str, relationship_type: str, object_type: str, age: str
-    ) -> dict:
-        """Collect related objects from relationships.
-
-        Parameters
-        ----------
-        stix_id : str
-            The STIX ID of the technique to find relationships for.
-        domain : str
-            The ATT&CK domain.
-        relationship_type : str
-            The type of relationship (e.g., 'mitigations', 'detections').
-        object_type : str
-            The type of object to collect (e.g., 'mitigations', 'datacomponents').
-        age : str
-            Either 'old' or 'new' to specify which data version to use.
-
-        Returns
-        -------
-        dict
-            Dictionary of related objects keyed by STIX ID.
-        """
-        return self._change_detector.collect_related_objects(stix_id, domain, relationship_type, object_type, age)
-
-    def _create_changelog_entry(self, old_items: dict, new_items: dict, formatter: callable = None) -> dict:
-        """Create a changelog entry with shared, new, and dropped items.
-
-        Parameters
-        ----------
-        old_items : dict
-            Dictionary of old objects or strings keyed by STIX ID.
-        new_items : dict
-            Dictionary of new objects or strings keyed by STIX ID.
-        formatter : callable, optional
-            Function to format item into string. Defaults to "ID: name" format for objects.
-            If items are already strings, pass lambda x: x.
-
-        Returns
-        -------
-        dict
-            Dictionary with 'shared', 'new', and 'dropped' keys containing sorted lists.
-        """
-        return self._change_detector.create_changelog_entry(old_items, new_items, formatter)
-
     def find_technique_mitigation_changes(self, new_stix_obj: dict, domain: str):
         """Find changes in the relationships between Techniques and Mitigations.
 
@@ -495,27 +365,6 @@ class DiffStix(object):
             An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
         """
         return self._change_detector.find_technique_mitigation_changes(new_stix_obj, domain)
-
-    def _collect_detection_objects(self, stix_id: str, domain: str, age: str) -> tuple[dict[str, str], dict[str, str]]:
-        """Collect detection-related objects (datacomponents and detectionstrategies) for a technique.
-
-        Parameters
-        ----------
-        stix_id : str
-            The STIX ID of the technique to find detections for.
-        domain : str
-            The ATT&CK domain.
-        age : str
-            Either 'old' or 'new' to specify which data version to use.
-
-        Returns
-        -------
-        tuple[dict[str, str], dict[str, str]]
-            Two dictionaries:
-            - datacomponent_detections: formatted detection strings keyed by STIX ID
-            - detectionstrategy_detections: formatted detection strings keyed by STIX ID
-        """
-        return self._change_detector.collect_detection_objects(stix_id, domain, age)
 
     def find_technique_detection_changes(self, new_stix_obj: dict, domain: str):
         """Find changes in the relationships between Techniques and Datacomponents.
@@ -660,41 +509,6 @@ class DiffStix(object):
             Final return string to be displayed in the Changelog.
         """
         return self._markdown_generator.placard(stix_object, section, domain)
-
-    def _collect_domain_statistics(self, datastore: MemoryStore, domain_name: str) -> DomainStatistics:
-        """Collect statistics for a single domain from a STIX datastore.
-
-        Parameters
-        ----------
-        datastore : MemoryStore
-            The STIX MemoryStore containing the domain data.
-        domain_name : str
-            Display name of the domain (e.g., "Enterprise", "Mobile", "ICS").
-
-        Returns
-        -------
-        DomainStatistics
-            Statistics for the domain.
-        """
-        return self._statistics_collector.collect_domain_statistics(datastore, domain_name)
-
-    def _collect_unique_object_counts(self, datastore_version: str) -> dict[str, int]:
-        """Collect counts of unique objects across all domains for a specific version.
-
-        Some objects (Software, Groups, Campaigns) may appear in multiple domains.
-        This function counts unique objects to avoid double-counting.
-
-        Parameters
-        ----------
-        datastore_version : str
-            Either "old" or "new" to specify which version's data to analyze.
-
-        Returns
-        -------
-        dict of str to int
-            Counts of unique software, groups, and campaigns.
-        """
-        return self._statistics_collector.collect_unique_object_counts(datastore_version)
 
     def get_statistics_section(self, datastore_version: str = "new") -> str:
         """Generate a markdown section with ATT&CK statistics for all domains.
