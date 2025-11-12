@@ -10,8 +10,10 @@ from rich.progress import track
 from stix2 import MemoryStore
 
 from mitreattack.diffStix.core.change_detector import ChangeDetector
+from mitreattack.diffStix.core.configuration_manager import ConfigurationManager
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.core.data_loader import DataLoader
+from mitreattack.diffStix.core.data_structure_initializer import DataStructureInitializer
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
 from mitreattack.diffStix.core.hierarchy_builder import HierarchyBuilder
 from mitreattack.diffStix.core.statistics_collector import StatisticsCollector
@@ -78,111 +80,24 @@ class DiffStix(object):
         self.new = new
         self.show_key = show_key
         self.site_prefix = site_prefix
-        self.types = [
-            "techniques",
-            "software",
-            "groups",
-            "campaigns",
-            "assets",
-            "mitigations",
-            "datasources",
-            "datacomponents",
-            "detectionstrategies",
-            "analytics",
-        ]
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
         self.include_contributors = include_contributors
 
-        self.domain_to_domain_label = {
-            "enterprise-attack": "Enterprise",
-            "mobile-attack": "Mobile",
-            "ics-attack": "ICS",
-        }
-        self.attack_type_to_title = {
-            "techniques": "Techniques",
-            "software": "Software",
-            "groups": "Groups",
-            "campaigns": "Campaigns",
-            "assets": "Assets",
-            "mitigations": "Mitigations",
-            "datasources": "Data Sources",
-            "datacomponents": "Data Components",
-            "detectionstrategies": "Detection Strategies",
-            "analytics": "Analytics",
-        }
-
-        self.section_descriptions = {
-            "additions": "ATT&CK objects which are only present in the new release.",
-            "major_version_changes": "ATT&CK objects that have a major version change. (e.g. 1.0 → 2.0)",
-            "minor_version_changes": "ATT&CK objects that have a minor version change. (e.g. 1.0 → 1.1)",
-            "other_version_changes": "ATT&CK objects that have a version change of any other kind. (e.g. 1.0 → 1.2)",
-            "patches": "ATT&CK objects that have been patched while keeping the version the same. (e.g., 1.0 → 1.0 but something like a typo, a URL, or some metadata was fixed)",
-            "revocations": "ATT&CK objects which are revoked by a different object.",
-            "deprecations": "ATT&CK objects which are deprecated and no longer in use, and not replaced.",
-            "deletions": "ATT&CK objects which are no longer found in the STIX data.",
-            "unchanged": "ATT&CK objects which did not change between the two versions.",
-        }
-
-        self.section_headers = {}
-        for object_type in self.types:
-            self.section_headers[object_type] = {
-                "additions": f"New {self.attack_type_to_title[object_type]}",
-                "major_version_changes": "Major Version Changes",
-                "minor_version_changes": "Minor Version Changes",
-                "other_version_changes": "Other Version Changes",
-                "patches": "Patches",
-                "deprecations": "Deprecations",
-                "revocations": "Revocations",
-                "deletions": "Deletions",
-                "unchanged": "Unchanged",
-            }
+        # Initialize configuration manager for constants and mappings
+        self._config = ConfigurationManager()
+        self.types = self._config.object_types
+        self.domain_to_domain_label = self._config.domain_labels
+        self.attack_type_to_title = self._config.type_titles
+        self.section_descriptions = self._config.section_descriptions
+        self.section_headers = self._config.get_all_section_headers()
 
         # Initialize contributor tracker for the new release
         self._contributor_tracker = ContributorTracker()
 
-        # data gets loaded into here in the load_data() function. All other functionalities rely on this data structure
-        self.data = {
-            "old": {},
-            "new": {},
-            # changes are dynamic based on what object types and domains are requested
-            "changes": {
-                # "technique": {
-                #     "enterprise-attack": {
-                #         "additions": [],
-                #         "deletions": [],
-                #         "major_version_changes": [],
-                #         "minor_version_changes": [],
-                #         "other_version_changes": [],
-                #         "patches": [],
-                #         "revocations": [],
-                #         "deprecations": [],
-                #         "unchanged": [],
-                #     },
-                #     "mobile-attack": {...},
-                # },
-                # "software": {...},
-            },
-        }
-
-        for domain in self.domains:
-            for datastore_version in ["old", "new"]:
-                self.data[datastore_version][domain] = {
-                    "attack_objects": {
-                        # self.types
-                        # "techniques": {},
-                        # ...
-                    },
-                    "attack_release_version": None,  # "X.Y"
-                    "stix_datastore": None,  # <stix.MemoryStore>
-                    "relationships": {
-                        "subtechniques": {},
-                        "revoked-by": {},
-                    },
-                }
-
-                for _type in self.types:
-                    self.data[datastore_version][domain]["attack_objects"][_type] = {}
+        # Initialize the nested data structure for tracking changes
+        # Data gets loaded into here in the load_data() function
+        self.data = DataStructureInitializer.create_structure(self.domains, self.types)
 
         # Initialize data loader and change detector before data loading
         self._data_loader = DataLoader(self)
@@ -310,163 +225,219 @@ class DiffStix(object):
         return self._change_detector.process_relationship_changes(new_obj, domain)
 
     def load_data(self):
-        """Load data from files into data dict."""
-        # Import here to avoid circular dependency
+        """Orchestrate loading STIX data and detecting changes."""
+        self._load_all_domains()
+        self._detect_all_changes()
 
-        from deepdiff import DeepDiff
-
+    def _load_all_domains(self):
+        """Load STIX data for all configured domains."""
         for domain in track(self.domains, description="Loading domains"):
             self.load_domain(domain=domain)
 
+    def _detect_all_changes(self):
+        """Detect and categorize changes across all domains and object types."""
         for domain in track(self.domains, description="Finding changes by domain"):
             for obj_type in self.types:
-                logger.debug(f"Loading: [{domain:17}]/{obj_type}")
+                self._detect_changes_for_type(domain, obj_type)
 
-                old_attack_objects = self.data["old"][domain]["attack_objects"][obj_type]
-                new_attack_objects = self.data["new"][domain]["attack_objects"][obj_type]
+    def _detect_changes_for_type(self, domain: str, obj_type: str):
+        """Detect changes for a specific object type within a domain.
 
-                intersection = old_attack_objects.keys() & new_attack_objects.keys()
-                additions = new_attack_objects.keys() - old_attack_objects.keys()
-                deletions = old_attack_objects.keys() - new_attack_objects.keys()
+        Parameters
+        ----------
+        domain : str
+            ATT&CK domain (e.g., "enterprise-attack")
+        obj_type : str
+            ATT&CK object type (e.g., "techniques", "software")
+        """
+        logger.debug(f"Loading: [{domain:17}]/{obj_type}")
 
-                # sets to store the ids of objects for each section
-                major_version_changes = set()
-                minor_version_changes = set()
-                other_version_changes = set()
-                patches = set()
-                revocations = set()
-                deprecations = set()
-                unchanged = set()
+        old_attack_objects = self.data["old"][domain]["attack_objects"][obj_type]
+        new_attack_objects = self.data["new"][domain]["attack_objects"][obj_type]
 
-                # find changes, revocations and deprecations
-                for stix_id in intersection:
-                    old_stix_obj = old_attack_objects[stix_id]
-                    new_stix_obj = new_attack_objects[stix_id]
+        # Categorize objects into sections
+        changes = self._categorize_object_changes(old_attack_objects, new_attack_objects, domain, obj_type)
 
-                    ddiff = DeepDiff(old_stix_obj, new_stix_obj, ignore_order=True, verbose_level=2)
-                    detailed_diff = ddiff.to_json()
-                    new_stix_obj["detailed_diff"] = detailed_diff
+        # Store the categorized changes
+        self._store_categorized_changes(domain, obj_type, changes, old_attack_objects, new_attack_objects)
 
-                    # Check for revocations (skip object if revocation validation fails or already revoked)
-                    revocation_result = self._detect_revocation(
-                        stix_id, old_stix_obj, new_stix_obj, new_attack_objects, domain
-                    )
-                    if revocation_result is False:
-                        # Revocation validation failed - skip this object entirely (like original 'continue')
-                        continue
-                    elif revocation_result is True:
-                        revocations.add(stix_id)
-                        continue
-                    elif revocation_result is None and new_stix_obj.get("revoked"):
-                        # Object is revoked but was already revoked - skip (matches original if-elif-else behavior)
-                        continue
+        logger.debug(f"Loaded:  [{domain:17}]/{obj_type}")
 
-                    # Check for deprecations
-                    if self._detect_deprecation(old_stix_obj, new_stix_obj):
-                        deprecations.add(stix_id)
-                        continue
-                    elif new_stix_obj.get("x_mitre_deprecated"):
-                        # Object is deprecated but was already deprecated - skip (matches original if-elif-else behavior)
-                        continue
+    def _categorize_object_changes(self, old_objects: dict, new_objects: dict, domain: str, obj_type: str) -> dict:
+        """Categorize all changes for objects in a domain.
 
-                    # Process normal version changes
-                    category, old_version, new_version = self._categorize_version_change(
-                        stix_id, old_stix_obj, new_stix_obj
-                    )
+        Parameters
+        ----------
+        old_objects : dict
+            Old version objects keyed by STIX ID
+        new_objects : dict
+            New version objects keyed by STIX ID
+        domain : str
+            ATT&CK domain
+        obj_type : str
+            ATT&CK object type
 
-                    if category == "major":
-                        major_version_changes.add(stix_id)
-                    elif category == "minor":
-                        minor_version_changes.add(stix_id)
-                    elif category == "other":
-                        other_version_changes.add(stix_id)
-                    elif category == "patch":
-                        patches.add(stix_id)
-                    else:
-                        unchanged.add(stix_id)
+        Returns
+        -------
+        dict
+            Dictionary with sets of STIX IDs for each change category
+        """
+        from deepdiff import DeepDiff
 
-                    if new_version != old_version:
-                        new_stix_obj["version_change"] = f"{old_version} → {new_version}"
+        intersection = old_objects.keys() & new_objects.keys()
+        additions = new_objects.keys() - old_objects.keys()
+        deletions = old_objects.keys() - new_objects.keys()
 
-                    # Process description and relationship changes
-                    self._process_description_changes(old_stix_obj, new_stix_obj)
-                    self._process_relationship_changes(new_stix_obj, domain)
+        # Sets to store the IDs of objects for each section
+        changes = {
+            "additions": additions,
+            "deletions": deletions,
+            "major_version_changes": set(),
+            "minor_version_changes": set(),
+            "other_version_changes": set(),
+            "patches": set(),
+            "revocations": set(),
+            "deprecations": set(),
+            "unchanged": set(),
+        }
 
-                #############
-                # New objects
-                #############
-                for stix_id in additions:
-                    new_stix_obj = new_attack_objects[stix_id]
-                    attack_id = get_attack_id(new_stix_obj)
+        # Process objects that exist in both versions
+        for stix_id in intersection:
+            old_stix_obj = old_objects[stix_id]
+            new_stix_obj = new_objects[stix_id]
 
-                    # Add contributions from additions
-                    self.update_contributors(old_object=None, new_object=new_stix_obj)
+            # Calculate detailed diff
+            ddiff = DeepDiff(old_stix_obj, new_stix_obj, ignore_order=True, verbose_level=2)
+            new_stix_obj["detailed_diff"] = ddiff.to_json()
 
-                    # verify version is 1.0
-                    x_mitre_version = get_attack_object_version(stix_obj=new_stix_obj)
-                    if not version_increment_is_valid(None, x_mitre_version, "additions"):
-                        logger.warning(
-                            f"{stix_id} - Unexpected new version. Expected 1.0, but is {x_mitre_version}. [{attack_id}] {new_stix_obj['name']}"
-                        )
+            # Check for revocations
+            revocation_result = self._detect_revocation(stix_id, old_stix_obj, new_stix_obj, new_objects, domain)
+            if revocation_result is False:
+                continue  # Validation failed - skip
+            elif revocation_result is True:
+                changes["revocations"].add(stix_id)
+                continue
+            elif revocation_result is None and new_stix_obj.get("revoked"):
+                continue  # Already revoked - skip
 
-                #################
-                # Deleted objects
-                #################
-                for stix_id in deletions:
-                    old_stix_obj = old_attack_objects[stix_id]
-                    attack_id = get_attack_id(old_stix_obj)
+            # Check for deprecations
+            if self._detect_deprecation(old_stix_obj, new_stix_obj):
+                changes["deprecations"].add(stix_id)
+                continue
+            elif new_stix_obj.get("x_mitre_deprecated"):
+                continue  # Already deprecated - skip
 
-                #############################
-                # Create self.data["changes"]
-                #############################
-                if obj_type not in self.data["changes"]:
-                    self.data["changes"][obj_type] = {}
+            # Categorize version changes
+            category, old_version, new_version = self._categorize_version_change(stix_id, old_stix_obj, new_stix_obj)
 
-                # sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
-                # sorted(additions, key=lambda stix_object: stix_object["name"])
+            if category == "major":
+                changes["major_version_changes"].add(stix_id)
+            elif category == "minor":
+                changes["minor_version_changes"].add(stix_id)
+            elif category == "other":
+                changes["other_version_changes"].add(stix_id)
+            elif category == "patch":
+                changes["patches"].add(stix_id)
+            else:
+                changes["unchanged"].add(stix_id)
 
-                self.data["changes"][obj_type][domain] = {
-                    "additions": sorted(
-                        [new_attack_objects[stix_id] for stix_id in additions],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "major_version_changes": sorted(
-                        [new_attack_objects[stix_id] for stix_id in major_version_changes],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "minor_version_changes": sorted(
-                        [new_attack_objects[stix_id] for stix_id in minor_version_changes],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "other_version_changes": sorted(
-                        [new_attack_objects[stix_id] for stix_id in other_version_changes],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "patches": sorted(
-                        [new_attack_objects[stix_id] for stix_id in patches],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "revocations": sorted(
-                        [new_attack_objects[stix_id] for stix_id in revocations],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "deprecations": sorted(
-                        [new_attack_objects[stix_id] for stix_id in deprecations],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                    "deletions": sorted(
-                        [old_attack_objects[stix_id] for stix_id in deletions],
-                        key=lambda stix_object: stix_object["name"],
-                    ),
-                }
+            if new_version != old_version:
+                new_stix_obj["version_change"] = f"{old_version} → {new_version}"
 
-                # only create unchanged data if we want to display it later
-                if self.unchanged:
-                    self.data["changes"][obj_type][domain]["unchanged"] = [
-                        new_attack_objects[stix_id] for stix_id in unchanged
-                    ]
+            # Process description and relationship changes
+            self._process_description_changes(old_stix_obj, new_stix_obj)
+            self._process_relationship_changes(new_stix_obj, domain)
 
-                logger.debug(f"Loaded:  [{domain:17}]/{obj_type}")
+        # Process new objects
+        self._process_additions(changes["additions"], new_objects)
+
+        return changes
+
+    def _process_additions(self, additions: set, new_objects: dict):
+        """Process and validate newly added objects.
+
+        Parameters
+        ----------
+        additions : set
+            Set of STIX IDs for new objects
+        new_objects : dict
+            New version objects keyed by STIX ID
+        """
+        for stix_id in additions:
+            new_stix_obj = new_objects[stix_id]
+            attack_id = get_attack_id(new_stix_obj)
+
+            # Add contributions from additions
+            self.update_contributors(old_object=None, new_object=new_stix_obj)
+
+            # Verify version is 1.0
+            x_mitre_version = get_attack_object_version(stix_obj=new_stix_obj)
+            if not version_increment_is_valid(None, x_mitre_version, "additions"):
+                logger.warning(
+                    f"{stix_id} - Unexpected new version. Expected 1.0, but is {x_mitre_version}. [{attack_id}] {new_stix_obj['name']}"
+                )
+
+    def _store_categorized_changes(
+        self, domain: str, obj_type: str, changes: dict, old_objects: dict, new_objects: dict
+    ):
+        """Store categorized changes in the data structure.
+
+        Parameters
+        ----------
+        domain : str
+            ATT&CK domain
+        obj_type : str
+            ATT&CK object type
+        changes : dict
+            Dictionary with sets of STIX IDs for each change category
+        old_objects : dict
+            Old version objects keyed by STIX ID
+        new_objects : dict
+            New version objects keyed by STIX ID
+        """
+        if obj_type not in self.data["changes"]:
+            self.data["changes"][obj_type] = {}
+
+        self.data["changes"][obj_type][domain] = {
+            "additions": sorted(
+                [new_objects[stix_id] for stix_id in changes["additions"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "major_version_changes": sorted(
+                [new_objects[stix_id] for stix_id in changes["major_version_changes"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "minor_version_changes": sorted(
+                [new_objects[stix_id] for stix_id in changes["minor_version_changes"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "other_version_changes": sorted(
+                [new_objects[stix_id] for stix_id in changes["other_version_changes"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "patches": sorted(
+                [new_objects[stix_id] for stix_id in changes["patches"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "revocations": sorted(
+                [new_objects[stix_id] for stix_id in changes["revocations"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "deprecations": sorted(
+                [new_objects[stix_id] for stix_id in changes["deprecations"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+            "deletions": sorted(
+                [old_objects[stix_id] for stix_id in changes["deletions"]],
+                key=lambda stix_object: stix_object["name"],
+            ),
+        }
+
+        # Only create unchanged data if we want to display it later
+        if self.unchanged:
+            self.data["changes"][obj_type][domain]["unchanged"] = [
+                new_objects[stix_id] for stix_id in changes["unchanged"]
+            ]
 
     def _collect_related_objects(
         self, stix_id: str, domain: str, relationship_type: str, object_type: str, age: str
@@ -653,7 +624,7 @@ class DiffStix(object):
         return self._contributor_tracker.get_contributor_section()
 
     def get_parent_stix_object(self, stix_object: dict, datastore_version: str, domain: str) -> dict:
-        """Given an ATT&CK STIX object, find and return it's parent STIX object.
+        """Given an ATT&CK STIX object, find and return its parent STIX object.
 
         Parameters
         ----------
@@ -669,24 +640,7 @@ class DiffStix(object):
         dict
             The parent STIX object, if one can be found. Otherwise an empty dictionary is returned.
         """
-        subtechnique_relationships = self.data[datastore_version][domain]["relationships"]["subtechniques"]
-        techniques = self.data[datastore_version][domain]["attack_objects"]["techniques"]
-        datasources = self.data[datastore_version][domain]["attack_objects"]["datasources"]
-
-        if stix_object.get("x_mitre_is_subtechnique"):
-            for subtechnique_relationship in subtechnique_relationships.values():
-                if subtechnique_relationship["source_ref"] == stix_object["id"]:
-                    parent_id = subtechnique_relationship["target_ref"]
-                    return techniques[parent_id]
-        elif stix_object["type"] == "x-mitre-data-component":
-            parent_ref = stix_object.get("x_mitre_data_source_ref")
-            if parent_ref and parent_ref in datasources:
-                return datasources[parent_ref]
-            # No parent datasource available for this datacomponent.
-            return {}
-
-        # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
-        return {}
+        return self._hierarchy_builder.get_parent_stix_object(stix_object, datastore_version, domain)
 
     def placard(self, stix_object: dict, section: str, domain: str) -> str:
         """Get a section list item for the given STIX Domain Object (SDO) according to section type.

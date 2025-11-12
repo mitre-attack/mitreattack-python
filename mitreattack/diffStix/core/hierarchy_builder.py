@@ -130,3 +130,39 @@ class HierarchyBuilder:
 
         groupings = sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
         return groupings
+
+    def get_parent_stix_object(self, stix_object: dict, datastore_version: str, domain: str) -> dict:
+        """Given an ATT&CK STIX object, find and return its parent STIX object.
+
+        Parameters
+        ----------
+        stix_object : dict
+            An ATT&CK STIX Domain Object (SDO).
+        datastore_version : str
+            The comparative version of the ATT&CK datastore. Choices are either "old" or "new".
+        domain : str
+            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
+
+        Returns
+        -------
+        dict
+            The parent STIX object, if one can be found. Otherwise an empty dictionary is returned.
+        """
+        subtechnique_relationships = self.diff_stix.data[datastore_version][domain]["relationships"]["subtechniques"]
+        techniques = self.diff_stix.data[datastore_version][domain]["attack_objects"]["techniques"]
+        datasources = self.diff_stix.data[datastore_version][domain]["attack_objects"]["datasources"]
+
+        if stix_object.get("x_mitre_is_subtechnique"):
+            for subtechnique_relationship in subtechnique_relationships.values():
+                if subtechnique_relationship["source_ref"] == stix_object["id"]:
+                    parent_id = subtechnique_relationship["target_ref"]
+                    return techniques[parent_id]
+        elif stix_object["type"] == "x-mitre-data-component":
+            parent_ref = stix_object.get("x_mitre_data_source_ref")
+            if parent_ref and parent_ref in datasources:
+                return datasources[parent_ref]
+            # No parent datasource available for this datacomponent.
+            return {}
+
+        # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
+        return {}
