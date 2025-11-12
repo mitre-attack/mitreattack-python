@@ -13,6 +13,7 @@ from stix2 import Filter, MemoryStore
 
 from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.core.domain_statistics import DomainStatistics
+from mitreattack.diffStix.core.statistics_collector import StatisticsCollector
 from mitreattack.diffStix.formatters.json_generator import JsonGenerator
 from mitreattack.diffStix.formatters.layer_generator import LayerGenerator
 from mitreattack.diffStix.formatters.markdown_generator import MarkdownGenerator
@@ -197,7 +198,8 @@ class DiffStix(object):
 
         self.load_data()
 
-        # Initialize formatters after data is loaded
+        # Initialize components after data is loaded
+        self._statistics_collector = StatisticsCollector(self)
         self._markdown_generator = MarkdownGenerator(self)
         self._layer_generator = LayerGenerator(self)
         self._json_generator = JsonGenerator(self)
@@ -1060,8 +1062,7 @@ class DiffStix(object):
         return self._markdown_generator.placard(stix_object, section, domain)
 
     def _collect_domain_statistics(self, datastore: MemoryStore, domain_name: str) -> DomainStatistics:
-        """
-        Collect statistics for a single domain from a STIX datastore.
+        """Collect statistics for a single domain from a STIX datastore.
 
         Parameters
         ----------
@@ -1075,42 +1076,10 @@ class DiffStix(object):
         DomainStatistics
             Statistics for the domain.
         """
-        # Create MitreAttackData instance from the datastore
-        data = MitreAttackData(src=datastore)
-
-        # Get all object types, removing revoked and deprecated
-        tactics = data.get_tactics(remove_revoked_deprecated=True)
-        techniques = data.get_techniques(include_subtechniques=False, remove_revoked_deprecated=True)
-        subtechniques = data.get_subtechniques(remove_revoked_deprecated=True)
-        groups = data.get_groups(remove_revoked_deprecated=True)
-        software = data.get_software(remove_revoked_deprecated=True)
-        campaigns = data.get_campaigns(remove_revoked_deprecated=True)
-        mitigations = data.get_mitigations(remove_revoked_deprecated=True)
-        assets = data.get_assets(remove_revoked_deprecated=True)
-        datasources = data.get_datasources(remove_revoked_deprecated=True)
-        detectionstrategies = data.get_detectionstrategies(remove_revoked_deprecated=True)
-        analytics = data.get_analytics(remove_revoked_deprecated=True)
-        datacomponents = data.get_datacomponents(remove_revoked_deprecated=True)
-
-        return DomainStatistics(
-            name=domain_name,
-            tactics=len(tactics),
-            techniques=len(techniques),
-            subtechniques=len(subtechniques),
-            groups=len(groups),
-            software=len(software),
-            campaigns=len(campaigns),
-            mitigations=len(mitigations),
-            assets=len(assets),
-            datasources=len(datasources),
-            detectionstrategies=len(detectionstrategies),
-            analytics=len(analytics),
-            datacomponents=len(datacomponents),
-        )
+        return self._statistics_collector.collect_domain_statistics(datastore, domain_name)
 
     def _collect_unique_object_counts(self, datastore_version: str) -> dict[str, int]:
-        """
-        Collect counts of unique objects across all domains for a specific version.
+        """Collect counts of unique objects across all domains for a specific version.
 
         Some objects (Software, Groups, Campaigns) may appear in multiple domains.
         This function counts unique objects to avoid double-counting.
@@ -1125,31 +1094,10 @@ class DiffStix(object):
         dict of str to int
             Counts of unique software, groups, and campaigns.
         """
-        all_software_ids = set()
-        all_groups_ids = set()
-        all_campaigns_ids = set()
-
-        for domain in self.domains:
-            datastore = self.data[datastore_version][domain]["stix_datastore"]
-            data = MitreAttackData(src=datastore)
-
-            software = data.get_software(remove_revoked_deprecated=True)
-            groups = data.get_groups(remove_revoked_deprecated=True)
-            campaigns = data.get_campaigns(remove_revoked_deprecated=True)
-
-            all_software_ids.update(obj["id"] for obj in software)
-            all_groups_ids.update(obj["id"] for obj in groups)
-            all_campaigns_ids.update(obj["id"] for obj in campaigns)
-
-        return {
-            "software": len(all_software_ids),
-            "groups": len(all_groups_ids),
-            "campaigns": len(all_campaigns_ids),
-        }
+        return self._statistics_collector.collect_unique_object_counts(datastore_version)
 
     def get_statistics_section(self, datastore_version: str = "new") -> str:
-        """
-        Generate a markdown section with ATT&CK statistics for all domains.
+        """Generate a markdown section with ATT&CK statistics for all domains.
 
         Parameters
         ----------
@@ -1162,30 +1110,7 @@ class DiffStix(object):
         str
             Markdown-formatted statistics section.
         """
-        # Collect unique object counts across all domains
-        unique_counts = self._collect_unique_object_counts(datastore_version)
-
-        # Collect statistics for each domain
-        domain_stats = []
-        for domain in self.domains:
-            datastore = self.data[datastore_version][domain]["stix_datastore"]
-            domain_label = self.domain_to_domain_label[domain]
-            stats = self._collect_domain_statistics(datastore, domain_label)
-            domain_stats.append(stats)
-
-        # Build the statistics section
-        output = "## Statistics\n\n"
-        output += (
-            f"This version of ATT&CK contains {unique_counts['software']} Software, "
-            f"{unique_counts['groups']} Groups, and {unique_counts['campaigns']} Campaigns.\n\n"
-        )
-        output += "Broken out by domain:\n\n"
-
-        for stats in domain_stats:
-            output += stats.format_output() + "\n"
-
-        output += "\n"
-        return output
+        return self._statistics_collector.generate_statistics_section(datastore_version)
 
     def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
         """Parse a list of STIX objects in a section and return a string for the whole section."""
