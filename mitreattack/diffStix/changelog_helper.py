@@ -27,6 +27,7 @@ from mitreattack import release_info
 from mitreattack.stix20 import MitreAttackData
 
 # Import from new utility modules
+from mitreattack.diffStix.core.contributor_tracker import ContributorTracker
 from mitreattack.diffStix.utils.constants import DATE as date
 from mitreattack.diffStix.utils.constants import THIS_MONTH as this_month
 from mitreattack.diffStix.utils.constants import LAYER_DEFAULTS as layer_defaults
@@ -257,8 +258,8 @@ class DiffStix(object):
                 "unchanged": "Unchanged",
             }
 
-        # will hold information of contributors of the new release {... {"contributor_credit/name_as_key": counter]} ...}
-        self.release_contributors = {}
+        # Initialize contributor tracker for the new release
+        self._contributor_tracker = ContributorTracker()
 
         # data gets loaded into here in the load_data() function. All other functionalities rely on this data structure
         self.data = {
@@ -304,6 +305,28 @@ class DiffStix(object):
                     self.data[datastore_version][domain]["attack_objects"][_type] = {}
 
         self.load_data()
+
+    @property
+    def release_contributors(self) -> dict:
+        """Get the release contributors dictionary for backward compatibility.
+
+        Returns
+        -------
+        dict
+            Dictionary of contributor names to contribution counts.
+        """
+        return self._contributor_tracker.release_contributors
+
+    @release_contributors.setter
+    def release_contributors(self, value: dict):
+        """Set the release contributors dictionary for backward compatibility.
+
+        Parameters
+        ----------
+        value : dict
+            Dictionary of contributor names to contribution counts.
+        """
+        self._contributor_tracker.release_contributors = value
 
     def load_data(self):
         """Load data from files into data dict."""
@@ -826,25 +849,7 @@ class DiffStix(object):
         new_object : dict
             An ATT&CK STIX Domain Object (SDO).
         """
-        if new_object.get("x_mitre_contributors"):
-            new_object_contributors = set(new_object["x_mitre_contributors"])
-
-            # Check if old objects had contributors
-            if old_object is None or not old_object.get("x_mitre_contributors"):
-                old_object_contributors = set()
-            else:
-                old_object_contributors = set(old_object["x_mitre_contributors"])
-
-            # Remove old contributors from showing up
-            # if contributors are the same the result will be empty
-            new_contributors = new_object_contributors - old_object_contributors
-
-            # Update counter of contributor to track contributions
-            for new_contributor in new_contributors:
-                if self.release_contributors.get(new_contributor):
-                    self.release_contributors[new_contributor] += 1
-                else:
-                    self.release_contributors[new_contributor] = 1
+        self._contributor_tracker.update_contributors(old_object, new_object)
 
     def get_groupings(self, object_type: str, stix_objects: List, section: str, domain: str) -> List[Dict[str, object]]:
         """Group STIX objects together within a section.
@@ -965,16 +970,7 @@ class DiffStix(object):
         str
             Markdown representation of the contributors found
         """
-        contribSection = "## Contributors to this release\n\n"
-        sorted_contributors = sorted(self.release_contributors, key=lambda v: v.lower())
-
-        for contributor in sorted_contributors:
-            # do not include ATT&CK as contributor
-            if contributor == "ATT&CK":
-                continue
-            contribSection += f"* {contributor}\n"
-
-        return contribSection
+        return self._contributor_tracker.get_contributor_section()
 
     def get_parent_stix_object(self, stix_object: dict, datastore_version: str, domain: str) -> dict:
         """Given an ATT&CK STIX object, find and return it's parent STIX object.
