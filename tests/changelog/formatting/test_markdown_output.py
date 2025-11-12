@@ -93,7 +93,7 @@ class TestMarkdownOutput:
         ]
 
         # Test real markdown section generation
-        result = lightweight_diffstix.get_markdown_section_data(
+        result = lightweight_diffstix.markdown_generator.get_markdown_section_data(
             groupings=test_groupings, section="additions", domain="enterprise-attack"
         )
 
@@ -124,7 +124,7 @@ class TestMarkdownOutput:
 
     def test_md_key_generation(self, lightweight_diffstix):
         """Test real markdown key generation."""
-        result = lightweight_diffstix.get_md_key()
+        result = lightweight_diffstix.markdown_generator.get_md_key()
 
         # Verify real key content
         assert isinstance(result, str)

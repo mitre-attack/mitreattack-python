@@ -682,6 +682,11 @@ def mock_diffstix(diffstix_data):
             "unchanged": "Unchanged",
         }
 
+    # Add mock components for public API
+    mock_hierarchy_builder = Mock()
+    mock_hierarchy_builder.get_parent_stix_object.return_value = {}
+    mock_diffstix.hierarchy_builder = mock_hierarchy_builder
+
     return mock_diffstix
 
 
@@ -1132,6 +1137,15 @@ def complex_diffstix_with_all_changes(diffstix_data, mock_stix_object_factory):
             "deletions": "Deletions",
             "unchanged": "Unchanged",
         }
+
+    # Add mock components for public API
+    mock_markdown_generator = Mock()
+    mock_markdown_generator.get_md_key.return_value = "## Key\nTest key content"
+    mock_diffstix.markdown_generator = mock_markdown_generator
+
+    mock_hierarchy_builder = Mock()
+    mock_hierarchy_builder.get_parent_stix_object.return_value = {}
+    mock_diffstix.hierarchy_builder = mock_hierarchy_builder
 
     return mock_diffstix
 
