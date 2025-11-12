@@ -12,13 +12,13 @@ class TestDiffStixDataProcessing:
             "T1234.001": sample_subtechnique_object,
         }
 
-        # Mock the actual DiffStix method
+        # Mock the hierarchy_builder method
         def mock_get_parent(subtechnique, _version, _domain):
             if subtechnique.get("external_references", [{}])[0].get("external_id") == "T1234.001":
                 return sample_technique_object
             return None
 
-        mock_diffstix.get_parent_stix_object = mock_get_parent
+        mock_diffstix.hierarchy_builder.get_parent_stix_object = mock_get_parent
 
         # Test finding parent
         parent = mock_diffstix.hierarchy_builder.get_parent_stix_object(sample_subtechnique_object, "old", "enterprise-attack")
