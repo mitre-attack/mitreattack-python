@@ -118,7 +118,7 @@ class ChangeDetector:
             - new_version: The new version
         """
         # Verify if there are new contributors on the object
-        self.diff_stix._contributor_tracker.update_contributors(old_object=old_obj, new_object=new_obj)
+        self.diff_stix.contributor_tracker.update_contributors(old_object=old_obj, new_object=new_obj)
 
         old_version = get_attack_object_version(old_obj)
         new_version = get_attack_object_version(new_obj)

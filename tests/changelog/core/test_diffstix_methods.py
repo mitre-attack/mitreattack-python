@@ -20,7 +20,7 @@ class TestDiffStixMethods:
         test_objects = [parent_technique, child_subtechnique]
 
         # Test real groupings generation
-        result = lightweight_diffstix.get_groupings(
+        result = lightweight_diffstix.hierarchy_builder.get_groupings(
             object_type="techniques", stix_objects=test_objects, section="additions", domain="enterprise-attack"
         )
 
@@ -49,7 +49,7 @@ class TestDiffStixMethods:
         lightweight_diffstix.release_contributors = {}
 
         # Test real contributor update
-        lightweight_diffstix.update_contributors(old_object, new_object)
+        lightweight_diffstix.contributor_tracker.update_contributors(old_object, new_object)
 
         # Verify only new contributors were tracked
         assert "New Contributor" in lightweight_diffstix.release_contributors
@@ -65,7 +65,7 @@ class TestDiffStixMethods:
         lightweight_diffstix.release_contributors = {}
 
         # Test with no old object (new addition)
-        lightweight_diffstix.update_contributors(None, new_object)
+        lightweight_diffstix.contributor_tracker.update_contributors(None, new_object)
 
         # Verify all contributors were tracked
         assert "Author One" in lightweight_diffstix.release_contributors
@@ -100,7 +100,7 @@ class TestDiffStixMethods:
         }
 
         # Test real parent resolution
-        result = lightweight_diffstix.get_parent_stix_object(subtechnique, "new", "enterprise-attack")
+        result = lightweight_diffstix.hierarchy_builder.get_parent_stix_object(subtechnique, "new", "enterprise-attack")
 
         # Verify correct parent was found
         assert result == parent_technique
@@ -110,7 +110,7 @@ class TestDiffStixMethods:
     def test_get_parent_stix_object_no_parent(self, lightweight_diffstix, sample_technique_object):
         """Test parent resolution for objects without parents."""
         # Test with regular technique (not a subtechnique)
-        result = lightweight_diffstix.get_parent_stix_object(sample_technique_object, "new", "enterprise-attack")
+        result = lightweight_diffstix.hierarchy_builder.get_parent_stix_object(sample_technique_object, "new", "enterprise-attack")
 
         # Should return empty dict for objects without parents
         assert result == {}
@@ -118,13 +118,13 @@ class TestDiffStixMethods:
     def test_placard_different_sections(self, lightweight_diffstix, sample_technique_object, mock_stix_object_factory):
         """Test real placard generation for different section types."""
         # Test additions section
-        additions_result = lightweight_diffstix.placard(sample_technique_object, "additions", "enterprise-attack")
+        additions_result = lightweight_diffstix.markdown_generator.placard(sample_technique_object, "additions", "enterprise-attack")
         assert isinstance(additions_result, str)
         assert len(additions_result) > 0
         assert "T1234" in additions_result
 
         # Test deletions section
-        deletions_result = lightweight_diffstix.placard(sample_technique_object, "deletions", "enterprise-attack")
+        deletions_result = lightweight_diffstix.markdown_generator.placard(sample_technique_object, "deletions", "enterprise-attack")
         assert isinstance(deletions_result, str)
         # Deletions only show name, no link
         assert sample_technique_object["name"] in deletions_result
@@ -139,7 +139,7 @@ class TestDiffStixMethods:
         revoked_object["revoked_by"] = revoking_object
 
         # Test revocation placard
-        result = lightweight_diffstix.placard(revoked_object, "revocations", "enterprise-attack")
+        result = lightweight_diffstix.markdown_generator.placard(revoked_object, "revocations", "enterprise-attack")
 
         # Verify revocation information is included
         assert isinstance(result, str)

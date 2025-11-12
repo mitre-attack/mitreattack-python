@@ -31,7 +31,7 @@ class TestMarkdownOutput:
         lightweight_diffstix.site_prefix = "https://attack.mitre.org"
 
         # Test real placard generation which includes links
-        result = lightweight_diffstix.placard(sample_technique_object, "additions", "enterprise-attack")
+        result = lightweight_diffstix.markdown_generator.placard(sample_technique_object, "additions", "enterprise-attack")
 
         # Verify real link formatting
         assert isinstance(result, str)
@@ -59,7 +59,7 @@ class TestMarkdownOutput:
 
         # Test real placard generation with missing name - should raise KeyError
         with pytest.raises(KeyError):
-            lightweight_diffstix.placard(stix_object_with_revoker, "revocations", "enterprise-attack")
+            lightweight_diffstix.markdown_generator.placard(stix_object_with_revoker, "revocations", "enterprise-attack")
 
     def test_get_placard_version_string_basic(self, sample_technique_object):
         """Test real placard version string generation."""
@@ -113,7 +113,7 @@ class TestMarkdownOutput:
         }
 
         # Test real contributor section generation
-        result = lightweight_diffstix.get_contributor_section()
+        result = lightweight_diffstix.contributor_tracker.get_contributor_section()
 
         # Verify real contributor section content
         assert isinstance(result, str)

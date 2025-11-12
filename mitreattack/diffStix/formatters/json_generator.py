@@ -37,7 +37,7 @@ class JsonGenerator:
                 changes_dict[domain][object_type] = {}
 
                 for section, stix_objects in sections.items():
-                    groupings = self.diff_stix._hierarchy_builder.get_groupings(
+                    groupings = self.diff_stix.hierarchy_builder.get_groupings(
                         object_type=object_type,
                         stix_objects=stix_objects,
                         section=section,

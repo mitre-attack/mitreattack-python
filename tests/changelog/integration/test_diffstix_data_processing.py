@@ -21,7 +21,7 @@ class TestDiffStixDataProcessing:
         mock_diffstix.get_parent_stix_object = mock_get_parent
 
         # Test finding parent
-        parent = mock_diffstix.get_parent_stix_object(sample_subtechnique_object, "old", "enterprise-attack")
+        parent = mock_diffstix.hierarchy_builder.get_parent_stix_object(sample_subtechnique_object, "old", "enterprise-attack")
         assert parent == sample_technique_object
 
     def test_find_technique_mitigation_changes(self, mock_diffstix, mock_relationship_factory):

@@ -93,24 +93,24 @@ class DiffStix(object):
         self.section_headers = self._config.get_all_section_headers()
 
         # Initialize contributor tracker for the new release
-        self._contributor_tracker = ContributorTracker()
+        self.contributor_tracker = ContributorTracker()
 
         # Initialize the nested data structure for tracking changes
         # Data gets loaded into here in the load_data() function
         self.data = DataStructureInitializer.create_structure(self.domains, self.types)
 
         # Initialize data loader and change detector before data loading
-        self._data_loader = DataLoader(self)
-        self._change_detector = ChangeDetector(self)
+        self.data_loader = DataLoader(self)
+        self.change_detector = ChangeDetector(self)
 
         self.load_data()
 
         # Initialize components after data is loaded
-        self._hierarchy_builder = HierarchyBuilder(self)
-        self._statistics_collector = StatisticsCollector(self)
-        self._markdown_generator = MarkdownGenerator(self)
-        self._layer_generator = LayerGenerator(self)
-        self._json_generator = JsonGenerator(self)
+        self.hierarchy_builder = HierarchyBuilder(self)
+        self.statistics_collector = StatisticsCollector(self)
+        self.markdown_generator = MarkdownGenerator(self)
+        self.layer_generator = LayerGenerator(self)
+        self.json_generator = JsonGenerator(self)
 
     @property
     def release_contributors(self) -> dict:
@@ -121,7 +121,7 @@ class DiffStix(object):
         dict
             Dictionary of contributor names to contribution counts.
         """
-        return self._contributor_tracker.release_contributors
+        return self.contributor_tracker.release_contributors
 
     @release_contributors.setter
     def release_contributors(self, value: dict):
@@ -132,7 +132,7 @@ class DiffStix(object):
         value : dict
             Dictionary of contributor names to contribution counts.
         """
-        self._contributor_tracker.release_contributors = value
+        self.contributor_tracker.release_contributors = value
 
 
     def load_data(self):
@@ -143,7 +143,7 @@ class DiffStix(object):
     def _load_all_domains(self):
         """Load STIX data for all configured domains."""
         for domain in track(self.domains, description="Loading domains"):
-            self._data_loader.load_domain(domain=domain)
+            self.data_loader.load_domain(domain=domain)
 
     def _detect_all_changes(self):
         """Detect and categorize changes across all domains and object types."""
@@ -222,7 +222,7 @@ class DiffStix(object):
             new_stix_obj["detailed_diff"] = ddiff.to_json()
 
             # Check for revocations
-            revocation_result = self._change_detector.detect_revocation(
+            revocation_result = self.change_detector.detect_revocation(
                 stix_id, old_stix_obj, new_stix_obj, new_objects, domain
             )
             if revocation_result is False:
@@ -234,14 +234,14 @@ class DiffStix(object):
                 continue  # Already revoked - skip
 
             # Check for deprecations
-            if self._change_detector.detect_deprecation(old_stix_obj, new_stix_obj):
+            if self.change_detector.detect_deprecation(old_stix_obj, new_stix_obj):
                 changes["deprecations"].add(stix_id)
                 continue
             elif new_stix_obj.get("x_mitre_deprecated"):
                 continue  # Already deprecated - skip
 
             # Categorize version changes
-            category, old_version, new_version = self._change_detector.categorize_version_change(
+            category, old_version, new_version = self.change_detector.categorize_version_change(
                 stix_id, old_stix_obj, new_stix_obj
             )
 
@@ -260,8 +260,8 @@ class DiffStix(object):
                 new_stix_obj["version_change"] = f"{old_version} → {new_version}"
 
             # Process description and relationship changes
-            self._change_detector.process_description_changes(old_stix_obj, new_stix_obj)
-            self._change_detector.process_relationship_changes(new_stix_obj, domain)
+            self.change_detector.process_description_changes(old_stix_obj, new_stix_obj)
+            self.change_detector.process_relationship_changes(new_stix_obj, domain)
 
         # Process new objects
         self._process_additions(changes["additions"], new_objects)
@@ -283,7 +283,7 @@ class DiffStix(object):
             attack_id = get_attack_id(new_stix_obj)
 
             # Add contributions from additions
-            self._contributor_tracker.update_contributors(old_object=None, new_object=new_stix_obj)
+            self.contributor_tracker.update_contributors(old_object=None, new_object=new_stix_obj)
 
             # Verify version is 1.0
             x_mitre_version = get_attack_object_version(stix_obj=new_stix_obj)
@@ -354,30 +354,6 @@ class DiffStix(object):
                 new_objects[stix_id] for stix_id in changes["unchanged"]
             ]
 
-    def find_technique_mitigation_changes(self, new_stix_obj: dict, domain: str):
-        """Find changes in the relationships between Techniques and Mitigations.
-
-        Parameters
-        ----------
-        new_stix_obj : dict
-            An ATT&CK Technique (attack-pattern) STIX Domain Object (SDO).
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-        """
-        return self._change_detector.find_technique_mitigation_changes(new_stix_obj, domain)
-
-    def find_technique_detection_changes(self, new_stix_obj: dict, domain: str):
-        """Find changes in the relationships between Techniques and Datacomponents.
-
-        Parameters
-        ----------
-        new_stix_obj : dict
-            An ATT&CK Technique (attack-pattern) STIX Domain Object (SDO).
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-        """
-        return self._change_detector.find_technique_detection_changes(new_stix_obj, domain)
-
     def get_datastore_from_mitre_cti(self, domain: str, datastore_version: str) -> stix2.MemoryStore:
         """Load data from MITRE CTI repo according to domain.
 
@@ -394,139 +370,21 @@ class DiffStix(object):
             STIX MemoryStore object representing an ATT&CK domain.
         """
         # Lazy initialization for backward compatibility with tests
-        if not hasattr(self, "_data_loader"):
-            self._data_loader = DataLoader(self)
-        return self._data_loader.get_datastore_from_mitre_cti(domain, datastore_version)
-
-    def update_contributors(self, old_object: Optional[dict], new_object: dict):
-        """Update contributors list if new object has contributors.
-
-        Parameters
-        ----------
-        old_object : Optional[dict]
-            An ATT&CK STIX Domain Object (SDO).
-        new_object : dict
-            An ATT&CK STIX Domain Object (SDO).
-        """
-        self._contributor_tracker.update_contributors(old_object, new_object)
-
-    def get_groupings(self, object_type: str, stix_objects: List, section: str, domain: str) -> List[Dict[str, object]]:
-        """Group STIX objects together within a section.
-
-        A "group" in this sense is a set of STIX objects that are all in the same section, e.g. new minor version.
-        In this case, since a domain/object type are implied before we get here, it would be
-        e.g. "All Enterprise Techniques & Subtechniques, grouped alphabetically by name, and the
-        sub-techniques are 'grouped' under their parent technique"
-
-        Parameters
-        ----------
-        object_type : str
-            Type of STIX object that is being worked with.
-        stix_objects : List
-            List of STIX objects that need to be grouped.
-        section : str
-            Section of the changelog that is being created with the objects,
-            e.g. new major version, revocation, etc.
-        domain : str
-            ATT&CK domain (e.g., "enterprise-attack")
-
-        Returns
-        -------
-        List[Dict[str, object]]
-            A list of sorted, complex dictionary objects that tell if this "group" of objects have
-            their parent objects in the same section.
-        """
-        return self._hierarchy_builder.get_groupings(object_type, stix_objects, section, domain)
-
-    def get_contributor_section(self) -> str:
-        """Get contributors that are only found in the new STIX data.
-
-        Returns
-        -------
-        str
-            Markdown representation of the contributors found
-        """
-        return self._contributor_tracker.get_contributor_section()
-
-    def get_parent_stix_object(self, stix_object: dict, datastore_version: str, domain: str) -> dict:
-        """Given an ATT&CK STIX object, find and return its parent STIX object.
-
-        Parameters
-        ----------
-        stix_object : dict
-            An ATT&CK STIX Domain Object (SDO).
-        datastore_version : str
-            The comparative version of the ATT&CK datastore. Choices are either "old" or "new".
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-
-        Returns
-        -------
-        dict
-            The parent STIX object, if one can be found. Otherwise an empty dictionary is returned.
-        """
-        return self._hierarchy_builder.get_parent_stix_object(stix_object, datastore_version, domain)
-
-    def placard(self, stix_object: dict, section: str, domain: str) -> str:
-        """Get a section list item for the given STIX Domain Object (SDO) according to section type.
-
-        Parameters
-        ----------
-        stix_object : dict
-            An ATT&CK STIX Domain Object (SDO).
-        section : str
-            Section change type, e.g major_version_change, revocations, etc.
-        domain : str
-            An ATT&CK domain from the following list ["enterprise-attack", "mobile-attack", "ics-attack"]
-
-        Returns
-        -------
-        str
-            Final return string to be displayed in the Changelog.
-        """
-        return self._markdown_generator.placard(stix_object, section, domain)
-
-    def get_statistics_section(self, datastore_version: str = "new") -> str:
-        """Generate a markdown section with ATT&CK statistics for all domains.
-
-        Parameters
-        ----------
-        datastore_version : str, optional
-            Either "old" or "new" to specify which version's statistics to generate.
-            Defaults to "new".
-
-        Returns
-        -------
-        str
-            Markdown-formatted statistics section.
-        """
-        return self._statistics_collector.generate_statistics_section(datastore_version)
-
-    def get_markdown_section_data(self, groupings, section: str, domain: str) -> str:
-        """Parse a list of STIX objects in a section and return a string for the whole section."""
-        return self._markdown_generator.get_markdown_section_data(groupings, section, domain)
-
-    def get_md_key(self) -> str:
-        """Create string describing each type of difference (change, addition, etc).
-
-        Returns
-        -------
-        str
-            Key for change types used in Markdown output.
-        """
-        return self._markdown_generator.get_md_key()
+        if not hasattr(self, "data_loader"):
+            self.data_loader = DataLoader(self)
+        return self.data_loader.get_datastore_from_mitre_cti(domain, datastore_version)
 
     def get_markdown_string(self) -> str:
         """Return a markdown string summarizing detected differences."""
-        return self._markdown_generator.generate()
+        return self.markdown_generator.generate()
 
     def get_layers_dict(self):
         """Return ATT&CK Navigator layers in dict format summarizing detected differences.
 
         Returns a dict mapping domain to its layer dict.
         """
-        return self._layer_generator.generate()
+        return self.layer_generator.generate()
 
     def get_changes_dict(self):
         """Return dict format summarizing detected differences."""
-        return self._json_generator.generate()
+        return self.json_generator.generate()
