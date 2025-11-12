@@ -80,6 +80,7 @@ __all__ = [
     "main",
 ]
 
+
 @dataclass
 class DomainStatistics:
     """Statistics for a single ATT&CK domain."""
@@ -328,9 +329,7 @@ class DiffStix(object):
         """
         self._contributor_tracker.release_contributors = value
 
-    def _detect_revocation(
-        self, stix_id: str, old_obj: dict, new_obj: dict, new_attack_objects: dict, domain: str
-    ) -> bool:
+    def _detect_revocation(self, stix_id: str, old_obj: dict, new_obj: dict, new_attack_objects: dict, domain: str):
         """Detect if an object has been newly revoked.
 
         Parameters
@@ -348,30 +347,33 @@ class DiffStix(object):
 
         Returns
         -------
-        bool
-            True if the object was newly revoked, False otherwise.
+        None, True, or False
+            None if not a revocation scenario (not revoked or already revoked),
+            True if newly revoked and successfully validated,
+            False if validation failed (object should be skipped).
         """
+        # Not revoked at all - continue to deprecation/version checking
         if not new_obj.get("revoked"):
-            return False
+            return None
 
-        # Only work with newly revoked objects
+        # Already revoked in old version - not a change, but still revoked
+        # Original code would exit the if block and NOT process as version change
         if old_obj.get("revoked"):
-            return False
+            return None
 
+        # Newly revoked - validate the revocation
         if stix_id not in self.data["new"][domain]["relationships"]["revoked-by"]:
             logger.error(f"[{stix_id}] revoked object has no revoked-by relationship")
-            return False
+            return False  # Validation error - skip this object
 
         revoked_by_key = self.data["new"][domain]["relationships"]["revoked-by"][stix_id][0]["target_ref"]
         if revoked_by_key not in new_attack_objects:
-            logger.error(
-                f"{stix_id} revoked by {revoked_by_key}, but {revoked_by_key} not found in new STIX bundle!!"
-            )
-            return False
+            logger.error(f"{stix_id} revoked by {revoked_by_key}, but {revoked_by_key} not found in new STIX bundle!!")
+            return False  # Validation error - skip this object
 
         revoking_object = new_attack_objects[revoked_by_key]
         new_obj["revoked_by"] = revoking_object
-        return True
+        return True  # Successfully detected new revocation
 
     def _detect_deprecation(self, old_obj: dict, new_obj: dict) -> bool:
         """Detect if an object has been newly deprecated.
@@ -510,35 +512,50 @@ class DiffStix(object):
                     detailed_diff = ddiff.to_json()
                     new_stix_obj["detailed_diff"] = detailed_diff
 
-                    # Check for revocations
-                    if self._detect_revocation(stix_id, old_stix_obj, new_stix_obj, new_attack_objects, domain):
+                    # Check for revocations (skip object if revocation validation fails or already revoked)
+                    revocation_result = self._detect_revocation(
+                        stix_id, old_stix_obj, new_stix_obj, new_attack_objects, domain
+                    )
+                    if revocation_result is False:
+                        # Revocation validation failed - skip this object entirely (like original 'continue')
+                        continue
+                    elif revocation_result is True:
                         revocations.add(stix_id)
+                        continue
+                    elif revocation_result is None and new_stix_obj.get("revoked"):
+                        # Object is revoked but was already revoked - skip (matches original if-elif-else behavior)
+                        continue
+
                     # Check for deprecations
-                    elif self._detect_deprecation(old_stix_obj, new_stix_obj):
+                    if self._detect_deprecation(old_stix_obj, new_stix_obj):
                         deprecations.add(stix_id)
+                        continue
+                    elif new_stix_obj.get("x_mitre_deprecated"):
+                        # Object is deprecated but was already deprecated - skip (matches original if-elif-else behavior)
+                        continue
+
                     # Process normal version changes
+                    category, old_version, new_version = self._categorize_version_change(
+                        stix_id, old_stix_obj, new_stix_obj
+                    )
+
+                    if category == "major":
+                        major_version_changes.add(stix_id)
+                    elif category == "minor":
+                        minor_version_changes.add(stix_id)
+                    elif category == "other":
+                        other_version_changes.add(stix_id)
+                    elif category == "patch":
+                        patches.add(stix_id)
                     else:
-                        category, old_version, new_version = self._categorize_version_change(
-                            stix_id, old_stix_obj, new_stix_obj
-                        )
+                        unchanged.add(stix_id)
 
-                        if category == "major":
-                            major_version_changes.add(stix_id)
-                        elif category == "minor":
-                            minor_version_changes.add(stix_id)
-                        elif category == "other":
-                            other_version_changes.add(stix_id)
-                        elif category == "patch":
-                            patches.add(stix_id)
-                        else:
-                            unchanged.add(stix_id)
+                    if new_version != old_version:
+                        new_stix_obj["version_change"] = f"{old_version} → {new_version}"
 
-                        if new_version != old_version:
-                            new_stix_obj["version_change"] = f"{old_version} → {new_version}"
-
-                        # Process description and relationship changes
-                        self._process_description_changes(old_stix_obj, new_stix_obj)
-                        self._process_relationship_changes(new_stix_obj, domain)
+                    # Process description and relationship changes
+                    self._process_description_changes(old_stix_obj, new_stix_obj)
+                    self._process_relationship_changes(new_stix_obj, domain)
 
                 #############
                 # New objects
@@ -653,9 +670,7 @@ class DiffStix(object):
 
         return related_objects
 
-    def _create_changelog_entry(
-        self, old_items: dict, new_items: dict, formatter: callable = None
-    ) -> dict:
+    def _create_changelog_entry(self, old_items: dict, new_items: dict, formatter: callable = None) -> dict:
         """Create a changelog entry with shared, new, and dropped items.
 
         Parameters
@@ -703,9 +718,7 @@ class DiffStix(object):
 
         new_stix_obj["changelog_mitigations"] = self._create_changelog_entry(old_mitigations, new_mitigations)
 
-    def _collect_detection_objects(
-        self, stix_id: str, domain: str, age: str
-    ) -> tuple[dict[str, str], dict[str, str]]:
+    def _collect_detection_objects(self, stix_id: str, domain: str, age: str) -> tuple[dict[str, str], dict[str, str]]:
         """Collect detection-related objects (datacomponents and detectionstrategies) for a technique.
 
         Parameters
