@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.3.0 (2025-11-13)
+
+### Feat
+
+- update to ATT&CK v18.1
+
+### Fix
+
+- fixes to legacy tests
+- handle objects without descriptions in changelog, like detection strategies
+
 ## 5.2.1 (2025-10-28)
 
 ### Fix
