@@ -457,7 +457,6 @@ def detectionstrategiesToDf(src):
             # analytics relationship table rows
             for analytic_id in detection_strategy.get("x_mitre_analytic_refs", []):
                 analytic_obj = src.get(analytic_id)
-                analytic_name = analytic_obj.get("name", "") if analytic_obj else ""
 
                 rel_rows.append({
                     "detection_strategy_id": detection_strategy["id"],

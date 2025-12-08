@@ -147,9 +147,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     return df
 
 def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
-    """
-    Build sheets for ds-an-lg.xlsx using existing relationship tables.
-    """
+    """Build sheets for ds-an-lg.xlsx using existing relationship tables."""
     # Use existing DetectionStrategy -> Analytics relationship table
     ds_an = dataframes["detectionstrategies"].get(
         "detectionstrategies-analytic",
