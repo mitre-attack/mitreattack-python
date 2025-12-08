@@ -3,7 +3,6 @@
 from mitreattack.navlayers.core.exceptions import (
     UNSETVALUE,
     BadInput,
-    BadType,
     MissingParameters,
     UnknownTechniqueProperty,
     handler,
@@ -94,12 +93,10 @@ class Technique:
     @score.setter
     def score(self, score):
         """Setter for score."""
-        try:
-            typeChecker(type(self).__name__, score, int, "score")
-            self.__score = score
-        except BadType:
-            typeChecker(type(self).__name__, score, float, "score")
-            self.__score = int(score)
+        if isinstance(score, float):
+            score = int(score)
+        typeChecker(type(self).__name__, score, int, "score")
+        self.__score = score
 
     @property
     def color(self):
