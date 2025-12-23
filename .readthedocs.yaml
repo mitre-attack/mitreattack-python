@@ -4,10 +4,15 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.11"
-  commands:
-    - pip install uv
-    - uv sync --extra docs
-    - uv run sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
+  # For details on how to customize the build process, see:
+  # https://docs.readthedocs.com/platform/stable/builds.html
+  # https://docs.readthedocs.com/platform/stable/build-customization.html
+  jobs:
+    install:
+      - pip install uv
+      - uv sync --extra docs
+    build:
+      - uv run sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
 
 sphinx:
   configuration: docs/conf.py
