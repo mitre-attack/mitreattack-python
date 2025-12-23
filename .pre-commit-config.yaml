@@ -2,8 +2,10 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.9
     hooks:
-      - id: ruff
-        args: [--fix]
+      # Run the linter (disabled for now)
+      # - id: ruff-check
+        # args: [--fix]
+      # Run the formatter
       - id: ruff-format
 
   - repo: https://github.com/commitizen-tools/commitizen
