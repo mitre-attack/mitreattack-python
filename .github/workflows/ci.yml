@@ -12,6 +12,9 @@ permissions:
 jobs:
   commitlint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     steps:
       - uses: actions/checkout@v6
         with:
@@ -23,7 +26,7 @@ jobs:
           version: "latest"
 
       - name: Set up Python
-        run: uv python install 3.11
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -38,6 +41,9 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     steps:
       - uses: actions/checkout@v6
 
@@ -47,7 +53,7 @@ jobs:
           version: "latest"
 
       - name: Set up Python
-        run: uv python install 3.11
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -60,6 +66,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     steps:
       - uses: actions/checkout@v6
 
@@ -69,7 +78,7 @@ jobs:
           version: "latest"
 
       - name: Set up Python
-        run: uv python install 3.11
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -80,6 +89,9 @@ jobs:
   release:
     needs: [commitlint, lint, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     runs-on: ubuntu-latest
     # The concurrency block prevents multiple release jobs from running simultaneously for the same branch.
     # This is particularly useful for releases since you typically want sequential deployments (finish 
@@ -118,7 +130,7 @@ jobs:
           version: "latest"
 
       - name: Setup | Install Python
-        run: uv python install 3.11
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Setup | Install dependencies
         run: uv sync --all-extras
@@ -139,7 +151,7 @@ jobs:
           tag: ${{ steps.release.outputs.tag }}
 
       - name: Upload distribution artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: steps.release.outputs.released == 'true'
         with:
           name: distribution-artifacts
