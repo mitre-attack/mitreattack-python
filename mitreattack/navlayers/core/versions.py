@@ -1,6 +1,6 @@
 """Contains Versions class."""
 
-from mitreattack.navlayers.core.exceptions import typeChecker, categoryChecker, UNSETVALUE, BadInput
+from mitreattack.navlayers.core.exceptions import UNSETVALUE, BadInput, categoryChecker, typeChecker
 
 defaults = dict(layer="4.5", navigator="5.0.0")
 

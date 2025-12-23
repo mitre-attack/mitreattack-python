@@ -1,6 +1,6 @@
 """Contains Filter and Filterv3 classes."""
 
-from mitreattack.navlayers.core.exceptions import typeCheckerArray, categoryChecker, UNSETVALUE
+from mitreattack.navlayers.core.exceptions import UNSETVALUE, categoryChecker, typeCheckerArray
 
 
 class Filter:

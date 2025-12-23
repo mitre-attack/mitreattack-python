@@ -2,9 +2,9 @@
 
 import argparse
 
-from mitreattack.navlayers.exporters.to_svg import ToSvg, SVGConfig
-from mitreattack.navlayers.exporters.to_excel import ToExcel
 from mitreattack.navlayers.core import Layer
+from mitreattack.navlayers.exporters.to_excel import ToExcel
+from mitreattack.navlayers.exporters.to_svg import SVGConfig, ToSvg
 
 
 def main(argv=None):

@@ -1,18 +1,18 @@
 """Contains Technique class."""
 
 from mitreattack.navlayers.core.exceptions import (
-    BadInput,
-    handler,
-    typeChecker,
-    loadChecker,
     UNSETVALUE,
-    UnknownTechniqueProperty,
+    BadInput,
     BadType,
     MissingParameters,
+    UnknownTechniqueProperty,
+    handler,
+    loadChecker,
+    typeChecker,
 )
+from mitreattack.navlayers.core.helpers import handle_object_placement
 from mitreattack.navlayers.core.metadata import Metadata, MetaDiv
 from mitreattack.navlayers.core.objlink import Link, LinkDiv
-from mitreattack.navlayers.core.helpers import handle_object_placement
 
 
 class Technique:

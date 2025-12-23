@@ -68,7 +68,7 @@ class CollectionToIndex:
                 ]
                 sets = uset
             for potentially_valid_bundle in sets:
-                if potentially_valid_bundle["objects"] is not [[]]:  # Catch case where MemoryStore didn't have a match
+                if potentially_valid_bundle["objects"] != [[]]:  # Catch case where MemoryStore didn't have a match
                     if any(x["type"] == "x-mitre-collection" for x in potentially_valid_bundle["objects"]):
                         potentially_valid_bundle["objects"] = filter(
                             lambda x: x["type"] == "x-mitre-collection", potentially_valid_bundle["objects"]
