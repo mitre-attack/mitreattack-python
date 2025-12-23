@@ -140,8 +140,9 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          git_committer_name: "github-actions"
-          git_committer_email: "actions@users.noreply.github.com"
+          # NOTE: git_committer_name and git_committer_email are optional
+          # We omit them because, if set, they must be associated with the provided token
+          # and we don't really care to have a specific committer for automated releases.
 
       - name: Upload to GitHub Release Assets
         uses: python-semantic-release/publish-action@v10.5.3
