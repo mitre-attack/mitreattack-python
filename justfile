@@ -6,6 +6,10 @@ default:
 install:
     uv sync --all-extras
 
+# Upgrade all uv dependencies
+upgrade:
+    uv sync --all-extras --upgrade
+
 # Install pre-commit hooks
 setup-hooks:
     uv run pre-commit install
