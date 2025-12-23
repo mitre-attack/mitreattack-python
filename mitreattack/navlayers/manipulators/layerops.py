@@ -349,10 +349,10 @@ class LayerOps:
                     values[elm] = self._default_values[name]
         try:
             return lda(values)
-        except IndexError and KeyError:
+        except (IndexError, KeyError) as err:
             print(
                 'Unable to continue, lambda targeting "{}" could not operate'
                 " correctly on {}. Maybe the field is missing?".format(name, element)
             )
             print(f"[RAW] Extracted matching elements: {listing}")
-            raise BadLambda
+            raise BadLambda from err

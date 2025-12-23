@@ -58,7 +58,6 @@ class TestDiffStixOutputGeneration:
             "datasources",
             "datacomponents",
             "detectionstrategies",
-            "logsources",
             "analytics",
         ]
         for obj_type in expected_types:

@@ -255,7 +255,7 @@ class SVG_HeaderBlock:
 
     @staticmethod
     def build(
-        height, width, label, config, variant="text", t1text=None, t2text=None, gradient_colors=[], legend_colors=[]
+        height, width, label, config, variant="text", t1text=None, t2text=None, gradient_colors=None, legend_colors=None
     ):
         """Build a single SVG Header Block object.
 
@@ -270,6 +270,10 @@ class SVG_HeaderBlock:
         :param legend_colors: array of tuple (color, label) for the legend item graphic
         :return:
         """
+        if gradient_colors is None:
+            gradient_colors = []
+        if legend_colors is None:
+            legend_colors = []
         g = G(ty=5)
         rect = HeaderRect(width, height, "header-box")
         g.append(rect)
@@ -393,11 +397,11 @@ class SVG_Technique:
         width,
         config,
         tBC,
-        subtechniques=[],
-        exclude=[],
+        subtechniques=None,
+        exclude=None,
         mode=(True, False),
         tactic=None,
-        colors=[],
+        colors=None,
     ):
         """Build a SVG Technique block.
 
@@ -414,6 +418,12 @@ class SVG_Technique:
         :param colors: List of all default color values if no score can be found
         :return: The newly created SVG technique block
         """
+        if subtechniques is None:
+            subtechniques = []
+        if exclude is None:
+            exclude = []
+        if colors is None:
+            colors = []
         g = G(ty=offset)
         c = self._com_color(technique, tactic, colors)
         t = dict(
@@ -497,7 +507,7 @@ class SVG_Technique:
         text = Text(adjusted.encode("utf-8").decode("ascii", "backslashreplace"), fs, "", x=4, y=y, fill=fill)
         return tech, text
 
-    def _com_color(self, technique, tactic, colors=[]):
+    def _com_color(self, technique, tactic, colors=None):
         """Retrieve hex color for a block.
 
         :param technique: Technique object
@@ -505,6 +515,8 @@ class SVG_Technique:
         :param colors: Default technique color data
         :return: Hex color code
         """
+        if colors is None:
+            colors = []
         c = "FFFFFF"
         tscore = None
         if technique.score is not None:

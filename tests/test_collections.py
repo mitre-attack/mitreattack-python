@@ -1,3 +1,9 @@
+"""
+Tests for MITRE ATT&CK collection and index conversion utilities.
+
+This module contains tests for converting ATT&CK collections to index files and for converting index files to markdown.
+"""
+
 from argparse import Namespace
 from pathlib import Path
 

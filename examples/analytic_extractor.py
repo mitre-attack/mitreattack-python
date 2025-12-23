@@ -11,7 +11,7 @@ from mitreattack.stix20 import MitreAttackData
 
 # Prune an input string to remove any non-analytic text
 # This assumes that all analytics start the <h4> html block
-STRING_RE = "Analytic(\s|.)*"
+STRING_RE = r"Analytic(\s|.)*"
 
 
 def pruneString(in_string):

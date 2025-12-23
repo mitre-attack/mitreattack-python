@@ -1,8 +1,11 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
 def main():
-    mitre_attack_data = MitreAttackData("enterprise-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "enterprise-attack.json")
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
 
     # get techniques mitigated by M1020
     mitigation_stix_id = "course-of-action--7bb5fae9-53ad-4424-866b-f0ea2a8b731d"

@@ -1,8 +1,11 @@
+import os
+
 from mitreattack.stix20 import MitreAttackData
 
 
 def main():
-    mitre_attack_data = MitreAttackData("enterprise-attack.json")
+    stix_filepath = os.environ.get("STIX_BUNDLE", "enterprise-attack.json")
+    mitre_attack_data = MitreAttackData(stix_filepath=stix_filepath)
 
     # get all groups related to techniques
     groups_using_techniques = mitre_attack_data.get_all_groups_using_all_techniques()

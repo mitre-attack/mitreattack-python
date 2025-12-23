@@ -10,11 +10,13 @@ from mitreattack.navlayers.core.layerobj import _LayerObj
 class Layer:
     """A Layer object."""
 
-    def __init__(self, init_data={}, name=None, domain=None, strict=True):
+    def __init__(self, init_data=None, name=None, domain=None, strict=True):
         """Initialize - create a new Layer object.
 
         :param init_data: Optionally provide base Layer json or string data on initialization
         """
+        if init_data is None:
+            init_data = {}
         self.__layer = None
         self.strict = strict
         if isinstance(name, str) and isinstance(domain, str):
@@ -65,7 +67,7 @@ class Layer:
         with open(filename, "r", encoding="utf-16") as fio:
             try:
                 raw = fio.read()
-            except UnicodeError or UnicodeDecodeError:
+            except (UnicodeError, UnicodeDecodeError):
                 fallback = True
         if fallback:
             with open(filename, "r") as fio:
@@ -88,7 +90,7 @@ class Layer:
         """Load the data stored in self.data into a LayerObj (self.layer)."""
         try:
             self.__layer = _LayerObj(self.__data["name"], self.__data["domain"])
-        except BadType or BadInput as e:
+        except (BadType, BadInput) as e:
             handler(type(self).__name__, f"Layer is malformed: {e}. Unable to load.")
             self.__layer = None
             return

@@ -1,3 +1,11 @@
+"""Tests for MITRE ATT&CK Navigator layer export and manipulation.
+
+This module contains pytest-based tests for the navlayers package, including
+layer export to Excel and SVG, config loading, aggregation, version upgrades,
+and compatibility checks.
+
+"""
+
 import json
 import os
 from pathlib import Path
@@ -159,6 +167,7 @@ def test_layer_ops():
 
 
 def test_direct_meta():
+    """Test direct metadata assignment."""
     Layer(init_data={"name": "Layer A", "domain": "enterprise-attack"})
     layer_technique = Technique(tID="T1003")
     layer_technique.metadata = [Metadata(name="Metadata", value="1"), MetaDiv(active=True)]
@@ -169,6 +178,7 @@ def test_direct_meta():
 
 
 def test_direct_link():
+    """Test direct link assignment."""
     layer_technique = Technique(tID="T1003")
     layer_technique.links = [Link(label="test", url="127.0.0.1"), LinkDiv(divider=True)]
     layer_technique2 = Technique(tID="T1004")
@@ -178,6 +188,7 @@ def test_direct_link():
 
 
 def test_compat(tmp_path: Path):
+    """Test layer compatibility and color/unicode preservation."""
     layer_dict = testing_data.compat
     layer_file = Layer()
     json_output = tmp_path / "output.json"

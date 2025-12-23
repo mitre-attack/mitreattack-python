@@ -33,9 +33,9 @@ class OverviewLayerGenerator:
         self.domain = domain
         try:
             self.source_handle = self.matrix_handle.collections[domain]
-        except KeyError:
+        except KeyError as err:
             print(f"[UsageGenerator] - unable to load collection {domain} (current source = {source}).")
-            raise BadInput
+            raise BadInput from err
         tl = remove_revoked_depreciated(self.source_handle.query([Filter("type", "=", "attack-pattern")]))
         self.mitigation_objects = self.source_handle.query([Filter("type", "=", "course-of-action")])
         complete_relationships = self.source_handle.query(
@@ -64,6 +64,7 @@ class OverviewLayerGenerator:
             "x-mitre-data-component": dict(),
             "campaign": dict(),
             "asset": dict(),
+            "x-mitre-detection-strategy": dict(),
         }
 
         # Scan through all relationships to identify ones that target attack techniques (attack-pattern). Then, sort
@@ -193,8 +194,8 @@ class OverviewLayerGenerator:
             pass  # didn't find a specific match for that combo, let's drop the tactic and see what we get
         try:
             return self.tech_no_tactic_listing[techniqueID]
-        except KeyError:
-            raise UnableToFindTechnique
+        except KeyError as err:
+            raise UnableToFindTechnique from err
 
     def update_template(self, obj_type, complete_tech_listing):
         """Update an existing dictionary of layer techniques with the appropriate matching objects.

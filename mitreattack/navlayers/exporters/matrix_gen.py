@@ -19,7 +19,9 @@ class DomainNotLoadedError(Exception):
 class MatrixEntry:
     """A Matrix Entry object."""
 
-    def __init__(self, id=None, name=None, platforms=[]):
+    def __init__(self, id=None, name=None, platforms=None):
+        if platforms is None:
+            platforms = []
         if id is not None:
             self.id = id
         if name is not None:
@@ -249,13 +251,15 @@ class MatrixGen:
                     subtechs[parent].append(MatrixEntry(id=tid[0], name=entry["name"], platforms=platform_tags))
         return techniques, subtechs
 
-    def _adjust_ordering(self, codex, mode, scores=[]):
+    def _adjust_ordering(self, codex, mode, scores=None):
         """Adjust ordering of matrix based on sort mode.
 
         :param codex: The pre-existing matrix data
         :param mode: The sort mode to use
         :param scores: Any relevant scores to use in modes 2, 3
         """
+        if scores is None:
+            scores = []
         if mode == 0:
             return codex
         if mode == 1:

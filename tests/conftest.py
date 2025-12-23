@@ -1,3 +1,5 @@
+"""Common fixtures and utilities for testing mitreattack-python."""
+
 import os
 
 import pytest
