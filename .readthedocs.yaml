@@ -4,11 +4,10 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.11"
-  jobs:
-    post_create_environment:
-      - pip install poetry
-    post_install:
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
+  commands:
+    - pip install uv
+    - uv sync --extra docs
+    - uv run sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
 
 sphinx:
   configuration: docs/conf.py
