@@ -13,12 +13,14 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Install uv
+      - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
 
       - name: Set up Python
         run: uv python install 3.11
@@ -37,10 +39,12 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install uv
+      - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
 
       - name: Set up Python
         run: uv python install 3.11
@@ -57,10 +61,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
 
       - name: Set up Python
         run: uv python install 3.11
@@ -75,30 +81,46 @@ jobs:
     needs: [commitlint, lint, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # The concurrency block prevents multiple release jobs from running simultaneously for the same branch.
+    # This is particularly useful for releases since you typically want sequential deployments (finish 
+    # current release before starting next) rather than canceling in-progress releases or running them 
+    # in parallel.
     concurrency:
-      group: release
+      # Creates a concurrency group keyed by workflow name + "release" + branch name (e.g., "Continuous Delivery-release-main")
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      # If a release is already running and a new push triggers another, the new job waits rather than canceling the running one
+      # If you changed cancel-in-progress to true, a new push would cancel the currently running release job.
       cancel-in-progress: false
 
     permissions:
       contents: write
-      id-token: write
 
     steps:
-      - uses: actions/checkout@v6
+      # Note: We checkout the repository at the branch that triggered the workflow.
+      # Python Semantic Release will automatically convert shallow clones to full clones
+      # if needed to ensure proper history evaluation. However, we forcefully reset the
+      # branch to the workflow sha because it is possible that the branch was updated
+      # while the workflow was running, which prevents accidentally releasing un-evaluated
+      # changes.
+      - name: Setup | Checkout Repository on Release Branch
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
 
-      - name: Force branch to workflow sha
-        run: git reset --hard ${{ github.sha }}
+      - name: Setup | Force release branch to be at workflow sha
+        run: |
+          git reset --hard ${{ github.sha }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: Setup | Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
 
-      - name: Set up Python
+      - name: Setup | Install Python
         run: uv python install 3.11
 
-      - name: Install dependencies
+      - name: Setup | Install dependencies
         run: uv sync --all-extras
 
       - name: Semantic Release
@@ -125,23 +147,33 @@ jobs:
           if-no-files-found: error
 
     outputs:
-      released: ${{ steps.release.outputs.released }}
+      released: ${{ steps.release.outputs.released || 'false' }}
 
   publish:
+    # 1. Separate out the deploy step from the publish step to run each step at
+    #    the least amount of token privilege
+    # 2. Also, deployments can fail, and its better to have a separate job if you need to retry
+    #    and it won't require reversing the release.
     needs: release
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: release
 
     permissions:
+      contents: read
       id-token: write
 
     steps:
-      - name: Download distribution artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
+        id: artifact-download
         with:
           name: distribution-artifacts
           path: dist
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          print-hash: true
+          verbose: true
