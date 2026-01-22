@@ -147,6 +147,24 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     return df
 
 
+def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
+    """Build sheets for ds-an-lg.xlsx using existing relationship tables."""
+    # Use existing DetectionStrategy -> Analytics relationship table
+    ds_an = dataframes["detectionstrategies"].get("detectionstrategies-analytic", pd.DataFrame())
+
+    # Use existing Analytics -> LogSource relationship table
+    an_lg = dataframes["analytics"].get("analytic-logsource", pd.DataFrame())
+
+    # Use existing Analytics -> Detection Strategy relationship table
+    an_ds = dataframes["analytics"].get("analytic-detectionstrategy", pd.DataFrame())
+
+    return {
+        "detectionstrategy_to_analytics": ds_an,
+        "analytics_to_logsources": an_lg,
+        "analytics_to_detectionstrategy": an_ds,
+    }
+
+
 def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, output_dir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
@@ -292,6 +310,18 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
         )
 
     written_files.append(master_fp)
+
+    # Write Detection strategy - Analytics - Log sources file
+    ds_an_lg_frames = build_ds_an_lg_relationships(dataframes)
+    ds_an_lg_fp = os.path.join(output_directory, f"{domain_version_string}-detectionstrategy-analytic-logsources.xlsx")
+
+    with pd.ExcelWriter(ds_an_lg_fp) as rel_writer:
+        for sheet_name, df in ds_an_lg_frames.items():
+            if not df.empty:
+                df.to_excel(rel_writer, sheet_name=sheet_name, index=False)
+
+    written_files.append(ds_an_lg_fp)
+
     for thefile in written_files:
         logger.info(f"Excel file created: {thefile}")
     return written_files
