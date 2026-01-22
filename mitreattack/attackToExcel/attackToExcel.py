@@ -146,31 +146,24 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     }
     return df
 
+
 def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
     """Build sheets for ds-an-lg.xlsx using existing relationship tables."""
     # Use existing DetectionStrategy -> Analytics relationship table
-    ds_an = dataframes["detectionstrategies"].get(
-        "detectionstrategies-analytic",
-        pd.DataFrame()
-    )
+    ds_an = dataframes["detectionstrategies"].get("detectionstrategies-analytic", pd.DataFrame())
 
     # Use existing Analytics -> LogSource relationship table
-    an_lg = dataframes["analytics"].get(
-        "analytic-logsource",
-        pd.DataFrame()
-    )
+    an_lg = dataframes["analytics"].get("analytic-logsource", pd.DataFrame())
 
     # Use existing Analytics -> Detection Strategy relationship table
-    an_ds = dataframes["analytics"].get(
-        "analytic-detectionstrategy",
-        pd.DataFrame()
-    )
+    an_ds = dataframes["analytics"].get("analytic-detectionstrategy", pd.DataFrame())
 
     return {
         "detectionstrategy_to_analytics": ds_an,
         "analytics_to_logsources": an_lg,
-        "analytics_to_detectionstrategy": an_ds
+        "analytics_to_detectionstrategy": an_ds,
     }
+
 
 def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, output_dir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
