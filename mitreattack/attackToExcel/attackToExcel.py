@@ -320,7 +320,7 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
 
     # Write Detection strategy - Analytics - Log sources file
     ds_an_lg_frames = build_ds_an_lg_relationships(dataframes)
-    ds_an_lg_fp = os.path.join(output_directory, f"{domain_version_string}-detectionstrategy-anlytic-logsources.xlsx")
+    ds_an_lg_fp = os.path.join(output_directory, f"{domain_version_string}-detectionstrategy-analytic-logsources.xlsx")
 
     with pd.ExcelWriter(ds_an_lg_fp) as rel_writer:
         for sheet_name, df in ds_an_lg_frames.items():

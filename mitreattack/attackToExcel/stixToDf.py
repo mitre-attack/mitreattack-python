@@ -413,7 +413,6 @@ def analyticsToDf(src):
                     "detection_strategy_name": ds_info["detection_strategy_name"]
                 })
 
-        citations = get_citations(analytics)
         dataframes["analytics"] = (
             pd.DataFrame(analytic_rows).sort_values("name")
         )
