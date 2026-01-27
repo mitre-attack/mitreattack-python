@@ -16,6 +16,7 @@ and [GitHub Actions](https://github.com/mitre-attack/mitreattack-python/actions)
   - It will also update the `CHANGELOG.md` with all commit messages that are compatible with [Conventional Commits](https://www.conventionalcommits.org).
   - NOTE: You should double-check the generated `CHANGELOG.md` file and make sure it looks good.
 - Update other metadata as needed in `pyproject.toml` (dependencies, etc.).
+  - `poetry update --with dev --with docs`
 
 ## 3. Local Validation (Recommended)
 
@@ -35,6 +36,13 @@ poetry install --with=dev
 # Lint and format
 poetry run ruff check
 poetry run ruff format --check
+
+# Build docs
+# This is managed directly by the Readthedocs site which is configured to watch our repository, but we should test it locally too
+# https://app.readthedocs.org/projects/mitreattack-python/
+cd docs/
+poetry run python -m sphinx -T -b html -d _build/doctrees -D language=en . _build/html
+cd ..
 
 # Run tests
 poetry run pytest --cov=mitreattack --cov-report html
