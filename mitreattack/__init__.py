@@ -5,7 +5,7 @@
 from PIL import __version__
 from . import attackToExcel, collections, navlayers
 
-__version__ = "5.3.0"
+__version__ = "5.4.0"
 
 __all__ = [
     "attackToExcel",

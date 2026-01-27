@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.4.0 (2026-01-27)
+
+### Feat
+
+- add relationships for detection strategies, analytics and log sources in the excel files
+
+### Fix
+
+- **PR184**: reduce typeChecker noise when passing a float to score()
+
 ## 5.3.0 (2025-11-13)
 
 ### Feat
