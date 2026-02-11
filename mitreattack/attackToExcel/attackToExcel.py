@@ -148,24 +148,32 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
 
 
 def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
-    """Build sheets for ds-an-lg.xlsx using existing relationship tables."""
-    # Use existing DetectionStrategy -> Analytics relationship table
-    ds_an = dataframes["detectionstrategies"].get("detectionstrategies-analytic", pd.DataFrame())
+    """Build detection-mappings.xlsx with a single DS → Analytic → LogSource sheet."""
 
-    # Use existing Analytics -> LogSource relationship table
-    an_lg = dataframes["analytics"].get("analytic-logsource", pd.DataFrame())
+    ds_an = dataframes["detectionstrategies"].get(
+        "detectionstrategies-analytic", pd.DataFrame()
+    )
 
-    # Use existing Analytics -> Detection Strategy relationship table
-    an_ds = dataframes["analytics"].get("analytic-detectionstrategy", pd.DataFrame())
+    an_ls = dataframes["analytics"].get(
+        "analytic-logsource", pd.DataFrame()
+    )
+
+    if ds_an.empty or an_ls.empty:
+        combined = pd.DataFrame()
+    else:
+        combined = ds_an.merge(
+            an_ls,
+            on=["analytic_id", "analytic_name", "platforms"],
+            how="left",
+        )
 
     return {
-        "detectionstrategy_to_analytics": ds_an,
-        "analytics_to_logsources": an_lg,
-        "analytics_to_detectionstrategy": an_ds,
+        "ds_an_ls": combined
     }
 
 
-def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, output_dir: str = ".") -> List:
+
+def write_excel(dataframes: Dict, domain: str, src: MemoryStore, version: Optional[str] = None, output_dir: str = ".") -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
     Parameters
@@ -174,6 +182,9 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
         A dictionary of pandas dataframes as built by build_dataframes()
     domain : str
         Domain of ATT&CK the dataframes correspond to, e.g "enterprise-attack"
+    src : stix2.MemoryStore
+        A STIX bundle containing ATT&CK data for a domain already loaded into memory.
+        Mutually exclusive with `remote` and `stix_file`.
     version : str, optional
         The version of ATT&CK the dataframes correspond to, e.g "v8.1".
         If omitted, the output files will not be labelled with the version number, by default None
@@ -199,6 +210,10 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
         os.makedirs(output_directory)
     # master dataset file
     master_fp = os.path.join(output_directory, f"{domain_version_string}.xlsx")
+
+    ds_an_ls_df = stixToDf.detectionStrategiesAnalyticsLogSourcesDf(src)
+    add_ds_an_ls_to = {"detectionstrategies", "analytics", "datacomponents"}
+
     with pd.ExcelWriter(path=master_fp, engine="xlsxwriter") as master_writer:
         # master list of citations
         citations = pd.DataFrame()
@@ -217,6 +232,10 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
                     for sheet_name in object_data:
                         logger.debug(f"Writing sheet to {fp}: {sheet_name}")
                         object_data[sheet_name].to_excel(object_writer, sheet_name=sheet_name, index=False)
+   
+                    # Write Detection strategy - Analytics - Log sources file
+                    if object_type in add_ds_an_ls_to and isinstance(ds_an_ls_df, pd.DataFrame) and not ds_an_ls_df.empty:
+                        ds_an_ls_df.to_excel(object_writer, sheet_name="detection mappings", index=False)
                 written_files.append(fp)
 
                 # add citations to master citations list
@@ -303,6 +322,8 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
 
                 written_files.append(fp)
 
+        if isinstance(ds_an_ls_df, pd.DataFrame) and not ds_an_ls_df.empty:
+            ds_an_ls_df.to_excel(master_writer, sheet_name="detection mappings", index=False)
         # remove duplicate citations and add sheet to master file
         logger.debug(f"Writing sheet to {master_fp}: citations")
         citations.drop_duplicates(subset="reference", ignore_index=True).sort_values("reference").to_excel(
@@ -310,17 +331,6 @@ def write_excel(dataframes: Dict, domain: str, version: Optional[str] = None, ou
         )
 
     written_files.append(master_fp)
-
-    # Write Detection strategy - Analytics - Log sources file
-    ds_an_lg_frames = build_ds_an_lg_relationships(dataframes)
-    ds_an_lg_fp = os.path.join(output_directory, f"{domain_version_string}-detectionstrategy-analytic-logsources.xlsx")
-
-    with pd.ExcelWriter(ds_an_lg_fp) as rel_writer:
-        for sheet_name, df in ds_an_lg_frames.items():
-            if not df.empty:
-                df.to_excel(rel_writer, sheet_name=sheet_name, index=False)
-
-    written_files.append(ds_an_lg_fp)
 
     for thefile in written_files:
         logger.info(f"Excel file created: {thefile}")
@@ -398,7 +408,7 @@ def export(
                 return
 
     dataframes = build_dataframes(src=mem_store, domain=domain)
-    write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
+    write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
 
 
 def main():
@@ -410,7 +420,7 @@ def main():
         "-domain",
         type=str,
         choices=["enterprise-attack", "mobile-attack", "ics-attack"],
-        default="enterprise-attack",
+        default="ics-attack",
         help="which domain of ATT&CK to convert",
     )
     parser.add_argument(

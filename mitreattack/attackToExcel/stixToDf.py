@@ -382,7 +382,7 @@ def analyticsToDf(src):
         for ds in detection_strategies:
             for analytic_id in ds.get("x_mitre_analytic_refs", []):
                 analytic_to_ds_map.setdefault(analytic_id, []).append(
-                    {"detection_strategy_id": ds["id"], "detection_strategy_name": ds.get("name", "")}
+                    {"detection_strategy_attack_id": ds["external_references"][0]["external_id"], "detection_strategy_id": ds["id"], "detection_strategy_name": ds.get("name", "")}
                 )
 
         for analytic in tqdm(analytics, desc="parsing analytics"):
@@ -393,6 +393,7 @@ def analyticsToDf(src):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
                 data_comp = src.get(data_comp_id)
                 data_comp_name = data_comp.get("name", "") if data_comp else ""
+                data_comp_attack_id = data_comp["external_references"][0]["external_id"]
 
                 logsource_rows.append(
                     {
@@ -400,8 +401,10 @@ def analyticsToDf(src):
                         "analytic_name": analytic["external_references"][0]["external_id"],
                         "data_component_id": data_comp_id,
                         "data_component_name": data_comp_name,
+                        "data_component_attack_id": data_comp_attack_id,
                         "log_source_name": logsrc.get("name", ""),
                         "channel": logsrc.get("channel", ""),
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
                     }
                 )
 
@@ -412,13 +415,14 @@ def analyticsToDf(src):
                         "analytic_id": analytic["id"],
                         "analytic_name": analytic["external_references"][0]["external_id"],
                         "detection_strategy_id": ds_info["detection_strategy_id"],
+                        "detection_strategy_attack_id": ds_info["detection_strategy_attack_id"],
                         "detection_strategy_name": ds_info["detection_strategy_name"],
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
+
                     }
                 )
 
         dataframes["analytics"] = pd.DataFrame(analytic_rows).sort_values("name")
-        dataframes["analytic-logsource"] = pd.DataFrame(logsource_rows)
-        dataframes["analytic-detectionstrategy"] = pd.DataFrame(analytic_to_ds_rows)
 
         citations = get_citations(analytics)
         if not citations.empty:
@@ -454,17 +458,18 @@ def detectionstrategiesToDf(src):
 
                 rel_rows.append(
                     {
+                        "detection_strategy_attack_id": detection_strategy["external_references"][0]["external_id"],
                         "detection_strategy_id": detection_strategy["id"],
                         "detection_strategy_name": detection_strategy.get("name", ""),
                         "analytic_id": analytic_id,
                         "analytic_name": analytic_obj["external_references"][0]["external_id"],
+                        "platforms": ", ".join(sorted(analytic_obj.get("x_mitre_platforms", [])))
+
                     }
                 )
 
         # Build main dataframes
         dataframes["detectionstrategies"] = pd.DataFrame(detection_strategy_rows).sort_values("name")
-
-        dataframes["detectionstrategies-analytic"] = pd.DataFrame(rel_rows)
 
         citations = get_citations(detection_strategies)
         if not citations.empty:
@@ -520,6 +525,46 @@ def softwareToDf(src):
 
     return dataframes
 
+def detectionStrategiesAnalyticsLogSourcesDf(src):
+    """Build a single DS -> LogSource -> Analytic dataframe directly from STIX."""
+    detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
+    detection_strategies = remove_revoked_deprecated(detection_strategies)
+
+    analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
+    analytics = remove_revoked_deprecated(analytics)
+    analytics_by_id = {a["id"]: a for a in analytics}
+
+    rows = []
+    for ds in detection_strategies:
+        ds_attack_id = ds.get("external_references", [{}])[0].get("external_id", "")
+        ds_id = ds.get("id", "")
+        ds_name = ds.get("name", "")
+
+        for analytic_id in ds.get("x_mitre_analytic_refs", []):
+            analytic = analytics_by_id.get(analytic_id)
+            analytic_attack_id = analytic["external_references"][0]["external_id"]
+            platforms = ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
+
+            logsrc_refs = analytic.get("x_mitre_log_source_references", [])
+            for logsrc in logsrc_refs:
+                data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
+                data_comp = src.get(data_comp_id)
+
+                rows.append({
+                    "detection_strategy_attack_id": ds_attack_id,
+                    "detection_strategy_id": ds_id,
+                    "detection_strategy_name": ds_name,
+                    "analytic_id": analytic_id,
+                    "analytic_name": analytic_attack_id,
+                    "platforms": platforms,
+                    "log_source_name": logsrc.get("name", ""),
+                    "channel": logsrc.get("channel", ""),
+                    "data_component_id": data_comp_id,
+                    "data_component_name": (data_comp.get("name", "") if data_comp else ""),
+                    "data_component_attack_id": data_comp["external_references"][0]["external_id"]
+                })
+
+    return pd.DataFrame(rows)
 
 def groupsToDf(src):
     """Parse STIX groups from the given data and return corresponding pandas dataframes.
