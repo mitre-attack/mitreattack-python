@@ -420,7 +420,7 @@ def main():
         "-domain",
         type=str,
         choices=["enterprise-attack", "mobile-attack", "ics-attack"],
-        default="ics-attack",
+        default="enterprise-attack",
         help="which domain of ATT&CK to convert",
     )
     parser.add_argument(
