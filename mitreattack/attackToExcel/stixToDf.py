@@ -382,7 +382,11 @@ def analyticsToDf(src):
         for ds in detection_strategies:
             for analytic_id in ds.get("x_mitre_analytic_refs", []):
                 analytic_to_ds_map.setdefault(analytic_id, []).append(
-                    {"detection_strategy_attack_id": ds["external_references"][0]["external_id"], "detection_strategy_id": ds["id"], "detection_strategy_name": ds.get("name", "")}
+                    {
+                        "detection_strategy_attack_id": ds["external_references"][0]["external_id"],
+                        "detection_strategy_id": ds["id"],
+                        "detection_strategy_name": ds.get("name", ""),
+                    }
                 )
 
         for analytic in tqdm(analytics, desc="parsing analytics"):
@@ -404,7 +408,7 @@ def analyticsToDf(src):
                         "data_component_attack_id": data_comp_attack_id,
                         "log_source_name": logsrc.get("name", ""),
                         "channel": logsrc.get("channel", ""),
-                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", []))),
                     }
                 )
 
@@ -417,8 +421,7 @@ def analyticsToDf(src):
                         "detection_strategy_id": ds_info["detection_strategy_id"],
                         "detection_strategy_attack_id": ds_info["detection_strategy_attack_id"],
                         "detection_strategy_name": ds_info["detection_strategy_name"],
-                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
-
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", []))),
                     }
                 )
 
@@ -463,8 +466,7 @@ def detectionstrategiesToDf(src):
                         "detection_strategy_name": detection_strategy.get("name", ""),
                         "analytic_id": analytic_id,
                         "analytic_name": analytic_obj["external_references"][0]["external_id"],
-                        "platforms": ", ".join(sorted(analytic_obj.get("x_mitre_platforms", [])))
-
+                        "platforms": ", ".join(sorted(analytic_obj.get("x_mitre_platforms", []))),
                     }
                 )
 
@@ -525,6 +527,7 @@ def softwareToDf(src):
 
     return dataframes
 
+
 def detectionStrategiesAnalyticsLogSourcesDf(src):
     """Build a single DS -> LogSource -> Analytic dataframe directly from STIX."""
     detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
@@ -550,21 +553,24 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
                 data_comp = src.get(data_comp_id)
 
-                rows.append({
-                    "detection_strategy_attack_id": ds_attack_id,
-                    "detection_strategy_id": ds_id,
-                    "detection_strategy_name": ds_name,
-                    "analytic_id": analytic_id,
-                    "analytic_name": analytic_attack_id,
-                    "platforms": platforms,
-                    "log_source_name": logsrc.get("name", ""),
-                    "channel": logsrc.get("channel", ""),
-                    "data_component_id": data_comp_id,
-                    "data_component_name": (data_comp.get("name", "") if data_comp else ""),
-                    "data_component_attack_id": data_comp["external_references"][0]["external_id"]
-                })
+                rows.append(
+                    {
+                        "detection_strategy_attack_id": ds_attack_id,
+                        "detection_strategy_id": ds_id,
+                        "detection_strategy_name": ds_name,
+                        "analytic_id": analytic_id,
+                        "analytic_name": analytic_attack_id,
+                        "platforms": platforms,
+                        "log_source_name": logsrc.get("name", ""),
+                        "channel": logsrc.get("channel", ""),
+                        "data_component_id": data_comp_id,
+                        "data_component_name": (data_comp.get("name", "") if data_comp else ""),
+                        "data_component_attack_id": data_comp["external_references"][0]["external_id"],
+                    }
+                )
 
     return pd.DataFrame(rows)
+
 
 def groupsToDf(src):
     """Parse STIX groups from the given data and return corresponding pandas dataframes.

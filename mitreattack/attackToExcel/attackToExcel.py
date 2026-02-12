@@ -149,14 +149,9 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
 
 def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
     """Build detection-mappings.xlsx with a single DS → Analytic → LogSource sheet."""
+    ds_an = dataframes["detectionstrategies"].get("detectionstrategies-analytic", pd.DataFrame())
 
-    ds_an = dataframes["detectionstrategies"].get(
-        "detectionstrategies-analytic", pd.DataFrame()
-    )
-
-    an_ls = dataframes["analytics"].get(
-        "analytic-logsource", pd.DataFrame()
-    )
+    an_ls = dataframes["analytics"].get("analytic-logsource", pd.DataFrame())
 
     if ds_an.empty or an_ls.empty:
         combined = pd.DataFrame()
@@ -167,13 +162,12 @@ def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
             how="left",
         )
 
-    return {
-        "ds_an_ls": combined
-    }
+    return {"ds_an_ls": combined}
 
 
-
-def write_excel(dataframes: Dict, domain: str, src: MemoryStore, version: Optional[str] = None, output_dir: str = ".") -> List:
+def write_excel(
+    dataframes: Dict, domain: str, src: MemoryStore, version: Optional[str] = None, output_dir: str = "."
+) -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
     Parameters
@@ -232,10 +226,14 @@ def write_excel(dataframes: Dict, domain: str, src: MemoryStore, version: Option
                     for sheet_name in object_data:
                         logger.debug(f"Writing sheet to {fp}: {sheet_name}")
                         object_data[sheet_name].to_excel(object_writer, sheet_name=sheet_name, index=False)
-   
+
                     # Write Detection strategy - Analytics - Log sources file
-                    if object_type in add_ds_an_ls_to and isinstance(ds_an_ls_df, pd.DataFrame) and not ds_an_ls_df.empty:
-                        ds_an_ls_df.to_excel(object_writer, sheet_name="detection mappings", index=False)
+                    if (
+                        object_type in add_ds_an_ls_to
+                        and isinstance(ds_an_ls_df, pd.DataFrame)
+                        and not ds_an_ls_df.empty
+                    ):
+                        ds_an_ls_df.to_excel(object_writer, sheet_name="defensive mappings", index=False)
                 written_files.append(fp)
 
                 # add citations to master citations list
@@ -323,7 +321,7 @@ def write_excel(dataframes: Dict, domain: str, src: MemoryStore, version: Option
                 written_files.append(fp)
 
         if isinstance(ds_an_ls_df, pd.DataFrame) and not ds_an_ls_df.empty:
-            ds_an_ls_df.to_excel(master_writer, sheet_name="detection mappings", index=False)
+            ds_an_ls_df.to_excel(master_writer, sheet_name="defensive mappings", index=False)
         # remove duplicate citations and add sheet to master file
         logger.debug(f"Writing sheet to {master_fp}: citations")
         citations.drop_duplicates(subset="reference", ignore_index=True).sort_values("reference").to_excel(
@@ -404,7 +402,7 @@ def export(
             major_version = int(match.group(1))
             if major_version < 18:
                 dataframes = build_dataframes_pre_v18(src=mem_store, domain=domain)
-                write_excel(dataframes=dataframes, domain=domain, version=version, output_dir=output_dir)
+                write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
                 return
 
     dataframes = build_dataframes(src=mem_store, domain=domain)
