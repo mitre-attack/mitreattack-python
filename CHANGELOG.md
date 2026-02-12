@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.4.1 (2026-02-11)
+
+### Refactor
+- update relationships for detection strategies, analytics and log sources in the excel files
+- add typing-extensions dependency
+
 ## 5.4.0 (2026-01-27)
 
 ### Feat
