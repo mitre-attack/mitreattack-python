@@ -10,34 +10,51 @@ permissions:
   contents: read
 
 jobs:
+  # For PRs, validate the PR title (which becomes the squash commit message).
+  # This avoids burdening external contributors with conventional commit enforcement
+  # on every individual commit. See: https://www.conventionalcommits.org/en/v1.0.0/
+  #
+  # For pushes to main, validate the final commit message (the squash merge commit)
+  # using commitizen as a safety net.
   commitlint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     steps:
-      - uses: actions/checkout@v6
+      # PR: validate PR title follows conventional commit format
+      - name: Validate PR title
+        if: github.event_name == 'pull_request'
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fetch-depth: 0
+          # For work-in-progress PRs you can typically use draft pull requests from GitHub. 
+          # This action allows us to use the special "[WIP]" prefix to indicate a draft state 
+          # without actually flagging the PR as a draft.
+          # Example:
+          # `[WIP] feat: Add support for Node.js 18` <--- will not be validated!
+          wip: true
 
-      - name: Install the latest version of uv
+      # Push to main: validate the squash merge commit message directly
+      - name: Checkout
+        if: github.event_name == 'push'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Install uv
+        if: github.event_name == 'push'
         uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
 
-      - name: Set up Python
-        run: uv python install ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Check commit messages
+      - name: Install Python and dependencies
+        if: github.event_name == 'push'
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            uv run cz check --rev-range origin/${{ github.base_ref }}..HEAD
-          else
-            uv run cz check --rev-range HEAD~1..HEAD
-          fi
+          uv python install 3.11
+          uv sync --all-extras
+
+      - name: Validate commit message
+        if: github.event_name == 'push'
+        run: uv run cz check --rev-range HEAD~1..HEAD
 
   lint:
     runs-on: ubuntu-latest
@@ -127,7 +144,7 @@ jobs:
       - name: Setup | Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          version: "latest"
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup | Install Python
         run: uv python install ${{ matrix.python-version }}
