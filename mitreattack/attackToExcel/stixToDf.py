@@ -367,16 +367,67 @@ def analyticsToDf(src):
     analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
     analytics = remove_revoked_deprecated(analytics)
 
+    # Detection strategies (needed for analytics to detection strategies relationship)
+    detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
+    detection_strategies = remove_revoked_deprecated(detection_strategies)
+
     dataframes = {}
     if analytics:
         analytic_rows = []
+        logsource_rows = []
+        analytic_to_ds_rows = []
+
+        # analytics to detection strategies
+        analytic_to_ds_map = {}
+        for ds in detection_strategies:
+            for analytic_id in ds.get("x_mitre_analytic_refs", []):
+                analytic_to_ds_map.setdefault(analytic_id, []).append(
+                    {
+                        "detection_strategy_attack_id": ds["external_references"][0]["external_id"],
+                        "detection_strategy_id": ds["id"],
+                        "detection_strategy_name": ds.get("name", ""),
+                    }
+                )
+
         for analytic in tqdm(analytics, desc="parsing analytics"):
             analytic_rows.append(parseBaseStix(analytic))
 
+            # log-source relationship table rows
+            for logsrc in analytic.get("x_mitre_log_source_references", []):
+                data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
+                data_comp = src.get(data_comp_id)
+                data_comp_name = data_comp.get("name", "") if data_comp else ""
+                data_comp_attack_id = data_comp["external_references"][0]["external_id"]
+
+                logsource_rows.append(
+                    {
+                        "analytic_id": analytic["id"],
+                        "analytic_name": analytic["external_references"][0]["external_id"],
+                        "data_component_id": data_comp_id,
+                        "data_component_name": data_comp_name,
+                        "data_component_attack_id": data_comp_attack_id,
+                        "log_source_name": logsrc.get("name", ""),
+                        "channel": logsrc.get("channel", ""),
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", []))),
+                    }
+                )
+
+            # detection strategies relationship table rows
+            for ds_info in analytic_to_ds_map.get(analytic["id"], []):
+                analytic_to_ds_rows.append(
+                    {
+                        "analytic_id": analytic["id"],
+                        "analytic_name": analytic["external_references"][0]["external_id"],
+                        "detection_strategy_id": ds_info["detection_strategy_id"],
+                        "detection_strategy_attack_id": ds_info["detection_strategy_attack_id"],
+                        "detection_strategy_name": ds_info["detection_strategy_name"],
+                        "platforms": ", ".join(sorted(analytic.get("x_mitre_platforms", []))),
+                    }
+                )
+
+        dataframes["analytics"] = pd.DataFrame(analytic_rows).sort_values("name")
+
         citations = get_citations(analytics)
-        dataframes = {
-            "analytics": pd.DataFrame(analytic_rows).sort_values("name"),
-        }
         if not citations.empty:
             dataframes["citations"] = citations.sort_values("reference")
 
@@ -398,20 +449,36 @@ def detectionstrategiesToDf(src):
     dataframes = {}
     if detection_strategies:
         detection_strategy_rows = []
+        rel_rows = []
         for detection_strategy in tqdm(detection_strategies, desc="parsing detection strategies"):
-            detection_strategy_rows.append(parseBaseStix(detection_strategy))
+            row = parseBaseStix(detection_strategy)
+            row["analytic_refs"] = "; ".join(detection_strategy.get("x_mitre_analytic_refs", []))
+            detection_strategy_rows.append(row)
+
+            # analytics relationship table rows
+            for analytic_id in detection_strategy.get("x_mitre_analytic_refs", []):
+                analytic_obj = src.get(analytic_id)
+
+                rel_rows.append(
+                    {
+                        "detection_strategy_attack_id": detection_strategy["external_references"][0]["external_id"],
+                        "detection_strategy_id": detection_strategy["id"],
+                        "detection_strategy_name": detection_strategy.get("name", ""),
+                        "analytic_id": analytic_id,
+                        "analytic_name": analytic_obj["external_references"][0]["external_id"],
+                        "platforms": ", ".join(sorted(analytic_obj.get("x_mitre_platforms", []))),
+                    }
+                )
+
+        # Build main dataframes
+        dataframes["detectionstrategies"] = pd.DataFrame(detection_strategy_rows).sort_values("name")
 
         citations = get_citations(detection_strategies)
-        dataframes = {
-            "detectionstrategies": pd.DataFrame(detection_strategy_rows).sort_values("name"),
-        }
         if not citations.empty:
-            if "citations" in dataframes:  # append to existing citations from references
-                dataframes["citations"] = citations.sort_values("reference")
+            dataframes["citations"] = citations.sort_values("reference")
 
     else:
         logger.warning("No detection strategies found - nothing to parse")
-
     return dataframes
 
 
@@ -459,6 +526,50 @@ def softwareToDf(src):
         dataframes["citations"].sort_values("reference")
 
     return dataframes
+
+
+def detectionStrategiesAnalyticsLogSourcesDf(src):
+    """Build a single DS -> LogSource -> Analytic dataframe directly from STIX."""
+    detection_strategies = src.query([Filter("type", "=", "x-mitre-detection-strategy")])
+    detection_strategies = remove_revoked_deprecated(detection_strategies)
+
+    analytics = src.query([Filter("type", "=", "x-mitre-analytic")])
+    analytics = remove_revoked_deprecated(analytics)
+    analytics_by_id = {a["id"]: a for a in analytics}
+
+    rows = []
+    for ds in detection_strategies:
+        ds_attack_id = ds.get("external_references", [{}])[0].get("external_id", "")
+        ds_id = ds.get("id", "")
+        ds_name = ds.get("name", "")
+
+        for analytic_id in ds.get("x_mitre_analytic_refs", []):
+            analytic = analytics_by_id.get(analytic_id)
+            analytic_attack_id = analytic["external_references"][0]["external_id"]
+            platforms = ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
+
+            logsrc_refs = analytic.get("x_mitre_log_source_references", [])
+            for logsrc in logsrc_refs:
+                data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
+                data_comp = src.get(data_comp_id)
+
+                rows.append(
+                    {
+                        "detection_strategy_attack_id": ds_attack_id,
+                        "detection_strategy_id": ds_id,
+                        "detection_strategy_name": ds_name,
+                        "analytic_id": analytic_id,
+                        "analytic_name": analytic_attack_id,
+                        "platforms": platforms,
+                        "log_source_name": logsrc.get("name", ""),
+                        "channel": logsrc.get("channel", ""),
+                        "data_component_id": data_comp_id,
+                        "data_component_name": (data_comp.get("name", "") if data_comp else ""),
+                        "data_component_attack_id": data_comp["external_references"][0]["external_id"],
+                    }
+                )
+
+    return pd.DataFrame(rows)
 
 
 def groupsToDf(src):
