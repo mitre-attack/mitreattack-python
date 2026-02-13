@@ -1,92 +1,63 @@
 # Release Process
 
-This guide walks maintainers through releasing a new version of **mitreattack-python**.
-The process uses [Poetry](https://python-poetry.org/) for dependency management and building,
-and [GitHub Actions](https://github.com/mitre-attack/mitreattack-python/actions) for automated linting, testing, and publishing to PyPI.
+Releases of **mitreattack-python** are fully automated. When commits are pushed (or squash-merged) to `main`, [Python Semantic Release (PSR)](https://python-semantic-release.readthedocs.io/) analyzes the commit messages and, if warranted, bumps the version, tags the release, creates a GitHub Release, and publishes the package to PyPI — all within the [CI pipeline](https://github.com/mitre-attack/mitreattack-python/actions).
 
-## 1. Prepare for Release
+## How It Works
 
-- Ensure all desired changes are merged into the `main` branch.
-- If releasing for a new ATT&CK version, update `LATEST_VERSION` in `mitreattack/release_info.py`.
+1. **Commit messages drive versioning.** We follow the [Conventional Commits](https://www.conventionalcommits.org) specification. PSR parses commit messages to determine the appropriate [SemVer](https://semver.org/) bump:
 
-## 2. Update Version and Metadata
+   | Commit prefix | Version bump | Example |
+   |---|---|---|
+   | `feat:` | Minor (`0.X.0`) | `feat: add analytics to excel output` |
+   | `fix:`, `perf:` | Patch (`0.0.X`) | `fix: handle missing data sources` |
+   | `BREAKING CHANGE` in footer, or `!` after type | Major (`X.0.0`) | `feat!: drop Python 3.10 support` |
+   | `build:`, `chore:`, `ci:`, `docs:`, `style:`, `refactor:`, `test:` | No release | `ci: update uv setup action` |
 
-- Run `cz bump --files-only`
-  - This will increment the version field in `pyproject.toml` and other places according to semantic versioning rules.
-  - It will also update the `CHANGELOG.md` with all commit messages that are compatible with [Conventional Commits](https://www.conventionalcommits.org).
-  - NOTE: You should double-check the generated `CHANGELOG.md` file and make sure it looks good.
-- Update other metadata as needed in `pyproject.toml` (dependencies, etc.).
-  - `poetry update --with dev --with docs`
+2. **PRs are squash-merged.** Individual commits within a PR do not need to follow conventional commits — only the PR title matters, as it becomes the squash merge commit message. The [`pr-title.yml`](../.github/workflows/pr-title.yml) workflow validates PR titles on open.
 
-## 3. Local Validation (Recommended)
+3. **On push to `main`, the CI pipeline** (`.github/workflows/ci.yml`) runs:
+   - **commitlint** — validates the squash merge commit message
+   - **lint** — ruff check and format verification
+   - **test** — pytest with coverage
+   - **release** — PSR evaluates commits since the last tag, bumps version, tags, and creates a GitHub Release with build artifacts
+   - **publish** — uploads the package to PyPI via trusted publishing (OIDC)
 
-Before tagging and pushing, validate the release locally. Following these steps:
+## For Maintainers
+
+### Triggering a Release
+
+No manual steps are needed. Simply merge a PR to `main` with a conventional commit title that includes a release-triggering prefix (`feat:`, `fix:`, or `perf:`). PSR will handle the rest.
+
+### Pre-release Validation (Optional)
+
+If you want to validate locally before merging:
 
 ```bash
-# Pre-requisite: Install Poetry if not already installed
-# https://python-poetry.org/docs/#installing-with-the-official-installer
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Clean previous builds
-rm -rf dist/
-
 # Install dependencies (including dev tools)
-poetry install --with=dev
+just install
 
 # Lint and format
-poetry run ruff check
-poetry run ruff format --check
+just lint
 
-# Build docs
-# This is managed directly by the Readthedocs site which is configured to watch our repository, but we should test it locally too
-# https://app.readthedocs.org/projects/mitreattack-python/
-cd docs/
-poetry run python -m sphinx -T -b html -d _build/doctrees -D language=en . _build/html
-cd ..
-
-# Run tests
-poetry run pytest --cov=mitreattack --cov-report html
+# Run tests with coverage
+just test-cov
 
 # Build the package
-poetry build
+just build
 
 # (Optional) Validate wheel contents
-poetry run check-wheel-contents dist/
+uv run check-wheel-contents dist/
 
-# (Optional) Install locally and smoke test
-poetry run pip install --find-links=./dist mitreattack-python
-poetry run python -c "import mitreattack; print(mitreattack.__version__)"
+# (Optional) Dry run semantic release
+just release-dry-run
 ```
 
-## 4. Commit and Tag the Release
+### Updating ATT&CK Version Metadata
 
-Make sure that after the above local testing you commit all changes!
-
-Perform the following steps to tag the release and push to GitHub:
-
-```bash
-# Tag the release
-git tag -a "vX.Y.Z" -m "mitreattack-python version X.Y.Z"
-
-# Push the commit and tag
-git push
-git push --tags
-```
-
-## 5. Automated Publishing
-
-Once the tag is pushed to GitHub:
-
-- GitHub Actions will automatically lint, test, build, and publish the package to PyPI using the workflow in `.github/workflows/lint-publish.yml`.
-
-## 6. Verify Release
-
-Check the [GitHub Actions](https://github.com/mitre-attack/mitreattack-python/actions) for a successful workflow run.
-
-Confirm the new version is available on [PyPI](https://pypi.org/project/mitreattack-python/).
+If releasing for a new ATT&CK version, update `LATEST_VERSION` in `mitreattack/release_info.py` before merging.
 
 ## Notes
 
-- All build and publish steps are handled by GitHub Actions once you push the tag.
-- Manual local validation is optional but recommended before tagging.
-- Readthedocs is used for documentation builds. [Check the status here](https://app.readthedocs.org/projects/mitreattack-python/).
+- All build, release, and publish steps are handled by GitHub Actions — no manual tagging or uploading.
+- Version is tracked in `pyproject.toml` (`project.version`) and synced to `docs/conf.py` and `mitreattack/__init__.py` by PSR.
+- Documentation builds are managed by [ReadTheDocs](https://app.readthedocs.org/projects/mitreattack-python/), which watches the repository.
