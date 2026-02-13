@@ -1,0 +1,36 @@
+name: PR Title
+
+# Validate that PR titles follow Conventional Commits format.
+# Since we squash merge PRs, the PR title becomes the merge commit message,
+# which Python Semantic Release uses to determine version bumps.
+#
+# This avoids burdening external contributors with conventional commit enforcement
+# on every individual commit. See: https://www.conventionalcommits.org/en/v1.0.0/
+#
+# NOTE: pull_request_target is used instead of pull_request because it runs in the
+# context of the base branch and has reliable access to the GITHUB_TOKEN for reading
+# PR metadata.
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # For work-in-progress PRs you can typically use draft pull requests from GitHub.
+          # This action allows us to use the special "[WIP]" prefix to indicate a draft state
+          # without actually flagging the PR as a draft.
+          # Example:
+          # `[WIP] feat: Add support for Node.js 18` <--- will not be validated!
+          wip: true
