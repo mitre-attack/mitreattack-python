@@ -100,16 +100,6 @@ build_command = """
     uv build
 """
 
-[tool.semantic_release.branches.main]
-match = "(main|master)"
-prerelease = false
-
-[tool.semantic_release.remote]
-type = "github"
-
-[tool.semantic_release.publish]
-upload_to_vcs_release = true
-
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
