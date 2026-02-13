@@ -103,7 +103,7 @@ build_command = """
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
-allowed_tags = ["feat", "fix", "perf", "build", "chore", "ci", "docs", "style", "refactor", "test"]
+allowed_tags = ["feat", "fix", "perf", "build", "chore", "ci", "docs", "style", "refactor", "revert", "test"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
