@@ -43,6 +43,14 @@ test-cov:
 check-commits rev-range="HEAD~1..HEAD":
     uv run cz check --rev-range {{ rev-range }}
 
+# Test commitizen accepts valid conventional commit
+cz-check-good-commit:
+    uv run cz check --message "feat: test commit message"
+
+# Test commitizen rejects non-conventional commit
+cz-check-bad-commit:
+    uv run cz check --message "this is not conventional"
+
 # Dry run semantic release (no changes)
 release-dry-run:
     uv run semantic-release -v --noop version
