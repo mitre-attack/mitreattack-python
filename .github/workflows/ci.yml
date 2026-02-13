@@ -167,7 +167,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         id: artifact-download
         with:
           name: distribution-artifacts
