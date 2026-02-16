@@ -392,7 +392,7 @@ def analyticsToDf(src):
 
         # Prints out errors where data components are not in the same domain as analytics
         for analytic in tqdm(analytics, desc="parsing analytics"):
-            analytic_id = analytic.get("id")  
+            analytic_id = analytic.get("id")
             for logsrc in analytic.get("x_mitre_log_source_references", []):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
                 data_comp = src.get(data_comp_id)
