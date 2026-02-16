@@ -376,7 +376,7 @@ def analyticsToDf(src):
         analytic_rows = []
         logsource_rows = []
         analytic_to_ds_rows = []
-        failed_analytics = set()
+        failed_by_data_component = {}
 
         # analytics to detection strategies
         analytic_to_ds_map = {}
@@ -392,19 +392,29 @@ def analyticsToDf(src):
 
         # Prints out errors where data components are not in the same domain as analytics
         for analytic in tqdm(analytics, desc="parsing analytics"):
+            analytic_id = analytic.get("id")  
             for logsrc in analytic.get("x_mitre_log_source_references", []):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
                 data_comp = src.get(data_comp_id)
                 try:
                     data_comp_attack_id = data_comp["external_references"][0]["external_id"]
                 except (KeyError, TypeError, IndexError, AttributeError):
-                    failed_analytics.add((analytic["id"], data_comp_id))
+                    if data_comp_id not in failed_by_data_component:
+                        failed_by_data_component[data_comp_id] = []
+                    failed_by_data_component[data_comp_id].append(analytic_id)
 
-        if failed_analytics:
-            raise RuntimeError(
-                f"{len(failed_analytics)} failures:\n" +
-                "\n".join(f"analytic={a}, data_component={d}" for a, d in sorted(failed_analytics))
-            )
+        if failed_by_data_component:
+            lines = ["Failures grouped by data component:\n"]
+            for dc_id in sorted(failed_by_data_component):
+                analytic_ids = sorted(set(failed_by_data_component[dc_id]))
+                dc_obj = src.get(dc_id) or {}
+                dc_name = dc_obj.get("name", "")
+
+                lines.append(f"data_component={dc_id}" + (f" ({dc_name})" if dc_name else ""))
+                lines.extend([f"  - analytic={a}" for a in analytic_ids])
+                lines.append("")
+
+            raise RuntimeError("\n".join(lines))
 
         for analytic in tqdm(analytics, desc="parsing analytics"):
             analytic_rows.append(parseBaseStix(analytic))
