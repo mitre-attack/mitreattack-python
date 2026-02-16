@@ -1,4 +1,4 @@
-name: PR Title
+name: Lint PR Title
 
 # Validate that PR titles follow Conventional Commits format.
 # Since we squash merge PRs, the PR title becomes the merge commit message,
@@ -13,26 +13,18 @@ name: PR Title
 
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened]
-    branches: [main]
-
-permissions:
-  pull-requests: write
+    types:
+      - opened
+      - edited
+      - reopened
 
 jobs:
-  validate:
+  main:
+    name: Validate PR title
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
     steps:
-      - name: Validate PR title
-        uses: amannn/action-semantic-pull-request@v6
+      - uses: amannn/action-semantic-pull-request@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # For work-in-progress PRs you can typically use draft pull requests from GitHub.
-          # This action allows us to use the special "[WIP]" prefix to indicate a draft state
-          # without actually flagging the PR as a draft.
-          # Example:
-          # `[WIP] feat: Add support for Node.js 18` <--- will not be validated!
-          wip: true
