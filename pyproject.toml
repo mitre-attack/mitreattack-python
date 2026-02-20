@@ -1,7 +1,7 @@
 [project]
 name = "mitreattack-python"
 description = "MITRE ATT&CK python library"
-version = "5.4.1"
+version = "5.4.2"
 authors = [{ name = "MITRE ATT&CK", email = "attack@mitre.org" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
