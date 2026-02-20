@@ -118,6 +118,7 @@ def techniquesToDf(src, domain):
     for tactic in tactics:
         x_mitre_shortname = tactic["x_mitre_shortname"]
         tactic_names[x_mitre_shortname] = tactic["name"]
+    missing_tactic_shortnames = set()
 
     all_sub_techniques = src.query(
         [
@@ -150,7 +151,14 @@ def techniquesToDf(src, domain):
 
         technique_tactic_names = []
         for shortname in tactic_shortnames:
-            tactic_display_name = tactic_names[shortname]
+            tactic_display_name = tactic_names.get(shortname)
+            if not tactic_display_name:
+                tactic_display_name = shortname.replace("-", " ").title()
+                if shortname not in missing_tactic_shortnames:
+                    logger.warning(
+                        f"Could not find x-mitre-tactic object for shortname '{shortname}', using '{tactic_display_name}'"
+                    )
+                    missing_tactic_shortnames.add(shortname)
             technique_tactic_names.append(tactic_display_name)
         row["tactics"] = ", ".join(sorted(technique_tactic_names))
 
