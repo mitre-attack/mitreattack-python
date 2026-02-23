@@ -64,14 +64,9 @@ dev = [
 docs = [
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
-]
-
-# The following ci group is needed for the PSR GitHub Action
-# See `tool.semantic_release.build_command` below for details
-[dependency-groups]
-ci = [
-    "uv>=0.10.4",
-]
+] 
+# The following ci group is needed for the PSR GitHub Action. See `tool.semantic_release.build_command` below for details.
+ci = ["uv>=0.10.4"]
 
 [build-system]
 requires = ["uv_build>=0.6.5,<0.7"]
