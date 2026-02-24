@@ -1,9 +1,7 @@
-name: CI
+name: Release and Publish
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
 
 permissions:
@@ -13,7 +11,6 @@ jobs:
   # Validate the squash merge commit message on pushes to main.
   # PR title validation is handled separately in pr-title.yml.
   commitlint:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,60 +31,18 @@ jobs:
       - name: Validate commit message
         run: uv run cz check --rev-range HEAD~1..HEAD
 
-  lint:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Lint with ruff
-        run: uv run ruff check --output-format github
-
-      - name: Check formatting with ruff
-        run: uv run ruff format --check
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Run pytest
-        run: uv run pytest --cov=mitreattack
-
   release:
-    needs: [commitlint, lint, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [commitlint]
     strategy:
       matrix:
         python-version: ["3.11"] # TODO see https://github.com/mitre-attack/mitreattack-python/issues/176
     runs-on: ubuntu-latest
     # The concurrency block prevents multiple release jobs from running simultaneously for the same branch.
-    # This is particularly useful for releases since you typically want sequential deployments (finish 
-    # current release before starting next) rather than canceling in-progress releases or running them 
+    # This is particularly useful for releases since you typically want sequential deployments (finish
+    # current release before starting next) rather than canceling in-progress releases or running them
     # in parallel.
     concurrency:
-      # Creates a concurrency group keyed by workflow name + "release" + branch name (e.g., "Continuous Delivery-release-main")
+      # Creates a concurrency group keyed by workflow name + "release" + branch name (e.g., "Release and Publish-release-main")
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       # If a release is already running and a new push triggers another, the new job waits rather than canceling the running one
       # If you changed cancel-in-progress to true, a new push would cancel the currently running release job.
@@ -159,11 +114,12 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
-    environment: release
-
+    environment:
+      name: release
+      url: https://pypi.org/p/mitreattack-python
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
 
     steps:
       - name: Download build artifacts
