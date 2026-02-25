@@ -142,11 +142,11 @@ class MatrixGen:
             if resource is not None:
                 hd = MemoryStore()
                 hd.load_from_file(resource)
-                if "mobile" in resource.lower():
+                if "mobile" in domain.lower():
                     self.collections["mobile"] = hd
-                elif "enterprise" in resource.lower():
+                elif "enterprise" in domain.lower():
                     self.collections["enterprise"] = hd
-                elif "ics" in resource.lower():
+                elif "ics" in domain.lower():
                     self.collections["ics"] = hd
                 else:
                     logger.error(f"invalid domain specified ({resource.lower()})")
