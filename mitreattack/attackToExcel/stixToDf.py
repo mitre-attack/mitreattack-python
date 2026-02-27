@@ -1019,8 +1019,15 @@ class CellRange:
 
 
 def build_technique_and_sub_columns(
-    src, techniques, columns, merge_data_handle, matrix_grid_handle, tactic_name, platform=None,
-    *, _sub_techniques_store=None
+    src,
+    techniques,
+    columns,
+    merge_data_handle,
+    matrix_grid_handle,
+    tactic_name,
+    platform=None,
+    *,
+    _sub_techniques_store=None,
 ):
     """Build technique and subtechnique columns for a given matrix and attach them to the appropriate object listings.
 
@@ -1454,7 +1461,4 @@ def _get_relationship_citations(object_dataframe, relationship_df):
                 for cite in re.findall(r"\(Citation: (.*?)\)", desc):
                     id_to_citations.setdefault(obj_id, set()).add(cite)
 
-    return [
-        ",".join(f"(Citation: {c})" for c in id_to_citations.get(obj_id, set()))
-        for obj_id in all_ids
-    ]
+    return [",".join(f"(Citation: {c})" for c in id_to_citations.get(obj_id, set())) for obj_id in all_ids]
