@@ -12,7 +12,6 @@ from stix2 import Filter, MemoryStore
 from tqdm import tqdm
 
 from mitreattack.constants import MITRE_ATTACK_ID_SOURCE_NAMES, PLATFORMS_LOOKUP
-from mitreattack.stix20 import MitreAttackData
 
 # Module-level constants for type mappings (avoid recreating per call)
 _ATTACK_TO_STIX_TERM = {
@@ -1451,7 +1450,7 @@ def _get_relationship_citations(object_dataframe, relationship_df):
             # Use .isin() for batch filtering (single pass) instead of per-ID comparison
             mask = sheet_df[id_col].isin(id_set)
             matching = sheet_df.loc[mask, [id_col, "mapping description"]].dropna(subset=["mapping description"])
-            for obj_id, desc in zip(matching[id_col], matching["mapping description"]):
+            for obj_id, desc in zip(matching[id_col], matching["mapping description"], strict=True):
                 for cite in re.findall(r"\(Citation: (.*?)\)", desc):
                     id_to_citations.setdefault(obj_id, set()).add(cite)
 
