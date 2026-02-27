@@ -98,17 +98,22 @@ def build_dataframes_pre_v18(src: MemoryStore, domain: str) -> Dict:
     dict
         A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
+    # Pre-compute all relationship data once (the expensive part) instead of
+    # repeating it 7+ times across the individual *ToDf() calls.
+    logger.info("Pre-computing relationship data...")
+    rel_data = stixToDf._process_all_relationships(src)
+
     df = {
-        "techniques": stixToDf.techniquesToDf(src, domain),
+        "techniques": stixToDf.techniquesToDf(src, domain, _rel_data=rel_data),
         "tactics": stixToDf.tacticsToDf(src),
-        "software": stixToDf.softwareToDf(src),
-        "groups": stixToDf.groupsToDf(src),
-        "campaigns": stixToDf.campaignsToDf(src),
-        "assets": stixToDf.assetsToDf(src),
-        "mitigations": stixToDf.mitigationsToDf(src),
+        "software": stixToDf.softwareToDf(src, _rel_data=rel_data),
+        "groups": stixToDf.groupsToDf(src, _rel_data=rel_data),
+        "campaigns": stixToDf.campaignsToDf(src, _rel_data=rel_data),
+        "assets": stixToDf.assetsToDf(src, _rel_data=rel_data),
+        "mitigations": stixToDf.mitigationsToDf(src, _rel_data=rel_data),
         "matrices": stixToDf.matricesToDf(src, domain),
-        "relationships": stixToDf.relationshipsToDf(src),
-        "datasources": stixToDf.datasourcesToDf(src),
+        "relationships": stixToDf.relationshipsToDf(src, _precomputed=rel_data),
+        "datasources": stixToDf.datasourcesToDf(src, _rel_data=rel_data),
         "analytics": stixToDf.analyticsToDf(src),
         "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
     }
@@ -130,16 +135,21 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     dict
         A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
+    # Pre-compute all relationship data once (the expensive part) instead of
+    # repeating it 7+ times across the individual *ToDf() calls.
+    logger.info("Pre-computing relationship data...")
+    rel_data = stixToDf._process_all_relationships(src)
+
     df = {
-        "techniques": stixToDf.techniquesToDf(src, domain),
+        "techniques": stixToDf.techniquesToDf(src, domain, _rel_data=rel_data),
         "tactics": stixToDf.tacticsToDf(src),
-        "software": stixToDf.softwareToDf(src),
-        "groups": stixToDf.groupsToDf(src),
-        "campaigns": stixToDf.campaignsToDf(src),
-        "assets": stixToDf.assetsToDf(src),
-        "mitigations": stixToDf.mitigationsToDf(src),
+        "software": stixToDf.softwareToDf(src, _rel_data=rel_data),
+        "groups": stixToDf.groupsToDf(src, _rel_data=rel_data),
+        "campaigns": stixToDf.campaignsToDf(src, _rel_data=rel_data),
+        "assets": stixToDf.assetsToDf(src, _rel_data=rel_data),
+        "mitigations": stixToDf.mitigationsToDf(src, _rel_data=rel_data),
         "matrices": stixToDf.matricesToDf(src, domain),
-        "relationships": stixToDf.relationshipsToDf(src),
+        "relationships": stixToDf.relationshipsToDf(src, _precomputed=rel_data),
         "datacomponents": stixToDf.datacomponentsToDf(src),
         "analytics": stixToDf.analyticsToDf(src),
         "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
