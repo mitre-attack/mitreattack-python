@@ -140,6 +140,27 @@ def _extract_attack_id(obj):
     return None
 
 
+def _prefetch_data_components(src, analytics):
+    """Pre-fetch all data components referenced by analytics into a dict for O(1) lookups.
+
+    :param src: MemoryStore or other stix2 DataSource object
+    :param analytics: list of analytic STIX objects
+    :returns: dict of data_component_id -> data_component_object
+    """
+    all_dc_ids = set()
+    for analytic in analytics:
+        for logsrc in analytic.get("x_mitre_log_source_references", []):
+            dc_id = logsrc.get("x_mitre_data_component_ref", "")
+            if dc_id:
+                all_dc_ids.add(dc_id)
+    dc_cache = {}
+    for dc_id in all_dc_ids:
+        dc_obj = src.get(dc_id)
+        if dc_obj is not None:
+            dc_cache[dc_id] = dc_obj
+    return dc_cache
+
+
 def _process_all_relationships(src):
     """Process all relationships from the STIX data source into a sorted DataFrame and citations.
 
@@ -531,18 +552,7 @@ def analyticsToDf(src):
                     }
                 )
 
-        # Pre-fetch all referenced data components once instead of per-logsource
-        all_dc_ids = set()
-        for analytic in analytics:
-            for logsrc in analytic.get("x_mitre_log_source_references", []):
-                dc_id = logsrc.get("x_mitre_data_component_ref", "")
-                if dc_id:
-                    all_dc_ids.add(dc_id)
-        dc_cache = {}
-        for dc_id in all_dc_ids:
-            dc_obj = src.get(dc_id)
-            if dc_obj is not None:
-                dc_cache[dc_id] = dc_obj
+        dc_cache = _prefetch_data_components(src, analytics)
 
         # Single pass: validate and build rows together
         for analytic in tqdm(analytics, desc="parsing analytics"):
@@ -728,18 +738,7 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
     analytics = remove_revoked_deprecated(analytics)
     analytics_by_id = {a["id"]: a for a in analytics}
 
-    # Pre-fetch all referenced data components once instead of per-logsource
-    all_dc_ids = set()
-    for analytic in analytics:
-        for logsrc in analytic.get("x_mitre_log_source_references", []):
-            dc_id = logsrc.get("x_mitre_data_component_ref", "")
-            if dc_id:
-                all_dc_ids.add(dc_id)
-    dc_cache = {}
-    for dc_id in all_dc_ids:
-        dc_obj = src.get(dc_id)
-        if dc_obj is not None:
-            dc_cache[dc_id] = dc_obj
+    dc_cache = _prefetch_data_components(src, analytics)
 
     rows = []
     for ds in detection_strategies:
