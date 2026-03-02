@@ -81,6 +81,51 @@ def get_stix_data(
     return mem_store
 
 
+def _build_dataframes_common(src: MemoryStore, domain: str, *, use_pre_v18_datasources: bool = False) -> Dict:
+    """Shared implementation for building pandas dataframes for each ATT&CK type.
+
+    Parameters
+    ----------
+    src : MemoryStore
+        MemoryStore or other stix2 DataSource object
+    domain : str
+        domain of ATT&CK src corresponds to, e.g "enterprise-attack"
+    use_pre_v18_datasources : bool
+        If True, uses the pre-v18 datasourcesToDf (combined data sources + components).
+        If False, uses the v18+ datacomponentsToDf.
+
+    Returns
+    -------
+    dict
+        A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
+    """
+    # Pre-compute all relationship data once (the expensive part) instead of
+    # repeating it 7+ times across the individual *ToDf() calls.
+    logger.info("Pre-computing relationship data...")
+    rel_data = stixToDf._process_all_relationships(src)
+
+    df = {
+        "techniques": stixToDf.techniquesToDf(src, domain, _rel_data=rel_data),
+        "tactics": stixToDf.tacticsToDf(src),
+        "software": stixToDf.softwareToDf(src, _rel_data=rel_data),
+        "groups": stixToDf.groupsToDf(src, _rel_data=rel_data),
+        "campaigns": stixToDf.campaignsToDf(src, _rel_data=rel_data),
+        "assets": stixToDf.assetsToDf(src, _rel_data=rel_data),
+        "mitigations": stixToDf.mitigationsToDf(src, _rel_data=rel_data),
+        "matrices": stixToDf.matricesToDf(src, domain),
+        "relationships": stixToDf.relationshipsToDf(src, _precomputed=rel_data),
+        "analytics": stixToDf.analyticsToDf(src),
+        "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
+    }
+
+    if use_pre_v18_datasources:
+        df["datasources"] = stixToDf.datasourcesToDf(src, _rel_data=rel_data)
+    else:
+        df["datacomponents"] = stixToDf.datacomponentsToDf(src)
+
+    return df
+
+
 def build_dataframes_pre_v18(src: MemoryStore, domain: str) -> Dict:
     """Build pandas dataframes for each attack type, and return a dictionary lookup for each type to the relevant dataframe.
 
@@ -98,21 +143,7 @@ def build_dataframes_pre_v18(src: MemoryStore, domain: str) -> Dict:
     dict
         A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
-    df = {
-        "techniques": stixToDf.techniquesToDf(src, domain),
-        "tactics": stixToDf.tacticsToDf(src),
-        "software": stixToDf.softwareToDf(src),
-        "groups": stixToDf.groupsToDf(src),
-        "campaigns": stixToDf.campaignsToDf(src),
-        "assets": stixToDf.assetsToDf(src),
-        "mitigations": stixToDf.mitigationsToDf(src),
-        "matrices": stixToDf.matricesToDf(src, domain),
-        "relationships": stixToDf.relationshipsToDf(src),
-        "datasources": stixToDf.datasourcesToDf(src),
-        "analytics": stixToDf.analyticsToDf(src),
-        "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
-    }
-    return df
+    return _build_dataframes_common(src, domain, use_pre_v18_datasources=True)
 
 
 def build_dataframes(src: MemoryStore, domain: str) -> Dict:
@@ -130,21 +161,7 @@ def build_dataframes(src: MemoryStore, domain: str) -> Dict:
     dict
         A dict lookup of each ATT&CK type to dataframes for the given type to be ingested by write_excel
     """
-    df = {
-        "techniques": stixToDf.techniquesToDf(src, domain),
-        "tactics": stixToDf.tacticsToDf(src),
-        "software": stixToDf.softwareToDf(src),
-        "groups": stixToDf.groupsToDf(src),
-        "campaigns": stixToDf.campaignsToDf(src),
-        "assets": stixToDf.assetsToDf(src),
-        "mitigations": stixToDf.mitigationsToDf(src),
-        "matrices": stixToDf.matricesToDf(src, domain),
-        "relationships": stixToDf.relationshipsToDf(src),
-        "datacomponents": stixToDf.datacomponentsToDf(src),
-        "analytics": stixToDf.analyticsToDf(src),
-        "detectionstrategies": stixToDf.detectionstrategiesToDf(src),
-    }
-    return df
+    return _build_dataframes_common(src, domain, use_pre_v18_datasources=False)
 
 
 def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
