@@ -89,7 +89,6 @@ class TestMarkdownOutput:
         test_groupings = [
             {
                 "parent": sample_technique_object,
-                "parentInSection": True,
                 "children": [],
             }
         ]
@@ -104,6 +103,99 @@ class TestMarkdownOutput:
         assert len(result) > 0
         assert "* " in result  # Should contain list items
         assert sample_technique_object["name"] in result  # Should contain technique name
+
+    def test_subtechnique_placard_includes_parent_name(
+        self,
+        lightweight_diffstix,
+        sample_technique_object,
+        sample_subtechnique_object,
+        sample_subtechnique_of_technique_relationship,
+    ):
+        """Test sub-technique placards include the parent technique name."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_technique_object["id"]: sample_technique_object,
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {
+            sample_subtechnique_of_technique_relationship["id"]: sample_subtechnique_of_technique_relationship,
+        }
+
+        result = lightweight_diffstix.placard(sample_subtechnique_object, "additions", "enterprise-attack")
+
+        assert "Test Technique:" in result
+        assert "Test Subtechnique" in result
+
+    def test_data_component_placard_includes_parent_name(
+        self,
+        lightweight_diffstix,
+        sample_data_source_object,
+        sample_data_component_object,
+    ):
+        """Test data component placards include the parent datasource name when available."""
+        sample_data_component_object["x_mitre_data_source_ref"] = sample_data_source_object["id"]
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["datasources"] = {
+            sample_data_source_object["id"]: sample_data_source_object
+        }
+
+        result = lightweight_diffstix.placard(sample_data_component_object, "additions", "enterprise-attack")
+
+        assert "Test Data Source:" in result
+        assert "Test Data Component" in result
+
+    def test_markdown_section_data_subtechnique_parent_name_not_duplicated(
+        self,
+        lightweight_diffstix,
+        sample_technique_object,
+        sample_subtechnique_object,
+        sample_subtechnique_of_technique_relationship,
+    ):
+        """Test markdown section output only prefixes a sub-technique parent once."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_technique_object["id"]: sample_technique_object,
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {
+            sample_subtechnique_of_technique_relationship["id"]: sample_subtechnique_of_technique_relationship,
+        }
+        groupings = [
+            {
+                "parent": None,
+                "children": [sample_subtechnique_object],
+            }
+        ]
+
+        result = lightweight_diffstix.get_markdown_section_data(groupings, "additions", "enterprise-attack")
+
+        assert result.count("Test Technique:") == 1
+        assert "Test Subtechnique" in result
+
+    def test_markdown_section_data_does_not_indent_children_when_parent_in_section(
+        self,
+        lightweight_diffstix,
+        sample_technique_object,
+        sample_subtechnique_object,
+        sample_subtechnique_of_technique_relationship,
+    ):
+        """Test markdown section output renders children consistently even when the parent is also present."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_technique_object["id"]: sample_technique_object,
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {
+            sample_subtechnique_of_technique_relationship["id"]: sample_subtechnique_of_technique_relationship,
+        }
+        groupings = [
+            {
+                "parent": sample_technique_object,
+                "children": [sample_subtechnique_object],
+            }
+        ]
+
+        result = lightweight_diffstix.get_markdown_section_data(groupings, "additions", "enterprise-attack")
+
+        assert "* [Test Technique]" in result
+        assert "* Test Technique: [Test Subtechnique]" in result
+        assert "  * Test Technique: [Test Subtechnique]" not in result
 
     def test_contributor_section_generation(self, lightweight_diffstix):
         """Test real contributor section generation."""

@@ -903,8 +903,8 @@ class DiffStix(object):
             groupings.append(
                 {
                     "parent": parent_stix_object,
-                    "parentInSection": True,
                     "children": child_objects,
+                    "sort_name": parent_stix_object["name"],
                 }
             )
 
@@ -918,13 +918,13 @@ class DiffStix(object):
             if parent_stix_object:
                 groupings.append(
                     {
-                        "parent": parent_stix_object,
-                        "parentInSection": False,
+                        "parent": None,
                         "children": child_objects,
+                        "sort_name": parent_stix_object["name"],
                     }
                 )
 
-        groupings = sorted(groupings, key=lambda grouping: grouping["parent"]["name"])
+        groupings = sorted(groupings, key=lambda grouping: grouping["sort_name"])
         return groupings
 
     def get_contributor_section(self) -> str:
@@ -982,6 +982,17 @@ class DiffStix(object):
         # possible reasons for no parent object: deprecated/revoked/wrong object type passed in
         return {}
 
+    def prefix_with_parent_name(self, stix_object: dict, datastore_version: str, domain: str, value: str) -> str:
+        """Prefix an ATT&CK object display value with its parent name when available."""
+        parent_object = self.get_parent_stix_object(
+            stix_object=stix_object, datastore_version=datastore_version, domain=domain
+        )
+        parent_name = parent_object.get("name")
+        if not parent_name:
+            return value
+
+        return f"{parent_name}: {value}"
+
     def placard(self, stix_object: dict, section: str, domain: str) -> str:
         """Get a section list item for the given STIX Domain Object (SDO) according to section type.
 
@@ -1003,10 +1014,21 @@ class DiffStix(object):
         placard_string = ""
 
         if section == "deletions":
-            placard_string = stix_object["name"]
+            placard_string = self.prefix_with_parent_name(
+                stix_object=stix_object,
+                datastore_version=datastore_version,
+                domain=domain,
+                value=stix_object["name"],
+            )
 
         elif section == "revocations":
             revoker = stix_object["revoked_by"]
+            revoked_name = self.prefix_with_parent_name(
+                stix_object=stix_object,
+                datastore_version=datastore_version,
+                domain=domain,
+                value=stix_object["name"],
+            )
 
             if revoker.get("x_mitre_is_subtechnique"):
                 parent_object = self.get_parent_stix_object(
@@ -1015,9 +1037,7 @@ class DiffStix(object):
                 parent_name = parent_object.get("name", "ERROR NO PARENT")
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
                 revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = (
-                    f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                )
+                placard_string = f"{revoked_name} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
 
             elif revoker["type"] == "x-mitre-data-component":
                 parent_object = self.get_parent_stix_object(
@@ -1027,17 +1047,15 @@ class DiffStix(object):
                     parent_name = parent_object.get("name", "ERROR NO PARENT")
                     relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
                     revoker_link = f"{self.site_prefix}/{relative_url}"
-                    placard_string = (
-                        f"{stix_object['name']} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
-                    )
+                    placard_string = f"{revoked_name} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
                 else:
                     # No parent datasource available — fall back to a plain-text representation.
-                    placard_string = f"{stix_object['name']} (revoked by {revoker['name']})"
+                    placard_string = f"{revoked_name} (revoked by {revoker['name']})"
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
                 revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = f"{stix_object['name']} (revoked by [{revoker['name']}]({revoker_link}))"
+                placard_string = f"{revoked_name} (revoked by [{revoker['name']}]({revoker_link}))"
 
         else:
             if stix_object["type"] == "x-mitre-data-component":
@@ -1054,6 +1072,13 @@ class DiffStix(object):
             else:
                 relative_url = get_relative_url_from_stix(stix_object=stix_object)
                 placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+
+            placard_string = self.prefix_with_parent_name(
+                stix_object=stix_object,
+                datastore_version=datastore_version,
+                domain=domain,
+                value=placard_string,
+            )
 
         version_string = get_placard_version_string(stix_object=stix_object, section=section)
         full_placard_string = f"{placard_string} {version_string}"
@@ -1192,17 +1217,13 @@ class DiffStix(object):
         sectionString = ""
         placard_string = ""
         for grouping in groupings:
-            if grouping["parentInSection"]:
+            if grouping["parent"]:
                 placard_string = self.placard(stix_object=grouping["parent"], section=section, domain=domain)
                 sectionString += f"* {placard_string}\n"
 
             for child in sorted(grouping["children"], key=lambda child: child["name"]):
                 placard_string = self.placard(stix_object=child, section=section, domain=domain)
-
-                if grouping["parentInSection"]:
-                    sectionString += f"  * {placard_string}\n"
-                else:
-                    sectionString += f"* {grouping['parent']['name']}: {placard_string}\n"
+                sectionString += f"* {placard_string}\n"
 
         return sectionString
 
@@ -1487,7 +1508,7 @@ def cleanup_values(groupings: List[dict]) -> List[dict]:
     """
     new_values = []
     for grouping in groupings:
-        if grouping["parentInSection"]:
+        if grouping["parent"]:
             new_values.append(grouping["parent"])
 
         for child in sorted(grouping["children"], key=lambda child: child["name"]):

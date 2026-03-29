@@ -22,17 +22,18 @@ class TestChangeDetection:
         test_groupings = [
             {
                 "name": "Test1",
-                "parentInSection": True,
                 "parent": {"name": "Parent1", "id": "T1001"},
                 "children": [{"name": "Child1", "id": "T1001.001"}],
             },
             {
                 "name": "Test2",
-                "parentInSection": False,
-                "parent": {"name": "Parent2", "id": "T1002"},
+                "parent": None,
                 "children": [{"name": "Child2", "id": "T1002.001"}],
             },
         ]
         result = cleanup_values(test_groupings)
         assert isinstance(result, list)
         assert len(result) == 3
+        assert result[0]["name"] == "Parent1"
+        assert result[1]["name"] == "Child1"
+        assert result[2]["name"] == "Child2"

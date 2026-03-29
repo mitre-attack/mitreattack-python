@@ -32,9 +32,35 @@ class TestDiffStixMethods:
         for grouping in result:
             assert isinstance(grouping, dict)
             assert "parent" in grouping
-            assert "parentInSection" in grouping
             assert "children" in grouping
             assert isinstance(grouping["children"], list)
+
+    def test_get_groupings_omits_parent_when_not_in_section(
+        self,
+        lightweight_diffstix,
+        sample_technique_object,
+        sample_subtechnique_object,
+        sample_subtechnique_of_technique_relationship,
+    ):
+        """Test groupings keep child context without rendering a parent outside the section."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_technique_object["id"]: sample_technique_object,
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {
+            sample_subtechnique_of_technique_relationship["id"]: sample_subtechnique_of_technique_relationship,
+        }
+
+        result = lightweight_diffstix.get_groupings(
+            object_type="techniques",
+            stix_objects=[sample_subtechnique_object],
+            section="additions",
+            domain="enterprise-attack",
+        )
+
+        assert len(result) == 1
+        assert result[0]["parent"] is None
+        assert result[0]["children"] == [sample_subtechnique_object]
 
     def test_update_contributors_real_functionality(self, lightweight_diffstix, mock_stix_object_factory):
         """Test real contributor tracking."""
@@ -114,6 +140,50 @@ class TestDiffStixMethods:
 
         # Should return empty dict for objects without parents
         assert result == {}
+
+    def test_get_parent_stix_object_data_component_parent(
+        self, lightweight_diffstix, sample_data_source_object, sample_data_component_object
+    ):
+        """Test parent resolution for a data component with a datasource reference."""
+        sample_data_component_object["x_mitre_data_source_ref"] = sample_data_source_object["id"]
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["datasources"] = {
+            sample_data_source_object["id"]: sample_data_source_object
+        }
+
+        result = lightweight_diffstix.get_parent_stix_object(sample_data_component_object, "new", "enterprise-attack")
+
+        assert result == sample_data_source_object
+
+    def test_prefix_with_parent_name_data_component(
+        self, lightweight_diffstix, sample_data_source_object, sample_data_component_object
+    ):
+        """Test data components are prefixed with their parent datasource name when available."""
+        sample_data_component_object["x_mitre_data_source_ref"] = sample_data_source_object["id"]
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["datasources"] = {
+            sample_data_source_object["id"]: sample_data_source_object
+        }
+
+        result = lightweight_diffstix.prefix_with_parent_name(
+            stix_object=sample_data_component_object,
+            datastore_version="new",
+            domain="enterprise-attack",
+            value=sample_data_component_object["name"],
+        )
+
+        assert result == "Test Data Source: Test Data Component"
+
+    def test_prefix_with_parent_name_data_component_without_parent(
+        self, lightweight_diffstix, sample_data_component_object
+    ):
+        """Test data components without a parent datasource remain unprefixed."""
+        result = lightweight_diffstix.prefix_with_parent_name(
+            stix_object=sample_data_component_object,
+            datastore_version="new",
+            domain="enterprise-attack",
+            value=sample_data_component_object["name"],
+        )
+
+        assert result == "Test Data Component"
 
     def test_placard_different_sections(self, lightweight_diffstix, sample_technique_object, mock_stix_object_factory):
         """Test real placard generation for different section types."""
