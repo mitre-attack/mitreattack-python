@@ -72,6 +72,13 @@ def get_citations(objects):
     return pd.DataFrame(citations).drop_duplicates(subset="reference", ignore_index=True)
 
 
+def _get_mapping_descriptions(dataframe):
+    """Return non-null mapping descriptions from a relationship dataframe."""
+    if "mapping description" not in dataframe.columns:
+        return []
+    return filter(lambda x: x == x, dataframe["mapping description"].tolist())
+
+
 def parseBaseStix(sdo):
     """Given an SDO, return a dict of field names:values that are common across all ATT&CK STIX types."""
     row = {}
@@ -1311,8 +1318,7 @@ def relationshipsToDf(src, relatedType=None):
             usedCitations = set()
             for dfname in dataframes:
                 df = dataframes[dfname]
-                # filter out missing descriptions which for whatever reason
-                for description in filter(lambda x: x == x, df["mapping description"].tolist()):
+                for description in _get_mapping_descriptions(df):
                     # in pandas don't equal themselves
                     [usedCitations.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
 
@@ -1342,7 +1348,7 @@ def _get_relationship_citations(object_dataframe, relationship_df):
             mask = relationship_df[z].values == y
             filtered = relationship_df[z].loc[mask]
             temp = set()
-            for description in filter(lambda x: x == x, filtered["mapping description"].tolist()):
+            for description in _get_mapping_descriptions(filtered):
                 [temp.add(x) for x in re.findall(r"\(Citation: (.*?)\)", description)]
             subset.append(",".join([f"(Citation: {z})" for z in temp]))
         if not new_citations:
