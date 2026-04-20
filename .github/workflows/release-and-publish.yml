@@ -52,6 +52,13 @@ jobs:
       contents: write
 
     steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.ATTACK_AUTOBOT_APP_ID }}
+          private-key: ${{ secrets.ATTACK_AUTOBOT_PRIVATE_KEY }}
+
       # Note: We checkout the repository at the branch that triggered the workflow.
       # Python Semantic Release will automatically convert shallow clones to full clones
       # if needed to ensure proper history evaluation. However, we forcefully reset the
@@ -63,6 +70,8 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - name: Setup | Force release branch to be at workflow sha
         run: |
@@ -83,7 +92,7 @@ jobs:
         id: release
         uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
-          github_token: ${{ secrets.ATTACK_AUTOBOT_RELEASE_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           # NOTE: git_committer_name and git_committer_email are optional
           # We omit them because, if set, they must be associated with the provided token
           # and we don't really care to have a specific committer for automated releases.
@@ -92,7 +101,7 @@ jobs:
         uses: python-semantic-release/publish-action@v10.5.3
         if: steps.release.outputs.released == 'true'
         with:
-          github_token: ${{ secrets.ATTACK_AUTOBOT_RELEASE_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           tag: ${{ steps.release.outputs.tag }}
 
       - name: Upload distribution artifacts
