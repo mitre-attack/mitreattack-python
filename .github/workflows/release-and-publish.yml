@@ -83,7 +83,7 @@ jobs:
         id: release
         uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ATTACK_AUTOBOT_RELEASE_TOKEN }}
           # NOTE: git_committer_name and git_committer_email are optional
           # We omit them because, if set, they must be associated with the provided token
           # and we don't really care to have a specific committer for automated releases.
@@ -92,7 +92,7 @@ jobs:
         uses: python-semantic-release/publish-action@v10.5.3
         if: steps.release.outputs.released == 'true'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ATTACK_AUTOBOT_RELEASE_TOKEN }}
           tag: ${{ steps.release.outputs.tag }}
 
       - name: Upload distribution artifacts
