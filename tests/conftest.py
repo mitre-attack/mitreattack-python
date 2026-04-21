@@ -1,6 +1,7 @@
 """Common fixtures and utilities for testing mitreattack-python."""
 
 import os
+from pathlib import Path
 
 import pytest
 from loguru import logger
@@ -16,6 +17,9 @@ from .resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 STIX_LOCATION_ENTERPRISE = os.getenv("STIX_LOCATION_ENTERPRISE")
 STIX_LOCATION_MOBILE = os.getenv("STIX_LOCATION_MOBILE")
 STIX_LOCATION_ICS = os.getenv("STIX_LOCATION_ICS")
+TEST_CACHE_DIR = Path(
+    os.getenv("MITREATTACK_TEST_CACHE_DIR", Path(__file__).resolve().parent.parent / ".pytest_cache" / "attack-stix")
+)
 
 
 def _parse_version_param(versions_param):
@@ -81,7 +85,23 @@ def _get_stix_file_path(attack_stix_dir, domain, version_key="latest"):
         return f"{attack_stix_dir[first_version]}/{domain}-attack.json"
 
 
-def _download_attack_stix_data(versions_param, tmp_path_factory):
+def _get_release_dir(download_dir: Path, release: str) -> Path:
+    """Return the cache directory for a specific ATT&CK release."""
+    return download_dir / f"v{release}"
+
+
+def _stix_bundles_present(download_dir: Path, releases: list[str]) -> bool:
+    """Check whether all cached STIX bundles needed for a run already exist."""
+    domains = ["enterprise", "mobile", "ics"]
+    for release in releases:
+        release_dir = _get_release_dir(download_dir, release)
+        for domain in domains:
+            if not (release_dir / f"{domain}-attack.json").exists():
+                return False
+    return True
+
+
+def _download_attack_stix_data(versions_param, tmp_path_factory=None):
     """Download ATT&CK STIX data and return paths.
 
     This is the core download logic shared by multiple fixtures.
@@ -90,8 +110,8 @@ def _download_attack_stix_data(versions_param, tmp_path_factory):
     ----------
     versions_param : None, str, list, or dict
         Version parameter to parse
-    tmp_path_factory : pytest.TempPathFactory
-        Pytest temp path factory
+    tmp_path_factory : pytest.TempPathFactory, optional
+        Unused legacy parameter retained for backward compatibility.
 
     Returns
     -------
@@ -99,32 +119,38 @@ def _download_attack_stix_data(versions_param, tmp_path_factory):
         Dictionary mapping version to download directory path
     """
     versions, stix_version = _parse_version_param(versions_param)
+    requested_versions = versions or [LATEST_VERSION]
 
-    logger.debug(f"Downloading the ATT&CK STIX {stix_version} data for versions: {versions}")
-    download_dir = tmp_path_factory.mktemp("attack-releases") / f"stix-{stix_version}"
+    logger.debug(f"Preparing ATT&CK STIX {stix_version} data for versions: {requested_versions}")
+    download_dir = TEST_CACHE_DIR / f"stix-{stix_version}"
+    download_dir.mkdir(parents=True, exist_ok=True)
 
-    download_domains(
-        domains=["enterprise", "mobile", "ics"],
-        download_dir=download_dir,
-        all_versions=False,
-        stix_version=stix_version,
-        attack_versions=versions,
-    )
+    if _stix_bundles_present(download_dir, requested_versions):
+        logger.debug(f"Reusing cached ATT&CK STIX bundles from {download_dir}")
+    else:
+        logger.debug(f"Downloading ATT&CK STIX bundles into cache at {download_dir}")
+        download_domains(
+            domains=["enterprise", "mobile", "ics"],
+            download_dir=download_dir,
+            all_versions=False,
+            stix_version=stix_version,
+            attack_versions=versions,
+        )
 
     # Build return dictionary
     result_paths = {}
     if versions is None:
-        result_paths["latest"] = download_dir / f"v{LATEST_VERSION}"
+        result_paths["latest"] = _get_release_dir(download_dir, LATEST_VERSION)
     else:
         # Return paths for each requested version
         for version in versions:
-            result_paths[version] = download_dir / f"v{version}"
+            result_paths[version] = _get_release_dir(download_dir, version)
 
     return result_paths
 
 
-@pytest.fixture(autouse=True, scope="session")
-def attack_stix_dir(request, tmp_path_factory):
+@pytest.fixture(scope="session")
+def attack_stix_dir(request):
     """Download ATT&CK STIX data and return paths.
 
     Can be parametrized to download specific versions:
@@ -151,7 +177,7 @@ def attack_stix_dir(request, tmp_path_factory):
         Directory paths for requested ATT&CK versions
     """
     versions_param = getattr(request, "param", None)
-    result_paths = _download_attack_stix_data(versions_param, tmp_path_factory)
+    result_paths = _download_attack_stix_data(versions_param)
     yield result_paths
 
 
