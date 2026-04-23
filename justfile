@@ -47,16 +47,6 @@ test-xdist workers="auto":
 test-cov-xdist workers="auto":
     uv run --extra dev pytest -n {{ workers }} --require-attack-stix-cache --cov=mitreattack
 
-# Warm the cache, then run tests in parallel
-test-xdist-warm workers="auto":
-    just test-cache-warm
-    just test-xdist workers={{ workers }}
-
-# Warm the cache, then run tests with coverage in parallel
-test-cov-xdist-warm workers="auto":
-    just test-cache-warm
-    just test-cov-xdist workers={{ workers }}
-
 # Run tests with coverage
 test-cov:
     uv run pytest --cov=mitreattack
