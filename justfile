@@ -35,17 +35,13 @@ ruff-format:
 test:
     uv run pytest
 
-# Warm the shared ATT&CK STIX cache used by real-data tests
-test-cache-warm:
-    uv run --extra dev pytest --prepare-attack-stix-cache -q tests/test_stix20.py::TestCustomAttackObjects::test_matrix
-
-# Run tests in parallel after the cache has been warmed
+# Run tests in parallel
 test-xdist workers="auto":
-    uv run --extra dev pytest -n {{ workers }} --require-attack-stix-cache
+    uv run --extra dev pytest -n {{ workers }}
 
-# Run tests with coverage in parallel after the cache has been warmed
+# Run tests with coverage in parallel
 test-cov-xdist workers="auto":
-    uv run --extra dev pytest -n {{ workers }} --require-attack-stix-cache --cov=mitreattack
+    uv run --extra dev pytest -n {{ workers }} --cov=mitreattack
 
 # Run tests with coverage
 test-cov:
