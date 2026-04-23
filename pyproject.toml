@@ -57,6 +57,7 @@ dev = [
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "pytest-dotenv>=0.5.2",
+    "pytest-xdist>=3.8.0",
     "python-semantic-release>=10.5.0",
     "responses>=0.25.8",
     "ruff>=0.14.2",

@@ -20,6 +20,31 @@ STIX_LOCATION_ICS = os.getenv("STIX_LOCATION_ICS")
 TEST_CACHE_DIR = Path(
     os.getenv("MITREATTACK_TEST_CACHE_DIR", Path(__file__).resolve().parent.parent / ".pytest_cache" / "attack-stix")
 )
+DEFAULT_ATTACK_STIX_PREP = (None, ["16.1", "17.0"])
+
+
+def pytest_addoption(parser):
+    """Register test cache preparation options."""
+    parser.addoption(
+        "--prepare-attack-stix-cache",
+        action="store_true",
+        default=False,
+        help="Warm the shared ATT&CK STIX cache before running tests.",
+    )
+    parser.addoption(
+        "--require-attack-stix-cache",
+        action="store_true",
+        default=False,
+        help="Fail instead of downloading ATT&CK STIX data during test execution.",
+    )
+
+
+def pytest_sessionstart(session):
+    """Optionally warm the ATT&CK STIX cache before tests start."""
+    config = session.config
+    if config.getoption("--prepare-attack-stix-cache") and not _is_xdist_worker(config):
+        for versions_param in DEFAULT_ATTACK_STIX_PREP:
+            _download_attack_stix_data(versions_param, config=config)
 
 
 def _parse_version_param(versions_param):
@@ -90,6 +115,21 @@ def _get_release_dir(download_dir: Path, release: str) -> Path:
     return download_dir / f"v{release}"
 
 
+def _is_xdist_worker(config=None) -> bool:
+    """Return whether the current process is an xdist worker."""
+    if config is not None and getattr(config, "workerinput", None) is not None:
+        return True
+    return bool(os.getenv("PYTEST_XDIST_WORKER"))
+
+
+def _should_require_attack_stix_cache(config=None) -> bool:
+    """Return whether tests should fail instead of downloading missing STIX bundles."""
+    env_value = os.getenv("MITREATTACK_TEST_REQUIRE_STIX_CACHE", "")
+    env_enabled = env_value.lower() in {"1", "true", "yes", "on"}
+    option_enabled = bool(config and config.getoption("--require-attack-stix-cache"))
+    return env_enabled or option_enabled
+
+
 def _stix_bundles_present(download_dir: Path, releases: list[str]) -> bool:
     """Check whether all cached STIX bundles needed for a run already exist."""
     domains = ["enterprise", "mobile", "ics"]
@@ -101,7 +141,7 @@ def _stix_bundles_present(download_dir: Path, releases: list[str]) -> bool:
     return True
 
 
-def _download_attack_stix_data(versions_param, tmp_path_factory=None):
+def _download_attack_stix_data(versions_param, tmp_path_factory=None, config=None):
     """Download ATT&CK STIX data and return paths.
 
     This is the core download logic shared by multiple fixtures.
@@ -112,6 +152,8 @@ def _download_attack_stix_data(versions_param, tmp_path_factory=None):
         Version parameter to parse
     tmp_path_factory : pytest.TempPathFactory, optional
         Unused legacy parameter retained for backward compatibility.
+    config : pytest.Config, optional
+        Active pytest config used to determine read-only cache behavior.
 
     Returns
     -------
@@ -128,6 +170,12 @@ def _download_attack_stix_data(versions_param, tmp_path_factory=None):
     if _stix_bundles_present(download_dir, requested_versions):
         logger.debug(f"Reusing cached ATT&CK STIX bundles from {download_dir}")
     else:
+        if _is_xdist_worker(config) or _should_require_attack_stix_cache(config):
+            requested = ", ".join(requested_versions)
+            raise RuntimeError(
+                "ATT&CK STIX cache is missing required bundles for "
+                f"{requested}. Run `uv run pytest --prepare-attack-stix-cache` first."
+            )
         logger.debug(f"Downloading ATT&CK STIX bundles into cache at {download_dir}")
         download_domains(
             domains=["enterprise", "mobile", "ics"],
@@ -177,7 +225,7 @@ def attack_stix_dir(request):
         Directory paths for requested ATT&CK versions
     """
     versions_param = getattr(request, "param", None)
-    result_paths = _download_attack_stix_data(versions_param)
+    result_paths = _download_attack_stix_data(versions_param, config=request.config)
     yield result_paths
 
 
