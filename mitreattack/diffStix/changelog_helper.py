@@ -896,10 +896,16 @@ class DiffStix(object):
 
         # now group parents and children
         groupings = []
+        # Track every child emitted into a grouping so the orphan-preservation fallback
+        # only adds truly ungrouped objects. This matters because the normal grouping
+        # path mutates parentToChildren via pop(), so a later scan of that mapping would
+        # miss children that were already attached to a valid parent and re-add them.
+        assigned_child_ids = set()
         for parent_stix_object in childless + parents:
             child_objects = (
                 parentToChildren.pop(parent_stix_object["id"]) if parent_stix_object["id"] in parentToChildren else []
             )
+            assigned_child_ids.update(child["id"] for child in child_objects)
             groupings.append(
                 {
                     "parent": parent_stix_object,
@@ -916,11 +922,39 @@ class DiffStix(object):
                 parent_stix_object = datasources[parent_stix_id]
 
             if parent_stix_object:
+                # Keep the children together under the missing-section parent context,
+                # but still mark them as assigned so they are not emitted again below.
+                assigned_child_ids.update(child["id"] for child in child_objects)
                 groupings.append(
                     {
                         "parent": None,
                         "children": child_objects,
                         "sort_name": parent_stix_object["name"],
+                    }
+                )
+            else:
+                for child in child_objects:
+                    # The relationship points to a parent we cannot resolve from the
+                    # loaded bundle, so preserve each child as its own standalone entry.
+                    assigned_child_ids.add(child["id"])
+                    groupings.append(
+                        {
+                            "parent": None,
+                            "children": [child],
+                            "sort_name": child["name"],
+                        }
+                    )
+
+        # Preserve children that never appeared in any grouping at all. This covers
+        # malformed or partial bundles where an object is marked as a sub-technique
+        # (or data component child) but no usable relationship was loaded.
+        for child in children.values():
+            if child["id"] not in assigned_child_ids:
+                groupings.append(
+                    {
+                        "parent": None,
+                        "children": [child],
+                        "sort_name": child["name"],
                     }
                 )
 
