@@ -647,7 +647,7 @@ wheels = [
 
 [[package]]
 name = "mitreattack-python"
-version = "5.4.4"
+version = "5.4.6"
 source = { editable = "." }
 dependencies = [
     { name = "colour" },

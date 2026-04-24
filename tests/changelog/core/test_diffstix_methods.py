@@ -62,6 +62,55 @@ class TestDiffStixMethods:
         assert result[0]["parent"] is None
         assert result[0]["children"] == [sample_subtechnique_object]
 
+    def test_get_groupings_keeps_orphan_subtechnique_when_relationship_missing(
+        self,
+        lightweight_diffstix,
+        sample_subtechnique_object,
+    ):
+        """Test orphaned sub-techniques remain visible when no relationship exists."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {}
+
+        result = lightweight_diffstix.get_groupings(
+            object_type="techniques",
+            stix_objects=[sample_subtechnique_object],
+            section="revocations",
+            domain="enterprise-attack",
+        )
+
+        assert len(result) == 1
+        assert result[0]["parent"] is None
+        assert result[0]["children"] == [sample_subtechnique_object]
+
+    def test_get_groupings_does_not_duplicate_child_with_parent_relationship(
+        self,
+        lightweight_diffstix,
+        sample_technique_object,
+        sample_subtechnique_object,
+        sample_subtechnique_of_technique_relationship,
+    ):
+        """Test children grouped under a real parent are not re-added by fallback handling."""
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_objects"]["techniques"] = {
+            sample_technique_object["id"]: sample_technique_object,
+            sample_subtechnique_object["id"]: sample_subtechnique_object,
+        }
+        lightweight_diffstix.data["new"]["enterprise-attack"]["relationships"]["subtechniques"] = {
+            sample_subtechnique_of_technique_relationship["id"]: sample_subtechnique_of_technique_relationship,
+        }
+
+        result = lightweight_diffstix.get_groupings(
+            object_type="techniques",
+            stix_objects=[sample_technique_object, sample_subtechnique_object],
+            section="additions",
+            domain="enterprise-attack",
+        )
+
+        assert len(result) == 1
+        assert result[0]["parent"] == sample_technique_object
+        assert result[0]["children"] == [sample_subtechnique_object]
+
     def test_update_contributors_real_functionality(self, lightweight_diffstix, mock_stix_object_factory):
         """Test real contributor tracking."""
         # Create objects with contributors
