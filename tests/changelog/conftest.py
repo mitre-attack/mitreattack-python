@@ -1594,10 +1594,10 @@ def golden_161_170_changelog_dir():
 
 
 @pytest.fixture(scope="session")
-def generated_161_170_diffstix(tmp_path_factory) -> DiffStix:
+def generated_161_170_diffstix() -> DiffStix:
     """Create and cache a DiffStix instance for reuse across tests."""
     versions_param = ["16.1", "17.0"]
-    result_paths = _download_attack_stix_data(versions_param, tmp_path_factory)
+    result_paths = _download_attack_stix_data(versions_param)
     return DiffStix(
         domains=["enterprise-attack", "mobile-attack", "ics-attack"],
         old=result_paths["16.1"],

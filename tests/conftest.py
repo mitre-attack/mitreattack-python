@@ -129,7 +129,7 @@ def _stix_bundles_present(download_dir: Path, releases: list[str]) -> bool:
     return True
 
 
-def _download_attack_stix_data(versions_param, tmp_path_factory=None, config=None):
+def _download_attack_stix_data(versions_param, config=None):
     """Download ATT&CK STIX data and return paths.
 
     This is the core download logic shared by multiple fixtures.
@@ -138,8 +138,6 @@ def _download_attack_stix_data(versions_param, tmp_path_factory=None, config=Non
     ----------
     versions_param : None, str, list, or dict
         Version parameter to parse
-    tmp_path_factory : pytest.TempPathFactory, optional
-        Unused legacy parameter retained for backward compatibility.
     config : pytest.Config, optional
         Active pytest config used to determine read-only cache behavior.
 
