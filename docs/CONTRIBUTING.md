@@ -52,9 +52,16 @@ Run `just` with no arguments to see all available commands. Here are the most co
 ```bash
 just lint          # Run pre-commit hooks (ruff format) on all files
 just test          # Run tests
+just test-xdist    # Run tests in parallel
 just test-cov      # Run tests with coverage report
+just test-cov-xdist  # Run tests with coverage in parallel
 just build         # Build the package
 ```
+
+Tests that need real ATT&CK STIX data should use the shared STIX fixtures instead of downloading or
+preparing bundles directly. Parallel test runs warm the shared STIX cache before workers start; if a
+new xdist-backed test needs an additional ATT&CK release, update the cache warmup list in
+`tests/conftest.py`.
 
 ### Pull Requests
 
