@@ -10,8 +10,10 @@
 
 ## Build, Test, and Development Commands
 
+- Use `uv` to manage the project virtual environment, and keep it at the repo root as `.venv/`.
 - `just install`: install all dependencies (dev + docs) via `uv sync --all-extras`.
 - `just setup-hooks`: install `pre-commit` hooks (including commit message validation).
+- Before committing, run `just lint`.
 - `just lint`: run pre-commit hooks across the repo.
 - `just test`: run the pytest suite.
 - `just test-cov`: run tests with coverage for `mitreattack`.
