@@ -753,9 +753,40 @@ def assetsToDf(src):
                 related_assets_descriptions = []
 
                 for related_asset in asset["x_mitre_related_assets"]:
-                    related_assets.append(related_asset["name"])
-                    related_assets_sectors.append(", ".join(related_asset["related_asset_sectors"]))
-                    related_assets_descriptions.append(related_asset["description"])
+                    asset_name = row.get("name", "<unnamed asset>")
+                    asset_id = row.get("ID", "<missing ATT&CK ID>")
+                    asset_stix_id = row.get("STIX ID", "<missing STIX ID>")
+                    related_asset_name = related_asset.get("name", "<unnamed related asset>")
+
+                    if "name" in related_asset:
+                        related_assets.append(related_asset["name"])
+                    else:
+                        logger.error(
+                            f"Missing name for related asset '{related_asset_name}' on asset '{asset_name}' "
+                            f"({asset_id}, {asset_stix_id}). Leaving related assets blank for this related asset "
+                            "and continuing export."
+                        )
+                        related_assets.append("")
+
+                    if "related_asset_sectors" in related_asset:
+                        related_assets_sectors.append(", ".join(related_asset["related_asset_sectors"]))
+                    else:
+                        logger.error(
+                            f"Missing related_asset_sectors for related asset '{related_asset_name}' on asset "
+                            f"'{asset_name}' ({asset_id}, {asset_stix_id}). Leaving related assets sectors blank "
+                            "for this related asset and continuing export."
+                        )
+                        related_assets_sectors.append("")
+
+                    if "description" in related_asset:
+                        related_assets_descriptions.append(related_asset["description"])
+                    else:
+                        logger.error(
+                            f"Missing description for related asset '{related_asset_name}' on asset '{asset_name}' "
+                            f"({asset_id}, {asset_stix_id}). Leaving related assets description blank for this "
+                            "related asset and continuing export."
+                        )
+                        related_assets_descriptions.append("")
 
                 row["related assets"] = "; ".join(related_assets)
                 row["related assets sectors"] = "; ".join(related_assets_sectors)
