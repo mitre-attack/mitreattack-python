@@ -79,6 +79,9 @@ package = true
 module-name = "mitreattack"
 module-root = ""
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 120
 extend-exclude = ["tests/resources/", "examples/", "__init__.py"]

@@ -13,9 +13,47 @@ from mitreattack.stix20 import MitreAttackData
 
 from .resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 
-STIX_LOCATION_ENTERPRISE = os.getenv("STIX_LOCATION_ENTERPRISE")
-STIX_LOCATION_MOBILE = os.getenv("STIX_LOCATION_MOBILE")
-STIX_LOCATION_ICS = os.getenv("STIX_LOCATION_ICS")
+STIX_LOCATION_ENV_VARS = {
+    "enterprise": "STIX_LOCATION_ENTERPRISE",
+    "mobile": "STIX_LOCATION_MOBILE",
+    "ics": "STIX_LOCATION_ICS",
+}
+STIX_LOCATION_OPTIONS = {
+    "enterprise": "stix_enterprise",
+    "mobile": "stix_mobile",
+    "ics": "stix_ics",
+}
+
+
+def _get_config_option(config, name):
+    """Return a pytest option value, including when the option is unavailable in test doubles."""
+    return config.getoption(name, default=None)
+
+
+def _get_requested_stix_file(request, domain):
+    """Get a configured STIX file path for a domain from CLI options or environment."""
+    cli_value = _get_config_option(request.config, STIX_LOCATION_OPTIONS[domain])
+    if cli_value:
+        return cli_value
+
+    return os.getenv(STIX_LOCATION_ENV_VARS[domain])
+
+
+def _all_stix_files_requested(request):
+    """Return whether every domain has a configured local STIX file."""
+    return all(_get_requested_stix_file(request, domain) for domain in STIX_LOCATION_OPTIONS)
+
+
+def _get_requested_attack_stix_param(request):
+    """Build the attack_stix_dir fixture parameter from pytest version options."""
+    attack_version = _get_config_option(request.config, "attack_version")
+    if not attack_version:
+        return None
+
+    return {
+        "attack_version": attack_version,
+        "stix_version": _get_config_option(request.config, "stix_version") or "2.0",
+    }
 
 
 def _parse_version_param(versions_param):
@@ -150,17 +188,20 @@ def attack_stix_dir(request, tmp_path_factory):
     dict
         Directory paths for requested ATT&CK versions
     """
-    versions_param = getattr(request, "param", None)
+    if _all_stix_files_requested(request):
+        yield {}
+        return
+
+    versions_param = getattr(request, "param", None) or _get_requested_attack_stix_param(request)
     result_paths = _download_attack_stix_data(versions_param, tmp_path_factory)
     yield result_paths
 
 
 @pytest.fixture(scope="session")
-def stix_file_enterprise_latest(attack_stix_dir):
+def stix_file_enterprise_latest(request, attack_stix_dir):
     """Get path to Enterprise ATT&CK STIX file.
 
-    Uses environment variable STIX_LOCATION_ENTERPRISE if set,
-    otherwise constructs path from attack_stix_dir.
+    Uses --stix-enterprise or STIX_LOCATION_ENTERPRISE if set, otherwise constructs path from attack_stix_dir.
 
     Parameters
     ----------
@@ -172,18 +213,18 @@ def stix_file_enterprise_latest(attack_stix_dir):
     str
         Path to Enterprise ATT&CK STIX file
     """
-    if STIX_LOCATION_ENTERPRISE:
-        return STIX_LOCATION_ENTERPRISE
+    requested_stix_file = _get_requested_stix_file(request, "enterprise")
+    if requested_stix_file:
+        return requested_stix_file
 
     return _get_stix_file_path(attack_stix_dir, "enterprise")
 
 
 @pytest.fixture(scope="session")
-def stix_file_mobile_latest(attack_stix_dir):
+def stix_file_mobile_latest(request, attack_stix_dir):
     """Get path to Mobile ATT&CK STIX file.
 
-    Uses environment variable STIX_LOCATION_MOBILE if set,
-    otherwise constructs path from attack_stix_dir.
+    Uses --stix-mobile or STIX_LOCATION_MOBILE if set, otherwise constructs path from attack_stix_dir.
 
     Parameters
     ----------
@@ -195,18 +236,18 @@ def stix_file_mobile_latest(attack_stix_dir):
     str
         Path to Mobile ATT&CK STIX file
     """
-    if STIX_LOCATION_MOBILE:
-        return STIX_LOCATION_MOBILE
+    requested_stix_file = _get_requested_stix_file(request, "mobile")
+    if requested_stix_file:
+        return requested_stix_file
 
     return _get_stix_file_path(attack_stix_dir, "mobile")
 
 
 @pytest.fixture(scope="session")
-def stix_file_ics_latest(attack_stix_dir):
+def stix_file_ics_latest(request, attack_stix_dir):
     """Get path to ICS ATT&CK STIX file.
 
-    Uses environment variable STIX_LOCATION_ICS if set,
-    otherwise constructs path from attack_stix_dir.
+    Uses --stix-ics or STIX_LOCATION_ICS if set, otherwise constructs path from attack_stix_dir.
 
     Parameters
     ----------
@@ -218,8 +259,9 @@ def stix_file_ics_latest(attack_stix_dir):
     str
         Path to ICS ATT&CK STIX file
     """
-    if STIX_LOCATION_ICS:
-        return STIX_LOCATION_ICS
+    requested_stix_file = _get_requested_stix_file(request, "ics")
+    if requested_stix_file:
+        return requested_stix_file
 
     return _get_stix_file_path(attack_stix_dir, "ics")
 
