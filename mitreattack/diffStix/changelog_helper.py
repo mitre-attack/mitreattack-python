@@ -1871,7 +1871,14 @@ def layers_dict_to_files(outfiles, layers):
         json.dump(layers["ics-attack"], open(ics_attack_layer_file, "w"), indent=4)
 
 
-def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
+def _get_additional_format_href(filename: str, additional_formats_prefix: str = "") -> str:
+    """Return a link to an additional changelog output file."""
+    if not additional_formats_prefix:
+        return filename
+    return f"{additional_formats_prefix.rstrip('/')}/{filename}"
+
+
+def write_detailed_html(html_file_detailed: str, diffStix: DiffStix, additional_formats_prefix: str = ""):
     """Write a detailed HTML report of changes between ATT&CK versions.
 
     Parameters
@@ -1880,6 +1887,8 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         File to write HTML for the detailed changelog.
     diffStix : DiffStix
         An instance of a DiffStix object.
+    additional_formats_prefix : str, optional
+        Prefix for links to generated layer and JSON files, by default "".
     """
     old_version = diffStix.data["old"]["enterprise-attack"]["attack_release_version"]
     new_version = diffStix.data["new"]["enterprise-attack"]["attack_release_version"]
@@ -1888,6 +1897,11 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         header = f"<h1>ATT&CK Changes Between v{old_version} and v{new_version}</h1>"
     else:
         header = f"<h1>ATT&CK Changes Between v{old_version} and new content</h1>"
+
+    enterprise_layer_href = _get_additional_format_href("layer-enterprise.json", additional_formats_prefix)
+    mobile_layer_href = _get_additional_format_href("layer-mobile.json", additional_formats_prefix)
+    ics_layer_href = _get_additional_format_href("layer-ics.json", additional_formats_prefix)
+    changelog_json_href = _get_additional_format_href("changelog.json", additional_formats_prefix)
 
     frontmatter = [
         textwrap.dedent(
@@ -1913,7 +1927,7 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         header,
         markdown.markdown(diffStix.get_md_key()),
         textwrap.dedent(
-            """\
+            f"""\
         <table class=diff summary=Legends>
             <tr>
                 <td>
@@ -1929,11 +1943,11 @@ def write_detailed_html(html_file_detailed: str, diffStix: DiffStix):
         <h2>Additional formats</h2>
         <p>These ATT&CK Navigator layer files can be uploaded to ATT&CK Navigator manually.</p>
         <ul>
-            <li><a href="layer-enterprise.json">Enterprise changes</a></li>
-            <li><a href="layer-mobile.json">Mobile changes</a></li>
-            <li><a href="layer-ics.json">ICS changes</a></li>
+            <li><a href="{enterprise_layer_href}">Enterprise changes</a></li>
+            <li><a href="{mobile_layer_href}">Mobile changes</a></li>
+            <li><a href="{ics_layer_href}">ICS changes</a></li>
         </ul>
-        <p>This JSON file contains the machine readble output used to create this page: <a href="changelog.json">changelog.json</a></p>
+        <p>This JSON file contains the machine readble output used to create this page: <a href="{changelog_json_href}">changelog.json</a></p>
         """
         ),
     ]
@@ -2257,6 +2271,13 @@ def get_parsed_args():
     )
 
     parser.add_argument(
+        "--additional-formats-prefix",
+        type=str,
+        default="",
+        help="Prefix detailed HTML links to generated layers and changelog JSON.",
+    )
+
+    parser.add_argument(
         "--unchanged",
         action="store_true",
         help="Show objects without changes in the markdown output",
@@ -2331,6 +2352,7 @@ def get_new_changelog_md(
     markdown_file: Optional[str] = None,
     html_file: Optional[str] = None,
     html_file_detailed: Optional[str] = None,
+    additional_formats_prefix: str = "",
     json_file: Optional[str] = None,
 ) -> str:
     """Get a Markdown string representation of differences between two ATT&CK versions.
@@ -2365,6 +2387,8 @@ def get_new_changelog_md(
         If set, writes an HTML file from the parsed markdown, by default None
     html_file_detailed : str, optional
         If set, writes a more detailed HTML page, by default None
+    additional_formats_prefix : str, optional
+        Prefix for detailed HTML links to generated layer and JSON files, by default "".
     json_file : str, optional
         If set, writes JSON file of the changes, by default None
 
@@ -2414,7 +2438,11 @@ def get_new_changelog_md(
     if html_file_detailed:
         Path(html_file_detailed).parent.mkdir(parents=True, exist_ok=True)
         logger.info("Writing detailed updates to file")
-        write_detailed_html(html_file_detailed=html_file_detailed, diffStix=diffStix)
+        write_detailed_html(
+            html_file_detailed=html_file_detailed,
+            diffStix=diffStix,
+            additional_formats_prefix=additional_formats_prefix,
+        )
 
     if layers:
         if len(layers) == 0:
@@ -2457,6 +2485,7 @@ def main():
         markdown_file=args.markdown_file,
         html_file=args.html_file,
         html_file_detailed=args.html_file_detailed,
+        additional_formats_prefix=args.additional_formats_prefix,
         json_file=args.json_file,
     )
 
