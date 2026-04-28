@@ -63,6 +63,21 @@ preparing bundles directly. Parallel test runs warm the shared STIX cache before
 new xdist-backed test needs an additional ATT&CK release, update the cache warmup list in
 `tests/conftest.py`.
 
+To run STIX-backed tests against specific local bundles, pass the bundle paths to pytest:
+
+```bash
+uv run pytest \
+  --stix-enterprise /path/to/enterprise-attack.json \
+  --stix-mobile /path/to/mobile-attack.json \
+  --stix-ics /path/to/ics-attack.json
+```
+
+To have pytest download a specific ATT&CK release instead, use:
+
+```bash
+uv run pytest --attack-version 16.1 --stix-version 2.1
+```
+
 ### Pull Requests
 
 When making a pull request, please make sure to:

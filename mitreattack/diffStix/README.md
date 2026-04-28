@@ -14,7 +14,7 @@ Print full usage instructions:
 # You must run `pip install mitreattack-python` in order to access the diff_stix command
 diff_stix --help
 usage: diff_stix [-h] [--old OLD] [--new NEW] [--domains {enterprise-attack,mobile-attack,ics-attack} [{enterprise-attack,mobile-attack,ics-attack} ...]] [--markdown-file MARKDOWN_FILE] [--html-file HTML_FILE] [--html-file-detailed HTML_FILE_DETAILED]
-                 [--json-file JSON_FILE] [--layers [LAYERS ...]] [--site_prefix SITE_PREFIX] [--unchanged] [--use-mitre-cti] [--show-key] [--contributors] [--no-contributors] [-v]
+                 [--json-file JSON_FILE] [--layers [LAYERS ...]] [--site_prefix SITE_PREFIX] [--additional-formats-prefix ADDITIONAL_FORMATS_PREFIX] [--unchanged] [--use-mitre-cti] [--show-key] [--contributors] [--no-contributors] [-v]
 
 Create changelog reports on the differences between two versions of the ATT&CK content. Takes STIX bundles as input. For default operation, put enterprise-attack.json, mobile-attack.json, and ics-attack.json bundles in 'old' and 'new' folders for the script to compare.
 
@@ -37,6 +37,8 @@ options:
                         output/January_2023_Updates_Mobile.json, output/January_2023_Updates_ICS.json, output/January_2023_Updates_Pre.json
   --site_prefix SITE_PREFIX
                         Prefix links in markdown output, e.g. [prefix]/techniques/T1484
+  --additional-formats-prefix ADDITIONAL_FORMATS_PREFIX
+                        Prefix detailed HTML links to generated layers and changelog JSON.
   --unchanged           Show objects without changes in the markdown output
   --use-mitre-cti       Use content from the MITRE CTI repo for the -old data
   --show-key            Add a key explaining the change types to the markdown

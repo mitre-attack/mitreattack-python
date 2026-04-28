@@ -97,7 +97,7 @@ class TestMitreAttackData:
     def test_techniques_by_tactic(self, mitre_attack_data_enterprise: MitreAttackData):
         """Test that techniques can be retrieved by tactic."""
         # TODO: use all tactic shortnames
-        tactic_shortnames = ["defense-evasion", "impact"]
+        tactic_shortnames = ["collection", "impact"]
         for tactic_shortname in tactic_shortnames:
             techniques = mitre_attack_data_enterprise.get_techniques_by_tactic(
                 tactic_shortname=tactic_shortname, domain="enterprise-attack"

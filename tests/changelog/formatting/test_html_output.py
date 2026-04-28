@@ -78,6 +78,40 @@ class TestHtmlOutput:
         assert f"ATT&CK Changes Between v{old_version} and v{new_version}" in html_content
         assert "<h2>Techniques</h2>" in html_content or "<h1>" in html_content  # Should have some header structure
 
+    def test_write_detailed_html_additional_format_links_default_to_relative(self, tmp_path, lightweight_diffstix):
+        """Test detailed HTML links to generated artifacts with relative paths by default."""
+        html_file = tmp_path / "detailed.html"
+        lightweight_diffstix.data["old"]["enterprise-attack"]["attack_release_version"] = "16.1"
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_release_version"] = "17.0"
+
+        write_detailed_html(str(html_file), lightweight_diffstix)
+
+        html_content = html_file.read_text(encoding="utf-8")
+        assert '<a href="layer-enterprise.json">Enterprise changes</a>' in html_content
+        assert '<a href="layer-mobile.json">Mobile changes</a>' in html_content
+        assert '<a href="layer-ics.json">ICS changes</a>' in html_content
+        assert '<a href="changelog.json">changelog.json</a>' in html_content
+
+    def test_write_detailed_html_additional_format_links_use_additional_formats_prefix(
+        self, tmp_path, lightweight_diffstix
+    ):
+        """Test detailed HTML links to generated artifacts can be prefixed for website releases."""
+        html_file = tmp_path / "detailed.html"
+        lightweight_diffstix.data["old"]["enterprise-attack"]["attack_release_version"] = "16.1"
+        lightweight_diffstix.data["new"]["enterprise-attack"]["attack_release_version"] = "17.0"
+
+        write_detailed_html(
+            str(html_file),
+            lightweight_diffstix,
+            additional_formats_prefix="/docs/changelogs/v16.1-v17.0/",
+        )
+
+        html_content = html_file.read_text(encoding="utf-8")
+        assert '<a href="/docs/changelogs/v16.1-v17.0/layer-enterprise.json">Enterprise changes</a>' in html_content
+        assert '<a href="/docs/changelogs/v16.1-v17.0/layer-mobile.json">Mobile changes</a>' in html_content
+        assert '<a href="/docs/changelogs/v16.1-v17.0/layer-ics.json">ICS changes</a>' in html_content
+        assert '<a href="/docs/changelogs/v16.1-v17.0/changelog.json">changelog.json</a>' in html_content
+
     def test_html_document_structure(self):
         """Test basic HTML document structure."""
         title = "ATT&CK Changes"

@@ -38,6 +38,7 @@ class TestArgumentHandling:
         assert args.verbose is False
         assert args.use_mitre_cti is False
         assert args.site_prefix == ""
+        assert args.additional_formats_prefix == ""
 
     def test_get_parsed_args_default_values(self, monkeypatch):
         """Test default argument values."""
@@ -68,6 +69,8 @@ class TestArgumentHandling:
             "layer3.json",
             "--site_prefix",
             "https://example.com",
+            "--additional-formats-prefix",
+            "/docs/changelogs/v16.1-v17.0",
             "--unchanged",
             "--show-key",
             "--no-contributors",
@@ -85,6 +88,7 @@ class TestArgumentHandling:
         assert args.json_file == "test.json"
         assert args.layers == ["layer1.json", "layer2.json", "layer3.json"]
         assert args.site_prefix == "https://example.com"
+        assert args.additional_formats_prefix == "/docs/changelogs/v16.1-v17.0"
         assert args.unchanged is True
         assert args.show_key is True
         assert args.contributors is False
@@ -182,6 +186,8 @@ class TestArgumentHandling:
             ("--site_prefix", "https://custom.com", "site_prefix"),
             ("--site_prefix", "", "site_prefix"),  # Empty site prefix
             ("--site_prefix", "https://example.com/", "site_prefix"),  # With trailing slash
+            ("--additional-formats-prefix", "/docs/changelogs/v16.1-v17.0", "additional_formats_prefix"),
+            ("--additional-formats-prefix", "", "additional_formats_prefix"),
         ],
     )
     def test_get_parsed_args_string_options(self, option, value, expected_attr, monkeypatch):
