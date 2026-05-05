@@ -35,6 +35,14 @@ ruff-format:
 test:
     uv run pytest
 
+# Run tests in parallel
+test-xdist workers="auto":
+    uv run --extra dev pytest -n {{ workers }}
+
+# Run tests with coverage in parallel
+test-cov-xdist workers="auto":
+    uv run --extra dev pytest -n {{ workers }} --cov=mitreattack
+
 # Run tests with coverage
 test-cov:
     uv run pytest --cov=mitreattack

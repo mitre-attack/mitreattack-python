@@ -47,4 +47,4 @@ jobs:
         run: uv sync --all-extras
 
       - name: Run pytest
-        run: uv run pytest --cov=mitreattack
+        run: uv run --extra dev pytest -n 2 --cov=mitreattack

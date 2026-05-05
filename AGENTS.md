@@ -16,7 +16,9 @@
 - Before committing, run `just lint`.
 - `just lint`: run pre-commit hooks across the repo.
 - `just test`: run the pytest suite.
+- `just test-xdist`: run the pytest suite in parallel.
 - `just test-cov`: run tests with coverage for `mitreattack`.
+- `just test-cov-xdist`: run tests with coverage in parallel.
 - `just build`: build distributions with `uv build`.
 - Without `just`, run the same tools through `uv run ...`.
 
@@ -32,6 +34,10 @@
 - Framework: `pytest` (with `pytest-cov` for coverage checks).
 - Place tests under `tests/` and name files/functions `test_*.py` / `test_*`.
 - Add or update tests for behavior changes, especially around STIX parsing and changelog/diff output paths.
+- Tests that need real ATT&CK STIX data should use the shared STIX fixtures instead of downloading or
+  preparing bundles directly.
+- Parallel runs warm the shared STIX cache before workers start; update `DEFAULT_ATTACK_STIX_PREP` in
+  `tests/conftest.py` if a new xdist-backed test needs another ATT&CK release.
 - Run `just test` locally before opening a PR; use `just test-cov` for larger changes.
 
 ## Commit & Pull Request Guidelines
