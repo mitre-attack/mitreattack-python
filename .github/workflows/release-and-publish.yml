@@ -56,7 +56,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ vars.ATTACK_AUTOBOT_APP_ID }}
+          client-id: ${{ vars.ATTACK_AUTOBOT_CLIENT_ID }}
           private-key: ${{ secrets.ATTACK_AUTOBOT_PRIVATE_KEY }}
 
       # Note: We checkout the repository at the branch that triggered the workflow.
