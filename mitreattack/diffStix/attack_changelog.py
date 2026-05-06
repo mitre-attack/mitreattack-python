@@ -159,7 +159,7 @@ def get_artifact_link_prefix(old_version: str, new_version: str, *, attack_websi
 
 
 def get_parsed_args():
-    """Parse command line arguments for the attack_changelog command."""
+    """Parse command line arguments for the attack-changelog command."""
     parser = argparse.ArgumentParser(
         description="Generate ATT&CK changelog artifacts for a single ATT&CK release pair."
     )
@@ -359,7 +359,7 @@ def generate_attack_changelog(
 
 
 def main():
-    """Entrypoint for the attack_changelog console command."""
+    """Entrypoint for the attack-changelog console command."""
     args = get_parsed_args()
     generate_attack_changelog(
         old_version=args.old_version,

@@ -1,6 +1,5 @@
-"""Functions to convert ATT&CK STIX data to Excel, as well as entrypoint for attackToExcel_cli."""
+"""Functions to convert ATT&CK STIX data to Excel, as well as entrypoint for attack-to-excel."""
 
-import argparse
 import os
 import re
 import tempfile
@@ -10,8 +9,10 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 import requests
+import typer
 from loguru import logger
 from stix2 import MemoryStore
+from typing_extensions import Annotated
 
 from mitreattack import release_info
 
@@ -38,6 +39,11 @@ DOMAIN_CONFIGS = {
 }
 ATTACK_DOMAINS = tuple(DOMAIN_CONFIGS)
 VALID_STIX_VERSIONS = ("2.0", "2.1")
+app = typer.Typer(
+    add_completion=False,
+    no_args_is_help=True,
+    help="Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets.",
+)
 
 
 def normalize_attack_version(version: str) -> str:
@@ -586,98 +592,134 @@ def export(
     write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
 
 
-def main(argv=None):
-    """Entrypoint for attackToExcel_cli."""
-    parser = argparse.ArgumentParser(
-        description="Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets"
-    )
-    parser.add_argument(
-        "--all-domains",
-        action="store_true",
-        help="export Excel files for all ATT&CK domains from a local or downloaded release",
-    )
-    parser.add_argument(
-        "-domain",
-        type=str,
-        choices=ATTACK_DOMAINS,
-        default="enterprise-attack",
-        help="which domain of ATT&CK to convert",
-    )
-    parser.add_argument(
-        "--domains",
-        type=str,
-        nargs="+",
-        choices=ATTACK_DOMAINS,
-        help="which ATT&CK domains to convert in --all-domains mode",
-    )
-    parser.add_argument(
-        "-version",
-        type=str,
-        help="which version of ATT&CK to convert. If omitted, builds the latest version",
-    )
-    parser.add_argument(
-        "--stix-version",
-        type=str,
-        choices=VALID_STIX_VERSIONS,
-        default="2.0",
-        help="STIX release tree to use in --all-domains mode",
-    )
-    parser.add_argument(
-        "-output",
-        type=str,
-        default=None,
-        help="output directory. If omitted writes to a subfolder of the current directory depending on "
-        "the domain and version",
-    )
-    parser.add_argument(
-        "-remote",
-        type=str,
-        default=None,
-        help="remote url of an ATT&CK workbench server.",
-    )
-    parser.add_argument(
-        "-stix-file",
-        type=str,
-        default=None,
-        help="Path to a local STIX file containing ATT&CK data for a domain, by default None",
-    )
-    parser.add_argument(
-        "--stix-base-dir",
-        type=str,
-        default=None,
-        help="directory containing release STIX files for --all-domains mode",
-    )
-    parser.add_argument(
-        "--versioned-output-dir",
-        action="store_true",
-        help="preserve domain-version output folders in --all-domains mode",
-    )
-    args = parser.parse_args(args=argv)
+def _validate_cli_value(value: str, allowed_values: tuple[str, ...], label: str) -> str:
+    """Return a CLI value after validating it against an allowed set."""
+    if value not in allowed_values:
+        allowed_values_text = ", ".join(allowed_values)
+        raise typer.BadParameter(f"Invalid {label}: {value}. Expected one of: {allowed_values_text}")
+    return value
 
-    if args.domains and not args.all_domains:
-        parser.error("--domains can only be used with --all-domains")
 
-    if args.all_domains:
-        if args.remote or args.stix_file:
-            parser.error("--all-domains cannot be combined with -remote or -stix-file")
+@app.command("from-stix")
+def from_stix_cli(
+    domain: Annotated[
+        str,
+        typer.Option(
+            "--domain",
+            help="ATT&CK domain STIX bundle to convert.",
+        ),
+    ] = "enterprise-attack",
+    version: Annotated[
+        Optional[str],
+        typer.Option(
+            "--version",
+            help="Which version of ATT&CK to convert. If omitted, builds the latest version.",
+        ),
+    ] = None,
+    output: Annotated[
+        str,
+        typer.Option(
+            "--output",
+            help=(
+                "Output directory. If omitted writes to a subfolder of the current directory depending on the domain "
+                "and version."
+            ),
+        ),
+    ] = ".",
+    remote: Annotated[
+        Optional[str],
+        typer.Option(
+            "--remote",
+            help="Remote URL of an ATT&CK Workbench server.",
+        ),
+    ] = None,
+    stix_file: Annotated[
+        Optional[str],
+        typer.Option(
+            "--stix-file",
+            help="Path to a local STIX file containing ATT&CK data for a domain.",
+        ),
+    ] = None,
+):
+    """Convert one ATT&CK domain STIX bundle to Excel."""
+    domain = _validate_cli_value(domain, ATTACK_DOMAINS, "ATT&CK domain")
 
-        export_release(
-            version=args.version,
-            stix_version=args.stix_version,
-            output_dir=args.output or "output",
-            stix_base_dir=args.stix_base_dir,
-            domains=args.domains,
-            versioned_output_dir=args.versioned_output_dir,
-        )
-        return
+    if remote and stix_file:
+        raise typer.BadParameter("--remote and --stix-file are mutually exclusive")
 
     export(
-        domain=args.domain,
-        version=args.version,
-        output_dir=args.output or ".",
-        remote=args.remote,
-        stix_file=args.stix_file,
+        domain=domain,
+        version=version,
+        output_dir=output,
+        remote=remote,
+        stix_file=stix_file,
     )
+
+
+@app.command("from-release")
+def from_release_cli(
+    version: Annotated[
+        Optional[str],
+        typer.Option(
+            "--version",
+            help="Which ATT&CK release version to convert. If omitted, builds the latest version.",
+        ),
+    ] = None,
+    domains: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--domains",
+            help="ATT&CK release domain to include. Can be specified multiple times.",
+        ),
+    ] = None,
+    stix_version: Annotated[
+        str,
+        typer.Option(
+            "--stix-version",
+            help="STIX release tree to use.",
+        ),
+    ] = "2.0",
+    stix_base_dir: Annotated[
+        Optional[str],
+        typer.Option(
+            "--stix-base-dir",
+            help="Directory containing release STIX files.",
+        ),
+    ] = None,
+    output: Annotated[
+        str,
+        typer.Option(
+            "--output",
+            help="Parent output directory.",
+        ),
+    ] = "output",
+    versioned_output_dir: Annotated[
+        bool,
+        typer.Option(
+            "--versioned-output-dir",
+            help="Preserve domain-version output folders.",
+        ),
+    ] = False,
+):
+    """Convert ATT&CK release domain bundles to Excel."""
+    stix_version = _validate_cli_value(stix_version, VALID_STIX_VERSIONS, "STIX version")
+    selected_domains = [
+        _validate_cli_value(selected_domain, ATTACK_DOMAINS, "ATT&CK domain") for selected_domain in domains or []
+    ]
+
+    export_release(
+        version=version,
+        stix_version=stix_version,
+        output_dir=output,
+        stix_base_dir=stix_base_dir,
+        domains=selected_domains or None,
+        versioned_output_dir=versioned_output_dir,
+    )
+
+
+def main(argv=None):
+    """Entrypoint for attack-to-excel."""
+    app(args=argv, prog_name="attack-to-excel")
 
 
 if __name__ == "__main__":

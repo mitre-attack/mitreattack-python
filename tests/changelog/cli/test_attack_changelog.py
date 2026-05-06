@@ -1,4 +1,4 @@
-"""Tests for the attack_changelog CLI wrapper."""
+"""Tests for the attack-changelog CLI wrapper."""
 
 import argparse
 import sys
@@ -17,7 +17,7 @@ def test_normalize_release_version_accepts_plain_and_prefixed_versions():
 
 def test_get_parsed_args_requires_release_versions(monkeypatch):
     """The command requires exactly one old and one new ATT&CK release version."""
-    monkeypatch.setattr(sys, "argv", ["attack_changelog"])
+    monkeypatch.setattr(sys, "argv", ["attack-changelog"])
 
     with pytest.raises(SystemExit):
         attack_changelog.get_parsed_args()
@@ -29,7 +29,7 @@ def test_get_parsed_args_defaults_and_options(monkeypatch):
         sys,
         "argv",
         [
-            "attack_changelog",
+            "attack-changelog",
             "--old-version",
             "17.1",
             "--new-version",
@@ -67,7 +67,7 @@ def test_get_parsed_args_allows_markdown_and_html_flags_without_values(monkeypat
         sys,
         "argv",
         [
-            "attack_changelog",
+            "attack-changelog",
             "--old-version",
             "17.1",
             "--new-version",
@@ -88,7 +88,7 @@ def test_get_parsed_args_defaults_output_dir_and_omits_optional_outputs(monkeypa
     monkeypatch.setattr(
         sys,
         "argv",
-        ["attack_changelog", "--old-version", "17.1", "--new-version", "18.0"],
+        ["attack-changelog", "--old-version", "17.1", "--new-version", "18.0"],
     )
 
     args = attack_changelog.get_parsed_args()

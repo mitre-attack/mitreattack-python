@@ -41,13 +41,13 @@ repository = "https://github.com/mitre-attack/mitreattack-python/"
 documentation = "https://mitreattack-python.readthedocs.io/"
 
 [project.scripts]
-attackToExcel_cli = 'mitreattack.attackToExcel.attackToExcel:main'
+attack-to-excel = 'mitreattack.attackToExcel.attackToExcel:main'
 layerExporter_cli = 'mitreattack.navlayers.layerExporter_cli:main'
 layerGenerator_cli = 'mitreattack.navlayers.layerGenerator_cli:main'
 indexToMarkdown_cli = 'mitreattack.collections.index_to_markdown:main'
 collectionToIndex_cli = 'mitreattack.collections.collection_to_index:main'
 diff_stix = 'mitreattack.diffStix.changelog_helper:main'
-attack_changelog = 'mitreattack.diffStix.attack_changelog:main'
+attack-changelog = 'mitreattack.diffStix.attack_changelog:main'
 download_attack_stix = 'mitreattack.download_stix:app'
 
 [project.optional-dependencies]

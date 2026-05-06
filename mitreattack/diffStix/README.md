@@ -56,17 +56,17 @@ diff_stix -v --show-key --html-file output/changelog.html --html-file-detailed o
 Generate release changelog artifacts for one ATT&CK version pair:
 
 ```shell
-attack_changelog --old-version 17.1 --new-version 18.0
+attack-changelog --old-version 17.1 --new-version 18.0
 ```
 
-The `attack_changelog` command reads local release data from `attack-releases/stix-2.0/v{version}` by default.
+The `attack-changelog` command reads local release data from `attack-releases/stix-2.0/v{version}` by default.
 If either requested release is missing, it downloads the needed STIX bundles into a temporary directory and
 removes them when generation is complete.
 It always writes detailed HTML, JSON, and Navigator layer artifacts under `output/v{old_version}-v{new_version}`.
 It can also generate `changelog.md` or `index.html` if needed by passing the corresponding flags:
 
 ```shell
-attack_changelog --old-version 17.1 --new-version 18.0 \
+attack-changelog --old-version 17.1 --new-version 18.0 \
   --markdown-file \
   --html-file
 ```

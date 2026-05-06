@@ -10,19 +10,19 @@ It also provides a means to access ATT&CK data as [Pandas](https://pandas.pydata
 Print full usage instructions:
 
 ```shell
-python3 attackToExcel.py -h
+attack-to-excel --help
 ```
 
 Example execution:
 
 ```shell
-python3 attackToExcel.py
+attack-to-excel from-stix
 ```
 
 Build a excel files corresponding to a specific domain and version of ATT&CK:
 
 ```shell
-python3 attackToExcel -domain mobile-attack -version v5.0
+attack-to-excel from-stix --domain mobile-attack --version v5.0
 ```
 
 Build Excel files for all ATT&CK domains from a release. If local STIX files
@@ -30,14 +30,20 @@ are missing under `attack-releases/stix-2.0/v19.0`, they are downloaded
 temporarily for the export:
 
 ```shell
-attackToExcel_cli --all-domains -version v19.0
+attack-to-excel from-release --version v19.0
 ```
 
 To persist release STIX files before exporting, use `download_attack_stix`:
 
 ```shell
 download_attack_stix -v 19.0
-attackToExcel_cli --all-domains -version v19.0
+attack-to-excel from-release --version v19.0
+```
+
+Build Excel files for selected ATT&CK domains from a release:
+
+```shell
+attack-to-excel from-release --version v19.0 --domains mobile-attack --domains ics-attack
 ```
 
 ### Module
