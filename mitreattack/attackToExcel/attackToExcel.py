@@ -3,6 +3,9 @@
 import argparse
 import os
 import re
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
@@ -10,11 +13,185 @@ import requests
 from loguru import logger
 from stix2 import MemoryStore
 
+from mitreattack import release_info
+
 # import mitreattack.attackToExcel.stixToDf as stixToDf
 from mitreattack.attackToExcel import stixToDf
+from mitreattack.download_stix import download_domains
 
 INVALID_CHARACTERS = ["\\", "/", "*", "[", "]", ":", "?"]
 SUB_CHARACTERS = ["\\", "/"]
+ATTACK_RELEASES_DIR = Path("attack-releases")
+
+
+@dataclass(frozen=True)
+class DomainConfig:
+    """Domain-specific names for STIX downloads and Excel exports."""
+
+    download_name: str
+
+
+DOMAIN_CONFIGS = {
+    "enterprise-attack": DomainConfig(download_name="enterprise"),
+    "mobile-attack": DomainConfig(download_name="mobile"),
+    "ics-attack": DomainConfig(download_name="ics"),
+}
+ATTACK_DOMAINS = tuple(DOMAIN_CONFIGS)
+VALID_STIX_VERSIONS = ("2.0", "2.1")
+
+
+def normalize_attack_version(version: str) -> str:
+    """Return an ATT&CK release version with the leading ``v`` folder prefix."""
+    return version if version.startswith("v") else f"v{version}"
+
+
+def _version_without_prefix(version: str) -> str:
+    """Return an ATT&CK release version without the leading ``v`` folder prefix."""
+    return normalize_attack_version(version).removeprefix("v")
+
+
+def _default_release_dir(version: str, stix_version: str) -> Path:
+    """Return the default local STIX release directory."""
+    return ATTACK_RELEASES_DIR / f"stix-{stix_version}" / normalize_attack_version(version)
+
+
+def _validate_release_domains(domains: Optional[List[str]]) -> List[str]:
+    """Return validated ATT&CK release export domains."""
+    if not domains:
+        return list(ATTACK_DOMAINS)
+
+    normalized_domains = []
+    invalid_domains = []
+    for domain in domains:
+        if domain not in DOMAIN_CONFIGS:
+            if domain not in invalid_domains:
+                invalid_domains.append(domain)
+            continue
+
+        if domain not in normalized_domains:
+            normalized_domains.append(domain)
+
+    if invalid_domains:
+        invalid_domains_text = ", ".join(invalid_domains)
+        expected_domains_text = ", ".join(ATTACK_DOMAINS)
+        raise ValueError(f"Invalid ATT&CK domain(s): {invalid_domains_text}. Expected one of: {expected_domains_text}")
+
+    return normalized_domains
+
+
+def _release_stix_file(release_dir: Path, domain: str) -> Path:
+    """Return the expected STIX bundle path for a domain in a release directory."""
+    return release_dir / f"{domain}.json"
+
+
+def _move_versioned_exports_to_domain_dir(output_dir: Path, domain: str, version: str):
+    """Move versioned Excel exports into the unversioned domain folder."""
+    versioned_dir = output_dir / f"{domain}-{version}"
+    domain_dir = output_dir / domain
+
+    if not versioned_dir.is_dir():
+        return
+
+    domain_dir.mkdir(parents=True, exist_ok=True)
+    for source_path in versioned_dir.iterdir():
+        if not source_path.is_file():
+            continue
+
+        target_path = domain_dir / source_path.name
+        if target_path.exists():
+            target_path.unlink()
+        source_path.replace(target_path)
+
+    versioned_dir.rmdir()
+
+
+def _download_missing_release_domains(
+    *,
+    missing_domains: List[str],
+    version: str,
+    stix_version: str,
+    temporary_directory: str,
+) -> Path:
+    """Download missing STIX domain bundles into a temporary release tree."""
+    temp_stix_dir = Path(temporary_directory) / f"stix-{stix_version}"
+    download_domains(
+        domains=[DOMAIN_CONFIGS[domain].download_name for domain in missing_domains],
+        download_dir=str(temp_stix_dir),
+        all_versions=False,
+        stix_version=stix_version,
+        attack_versions=[_version_without_prefix(version)],
+    )
+    return temp_stix_dir / normalize_attack_version(version)
+
+
+def export_release(
+    version: Optional[str] = None,
+    stix_version: str = "2.0",
+    output_dir: str = "output",
+    stix_base_dir: Optional[str] = None,
+    domains: Optional[List[str]] = None,
+    versioned_output_dir: bool = False,
+):
+    """Export one ATT&CK release to Excel for one or more domains."""
+    if stix_version not in VALID_STIX_VERSIONS:
+        expected_stix_versions = ", ".join(VALID_STIX_VERSIONS)
+        raise ValueError(f"Invalid STIX version: {stix_version}. Expected one of: {expected_stix_versions}")
+
+    attack_version = normalize_attack_version(version or release_info.LATEST_VERSION)
+    release_domains = _validate_release_domains(domains)
+    local_release_dir = Path(
+        stix_base_dir or os.environ.get("STIX_BASE_DIR") or _default_release_dir(attack_version, stix_version)
+    )
+    local_release_dir = local_release_dir.resolve()
+    release_output_dir = Path(output_dir) / attack_version
+
+    local_stix_files = {domain: _release_stix_file(local_release_dir, domain) for domain in release_domains}
+    missing_domains = [domain for domain, stix_file in local_stix_files.items() if not stix_file.is_file()]
+
+    if not missing_domains:
+        _export_release_domains(
+            version=attack_version,
+            output_dir=release_output_dir,
+            stix_files=local_stix_files,
+            versioned_output_dir=versioned_output_dir,
+        )
+        return
+
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        temporary_release_dir = _download_missing_release_domains(
+            missing_domains=missing_domains,
+            version=attack_version,
+            stix_version=stix_version,
+            temporary_directory=temporary_directory,
+        )
+        stix_files = {
+            domain: local_stix_files[domain]
+            if domain not in missing_domains
+            else _release_stix_file(temporary_release_dir, domain)
+            for domain in release_domains
+        }
+        _export_release_domains(
+            version=attack_version,
+            output_dir=release_output_dir,
+            stix_files=stix_files,
+            versioned_output_dir=versioned_output_dir,
+        )
+
+
+def _export_release_domains(
+    *,
+    version: str,
+    output_dir: Path,
+    stix_files: Dict[str, Path],
+    versioned_output_dir: bool,
+):
+    """Export resolved release STIX files to Excel."""
+    for domain, stix_file in stix_files.items():
+        logger.info(f"Exporting {domain} to Excel from {stix_file}")
+        export(domain=domain, version=version, output_dir=str(output_dir), stix_file=str(stix_file))
+
+        if not versioned_output_dir:
+            _move_versioned_exports_to_domain_dir(output_dir=output_dir, domain=domain, version=version)
 
 
 def get_stix_data(
@@ -409,17 +586,29 @@ def export(
     write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
 
 
-def main():
+def main(argv=None):
     """Entrypoint for attackToExcel_cli."""
     parser = argparse.ArgumentParser(
         description="Download ATT&CK data from MITRE/CTI and convert it to excel spreadsheets"
     )
     parser.add_argument(
+        "--all-domains",
+        action="store_true",
+        help="export Excel files for all ATT&CK domains from a local or downloaded release",
+    )
+    parser.add_argument(
         "-domain",
         type=str,
-        choices=["enterprise-attack", "mobile-attack", "ics-attack"],
+        choices=ATTACK_DOMAINS,
         default="enterprise-attack",
         help="which domain of ATT&CK to convert",
+    )
+    parser.add_argument(
+        "--domains",
+        type=str,
+        nargs="+",
+        choices=ATTACK_DOMAINS,
+        help="which ATT&CK domains to convert in --all-domains mode",
     )
     parser.add_argument(
         "-version",
@@ -427,9 +616,16 @@ def main():
         help="which version of ATT&CK to convert. If omitted, builds the latest version",
     )
     parser.add_argument(
+        "--stix-version",
+        type=str,
+        choices=VALID_STIX_VERSIONS,
+        default="2.0",
+        help="STIX release tree to use in --all-domains mode",
+    )
+    parser.add_argument(
         "-output",
         type=str,
-        default=".",
+        default=None,
         help="output directory. If omitted writes to a subfolder of the current directory depending on "
         "the domain and version",
     )
@@ -445,10 +641,42 @@ def main():
         default=None,
         help="Path to a local STIX file containing ATT&CK data for a domain, by default None",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--stix-base-dir",
+        type=str,
+        default=None,
+        help="directory containing release STIX files for --all-domains mode",
+    )
+    parser.add_argument(
+        "--versioned-output-dir",
+        action="store_true",
+        help="preserve domain-version output folders in --all-domains mode",
+    )
+    args = parser.parse_args(args=argv)
+
+    if args.domains and not args.all_domains:
+        parser.error("--domains can only be used with --all-domains")
+
+    if args.all_domains:
+        if args.remote or args.stix_file:
+            parser.error("--all-domains cannot be combined with -remote or -stix-file")
+
+        export_release(
+            version=args.version,
+            stix_version=args.stix_version,
+            output_dir=args.output or "output",
+            stix_base_dir=args.stix_base_dir,
+            domains=args.domains,
+            versioned_output_dir=args.versioned_output_dir,
+        )
+        return
 
     export(
-        domain=args.domain, version=args.version, output_dir=args.output, remote=args.remote, stix_file=args.stix_file
+        domain=args.domain,
+        version=args.version,
+        output_dir=args.output or ".",
+        remote=args.remote,
+        stix_file=args.stix_file,
     )
 
 

@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from mitreattack.attackToExcel import attackToExcel
 from mitreattack.navlayers import Layer
 from mitreattack.navlayers.layerExporter_cli import main as LEC_main
 from mitreattack.navlayers.layerGenerator_cli import main as LGC_main
@@ -223,6 +224,108 @@ def test_generate_mapped_datasource(tmp_path: Path, stix_file_enterprise_latest:
         ]
     )
     assert output_layer_file.exists()
+
+
+def test_attack_to_excel_cli_all_domains(monkeypatch, tmp_path: Path):
+    """attackToExcel_cli should support release batch export options."""
+    calls = {}
+
+    def fake_export_release(**kwargs):
+        calls["export_release"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    attackToExcel.main(
+        [
+            "--all-domains",
+            "-version",
+            "v19.0",
+            "--stix-version",
+            "2.0",
+            "-output",
+            str(tmp_path),
+        ]
+    )
+
+    assert calls["export_release"] == {
+        "version": "v19.0",
+        "stix_version": "2.0",
+        "output_dir": str(tmp_path),
+        "stix_base_dir": None,
+        "domains": None,
+        "versioned_output_dir": False,
+    }
+
+
+def test_attack_to_excel_cli_all_domains_selected_domains(monkeypatch, tmp_path: Path):
+    """attackToExcel_cli should pass selected batch domains to release export."""
+    calls = {}
+
+    def fake_export_release(**kwargs):
+        calls["export_release"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    attackToExcel.main(
+        [
+            "--all-domains",
+            "--domains",
+            "mobile-attack",
+            "ics-attack",
+            "-output",
+            str(tmp_path),
+            "--versioned-output-dir",
+        ]
+    )
+
+    assert calls["export_release"]["domains"] == ["mobile-attack", "ics-attack"]
+    assert calls["export_release"]["versioned_output_dir"] is True
+
+
+def test_attack_to_excel_cli_all_domains_defaults_output_to_output_dir(monkeypatch):
+    """Batch release export should use the release export default output directory."""
+    calls = {}
+
+    def fake_export_release(**kwargs):
+        calls["export_release"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    attackToExcel.main(["--all-domains"])
+
+    assert calls["export_release"]["output_dir"] == "output"
+
+
+def test_attack_to_excel_cli_all_domains_rejects_remote():
+    """Batch release export should reject remote Workbench input."""
+    with pytest.raises(SystemExit):
+        attackToExcel.main(["--all-domains", "-remote", "http://localhost:3000"])
+
+
+def test_attack_to_excel_cli_domains_requires_all_domains():
+    """Selected batch domains should only be valid for batch release export."""
+    with pytest.raises(SystemExit):
+        attackToExcel.main(["--domains", "mobile-attack"])
+
+
+def test_attack_to_excel_cli_single_domain_still_exports(monkeypatch, tmp_path: Path):
+    """Existing single-domain CLI behavior should continue to call export."""
+    calls = {}
+
+    def fake_export(**kwargs):
+        calls["export"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    attackToExcel.main(["-domain", "mobile-attack", "-version", "v19.0", "-output", str(tmp_path)])
+
+    assert calls["export"] == {
+        "domain": "mobile-attack",
+        "version": "v19.0",
+        "output_dir": str(tmp_path),
+        "remote": None,
+        "stix_file": None,
+    }
 
 
 @pytest.mark.skip("layerGenerator_cli does not support ICS domain yet")
