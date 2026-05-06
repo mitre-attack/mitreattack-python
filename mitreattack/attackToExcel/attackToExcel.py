@@ -143,13 +143,19 @@ def export_release(
         expected_stix_versions = ", ".join(VALID_STIX_VERSIONS)
         raise ValueError(f"Invalid STIX version: {stix_version}. Expected one of: {expected_stix_versions}")
 
-    attack_version = normalize_attack_version(version or release_info.LATEST_VERSION)
+    has_explicit_local_stix_base_dir = stix_base_dir is not None or os.environ.get("STIX_BASE_DIR") is not None
+    attack_version = normalize_attack_version(version) if version else None
+    release_version = attack_version or normalize_attack_version(release_info.LATEST_VERSION)
     release_domains = _validate_release_domains(domains)
     local_release_dir = Path(
-        stix_base_dir or os.environ.get("STIX_BASE_DIR") or _default_release_dir(attack_version, stix_version)
+        stix_base_dir or os.environ.get("STIX_BASE_DIR") or _default_release_dir(release_version, stix_version)
     )
     local_release_dir = local_release_dir.resolve()
-    release_output_dir = Path(output_dir) / attack_version
+    release_output_dir = (
+        Path(output_dir)
+        if has_explicit_local_stix_base_dir and attack_version is None
+        else Path(output_dir) / release_version
+    )
 
     local_stix_files = {domain: _release_stix_file(local_release_dir, domain) for domain in release_domains}
     missing_domains = [domain for domain, stix_file in local_stix_files.items() if not stix_file.is_file()]
@@ -162,6 +168,13 @@ def export_release(
             versioned_output_dir=versioned_output_dir,
         )
         return
+
+    if attack_version is None:
+        missing_domains_text = ", ".join(missing_domains)
+        raise FileNotFoundError(
+            f"Missing local STIX file(s) for domain(s): {missing_domains_text}. "
+            "Pass --version to download missing ATT&CK release bundles."
+        )
 
     with tempfile.TemporaryDirectory() as temporary_directory:
         temporary_release_dir = _download_missing_release_domains(
@@ -186,7 +199,7 @@ def export_release(
 
 def _export_release_domains(
     *,
-    version: str,
+    version: Optional[str],
     output_dir: Path,
     stix_files: Dict[str, Path],
     versioned_output_dir: bool,

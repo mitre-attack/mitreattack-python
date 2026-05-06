@@ -167,6 +167,33 @@ def test_export_release_uses_existing_local_stix_files(tmp_path: Path, monkeypat
     assert calls["exports"][0]["output_dir"] == str(tmp_path / "output" / "v19.0")
 
 
+def test_export_release_with_explicit_local_stix_base_dir_without_version_is_unversioned(tmp_path: Path, monkeypatch):
+    """Explicit local STIX bundle directories should not be labelled as ATT&CK releases unless a version is given."""
+    stix_base_dir = tmp_path / "attack-releases" / "stix-2.0" / "attackwb"
+    stix_base_dir.mkdir(parents=True)
+    for domain in ["enterprise-attack", "mobile-attack"]:
+        (stix_base_dir / f"{domain}.json").write_text("{}", encoding="utf-8")
+
+    calls = {}
+
+    def fake_export(**kwargs):
+        calls.setdefault("exports", []).append(kwargs)
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    attackToExcel.export_release(
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(tmp_path / "output" / "attackwb"),
+        domains=["enterprise-attack", "mobile-attack"],
+    )
+
+    assert [call["domain"] for call in calls["exports"]] == ["enterprise-attack", "mobile-attack"]
+    assert calls["exports"][0]["version"] is None
+    assert calls["exports"][0]["output_dir"] == str(tmp_path / "output" / "attackwb")
+    assert calls["exports"][1]["version"] is None
+    assert calls["exports"][1]["output_dir"] == str(tmp_path / "output" / "attackwb")
+
+
 def test_export_release_downloads_only_missing_domains_to_temporary_directory(tmp_path: Path, monkeypatch):
     """Missing release STIX files should be downloaded per missing domain into a temporary tree."""
     stix_base_dir = tmp_path / "attack-releases" / "stix-2.0" / "v19.0"
