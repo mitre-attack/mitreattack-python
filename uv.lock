@@ -699,7 +699,7 @@ requires-dist = [
     { name = "pillow", specifier = ">=10.1.0" },
     { name = "pooch", specifier = ">=1.7.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-dotenv", marker = "extra == 'dev'", specifier = ">=0.5.2" },
     { name = "python-dateutil", specifier = ">=2.8.2" },

@@ -6,9 +6,12 @@ continues to work correctly with real ATT&CK data and matches expected outputs.
 
 import json
 
+import pytest
+
 from mitreattack.diffStix.changelog_helper import AttackChangesEncoder
 
 
+@pytest.mark.slow
 class TestRegressionBaseline:
     """Regression tests using real v16.1→v17.0 data and golden files."""
 

@@ -13,6 +13,8 @@ from mitreattack.stix20 import MitreAttackData
 
 from .resources.testing_data import example_layer_v3_all, example_layer_v43_dict
 
+pytest_plugins = ["tests.fixtures.stix_objects"]
+
 STIX_LOCATION_ENV_VARS = {
     "enterprise": "STIX_LOCATION_ENTERPRISE",
     "mobile": "STIX_LOCATION_MOBILE",

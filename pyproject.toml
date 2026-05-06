@@ -55,7 +55,7 @@ dev = [
     "check-wheel-contents>=0.6.1",
     "commitizen>=4.9.1",
     "pre-commit>=4.0.0",
-    "pytest>=8.4.2",
+    "pytest>=9.0",
     "pytest-cov>=7.0.0",
     "pytest-dotenv>=0.5.2",
     "python-semantic-release>=10.5.0",
@@ -80,8 +80,13 @@ package = true
 module-name = "mitreattack"
 module-root = ""
 
-[tool.pytest.ini_options]
+[tool.pytest]
+minversion = "9.0"
 testpaths = ["tests"]
+markers = [
+    "integration: tests that exercise real external-size data or full integration paths",
+    "slow: tests that are intentionally excluded from default fast runs",
+]
 
 [tool.ruff]
 line-length = 120

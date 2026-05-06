@@ -35,6 +35,10 @@ ruff-format:
 test:
     uv run pytest
 
+# Run the fast local test subset, excluding integration and slow tests
+test-fast:
+    uv run pytest -m "not integration and not slow"
+
 # Run tests with coverage
 test-cov:
     uv run pytest --cov=mitreattack

@@ -15,11 +15,12 @@ from pathlib import Path
 import pytest
 
 from mitreattack.attackToExcel import attackToExcel
-from mitreattack.navlayers import Layer
+from mitreattack.navlayers import Layer, layerExporter_cli
 from mitreattack.navlayers.layerExporter_cli import main as LEC_main
 from mitreattack.navlayers.layerGenerator_cli import main as LGC_main
 
 
+@pytest.mark.slow
 def test_export_svg(tmp_path: Path, layer_v43: Layer, stix_file_enterprise_latest: str):
     """Test SVG Export capabilities from CLI."""
     demo_file = tmp_path / "demo_file.json"
@@ -43,10 +44,21 @@ def test_export_svg(tmp_path: Path, layer_v43: Layer, stix_file_enterprise_lates
     assert test_export_svg_file.exists()
 
 
-def test_export_excel(tmp_path: Path, layer_v43: Layer, stix_file_enterprise_latest: str):
-    """Test excel export capabilities from CLI."""
+def test_export_excel(monkeypatch, tmp_path: Path, layer_v43: Layer):
+    """Test excel export argument wiring from CLI."""
     demo_file = tmp_path / "demo_file.json"
     test_export_xlsx_file = tmp_path / "test_export_excel.xlsx"
+    calls = {}
+
+    class FakeToExcel:
+        def __init__(self, **kwargs):
+            calls["init"] = kwargs
+
+        def to_xlsx(self, layer, filepath):
+            calls["to_xlsx"] = {"layer": layer, "filepath": filepath}
+            Path(filepath).write_text("xlsx", encoding="utf-8")
+
+    monkeypatch.setattr(layerExporter_cli, "ToExcel", FakeToExcel)
 
     layer_v43.to_file(str(demo_file))
     LEC_main(
@@ -57,12 +69,18 @@ def test_export_excel(tmp_path: Path, layer_v43: Layer, stix_file_enterprise_lat
             "--source",
             "local",
             "--resource",
-            stix_file_enterprise_latest,
+            "enterprise-attack.json",
             "--output",
             str(test_export_xlsx_file),
         ]
     )
 
+    assert calls["init"] == {
+        "domain": "enterprise-attack",
+        "source": "local",
+        "resource": "enterprise-attack.json",
+    }
+    assert calls["to_xlsx"]["filepath"] == str(test_export_xlsx_file)
     assert test_export_xlsx_file.exists()
 
 
@@ -106,6 +124,7 @@ def test_generate_overview_software(tmp_path: Path, stix_file_mobile_latest: str
     assert output_layer_file.exists()
 
 
+@pytest.mark.slow
 def test_generate_overview_mitigation(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI mitigation overview generation."""
     output_layer_file = tmp_path / "test_overview_mitigation.json"
@@ -126,6 +145,7 @@ def test_generate_overview_mitigation(tmp_path: Path, stix_file_enterprise_lates
     assert output_layer_file.exists()
 
 
+@pytest.mark.slow
 def test_generate_overview_datasource(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI datasource overview generation."""
     output_layer_file = tmp_path / "test_overview_datasource.json"
@@ -146,6 +166,7 @@ def test_generate_overview_datasource(tmp_path: Path, stix_file_enterprise_lates
     assert output_layer_file.exists()
 
 
+@pytest.mark.slow
 def test_generate_mapped_group(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI group mapped generation (APT1)."""
     output_layer_file = tmp_path / "test_mapped_group.json"
@@ -166,6 +187,7 @@ def test_generate_mapped_group(tmp_path: Path, stix_file_enterprise_latest: str)
     assert output_layer_file.exists()
 
 
+@pytest.mark.slow
 def test_generate_mapped_software(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI software mapped generation (S0202)."""
     output_layer_file = tmp_path / "test_mapped_software.json"
@@ -206,6 +228,7 @@ def test_generate_mapped_mitigation(tmp_path: Path, stix_file_mobile_latest: str
     assert output_layer_file.exists()
 
 
+@pytest.mark.slow
 def test_generate_mapped_datasource(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI datasource mapped generation."""
     output_layer_file = tmp_path / "test_mapped_datasource.json"
@@ -370,6 +393,8 @@ def test_generate_batch_software(tmp_path: Path, stix_file_ics_latest: str):
     assert output_layers_dir.is_dir()
 
 
+@pytest.mark.slow
+@pytest.mark.slow
 def test_generate_batch_mitigation(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI mitigation batch generation."""
     output_layers_dir = tmp_path / "test_batch_mitigation"
@@ -390,6 +415,7 @@ def test_generate_batch_mitigation(tmp_path: Path, stix_file_enterprise_latest: 
     assert output_layers_dir.is_dir()
 
 
+@pytest.mark.slow
 def test_generate_batch_datasource(tmp_path: Path, stix_file_enterprise_latest: str):
     """Test CLI datasource batch generation."""
     output_layers_dir = tmp_path / "test_batch_datasource"
