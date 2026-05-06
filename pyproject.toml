@@ -47,6 +47,7 @@ layerGenerator_cli = 'mitreattack.navlayers.layerGenerator_cli:main'
 indexToMarkdown_cli = 'mitreattack.collections.index_to_markdown:main'
 collectionToIndex_cli = 'mitreattack.collections.collection_to_index:main'
 diff_stix = 'mitreattack.diffStix.changelog_helper:main'
+attack_changelog = 'mitreattack.diffStix.attack_changelog:main'
 download_attack_stix = 'mitreattack.download_stix:app'
 
 [project.optional-dependencies]
@@ -64,7 +65,7 @@ dev = [
 docs = [
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
-] 
+]
 # The following ci group is needed for the PSR GitHub Action. See `tool.semantic_release.build_command` below for details.
 ci = ["uv>=0.10.4"]
 
