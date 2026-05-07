@@ -13,6 +13,7 @@ and correct operation for SVG, Excel, overview, mapped, and batch generation mod
 from pathlib import Path
 
 import pytest
+from click import unstyle
 from typer.testing import CliRunner
 
 from mitreattack.attackToExcel import attackToExcel
@@ -387,22 +388,25 @@ def test_attack_to_excel_cli_rejects_root_legacy_domain(attack_to_excel_runner: 
 def test_attack_to_excel_cli_help_lists_subcommands(attack_to_excel_runner: CliRunner):
     """attack-to-excel help should expose the from-stix and from-release subcommands."""
     result = attack_to_excel_runner.invoke(attackToExcel.app, ["--help"])
+    root_help = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "from-stix" in result.output
-    assert "from-release" in result.output
+    assert "from-stix" in root_help
+    assert "from-release" in root_help
 
     from_stix_help = attack_to_excel_runner.invoke(attackToExcel.app, ["from-stix", "--help"])
+    from_stix_output = unstyle(from_stix_help.output)
     assert from_stix_help.exit_code == 0
-    assert "--domain" in from_stix_help.output
-    assert "--remote" in from_stix_help.output
-    assert "--stix-file" in from_stix_help.output
+    assert "--domain" in from_stix_output
+    assert "--remote" in from_stix_output
+    assert "--stix-file" in from_stix_output
 
     from_release_help = attack_to_excel_runner.invoke(attackToExcel.app, ["from-release", "--help"])
+    from_release_output = unstyle(from_release_help.output)
     assert from_release_help.exit_code == 0
-    assert "--domains" in from_release_help.output
-    assert "--stix-version" in from_release_help.output
-    assert "--stix-base-dir" in from_release_help.output
+    assert "--domains" in from_release_output
+    assert "--stix-version" in from_release_output
+    assert "--stix-base-dir" in from_release_output
 
 
 def test_attack_to_excel_cli_no_args_shows_help(attack_to_excel_runner: CliRunner):
