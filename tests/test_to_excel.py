@@ -34,6 +34,64 @@ def _sheet_rows(path: Path, sheet_name: str):
         workbook.close()
 
 
+def _write_stix_files(stix_base_dir: Path, domains):
+    stix_base_dir.mkdir(parents=True, exist_ok=True)
+    for domain in domains:
+        (stix_base_dir / f"{domain}.json").write_text("{}", encoding="utf-8")
+
+
+def _release_output_dir(output_dir: Path, version: str | None = None) -> Path:
+    return output_dir / version if version else output_dir
+
+
+def _staging_output_dir(output_dir: Path, version: str | None = None) -> Path:
+    return _release_output_dir(output_dir, version) / "tmp" / "staged-excel-files"
+
+
+def _domain_export_dir(
+    output_dir: Path, domain: str, version: str | None = None, *, versioned_output_dir: bool = False
+):
+    release_output_dir = _release_output_dir(output_dir, version)
+    domain_dir_name = f"{domain}-{version}" if version and versioned_output_dir else domain
+    return release_output_dir / domain_dir_name
+
+
+def _write_existing_release_excel(
+    output_dir: Path,
+    domain: str,
+    version: str | None = None,
+    *,
+    versioned_output_dir: bool = False,
+):
+    domain_dir = _domain_export_dir(
+        output_dir,
+        domain,
+        version,
+        versioned_output_dir=versioned_output_dir,
+    )
+    domain_dir.mkdir(parents=True, exist_ok=True)
+    workbook_name = f"{domain}-{version}.xlsx" if version else f"{domain}.xlsx"
+    existing_file = domain_dir / workbook_name
+    existing_file.write_text("existing", encoding="utf-8")
+    return existing_file
+
+
+def _make_fake_release_export(*, calls=None, log_marker=None):
+    def fake_export(**kwargs):
+        if calls is not None:
+            calls.append(kwargs)
+        if log_marker is not None:
+            log_marker()
+
+        output_dir = Path(kwargs["output_dir"])
+        domain_version_string = f"{kwargs['domain']}-{kwargs['version']}" if kwargs["version"] else kwargs["domain"]
+        versioned_dir = output_dir / domain_version_string
+        versioned_dir.mkdir(parents=True)
+        (versioned_dir / f"{domain_version_string}.xlsx").write_text("new", encoding="utf-8")
+
+    return fake_export
+
+
 @dataclass
 class FakeMergeRange:
     """Small stand-in for matrix merge range objects."""
@@ -84,6 +142,8 @@ def test_export_with_memstore_uses_current_dataframe_builder(
         "src": mem_store,
         "version": None,
         "output_dir": str(tmp_path),
+        "overwrite": False,
+        "log_written_files": True,
     }
 
 
@@ -119,6 +179,61 @@ def test_export_with_pre_v18_version_uses_legacy_dataframe_builder(
     assert "build_dataframes" not in calls
     assert calls["write_excel"]["version"] == "v17.0"
     assert calls["write_excel"]["dataframes"] is dataframes
+    assert calls["write_excel"]["overwrite"] is False
+    assert calls["write_excel"]["log_written_files"] is True
+
+
+def test_export_refuses_existing_excel_file_before_building_dataframes(
+    monkeypatch,
+    tmp_path: Path,
+    attack_memstore_factory,
+    sample_technique_object,
+):
+    """Export should refuse existing Excel files before building or writing dataframes."""
+    output_directory = tmp_path / "enterprise-attack"
+    output_directory.mkdir()
+    existing_file = output_directory / "enterprise-attack-techniques.xlsx"
+    existing_file.write_text("existing", encoding="utf-8")
+    mem_store = attack_memstore_factory([sample_technique_object])
+    calls = []
+
+    def fake_build_dataframes(**kwargs):
+        calls.append(kwargs)
+        return {"techniques": _object_data("techniques")}
+
+    monkeypatch.setattr(attackToExcel, "build_dataframes", fake_build_dataframes)
+
+    with pytest.raises(FileExistsError, match="Refusing to overwrite existing Excel file"):
+        attackToExcel.export(domain="enterprise-attack", output_dir=str(tmp_path), mem_store=mem_store)
+
+    assert calls == []
+
+
+def test_export_overwrite_allows_existing_excel_file(
+    monkeypatch,
+    tmp_path: Path,
+    attack_memstore_factory,
+    sample_technique_object,
+):
+    """Export should build and write when overwrite is explicitly requested."""
+    output_directory = tmp_path / "enterprise-attack"
+    output_directory.mkdir()
+    (output_directory / "enterprise-attack-techniques.xlsx").write_text("existing", encoding="utf-8")
+    mem_store = attack_memstore_factory([sample_technique_object])
+    calls = {}
+
+    def fake_build_dataframes(**kwargs):
+        return {"techniques": _object_data("techniques")}
+
+    def fake_write_excel(**kwargs):
+        calls["write_excel"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "build_dataframes", fake_build_dataframes)
+    monkeypatch.setattr(attackToExcel, "write_excel", fake_write_excel)
+
+    attackToExcel.export(domain="enterprise-attack", output_dir=str(tmp_path), mem_store=mem_store, overwrite=True)
+
+    assert calls["write_excel"]["overwrite"] is True
 
 
 def test_export_rejects_multiple_stix_sources(attack_memstore_factory, sample_technique_object):
@@ -138,9 +253,7 @@ def test_normalize_attack_version_adds_missing_prefix():
 def test_export_release_uses_existing_local_stix_files(tmp_path: Path, monkeypatch):
     """Release export should use existing local STIX files without downloading."""
     stix_base_dir = tmp_path / "attack-releases" / "stix-2.0" / "v19.0"
-    stix_base_dir.mkdir(parents=True)
-    for domain in ["enterprise-attack", "mobile-attack"]:
-        (stix_base_dir / f"{domain}.json").write_text("{}", encoding="utf-8")
+    _write_stix_files(stix_base_dir, ["enterprise-attack", "mobile-attack"])
 
     calls = {}
 
@@ -164,15 +277,14 @@ def test_export_release_uses_existing_local_stix_files(tmp_path: Path, monkeypat
     assert [call["domain"] for call in calls["exports"]] == ["enterprise-attack", "mobile-attack"]
     assert calls["exports"][0]["stix_file"] == str(stix_base_dir / "enterprise-attack.json")
     assert calls["exports"][0]["version"] == "v19.0"
-    assert calls["exports"][0]["output_dir"] == str(tmp_path / "output" / "v19.0")
+    assert calls["exports"][0]["output_dir"] == str(_staging_output_dir(tmp_path / "output", "v19.0"))
+    assert calls["exports"][0]["overwrite"] is False
 
 
 def test_export_release_with_explicit_local_stix_base_dir_without_version_is_unversioned(tmp_path: Path, monkeypatch):
     """Explicit local STIX bundle directories should not be labelled as ATT&CK releases unless a version is given."""
     stix_base_dir = tmp_path / "attack-releases" / "stix-2.0" / "attackwb"
-    stix_base_dir.mkdir(parents=True)
-    for domain in ["enterprise-attack", "mobile-attack"]:
-        (stix_base_dir / f"{domain}.json").write_text("{}", encoding="utf-8")
+    _write_stix_files(stix_base_dir, ["enterprise-attack", "mobile-attack"])
 
     calls = {}
 
@@ -189,9 +301,10 @@ def test_export_release_with_explicit_local_stix_base_dir_without_version_is_unv
 
     assert [call["domain"] for call in calls["exports"]] == ["enterprise-attack", "mobile-attack"]
     assert calls["exports"][0]["version"] is None
-    assert calls["exports"][0]["output_dir"] == str(tmp_path / "output" / "attackwb")
+    assert calls["exports"][0]["output_dir"] == str(_staging_output_dir(tmp_path / "output" / "attackwb"))
+    assert calls["exports"][0]["overwrite"] is False
     assert calls["exports"][1]["version"] is None
-    assert calls["exports"][1]["output_dir"] == str(tmp_path / "output" / "attackwb")
+    assert calls["exports"][1]["output_dir"] == str(_staging_output_dir(tmp_path / "output" / "attackwb"))
 
 
 def test_export_release_downloads_only_missing_domains_to_temporary_directory(tmp_path: Path, monkeypatch):
@@ -234,18 +347,10 @@ def test_export_release_downloads_only_missing_domains_to_temporary_directory(tm
 
 def test_export_release_moves_versioned_outputs_to_domain_directory(tmp_path: Path, monkeypatch):
     """Default release export should flatten domain-version folders into domain folders."""
-
-    def fake_export(**kwargs):
-        output_dir = Path(kwargs["output_dir"])
-        versioned_dir = output_dir / f"{kwargs['domain']}-{kwargs['version']}"
-        versioned_dir.mkdir(parents=True)
-        (versioned_dir / f"{kwargs['domain']}-{kwargs['version']}.xlsx").write_text("excel", encoding="utf-8")
-
     stix_base_dir = tmp_path / "stix"
-    stix_base_dir.mkdir()
-    (stix_base_dir / "enterprise-attack.json").write_text("{}", encoding="utf-8")
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
 
-    monkeypatch.setattr(attackToExcel, "export", fake_export)
+    monkeypatch.setattr(attackToExcel, "export", _make_fake_release_export())
 
     attackToExcel.export_release(
         version="v19.0",
@@ -256,6 +361,199 @@ def test_export_release_moves_versioned_outputs_to_domain_directory(tmp_path: Pa
 
     assert not (tmp_path / "output" / "v19.0" / "enterprise-attack-v19.0").exists()
     assert (tmp_path / "output" / "v19.0" / "enterprise-attack" / "enterprise-attack-v19.0.xlsx").exists()
+
+
+@pytest.mark.parametrize("versioned_output_dir", [False, True])
+def test_export_release_refuses_existing_excel_file_before_exporting(
+    tmp_path: Path,
+    monkeypatch,
+    versioned_output_dir: bool,
+):
+    """Release export should check all selected domain output folders before exporting anything."""
+    output_dir = tmp_path / "output"
+    _write_existing_release_excel(
+        output_dir,
+        "mobile-attack",
+        "v19.0",
+        versioned_output_dir=versioned_output_dir,
+    )
+
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack", "mobile-attack"])
+
+    calls = []
+
+    def fake_export(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    with pytest.raises(FileExistsError, match="Refusing to overwrite existing Excel file"):
+        attackToExcel.export_release(
+            version="v19.0",
+            stix_base_dir=str(stix_base_dir),
+            output_dir=str(output_dir),
+            domains=["enterprise-attack", "mobile-attack"],
+            versioned_output_dir=versioned_output_dir,
+        )
+
+    assert calls == []
+
+
+@pytest.mark.parametrize("versioned_output_dir", [False, True])
+def test_export_release_overwrite_allows_existing_excel_file(
+    tmp_path: Path,
+    monkeypatch,
+    versioned_output_dir: bool,
+):
+    """Release export should proceed when overwrite is explicitly requested."""
+    output_dir = tmp_path / "output"
+    _write_existing_release_excel(
+        output_dir,
+        "mobile-attack",
+        "v19.0",
+        versioned_output_dir=versioned_output_dir,
+    )
+
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["mobile-attack"])
+
+    calls = []
+
+    def fake_export(**kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    attackToExcel.export_release(
+        version="v19.0",
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["mobile-attack"],
+        versioned_output_dir=versioned_output_dir,
+        overwrite=True,
+    )
+
+    assert calls[0]["overwrite"] is True
+    assert calls[0]["log_written_files"] is versioned_output_dir
+
+
+def test_export_release_logs_each_flattened_file_overwrite(tmp_path: Path, monkeypatch):
+    """Release export should log target overwrites before staging files."""
+    output_dir = tmp_path / "output"
+    existing_file = _write_existing_release_excel(output_dir, "enterprise-attack", "v19.0")
+
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
+    log_messages = []
+
+    monkeypatch.setattr(
+        attackToExcel,
+        "export",
+        _make_fake_release_export(log_marker=lambda: log_messages.append("fake export started")),
+    )
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.export_release(
+        version="v19.0",
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["enterprise-attack"],
+        overwrite=True,
+    )
+
+    overwrite_message = f"Overwriting existing Excel file: {existing_file}"
+    assert "Existing Excel files will be overwritten:" in log_messages
+    assert overwrite_message in log_messages
+    assert log_messages.index(overwrite_message) < log_messages.index("fake export started")
+
+
+def test_export_release_logs_staging_and_final_move_directories(tmp_path: Path, monkeypatch):
+    """Default release export should identify staged writes and final output moves."""
+    output_dir = tmp_path / "output"
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
+    log_messages = []
+
+    monkeypatch.setattr(attackToExcel, "export", _make_fake_release_export())
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.export_release(
+        version="v19.0",
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["enterprise-attack"],
+        overwrite=True,
+    )
+
+    staging_dir = _staging_output_dir(output_dir, "v19.0") / "enterprise-attack-v19.0"
+    assert f"Writing staged Excel files for enterprise-attack to {staging_dir}" in log_messages
+    assert f"Moving staged Excel files for enterprise-attack to {output_dir / 'v19.0' / 'enterprise-attack'}" in (
+        log_messages
+    )
+
+
+def test_export_release_logs_written_files_after_final_move(tmp_path: Path, monkeypatch):
+    """Release export should report final output paths after staged files are moved."""
+    output_dir = tmp_path / "output"
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
+    log_messages = []
+
+    monkeypatch.setattr(attackToExcel, "export", _make_fake_release_export())
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.export_release(
+        version="v19.0",
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["enterprise-attack"],
+    )
+
+    staged_file = _staging_output_dir(output_dir, "v19.0") / "enterprise-attack-v19.0" / "enterprise-attack-v19.0.xlsx"
+    final_file = output_dir / "v19.0" / "enterprise-attack" / "enterprise-attack-v19.0.xlsx"
+    assert f"Excel file written: {final_file}" in log_messages
+    assert f"Excel file written: {staged_file}" not in log_messages
+
+
+def test_export_release_uses_tmp_staging_directory(tmp_path: Path, monkeypatch):
+    """Default release export should stage workbooks under tmp/staged-excel-files."""
+    output_dir = tmp_path / "output"
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
+    calls = []
+
+    monkeypatch.setattr(attackToExcel, "export", _make_fake_release_export(calls=calls))
+
+    attackToExcel.export_release(
+        version="v19.0",
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["enterprise-attack"],
+    )
+
+    staging_output_dir = _staging_output_dir(output_dir, "v19.0")
+    assert calls[0]["output_dir"] == str(staging_output_dir)
+    assert not (staging_output_dir / "enterprise-attack-v19.0").exists()
+    assert (output_dir / "v19.0" / "enterprise-attack" / "enterprise-attack-v19.0.xlsx").exists()
+
+
+def test_export_release_moves_unversioned_staged_outputs_to_domain_directory(tmp_path: Path, monkeypatch):
+    """Unversioned release exports should move staged domain folders to final domain folders."""
+    output_dir = tmp_path / "output" / "attackwb"
+    stix_base_dir = tmp_path / "stix"
+    _write_stix_files(stix_base_dir, ["enterprise-attack"])
+
+    monkeypatch.setattr(attackToExcel, "export", _make_fake_release_export())
+
+    attackToExcel.export_release(
+        stix_base_dir=str(stix_base_dir),
+        output_dir=str(output_dir),
+        domains=["enterprise-attack"],
+    )
+
+    assert not (_staging_output_dir(output_dir) / "enterprise-attack").exists()
+    assert (output_dir / "enterprise-attack" / "enterprise-attack.xlsx").exists()
 
 
 def test_export_release_rejects_invalid_domain():
@@ -287,6 +585,78 @@ def test_write_excel_creates_expected_workbooks(monkeypatch, tmp_path: Path, att
         output_folder / "enterprise-attack.xlsx",
     }
     assert _sheet_names(output_folder / "enterprise-attack.xlsx") == ["techniques", "groups", "citations"]
+
+
+def test_write_excel_logs_each_file_overwrite(monkeypatch, tmp_path: Path, attack_memstore_factory):
+    """write_excel should log each generated workbook replaced by overwrite."""
+    monkeypatch.setattr(attackToExcel.stixToDf, "detectionStrategiesAnalyticsLogSourcesDf", lambda src: pd.DataFrame())
+    mem_store = attack_memstore_factory([])
+    output_folder = tmp_path / "enterprise-attack"
+    output_folder.mkdir()
+    existing_files = [
+        output_folder / "enterprise-attack.xlsx",
+        output_folder / "enterprise-attack-techniques.xlsx",
+        output_folder / "enterprise-attack-groups.xlsx",
+    ]
+    for existing_file in existing_files:
+        existing_file.write_text("existing", encoding="utf-8")
+
+    log_messages = []
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.write_excel(
+        dataframes={
+            "techniques": _object_data("techniques"),
+            "groups": _object_data("groups"),
+        },
+        domain="enterprise-attack",
+        src=mem_store,
+        output_dir=str(tmp_path),
+        overwrite=True,
+    )
+
+    for existing_file in existing_files:
+        assert f"Overwriting existing Excel file: {existing_file}" in log_messages
+
+
+def test_write_excel_logs_files_written(monkeypatch, tmp_path: Path, attack_memstore_factory):
+    """write_excel should use wording that applies to created and overwritten workbooks."""
+    monkeypatch.setattr(attackToExcel.stixToDf, "detectionStrategiesAnalyticsLogSourcesDf", lambda src: pd.DataFrame())
+    mem_store = attack_memstore_factory([])
+    log_messages = []
+
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.write_excel(
+        dataframes={"techniques": _object_data("techniques")},
+        domain="enterprise-attack",
+        src=mem_store,
+        output_dir=str(tmp_path),
+    )
+
+    output_folder = tmp_path / "enterprise-attack"
+    assert f"Excel file written: {output_folder / 'enterprise-attack-techniques.xlsx'}" in log_messages
+    assert f"Excel file written: {output_folder / 'enterprise-attack.xlsx'}" in log_messages
+    assert not any("Excel file created:" in message for message in log_messages)
+
+
+def test_write_excel_can_suppress_written_file_logs(monkeypatch, tmp_path: Path, attack_memstore_factory):
+    """Release staging can suppress staged-path written logs."""
+    monkeypatch.setattr(attackToExcel.stixToDf, "detectionStrategiesAnalyticsLogSourcesDf", lambda src: pd.DataFrame())
+    mem_store = attack_memstore_factory([])
+    log_messages = []
+
+    monkeypatch.setattr(attackToExcel.logger, "info", log_messages.append)
+
+    attackToExcel.write_excel(
+        dataframes={"techniques": _object_data("techniques")},
+        domain="enterprise-attack",
+        src=mem_store,
+        output_dir=str(tmp_path),
+        log_written_files=False,
+    )
+
+    assert not any("Excel file written:" in message for message in log_messages)
 
 
 def test_write_excel_skips_empty_object_data(monkeypatch, tmp_path: Path, attack_memstore_factory):

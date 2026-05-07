@@ -277,7 +277,59 @@ def test_attack_to_excel_cli_from_stix_exports(monkeypatch, tmp_path: Path, atta
         "output_dir": str(tmp_path),
         "remote": None,
         "stix_file": None,
+        "overwrite": False,
     }
+
+
+def test_attack_to_excel_cli_from_stix_passes_overwrite(monkeypatch, tmp_path: Path, attack_to_excel_runner: CliRunner):
+    """from-stix should pass overwrite requests to export."""
+    calls = {}
+
+    def fake_export(**kwargs):
+        calls["export"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-stix", "--output", str(tmp_path), "--overwrite"])
+
+    assert result.exit_code == 0
+    assert calls["export"]["overwrite"] is True
+
+
+def test_attack_to_excel_cli_from_stix_configures_verbose_logging(
+    monkeypatch, tmp_path: Path, attack_to_excel_runner: CliRunner
+):
+    """from-stix should enable debug logging when verbose is requested."""
+    calls = {}
+
+    def fake_configure_cli_logging(**kwargs):
+        calls["logging"] = kwargs
+
+    def fake_export(**kwargs):
+        calls["export"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "_configure_cli_logging", fake_configure_cli_logging)
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-stix", "--output", str(tmp_path), "--verbose"])
+
+    assert result.exit_code == 0
+    assert calls["logging"] == {"verbose": True}
+
+
+def test_attack_to_excel_cli_from_stix_reports_existing_excel_file(monkeypatch, attack_to_excel_runner: CliRunner):
+    """from-stix should report existing Excel files without a traceback."""
+
+    def fake_export(**kwargs):
+        raise FileExistsError("Refusing to overwrite existing Excel file(s). Pass --overwrite to replace them.")
+
+    monkeypatch.setattr(attackToExcel, "export", fake_export)
+
+    result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-stix"])
+
+    assert result.exit_code != 0
+    assert "Refusing to overwrite existing Excel file" in result.output
+    assert "--overwrite" in result.output
 
 
 def test_attack_to_excel_cli_from_stix_rejects_multiple_sources(attack_to_excel_runner: CliRunner):
@@ -321,7 +373,69 @@ def test_attack_to_excel_cli_from_release_all_domains(monkeypatch, tmp_path: Pat
         "stix_base_dir": None,
         "domains": None,
         "versioned_output_dir": False,
+        "overwrite": False,
     }
+
+
+def test_attack_to_excel_cli_from_release_passes_overwrite(
+    monkeypatch, tmp_path: Path, attack_to_excel_runner: CliRunner
+):
+    """from-release should pass overwrite requests to release export."""
+    calls = {}
+
+    def fake_export_release(**kwargs):
+        calls["export_release"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    result = attack_to_excel_runner.invoke(
+        attackToExcel.app,
+        [
+            "from-release",
+            "--output",
+            str(tmp_path),
+            "--overwrite",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert calls["export_release"]["overwrite"] is True
+
+
+def test_attack_to_excel_cli_from_release_configures_verbose_logging(
+    monkeypatch, tmp_path: Path, attack_to_excel_runner: CliRunner
+):
+    """from-release should enable debug logging when verbose is requested."""
+    calls = {}
+
+    def fake_configure_cli_logging(**kwargs):
+        calls["logging"] = kwargs
+
+    def fake_export_release(**kwargs):
+        calls["export_release"] = kwargs
+
+    monkeypatch.setattr(attackToExcel, "_configure_cli_logging", fake_configure_cli_logging)
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-release", "--output", str(tmp_path), "-v"])
+
+    assert result.exit_code == 0
+    assert calls["logging"] == {"verbose": True}
+
+
+def test_attack_to_excel_cli_from_release_reports_existing_excel_file(monkeypatch, attack_to_excel_runner: CliRunner):
+    """from-release should report existing Excel files without a traceback."""
+
+    def fake_export_release(**kwargs):
+        raise FileExistsError("Refusing to overwrite existing Excel file(s). Pass --overwrite to replace them.")
+
+    monkeypatch.setattr(attackToExcel, "export_release", fake_export_release)
+
+    result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-release"])
+
+    assert result.exit_code != 0
+    assert "Refusing to overwrite existing Excel file" in result.output
+    assert "--overwrite" in result.output
 
 
 def test_attack_to_excel_cli_from_release_selected_domains(
@@ -400,6 +514,8 @@ def test_attack_to_excel_cli_help_lists_subcommands(attack_to_excel_runner: CliR
     assert "--domain" in from_stix_output
     assert "--remote" in from_stix_output
     assert "--stix-file" in from_stix_output
+    assert "--overwrite" in from_stix_output
+    assert "--verbose" in from_stix_output
 
     from_release_help = attack_to_excel_runner.invoke(attackToExcel.app, ["from-release", "--help"])
     from_release_output = unstyle(from_release_help.output)
@@ -407,6 +523,8 @@ def test_attack_to_excel_cli_help_lists_subcommands(attack_to_excel_runner: CliR
     assert "--domains" in from_release_output
     assert "--stix-version" in from_release_output
     assert "--stix-base-dir" in from_release_output
+    assert "--overwrite" in from_release_output
+    assert "--verbose" in from_release_output
 
 
 def test_attack_to_excel_cli_no_args_shows_help(attack_to_excel_runner: CliRunner):
@@ -416,6 +534,38 @@ def test_attack_to_excel_cli_no_args_shows_help(attack_to_excel_runner: CliRunne
     assert result.exit_code == 0
     assert "from-stix" in result.output
     assert "from-release" in result.output
+
+
+def test_attack_to_excel_configures_info_logging_by_default(monkeypatch):
+    """The installed attack-to-excel entrypoint should hide debug logs by default."""
+    calls = {}
+
+    def fake_add(*args, **kwargs):
+        calls["add"] = {"args": args, "kwargs": kwargs}
+
+    monkeypatch.setattr(attackToExcel.logger, "remove", lambda: calls.setdefault("remove", True))
+    monkeypatch.setattr(attackToExcel.logger, "add", fake_add)
+
+    attackToExcel._configure_cli_logging(verbose=False)
+
+    assert calls["remove"] is True
+    assert calls["add"]["kwargs"]["level"] == "INFO"
+
+
+def test_attack_to_excel_configures_debug_logging_when_verbose(monkeypatch):
+    """Verbose CLI runs should include debug logs."""
+    calls = {}
+
+    def fake_add(*args, **kwargs):
+        calls["add"] = {"args": args, "kwargs": kwargs}
+
+    monkeypatch.setattr(attackToExcel.logger, "remove", lambda: calls.setdefault("remove", True))
+    monkeypatch.setattr(attackToExcel.logger, "add", fake_add)
+
+    attackToExcel._configure_cli_logging(verbose=True)
+
+    assert calls["remove"] is True
+    assert calls["add"]["kwargs"]["level"] == "DEBUG"
 
 
 @pytest.mark.skip("layerGenerator_cli does not support ICS domain yet")

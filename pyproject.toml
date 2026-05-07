@@ -13,6 +13,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "click>=8.1.8",
     "colour>=0.1.5",
     "deepdiff>=6.6.0",
     "drawsvg>=2.4.0",

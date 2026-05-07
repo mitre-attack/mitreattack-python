@@ -641,6 +641,7 @@ name = "mitreattack-python"
 version = "6.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "click" },
     { name = "colour" },
     { name = "deepdiff" },
     { name = "drawsvg" },
@@ -687,6 +688,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "check-wheel-contents", marker = "extra == 'dev'", specifier = ">=0.6.1" },
+    { name = "click", specifier = ">=8.1.8" },
     { name = "colour", specifier = ">=0.1.5" },
     { name = "commitizen", marker = "extra == 'dev'", specifier = ">=4.9.1" },
     { name = "deepdiff", specifier = ">=6.6.0" },

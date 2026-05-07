@@ -2,11 +2,13 @@
 
 import os
 import re
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import click
 import pandas as pd
 import requests
 import typer
@@ -90,13 +92,72 @@ def _release_stix_file(release_dir: Path, domain: str) -> Path:
     return release_dir / f"{domain}.json"
 
 
-def _move_versioned_exports_to_domain_dir(output_dir: Path, domain: str, version: str):
+def _domain_version_string(domain: str, version: Optional[str]) -> str:
+    """Return the folder and filename prefix used for one domain export."""
+    return f"{domain}-{version}" if version else domain
+
+
+def _excel_output_dir(output_dir: Path, domain: str, version: Optional[str]) -> Path:
+    """Return the directory that one domain export writes Excel files into."""
+    return output_dir / _domain_version_string(domain, version)
+
+
+def _release_staging_output_dir(output_dir: Path) -> Path:
+    """Return the parent directory for staged release Excel files."""
+    return output_dir / "tmp" / "staged-excel-files"
+
+
+def _existing_excel_files(directory: Path) -> List[Path]:
+    """Return existing Excel files directly under a generated output directory."""
+    if not directory.is_dir():
+        return []
+    return sorted(path for path in directory.glob("*.xlsx") if path.is_file())
+
+
+def _raise_if_excel_files_exist(paths: List[Path]):
+    """Refuse to continue when generated output would overwrite existing Excel files."""
+    if not paths:
+        return
+
+    files_text = "\n".join(f"  - {path}" for path in paths)
+    raise FileExistsError(
+        "Refusing to overwrite existing Excel file(s). "
+        "Move or delete these files, choose a different output directory, or pass --overwrite to replace them:\n"
+        f"{files_text}"
+    )
+
+
+def _log_excel_overwrite(path: Path | str, overwrite: bool):
+    """Log when an existing Excel file is about to be replaced."""
+    excel_path = Path(path)
+    if overwrite and excel_path.is_file():
+        logger.info(f"Overwriting existing Excel file: {excel_path}")
+
+
+def _log_excel_overwrites(paths: List[Path]):
+    """Log a preflight summary of existing Excel files that will be replaced."""
+    if not paths:
+        return
+
+    logger.info("Existing Excel files will be overwritten:")
+    for path in paths:
+        logger.info(f"Overwriting existing Excel file: {path}")
+
+
+def _move_versioned_exports_to_domain_dir(
+    output_dir: Path,
+    domain: str,
+    version: Optional[str],
+    overwrite: bool = False,
+    staging_output_dir: Optional[Path] = None,
+) -> List[Path]:
     """Move versioned Excel exports into the unversioned domain folder."""
-    versioned_dir = output_dir / f"{domain}-{version}"
+    versioned_dir = _excel_output_dir(staging_output_dir or output_dir, domain, version)
     domain_dir = output_dir / domain
+    moved_files = []
 
     if not versioned_dir.is_dir():
-        return
+        return moved_files
 
     domain_dir.mkdir(parents=True, exist_ok=True)
     for source_path in versioned_dir.iterdir():
@@ -105,10 +166,15 @@ def _move_versioned_exports_to_domain_dir(output_dir: Path, domain: str, version
 
         target_path = domain_dir / source_path.name
         if target_path.exists():
+            if not overwrite:
+                _raise_if_excel_files_exist([target_path])
+            logger.debug(f"Replacing existing Excel file: {target_path}")
             target_path.unlink()
         source_path.replace(target_path)
+        moved_files.append(target_path)
 
     versioned_dir.rmdir()
+    return moved_files
 
 
 def _download_missing_release_domains(
@@ -137,6 +203,7 @@ def export_release(
     stix_base_dir: Optional[str] = None,
     domains: Optional[List[str]] = None,
     versioned_output_dir: bool = False,
+    overwrite: bool = False,
 ):
     """Export one ATT&CK release to Excel for one or more domains."""
     if stix_version not in VALID_STIX_VERSIONS:
@@ -160,12 +227,24 @@ def export_release(
     local_stix_files = {domain: _release_stix_file(local_release_dir, domain) for domain in release_domains}
     missing_domains = [domain for domain, stix_file in local_stix_files.items() if not stix_file.is_file()]
 
+    existing_release_excel_files = _existing_release_excel_files(
+        output_dir=release_output_dir,
+        domains=release_domains,
+        version=attack_version,
+        versioned_output_dir=versioned_output_dir,
+    )
+    if overwrite:
+        _log_excel_overwrites(existing_release_excel_files)
+    else:
+        _raise_if_excel_files_exist(existing_release_excel_files)
+
     if not missing_domains:
         _export_release_domains(
             version=attack_version,
             output_dir=release_output_dir,
             stix_files=local_stix_files,
             versioned_output_dir=versioned_output_dir,
+            overwrite=overwrite,
         )
         return
 
@@ -194,7 +273,28 @@ def export_release(
             output_dir=release_output_dir,
             stix_files=stix_files,
             versioned_output_dir=versioned_output_dir,
+            overwrite=overwrite,
         )
+
+
+def _existing_release_excel_files(
+    *,
+    output_dir: Path,
+    domains: List[str],
+    version: Optional[str],
+    versioned_output_dir: bool,
+) -> List[Path]:
+    """Return existing Excel files that a release export could overwrite."""
+    existing_files = []
+    for domain in domains:
+        candidate_dirs = [_excel_output_dir(output_dir, domain, version)]
+        if not versioned_output_dir:
+            candidate_dirs.append(output_dir / domain)
+
+        for candidate_dir in candidate_dirs:
+            existing_files.extend(_existing_excel_files(candidate_dir))
+
+    return sorted(set(existing_files))
 
 
 def _export_release_domains(
@@ -203,14 +303,37 @@ def _export_release_domains(
     output_dir: Path,
     stix_files: Dict[str, Path],
     versioned_output_dir: bool,
+    overwrite: bool,
 ):
     """Export resolved release STIX files to Excel."""
     for domain, stix_file in stix_files.items():
         logger.info(f"Exporting {domain} to Excel from {stix_file}")
-        export(domain=domain, version=version, output_dir=str(output_dir), stix_file=str(stix_file))
+        domain_output_dir = output_dir if versioned_output_dir else _release_staging_output_dir(output_dir)
+        if not versioned_output_dir:
+            logger.info(
+                f"Writing staged Excel files for {domain} to {_excel_output_dir(domain_output_dir, domain, version)}"
+            )
+
+        export(
+            domain=domain,
+            version=version,
+            output_dir=str(domain_output_dir),
+            stix_file=str(stix_file),
+            overwrite=overwrite,
+            log_written_files=versioned_output_dir,
+        )
 
         if not versioned_output_dir:
-            _move_versioned_exports_to_domain_dir(output_dir=output_dir, domain=domain, version=version)
+            logger.info(f"Moving staged Excel files for {domain} to {output_dir / domain}")
+            moved_files = _move_versioned_exports_to_domain_dir(
+                output_dir=output_dir,
+                domain=domain,
+                version=version,
+                overwrite=overwrite,
+                staging_output_dir=domain_output_dir,
+            )
+            for moved_file in moved_files:
+                logger.info(f"Excel file written: {moved_file}")
 
 
 def get_stix_data(
@@ -362,7 +485,13 @@ def build_ds_an_lg_relationships(dataframes: Dict) -> Dict[str, pd.DataFrame]:
 
 
 def write_excel(
-    dataframes: Dict, domain: str, src: MemoryStore, version: Optional[str] = None, output_dir: str = "."
+    dataframes: Dict,
+    domain: str,
+    src: MemoryStore,
+    version: Optional[str] = None,
+    output_dir: str = ".",
+    overwrite: bool = False,
+    log_written_files: bool = True,
 ) -> List:
     """Given a set of dataframes from build_dataframes, write the ATT&CK dataset to output directory.
 
@@ -381,6 +510,10 @@ def write_excel(
     output_dir : str, optional
         The directory to write the excel files to.
         If omitted writes to a subfolder of the current directory depending on specified domain and version, by default "."
+    overwrite : bool, optional
+        Whether to replace existing Excel files in the generated output directory, by default False
+    log_written_files : bool, optional
+        Whether to log each written Excel file path, by default True
 
     Returns
     -------
@@ -391,15 +524,15 @@ def write_excel(
     # master list of files that have been written
     written_files = []
     # set up output directory
-    if version:
-        domain_version_string = f"{domain}-{version}"
-    else:
-        domain_version_string = domain
-    output_directory = os.path.join(output_dir, domain_version_string)
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    domain_version_string = _domain_version_string(domain, version)
+    output_directory_path = _excel_output_dir(Path(output_dir), domain, version)
+    if not overwrite:
+        _raise_if_excel_files_exist(_existing_excel_files(output_directory_path))
+    output_directory_path.mkdir(parents=True, exist_ok=True)
+    output_directory = str(output_directory_path)
     # master dataset file
     master_fp = os.path.join(output_directory, f"{domain_version_string}.xlsx")
+    _log_excel_overwrite(master_fp, overwrite=overwrite)
 
     ds_an_ls_df = stixToDf.detectionStrategiesAnalyticsLogSourcesDf(src)
     add_ds_an_ls_to = {"detectionstrategies", "analytics", "datacomponents"}
@@ -418,6 +551,7 @@ def write_excel(
                     continue
 
                 # write the dataframes for the object type into named sheets
+                _log_excel_overwrite(fp, overwrite=overwrite)
                 with pd.ExcelWriter(fp) as object_writer:
                     for sheet_name in object_data:
                         logger.debug(f"Writing sheet to {fp}: {sheet_name}")
@@ -441,6 +575,7 @@ def write_excel(
                 object_data[object_type].to_excel(master_writer, sheet_name=object_type, index=False)
 
             else:  # handle matrix special formatting
+                _log_excel_overwrite(fp, overwrite=overwrite)
                 with pd.ExcelWriter(fp, engine="xlsxwriter") as matrix_writer:
                     # Combine both matrix types
                     combined = object_data[0] + object_data[1]
@@ -526,8 +661,9 @@ def write_excel(
 
     written_files.append(master_fp)
 
-    for thefile in written_files:
-        logger.info(f"Excel file created: {thefile}")
+    if log_written_files:
+        for thefile in written_files:
+            logger.info(f"Excel file written: {thefile}")
     return written_files
 
 
@@ -538,6 +674,8 @@ def export(
     remote: Optional[str] = None,
     stix_file: Optional[str] = None,
     mem_store: Optional[MemoryStore] = None,
+    overwrite: bool = False,
+    log_written_files: bool = True,
 ):
     """Download ATT&CK data from MITRE/CTI and convert it to Excel spreadsheets.
 
@@ -564,6 +702,10 @@ def export(
         A STIX bundle containing ATT&CK data for a domain already loaded into memory.
         Mutually exclusive with `remote` and `stix_file`.
         By default None
+    overwrite : bool, optional
+        Whether to replace existing Excel files in the generated output directory, by default False
+    log_written_files : bool, optional
+        Whether to log each written Excel file path, by default True
 
     Raises
     ------
@@ -582,6 +724,9 @@ def export(
 
     get_stix_from_github = remote is None and stix_file is None and mem_store is None
 
+    if not overwrite:
+        _raise_if_excel_files_exist(_existing_excel_files(_excel_output_dir(Path(output_dir), domain, version)))
+
     if get_stix_from_github or remote or stix_file:
         mem_store = get_stix_data(domain=domain, version=version, remote=remote, stix_file=stix_file)
 
@@ -598,11 +743,27 @@ def export(
             major_version = int(match.group(1))
             if major_version < 18:
                 dataframes = build_dataframes_pre_v18(src=mem_store, domain=domain)
-                write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
+                write_excel(
+                    dataframes=dataframes,
+                    domain=domain,
+                    src=mem_store,
+                    version=version,
+                    output_dir=output_dir,
+                    overwrite=overwrite,
+                    log_written_files=log_written_files,
+                )
                 return
 
     dataframes = build_dataframes(src=mem_store, domain=domain)
-    write_excel(dataframes=dataframes, domain=domain, src=mem_store, version=version, output_dir=output_dir)
+    write_excel(
+        dataframes=dataframes,
+        domain=domain,
+        src=mem_store,
+        version=version,
+        output_dir=output_dir,
+        overwrite=overwrite,
+        log_written_files=log_written_files,
+    )
 
 
 def _validate_cli_value(value: str, allowed_values: tuple[str, ...], label: str) -> str:
@@ -653,20 +814,40 @@ def from_stix_cli(
             help="Path to a local STIX file containing ATT&CK data for a domain.",
         ),
     ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option(
+            "--overwrite",
+            help="Replace existing Excel files in the generated output directory.",
+        ),
+    ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option(
+            "--verbose",
+            "-v",
+            help="Show debug log messages.",
+        ),
+    ] = False,
 ):
     """Convert one ATT&CK domain STIX bundle to Excel."""
+    _configure_cli_logging(verbose=verbose)
     domain = _validate_cli_value(domain, ATTACK_DOMAINS, "ATT&CK domain")
 
     if remote and stix_file:
         raise typer.BadParameter("--remote and --stix-file are mutually exclusive")
 
-    export(
-        domain=domain,
-        version=version,
-        output_dir=output,
-        remote=remote,
-        stix_file=stix_file,
-    )
+    try:
+        export(
+            domain=domain,
+            version=version,
+            output_dir=output,
+            remote=remote,
+            stix_file=stix_file,
+            overwrite=overwrite,
+        )
+    except FileExistsError as error:
+        raise click.ClickException(str(error)) from error
 
 
 @app.command("from-release")
@@ -713,21 +894,47 @@ def from_release_cli(
             help="Preserve domain-version output folders.",
         ),
     ] = False,
+    overwrite: Annotated[
+        bool,
+        typer.Option(
+            "--overwrite",
+            help="Replace existing Excel files in generated output directories.",
+        ),
+    ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option(
+            "--verbose",
+            "-v",
+            help="Show debug log messages.",
+        ),
+    ] = False,
 ):
     """Convert ATT&CK release domain bundles to Excel."""
+    _configure_cli_logging(verbose=verbose)
     stix_version = _validate_cli_value(stix_version, VALID_STIX_VERSIONS, "STIX version")
     selected_domains = [
         _validate_cli_value(selected_domain, ATTACK_DOMAINS, "ATT&CK domain") for selected_domain in domains or []
     ]
 
-    export_release(
-        version=version,
-        stix_version=stix_version,
-        output_dir=output,
-        stix_base_dir=stix_base_dir,
-        domains=selected_domains or None,
-        versioned_output_dir=versioned_output_dir,
-    )
+    try:
+        export_release(
+            version=version,
+            stix_version=stix_version,
+            output_dir=output,
+            stix_base_dir=stix_base_dir,
+            domains=selected_domains or None,
+            versioned_output_dir=versioned_output_dir,
+            overwrite=overwrite,
+        )
+    except FileExistsError as error:
+        raise click.ClickException(str(error)) from error
+
+
+def _configure_cli_logging(verbose: bool = False):
+    """Configure attack-to-excel CLI output for user-facing progress logs."""
+    logger.remove()
+    logger.add(sys.stderr, level="DEBUG" if verbose else "INFO")
 
 
 def main(argv=None):
