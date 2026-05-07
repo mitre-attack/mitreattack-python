@@ -29,7 +29,8 @@ STIX_LOCATION_OPTIONS = {
 TEST_CACHE_DIR = Path(
     os.getenv("MITREATTACK_TEST_CACHE_DIR", Path(__file__).resolve().parent.parent / ".pytest_cache" / "attack-stix")
 )
-DEFAULT_ATTACK_STIX_PREP = (None, ["16.1", "17.0"])
+DEFAULT_ATTACK_STIX_PREP = (None,)
+SLOW_ATTACK_STIX_PREP = (["16.1", "17.0"],)
 
 
 def pytest_addoption(parser):
@@ -72,12 +73,26 @@ def pytest_sessionstart(session):
     config = session.config
     if _should_prepare_attack_stix_cache(config) and not _all_stix_files_requested(config):
         prep_params = list(DEFAULT_ATTACK_STIX_PREP)
+        if _selected_tests_may_include_slow_or_integration(config):
+            prep_params.extend(SLOW_ATTACK_STIX_PREP)
         requested_param = _get_requested_attack_stix_param(config)
         if requested_param and not _is_attack_stix_param_prepared(requested_param, prep_params):
             prep_params.append(requested_param)
 
         for versions_param in prep_params:
             _download_attack_stix_data(versions_param, config=config)
+
+
+def _selected_tests_may_include_slow_or_integration(config) -> bool:
+    """Return whether the marker expression can select slow or integration tests."""
+    markexpr = getattr(getattr(config, "option", None), "markexpr", "") or ""
+    normalized = " ".join(markexpr.split())
+    return normalized not in {
+        "not slow",
+        "not integration",
+        "not integration and not slow",
+        "not slow and not integration",
+    }
 
 
 def _get_config_option(config, name):
@@ -257,7 +272,7 @@ def _download_attack_stix_data(versions_param, config=None):
             raise RuntimeError(
                 "ATT&CK STIX cache is missing required bundles for "
                 f"{requested}. xdist runs should warm this cache before workers start. "
-                "If you added a new ATT&CK version to xdist-backed tests, update DEFAULT_ATTACK_STIX_PREP."
+                "If you added a new ATT&CK version to xdist-backed tests, update the xdist STIX prep lists."
             )
         logger.debug(f"Downloading ATT&CK STIX bundles into cache at {download_dir}")
         download_domains(
