@@ -328,8 +328,9 @@ def test_attack_to_excel_cli_from_stix_reports_existing_excel_file(monkeypatch, 
     result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-stix"])
 
     assert result.exit_code != 0
-    assert "Refusing to overwrite existing Excel file" in result.output
-    assert "--overwrite" in result.output
+    output = unstyle(result.output)
+    assert "Refusing to overwrite existing Excel file" in output
+    assert "--overwrite" in output
 
 
 def test_attack_to_excel_cli_from_stix_rejects_multiple_sources(attack_to_excel_runner: CliRunner):
@@ -434,8 +435,9 @@ def test_attack_to_excel_cli_from_release_reports_existing_excel_file(monkeypatc
     result = attack_to_excel_runner.invoke(attackToExcel.app, ["from-release"])
 
     assert result.exit_code != 0
-    assert "Refusing to overwrite existing Excel file" in result.output
-    assert "--overwrite" in result.output
+    output = unstyle(result.output)
+    assert "Refusing to overwrite existing Excel file" in output
+    assert "--overwrite" in output
 
 
 def test_attack_to_excel_cli_from_release_selected_domains(
