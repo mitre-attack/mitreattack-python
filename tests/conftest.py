@@ -298,9 +298,9 @@ def attack_stix_dir(request):
     -------
     dict
         Dictionary mapping version to download directory path.
-        Directory structure: attack-releases/stix-{version}/v{attack_version}/
-        For single/default: {"latest": "attack-releases/stix-2.0"} or {"14.0": "attack-releases/stix-2.0"}
-        For multiple: {"14.0": "attack-releases/stix-2.0", "14.1": "attack-releases/stix-2.0"}
+        Directory structure: .pytest_cache/attack-stix/stix-{stix_version}/v{attack_version}/
+        For single/default: {"latest": ".pytest_cache/attack-stix/stix-2.0/v{LATEST_VERSION}"}
+        For multiple: {"14.0": ".pytest_cache/attack-stix/stix-2.0/v14.0"}
 
     Yields
     ------

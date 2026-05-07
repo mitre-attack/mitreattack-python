@@ -39,6 +39,10 @@ test:
 test-fast:
     uv run pytest -m "not integration and not slow"
 
+# Run the fast local test subset in parallel
+test-fast-xdist workers="auto":
+    uv run --extra dev pytest -n {{ workers }} -m "not integration and not slow"
+
 # Run tests in parallel
 test-xdist workers="auto":
     uv run --extra dev pytest -n {{ workers }}
