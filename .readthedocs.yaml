@@ -12,7 +12,8 @@ build:
       - pip install uv
       - uv sync --extra docs
     build:
-      - uv run sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
+      html:
+        - uv run sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
 
 sphinx:
   configuration: docs/conf.py
