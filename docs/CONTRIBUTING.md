@@ -51,12 +51,15 @@ Run `just` with no arguments to see all available commands. Here are the most co
 
 ```bash
 just lint          # Run pre-commit hooks (ruff format) on all files
-just test          # Run tests
+just test          # Run the full test suite, matching CI expectations
+just test-fast     # Run the fast local subset, excluding integration and slow tests
 just test-xdist    # Run tests in parallel
 just test-cov      # Run tests with coverage report
 just test-cov-xdist  # Run tests with coverage in parallel
 just build         # Build the package
 ```
+
+Use `just test-fast` while iterating locally on changes that do not need full STIX-backed export or other slow integration coverage. Tests or setup steps that normally take longer than 10 seconds should be marked `slow`, so they are skipped by `just test-fast`. Before opening a PR, run `just test`; GitHub Actions also runs the full suite with coverage.
 
 Tests that need real ATT&CK STIX data should use the shared STIX fixtures instead of downloading or
 preparing bundles directly. Parallel test runs warm the shared STIX cache before workers start; if a

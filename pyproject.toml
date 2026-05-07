@@ -1,7 +1,7 @@
 [project]
 name = "mitreattack-python"
 description = "MITRE ATT&CK python library"
-version = "5.5.0"
+version = "6.0.0"
 authors = [{ name = "MITRE ATT&CK", email = "attack@mitre.org" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
@@ -41,12 +41,13 @@ repository = "https://github.com/mitre-attack/mitreattack-python/"
 documentation = "https://mitreattack-python.readthedocs.io/"
 
 [project.scripts]
-attackToExcel_cli = 'mitreattack.attackToExcel.attackToExcel:main'
+attack-to-excel = 'mitreattack.attackToExcel.attackToExcel:main'
 layerExporter_cli = 'mitreattack.navlayers.layerExporter_cli:main'
 layerGenerator_cli = 'mitreattack.navlayers.layerGenerator_cli:main'
 indexToMarkdown_cli = 'mitreattack.collections.index_to_markdown:main'
 collectionToIndex_cli = 'mitreattack.collections.collection_to_index:main'
 diff_stix = 'mitreattack.diffStix.changelog_helper:main'
+attack-changelog = 'mitreattack.diffStix.attack_changelog:main'
 download_attack_stix = 'mitreattack.download_stix:app'
 
 [project.optional-dependencies]
@@ -54,7 +55,7 @@ dev = [
     "check-wheel-contents>=0.6.1",
     "commitizen>=4.9.1",
     "pre-commit>=4.0.0",
-    "pytest>=8.4.2",
+    "pytest>=9.0",
     "pytest-cov>=7.0.0",
     "pytest-dotenv>=0.5.2",
     "pytest-xdist>=3.8.0",
@@ -65,7 +66,7 @@ dev = [
 docs = [
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
-] 
+]
 # The following ci group is needed for the PSR GitHub Action. See `tool.semantic_release.build_command` below for details.
 ci = ["uv>=0.10.4"]
 
@@ -80,8 +81,13 @@ package = true
 module-name = "mitreattack"
 module-root = ""
 
-[tool.pytest.ini_options]
+[tool.pytest]
+minversion = "9.0"
 testpaths = ["tests"]
+markers = [
+    "integration: tests that exercise real external-size data or full integration paths",
+    "slow: tests that are intentionally excluded from default fast runs",
+]
 
 [tool.ruff]
 line-length = 120

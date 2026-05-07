@@ -10,7 +10,7 @@ import sys
 import textwrap
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import markdown
 import requests
@@ -1429,7 +1429,7 @@ class DiffStix(object):
         """Return dict format summarizing detected differences."""
         logger.info("Generating changes info")
 
-        changes_dict = {}
+        changes_dict: Dict[str, Any] = {}
         for domain in self.domains:
             changes_dict[domain] = {}
 
