@@ -5,6 +5,8 @@ default:
 # Install development dependencies
 install:
     uv sync --all-extras
+    uv run pre-commit install
+    uv run pre-commit install --hook-type commit-msg
 
 # Upgrade all uv dependencies
 upgrade:
