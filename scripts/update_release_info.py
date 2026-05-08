@@ -17,7 +17,10 @@ from pathlib import Path
 from typing import Any
 
 DOMAINS = ("enterprise", "mobile", "ics")
-RELEASE_INFO_PATH = Path("mitreattack/release_info.py")
+SCRIPT_PATH = Path(__file__).resolve()
+REPO_ROOT = SCRIPT_PATH.parents[1]
+RELEASE_INFO_DISPLAY_PATH = Path("mitreattack/release_info.py")
+RELEASE_INFO_PATH = REPO_ROOT / RELEASE_INFO_DISPLAY_PATH
 REQUIRED_ASSIGNMENTS = ("LATEST_VERSION", "STIX20", "STIX21")
 
 
@@ -54,35 +57,27 @@ def main() -> None:
     """Parse arguments and update release_info.py."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("version", nargs="?", help="ATT&CK release version, for example 19.1")
-    parser.add_argument(
-        "--release-info",
-        type=Path,
-        default=RELEASE_INFO_PATH,
-        help=f"Path to release_info.py. Defaults to {RELEASE_INFO_PATH}",
-    )
-    parser.add_argument("--token", default=None, help="GitHub token. Defaults to GITHUB_TOKEN if set.")
-    parser.add_argument("--dry-run", action="store_true", help="Print the updated file instead of writing it.")
-    parser.add_argument("--no-format", action="store_true", help="Skip running ruff format after writing.")
+    parser.add_argument("--dry-run", action="store_true", help="Print a summary of updates instead of writing.")
     args = parser.parse_args()
 
-    version = args.version or fetch_latest_common_version(token=args.token)
-    hashes = fetch_release_hashes(version=version, token=args.token)
-    updated = update_release_info_source(args.release_info.read_text(), version=version, release_hashes=hashes)
+    version = args.version or fetch_latest_common_version()
+    hashes = fetch_release_hashes(version=version)
+    source = RELEASE_INFO_PATH.read_text()
+    updated = update_release_info_source(source, version=version, release_hashes=hashes)
 
     if args.dry_run:
-        print(updated)
+        print(format_dry_run_summary(source, version=version, release_hashes=hashes))
         return
 
-    args.release_info.write_text(updated)
-    if not args.no_format:
-        subprocess.run(["uv", "run", "--extra", "dev", "ruff", "format", str(args.release_info)], check=True)
+    RELEASE_INFO_PATH.write_text(updated)
+    subprocess.run(["uv", "run", "--extra", "dev", "ruff", "format", str(RELEASE_INFO_PATH)], check=True, cwd=REPO_ROOT)
 
-    print(f"Updated {args.release_info} for ATT&CK v{version}")
+    print(f"Updated {RELEASE_INFO_DISPLAY_PATH} for ATT&CK v{version}")
 
 
-def fetch_latest_common_version(token: str | None = None) -> str:
+def fetch_latest_common_version() -> str:
     """Fetch the latest non-prerelease version present in both STIX release repos."""
-    latest_versions = {source.stix_version: fetch_latest_version(source, token=token) for source in RELEASE_SOURCES}
+    latest_versions = {source.stix_version: fetch_latest_version(source) for source in RELEASE_SOURCES}
     if latest_versions["2.0"] != latest_versions["2.1"]:
         raise SystemExit(
             "Latest STIX release versions do not match: "
@@ -92,25 +87,25 @@ def fetch_latest_common_version(token: str | None = None) -> str:
     return latest_versions["2.0"]
 
 
-def fetch_latest_version(source: ReleaseSource, token: str | None = None) -> str:
+def fetch_latest_version(source: ReleaseSource) -> str:
     """Fetch the latest GitHub release version for one STIX source."""
-    release = github_json(f"https://api.github.com/repos/{source.owner}/{source.repo}/releases/latest", token=token)
+    release = github_json(f"https://api.github.com/repos/{source.owner}/{source.repo}/releases/latest")
     return version_from_tag(release["tag_name"], source.tag_prefix)
 
 
-def fetch_release_hashes(version: str, token: str | None = None) -> dict[str, dict[str, str]]:
+def fetch_release_hashes(version: str) -> dict[str, dict[str, str]]:
     """Fetch SHA256 hashes for every required STIX source and domain."""
     release_hashes: dict[str, dict[str, str]] = {}
     for source in RELEASE_SOURCES:
-        release_hashes[source.assignment_name] = fetch_source_hashes(source, version=version, token=token)
+        release_hashes[source.assignment_name] = fetch_source_hashes(source, version=version)
     return release_hashes
 
 
-def fetch_source_hashes(source: ReleaseSource, version: str, token: str | None = None) -> dict[str, str]:
+def fetch_source_hashes(source: ReleaseSource, version: str) -> dict[str, str]:
     """Fetch SHA256 hashes for one STIX release source."""
     tag = f"{source.tag_prefix}{version}"
     url = f"https://api.github.com/repos/{source.owner}/{source.repo}/releases/tags/{quote_tag(tag)}"
-    release = github_json(url, token=token)
+    release = github_json(url)
     assets = release.get("assets", [])
     hashes: dict[str, str] = {}
 
@@ -124,7 +119,7 @@ def fetch_source_hashes(source: ReleaseSource, version: str, token: str | None =
         browser_download_url = asset.get("browser_download_url")
         if not isinstance(browser_download_url, str):
             raise SystemExit(f"Missing browser_download_url for {source.owner}/{source.repo} {tag} {asset.get('name')}")
-        hashes[domain] = fetch_sha256(browser_download_url, token=token)
+        hashes[domain] = fetch_sha256(browser_download_url)
 
     return hashes
 
@@ -148,6 +143,39 @@ def update_release_info_source(source: str, version: str, release_hashes: dict[s
     }
 
     return replace_assignments(source, assignments, replacements)
+
+
+def format_dry_run_summary(source: str, version: str, release_hashes: dict[str, dict[str, str]]) -> str:
+    """Return a targeted summary of release_info.py changes without printing the full file."""
+    tree = ast.parse(source)
+    assignments = find_assignments(tree)
+    latest_version = ast.literal_eval(assignments["LATEST_VERSION"].value)
+    stix_values = {
+        "STIX20": ast.literal_eval(assignments["STIX20"].value),
+        "STIX21": ast.literal_eval(assignments["STIX21"].value),
+    }
+
+    lines = [f"Would update {RELEASE_INFO_DISPLAY_PATH} for ATT&CK v{version}", "LATEST_VERSION:"]
+    if latest_version == version:
+        lines.append(f'  unchanged LATEST_VERSION = "{version}"')
+    else:
+        lines.append(f'- LATEST_VERSION = "{latest_version}"')
+        lines.append(f'+ LATEST_VERSION = "{version}"')
+
+    for assignment_name, domain_hashes in release_hashes.items():
+        lines.append(f"{assignment_name}:")
+        for domain in DOMAINS:
+            current_hash = stix_values[assignment_name].get(domain, {}).get(version)
+            new_hash = domain_hashes[domain]
+            if current_hash is None:
+                lines.append(f"+ {assignment_name}.{domain}[{version!r}] = {new_hash!r}")
+            elif current_hash == new_hash:
+                lines.append(f"  unchanged {assignment_name}.{domain}[{version!r}] = {new_hash!r}")
+            else:
+                lines.append(f"- {assignment_name}.{domain}[{version!r}] = {current_hash!r}")
+                lines.append(f"+ {assignment_name}.{domain}[{version!r}] = {new_hash!r}")
+
+    return "\n".join(lines)
 
 
 def find_assignments(tree: ast.Module) -> dict[str, ast.Assign]:
@@ -196,9 +224,9 @@ def find_domain_asset(assets: list[dict[str, Any]], domain: str, version: str) -
     )
 
 
-def github_json(url: str, token: str | None = None) -> Any:
+def github_json(url: str) -> Any:
     """Fetch JSON from the GitHub API."""
-    request = urllib.request.Request(url, headers=github_headers(token))
+    request = urllib.request.Request(url, headers=github_headers())
     try:
         with urllib.request.urlopen(request) as response:
             return json.loads(response.read().decode("utf-8"))
@@ -208,11 +236,11 @@ def github_json(url: str, token: str | None = None) -> Any:
         raise SystemExit(f"GitHub API request failed for {url}: {error.reason}") from error
 
 
-def fetch_sha256(url: str, token: str | None = None) -> str:
+def fetch_sha256(url: str) -> str:
     """Download an asset and return its SHA256 hash."""
     import hashlib
 
-    request = urllib.request.Request(url, headers=github_headers(token))
+    request = urllib.request.Request(url, headers=github_headers())
     sha256_hash = hashlib.sha256()
     try:
         with urllib.request.urlopen(request) as response:
@@ -225,24 +253,13 @@ def fetch_sha256(url: str, token: str | None = None) -> str:
     return sha256_hash.hexdigest()
 
 
-def github_headers(token: str | None = None) -> dict[str, str]:
+def github_headers() -> dict[str, str]:
     """Build GitHub request headers."""
-    headers = {
+    return {
         "Accept": "application/vnd.github+json",
         "User-Agent": "mitreattack-python-release-info-updater",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    token = token or env_github_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    return headers
-
-
-def env_github_token() -> str | None:
-    """Return GITHUB_TOKEN from the environment without importing os at module import time."""
-    import os
-
-    return os.environ.get("GITHUB_TOKEN")
 
 
 def version_from_tag(tag: str, tag_prefix: str) -> str:
