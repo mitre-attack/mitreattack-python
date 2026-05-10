@@ -139,7 +139,7 @@ class AttackChangesEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def _parse_release_summary_changelog_pair(changelog_pair: str) -> ReleaseSummaryChangelogEntry:
+def parse_release_summary_changelog_pair(changelog_pair: str) -> ReleaseSummaryChangelogEntry:
     """Parse a release-summary changelog pair string."""
     parts = changelog_pair.split("-")
     if len(parts) != 2 or not all(parts):
@@ -148,7 +148,7 @@ def _parse_release_summary_changelog_pair(changelog_pair: str) -> ReleaseSummary
     return ReleaseSummaryChangelogEntry(old_version=parts[0], new_version=parts[1])
 
 
-def _format_release_summary_version_label(version: str) -> str:
+def format_release_summary_version_label(version: str) -> str:
     """Format the human-readable release summary version label."""
     version_text = version.strip()
     if not version_text.lower().startswith("v"):
@@ -157,7 +157,7 @@ def _format_release_summary_version_label(version: str) -> str:
     return f"ATT&CK {version_text}"
 
 
-def _get_release_summary_version_link(version: str) -> str:
+def get_release_summary_version_link(version: str) -> str:
     """Build the default version page link for a release summary."""
     version_text = version.strip()
     if not version_text.lower().startswith("v"):
@@ -166,7 +166,7 @@ def _get_release_summary_version_link(version: str) -> str:
     return f"/versions/{version_text}"
 
 
-def _format_release_summary_data_label(version: str) -> str:
+def format_release_summary_data_label(version: str) -> str:
     """Format the human-readable label for a CTI data release entry."""
     version_text = version.strip()
     if not version_text.lower().startswith("v"):
@@ -175,14 +175,14 @@ def _format_release_summary_data_label(version: str) -> str:
     return f"{version_text} on MITRE/CTI"
 
 
-def _format_release_summary_changelog_label(old_version: str, new_version: str) -> str:
+def format_release_summary_changelog_label(old_version: str, new_version: str) -> str:
     """Format the human-readable label for a changelog transition."""
     old_text = old_version if old_version.lower().startswith("v") else f"v{old_version}"
     new_text = new_version if new_version.lower().startswith("v") else f"v{new_version}"
     return f"{old_text} - {new_text}"
 
 
-def _get_release_summary_changelog_base(changelog_prefix: str, old_version: str, new_version: str) -> str:
+def get_release_summary_changelog_base(changelog_prefix: str, old_version: str, new_version: str) -> str:
     """Build the base path for release-summary changelog links."""
     old_text = old_version if old_version.lower().startswith("v") else f"v{old_version}"
     new_text = new_version if new_version.lower().startswith("v") else f"v{new_version}"
@@ -213,11 +213,11 @@ def build_release_summary(
 
     changelog_entries = []
     for changelog_pair in release_summary_changelogs or []:
-        changelog_entries.append(_parse_release_summary_changelog_pair(changelog_pair))
+        changelog_entries.append(parse_release_summary_changelog_pair(changelog_pair))
 
     return ReleaseSummary(
         version=release_summary_version,
-        version_link=release_summary_version_link or _get_release_summary_version_link(release_summary_version),
+        version_link=release_summary_version_link or get_release_summary_version_link(release_summary_version),
         start_date=release_summary_start_date,
         end_date=release_summary_end_date,
         data_versions=release_summary_data_versions or [],
@@ -1409,28 +1409,28 @@ class DiffStix(object):
         summary = self.release_summary
         start_date = summary.start_date or "TBD"
         end_date = summary.end_date or "TBD"
-        changelog_entries = self._get_release_summary_changelog_entries(summary)
+        changelog_entries = self.get_release_summary_changelog_entries(summary)
 
         content = "## Release Summary\n\n"
         content += "**Version**\n"
-        content += f"[{_format_release_summary_version_label(summary.version)}]({summary.version_link})\n\n"
+        content += f"[{format_release_summary_version_label(summary.version)}]({summary.version_link})\n\n"
         content += "**Dates**\n"
         content += f"{start_date} - {end_date}\n\n"
 
         if summary.data_versions:
             content += "**Data**\n"
             for version in summary.data_versions:
-                content += f"- [{_format_release_summary_data_label(version)}]({summary.data_prefix}{version})\n"
+                content += f"- [{format_release_summary_data_label(version)}]({summary.data_prefix}{version})\n"
             content += "\n"
 
         if changelog_entries:
             content += "**Changelogs**\n"
             for entry in changelog_entries:
-                changelog_base = _get_release_summary_changelog_base(
+                changelog_base = get_release_summary_changelog_base(
                     summary.changelog_prefix, entry.old_version, entry.new_version
                 )
                 content += (
-                    f"- {_format_release_summary_changelog_label(entry.old_version, entry.new_version)} "
+                    f"- {format_release_summary_changelog_label(entry.old_version, entry.new_version)} "
                     f"[Details]({changelog_base}/changelog-detailed.html) "
                     f"([JSON]({changelog_base}/changelog.json))\n"
                 )
@@ -1438,7 +1438,7 @@ class DiffStix(object):
 
         return content
 
-    def _get_release_summary_changelog_entries(self, summary: ReleaseSummary) -> List[ReleaseSummaryChangelogEntry]:
+    def get_release_summary_changelog_entries(self, summary: ReleaseSummary) -> List[ReleaseSummaryChangelogEntry]:
         """Return explicit or inferred changelog entries for the release summary."""
         if summary.changelog_entries:
             return summary.changelog_entries
@@ -1446,7 +1446,7 @@ class DiffStix(object):
         if not summary.data_versions:
             return []
 
-        old_version = self._get_detected_old_release_version()
+        old_version = self.get_detected_old_release_version()
         if not old_version:
             return []
 
@@ -1458,7 +1458,7 @@ class DiffStix(object):
 
         return entries
 
-    def _get_detected_old_release_version(self) -> Optional[str]:
+    def get_detected_old_release_version(self) -> Optional[str]:
         """Return the first detected old ATT&CK release version from the loaded domains."""
         for domain in self.domains:
             old_version = self.data["old"][domain].get("attack_release_version")
@@ -2577,7 +2577,7 @@ def get_parsed_args():
             parser.error("--release-summary requires --release-summary-version")
         for changelog_pair in args.release_summary_changelogs or []:
             try:
-                _parse_release_summary_changelog_pair(changelog_pair)
+                parse_release_summary_changelog_pair(changelog_pair)
             except ValueError as exc:
                 parser.error(str(exc))
 
