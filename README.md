@@ -1,5 +1,7 @@
 # mitreattack-python
 
+[![PyPI version](https://img.shields.io/pypi/v/mitreattack-python.svg)](https://pypi.org/project/mitreattack-python/) [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/) [![License](https://img.shields.io/pypi/l/mitreattack-python.svg)](https://github.com/mitre-attack/mitreattack-python/blob/main/LICENSE) [![Docs](https://img.shields.io/readthedocs/mitreattack-python.svg)](https://mitreattack-python.readthedocs.io/) [![Lint and Test](https://img.shields.io/github/actions/workflow/status/mitre-attack/mitreattack-python/lint-and-test.yml?label=lint%20%26%20test)](https://github.com/mitre-attack/mitreattack-python/actions/workflows/lint-and-test.yml) [![Release and Publish](https://img.shields.io/github/actions/workflow/status/mitre-attack/mitreattack-python/release-and-publish.yml?branch=main&label=release)](https://github.com/mitre-attack/mitreattack-python/actions/workflows/release-and-publish.yml)
+
 This repository contains a library of Python tools and utilities for working with ATT&CK data.
 For more information, see the [full documentation](https://mitreattack-python.readthedocs.io/) on ReadTheDocs.
 

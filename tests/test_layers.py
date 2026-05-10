@@ -80,6 +80,7 @@ def test_config_load(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
     assert Path(svg_output).exists()
 
 
+@pytest.mark.slow
 def test_aggregate(tmp_path: Path, memstore_enterprise_latest: MemoryStore):
     """Test aggregate layer exports (agg configurations are present in each layer)."""
     listing = [
