@@ -54,7 +54,36 @@ just release-dry-run
 
 ### Updating ATT&CK Version Metadata
 
-If releasing for a new ATT&CK version, update `LATEST_VERSION` in `mitreattack/release_info.py` before merging.
+If releasing for a new ATT&CK version, update `mitreattack-python/release_info.py` after the corresponding STIX releases are published:
+
+- STIX 2.0 hashes come from [mitre/cti](https://github.com/mitre/cti/releases)
+- STIX 2.1 hashes come from [mitre-attack/attack-stix-data](https://github.com/mitre-attack/attack-stix-data/releases)
+
+Preview the update first:
+
+```bash
+uv run --extra dev python scripts/update_release_info.py 19.1 --dry-run
+```
+
+Apply it:
+
+```bash
+uv run --extra dev python scripts/update_release_info.py 19.1
+```
+
+The updater refreshes:
+
+- `LATEST_VERSION`
+- `STIX20["enterprise"]`, `STIX20["mobile"]`, `STIX20["ics"]`
+- `STIX21["enterprise"]`, `STIX21["mobile"]`, `STIX21["ics"]`
+
+Then verify:
+
+```bash
+uv run --extra dev ruff check scripts/update_release_info.py tests/test_release_info_updater.py mitreattack/release_info.py
+```
+
+The GitHub release assets must exist before running the updater, so this step belongs after publishing and tagging [mitre/cti](https://github.com/mitre/cti) and [mitre-attack/attack-stix-data](https://github.com/mitre-attack/attack-stix-data).
 
 ## Notes
 
