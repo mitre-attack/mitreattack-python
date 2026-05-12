@@ -1,0 +1,136 @@
+name: Update ATT&CK Release Info PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      attack_version:
+        description: ATT&CK version to update, for example 19.1. If omitted, the latest matching STIX releases are used.
+        required: false
+        type: string
+      source_repo:
+        description: Repository that triggered this update.
+        required: false
+        type: string
+      source_release_url:
+        description: Release URL that triggered this update.
+        required: false
+        type: string
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-release-info-pr
+  cancel-in-progress: false
+
+jobs:
+  update-release-info:
+    name: Update release_info.py
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ATTACK_AUTOBOT_CLIENT_ID }}
+          private-key: ${{ secrets.ATTACK_AUTOBOT_PRIVATE_KEY }}
+
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Update release info
+        id: update
+        env:
+          ATTACK_VERSION: ${{ github.event.inputs.attack_version || '' }}
+        run: |
+          if [[ -n "${ATTACK_VERSION}" ]]; then
+            uv run --extra dev python scripts/update_release_info.py "${ATTACK_VERSION}"
+          else
+            uv run --extra dev python scripts/update_release_info.py
+          fi
+
+          version="$(
+            uv run --extra dev python -c 'from mitreattack.release_info import LATEST_VERSION; print(LATEST_VERSION)'
+          )"
+
+          if git diff --quiet -- mitreattack/release_info.py; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            echo "version=${version}" >> "${GITHUB_OUTPUT}"
+            echo "release_info.py is already current for ATT&CK v${version}."
+            exit 0
+          fi
+
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify updated files
+        if: steps.update.outputs.changed == 'true'
+        run: uv run --extra dev ruff check scripts/update_release_info.py mitreattack/release_info.py
+
+      - name: Create pull request
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.update.outputs.version }}
+          SOURCE_REPO: ${{ github.event.inputs.source_repo || '' }}
+          SOURCE_RELEASE_URL: ${{ github.event.inputs.source_release_url || '' }}
+        run: |
+          branch="automation/update-release-info-${VERSION}"
+          title="chore: update ATT&CK release metadata for ${VERSION}"
+
+          git config user.name "attack-autobot[bot]"
+          git config user.email "attack-autobot[bot]@users.noreply.github.com"
+          git checkout -B "${branch}"
+          git add mitreattack/release_info.py
+          git commit -m "${title}"
+          git push --force-with-lease "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${branch}"
+
+          body_file="$(mktemp)"
+          {
+            echo "Updates \`mitreattack/release_info.py\` for ATT&CK v${VERSION} after the STIX release assets were published."
+            echo
+            echo "The updater refreshed:"
+            echo
+            echo "- \`LATEST_VERSION\`"
+            echo "- \`STIX20[\"enterprise\"]\`, \`STIX20[\"mobile\"]\`, and \`STIX20[\"ics\"]\`"
+            echo "- \`STIX21[\"enterprise\"]\`, \`STIX21[\"mobile\"]\`, and \`STIX21[\"ics\"]\`"
+            echo
+            echo "Verification:"
+            echo
+            echo "- \`uv run --extra dev ruff check scripts/update_release_info.py mitreattack/release_info.py\`"
+            if [[ -n "${SOURCE_REPO}" ]]; then
+              echo
+              echo "Triggered by: \`${SOURCE_REPO}\`"
+            fi
+            if [[ -n "${SOURCE_RELEASE_URL}" ]]; then
+              echo "Source release: ${SOURCE_RELEASE_URL}"
+            fi
+          } > "${body_file}"
+
+          if gh pr view "${branch}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh pr edit "${branch}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "${title}" \
+              --body-file "${body_file}"
+          else
+            gh pr create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base main \
+              --head "${branch}" \
+              --title "${title}" \
+              --body-file "${body_file}"
+          fi
