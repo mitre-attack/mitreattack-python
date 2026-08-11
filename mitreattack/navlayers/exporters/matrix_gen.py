@@ -20,6 +20,10 @@ class MatrixEntry:
     """A Matrix Entry object."""
 
     def __init__(self, id=None, name=None, platforms=None):
+
+        self.__id = None
+        self.__name = None
+
         if platforms is None:
             platforms = []
         if id is not None:
@@ -82,6 +86,11 @@ class Tactic:
     """A Tactic object."""
 
     def __init__(self, tactic=None, techniques=None, subtechniques=None):
+
+        self.__tactic = None
+        self.__techniques = None
+        self.__subtechniques = None
+
         if tactic is not None:
             self.tactic = tactic
         if techniques is not None:
