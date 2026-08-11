@@ -50,6 +50,28 @@ class AttackObjectVersion:
 
 
 @dataclass
+class ReleaseSummaryChangelogEntry:
+    """A changelog transition to include in the release summary."""
+
+    old_version: str
+    new_version: str
+
+
+@dataclass
+class ReleaseSummary:
+    """Configuration for rendering a release summary block in markdown output."""
+
+    version: str
+    version_link: str
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    data_versions: Optional[List[str]] = None
+    changelog_entries: Optional[List[ReleaseSummaryChangelogEntry]] = None
+    data_prefix: str = "https://github.com/mitre/cti/releases/tag/ATT%26CK-v"
+    changelog_prefix: str = ""
+
+
+@dataclass
 class DomainStatistics:
     """Statistics for a single ATT&CK domain."""
 
@@ -117,6 +139,94 @@ class AttackChangesEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
+def parse_release_summary_changelog_pair(changelog_pair: str) -> ReleaseSummaryChangelogEntry:
+    """Parse a release-summary changelog pair string."""
+    parts = changelog_pair.split("-")
+    if len(parts) != 2 or not all(parts):
+        raise ValueError("Each --release-summary-changelog value must be formatted as <old>-<new>, e.g. 10.1-11.0")
+
+    return ReleaseSummaryChangelogEntry(old_version=parts[0], new_version=parts[1])
+
+
+def format_release_summary_version_label(version: str) -> str:
+    """Format the human-readable release summary version label."""
+    version_text = version.strip()
+    if not version_text.lower().startswith("v"):
+        version_text = f"v{version_text}"
+
+    return f"ATT&CK {version_text}"
+
+
+def get_release_summary_version_link(version: str) -> str:
+    """Build the default version page link for a release summary."""
+    version_text = version.strip()
+    if not version_text.lower().startswith("v"):
+        version_text = f"v{version_text}"
+
+    return f"/versions/{version_text}"
+
+
+def format_release_summary_data_label(version: str) -> str:
+    """Format the human-readable label for a CTI data release entry."""
+    version_text = version.strip()
+    if not version_text.lower().startswith("v"):
+        version_text = f"v{version_text}"
+
+    return f"{version_text} on MITRE/CTI"
+
+
+def format_release_summary_changelog_label(old_version: str, new_version: str) -> str:
+    """Format the human-readable label for a changelog transition."""
+    old_text = old_version if old_version.lower().startswith("v") else f"v{old_version}"
+    new_text = new_version if new_version.lower().startswith("v") else f"v{new_version}"
+    return f"{old_text} - {new_text}"
+
+
+def get_release_summary_changelog_base(changelog_prefix: str, old_version: str, new_version: str) -> str:
+    """Build the base path for release-summary changelog links."""
+    old_text = old_version if old_version.lower().startswith("v") else f"v{old_version}"
+    new_text = new_version if new_version.lower().startswith("v") else f"v{new_version}"
+    transition_dir = f"{old_text}-{new_text}"
+    if changelog_prefix:
+        return f"{changelog_prefix.rstrip('/')}/{transition_dir}"
+
+    return transition_dir
+
+
+def build_release_summary(
+    release_summary: bool = False,
+    release_summary_version: Optional[str] = None,
+    release_summary_version_link: Optional[str] = None,
+    release_summary_start_date: Optional[str] = None,
+    release_summary_end_date: Optional[str] = None,
+    release_summary_data_versions: Optional[List[str]] = None,
+    release_summary_changelogs: Optional[List[str]] = None,
+    release_summary_data_prefix: str = "https://github.com/mitre/cti/releases/tag/ATT%26CK-v",
+    release_summary_changelog_prefix: str = "",
+) -> Optional[ReleaseSummary]:
+    """Validate and build release-summary configuration."""
+    if not release_summary:
+        return None
+
+    if not release_summary_version:
+        raise ValueError("release_summary=True requires release_summary_version")
+
+    changelog_entries = []
+    for changelog_pair in release_summary_changelogs or []:
+        changelog_entries.append(parse_release_summary_changelog_pair(changelog_pair))
+
+    return ReleaseSummary(
+        version=release_summary_version,
+        version_link=release_summary_version_link or get_release_summary_version_link(release_summary_version),
+        start_date=release_summary_start_date,
+        end_date=release_summary_end_date,
+        data_versions=release_summary_data_versions or [],
+        changelog_entries=changelog_entries,
+        data_prefix=release_summary_data_prefix,
+        changelog_prefix=release_summary_changelog_prefix,
+    )
+
+
 class DiffStix(object):
     """Utilities for detecting and summarizing differences between two versions of the ATT&CK content."""
 
@@ -132,6 +242,7 @@ class DiffStix(object):
         use_mitre_cti: bool = False,
         verbose: bool = False,
         include_contributors: bool = False,
+        release_summary: Optional[ReleaseSummary] = None,
     ):
         """Construct a new DiffStix object.
 
@@ -157,6 +268,8 @@ class DiffStix(object):
             Print progress bar and status messages to stdout, by default False
         include_contributors : bool, optional
             Include contributor information for new contributors, by default False
+        release_summary : ReleaseSummary, optional
+            Configuration for rendering a release summary section, by default None
         """
         if domains is None:
             domains = ["enterprise-attack", "mobile-attack", "ics-attack"]
@@ -182,6 +295,7 @@ class DiffStix(object):
         self.use_mitre_cti = use_mitre_cti
         self.verbose = verbose
         self.include_contributors = include_contributors
+        self.release_summary = release_summary
 
         self.domain_to_domain_label = {
             "enterprise-attack": "Enterprise",
@@ -1287,15 +1401,80 @@ class DiffStix(object):
 
         return key
 
+    def get_release_summary_section(self) -> str:
+        """Create a release summary section for markdown output."""
+        if not self.release_summary:
+            return ""
+
+        summary = self.release_summary
+        start_date = summary.start_date or "TBD"
+        end_date = summary.end_date or "TBD"
+        changelog_entries = self.get_release_summary_changelog_entries(summary)
+
+        content = "## Release Summary\n\n"
+        content += "**Version**\n"
+        content += f"[{format_release_summary_version_label(summary.version)}]({summary.version_link})\n\n"
+        content += "**Dates**\n"
+        content += f"{start_date} - {end_date}\n\n"
+
+        if summary.data_versions:
+            content += "**Data**\n"
+            for version in summary.data_versions:
+                content += f"- [{format_release_summary_data_label(version)}]({summary.data_prefix}{version})\n"
+            content += "\n"
+
+        if changelog_entries:
+            content += "**Changelogs**\n"
+            for entry in changelog_entries:
+                changelog_base = get_release_summary_changelog_base(
+                    summary.changelog_prefix, entry.old_version, entry.new_version
+                )
+                content += (
+                    f"- {format_release_summary_changelog_label(entry.old_version, entry.new_version)} "
+                    f"[Details]({changelog_base}/changelog-detailed.html) "
+                    f"([JSON]({changelog_base}/changelog.json))\n"
+                )
+            content += "\n"
+
+        return content
+
+    def get_release_summary_changelog_entries(self, summary: ReleaseSummary) -> List[ReleaseSummaryChangelogEntry]:
+        """Return explicit or inferred changelog entries for the release summary."""
+        if summary.changelog_entries:
+            return summary.changelog_entries
+
+        if not summary.data_versions:
+            return []
+
+        old_version = self.get_detected_old_release_version()
+        if not old_version:
+            return []
+
+        entries = []
+        previous_version = old_version
+        for version in summary.data_versions:
+            entries.append(ReleaseSummaryChangelogEntry(old_version=previous_version, new_version=version))
+            previous_version = version
+
+        return entries
+
+    def get_detected_old_release_version(self) -> Optional[str]:
+        """Return the first detected old ATT&CK release version from the loaded domains."""
+        for domain in self.domains:
+            old_version = self.data["old"][domain].get("attack_release_version")
+            if old_version:
+                return old_version
+
+        return None
+
     def get_markdown_string(self) -> str:
         """Return a markdown string summarizing detected differences."""
         logger.info("Generating markdown output")
         content = ""
 
-        # Add contributors if requested by argument
-        if self.include_contributors:
-            content += self.get_contributor_section()
-            content += "\n"
+        release_summary_section = self.get_release_summary_section()
+        if release_summary_section:
+            content += release_summary_section
 
         # Add statistics section for the new version
         logger.info("Generating statistics section")
@@ -1342,6 +1521,12 @@ class DiffStix(object):
             # e.g "techniques"
             if domains != "":
                 content += f"## {self.attack_type_to_title[object_type]}\n\n{domains}"
+
+        if self.include_contributors:
+            if content and not content.endswith("\n\n"):
+                content += "\n"
+            content += self.get_contributor_section()
+            content += "\n"
 
         return content
 
@@ -2309,6 +2494,58 @@ def get_parsed_args():
     parser.set_defaults(contributors=True)
 
     parser.add_argument(
+        "--release-summary",
+        action="store_true",
+        help="Add a release summary section to the markdown output",
+    )
+
+    parser.add_argument(
+        "--release-summary-version",
+        type=str,
+        help="Release version label to use in the summary, e.g. v11",
+    )
+
+    parser.add_argument(
+        "--release-summary-start-date",
+        type=str,
+        help="Optional release summary start date",
+    )
+
+    parser.add_argument(
+        "--release-summary-end-date",
+        type=str,
+        help="Optional release summary end date",
+    )
+
+    parser.add_argument(
+        "--release-summary-data-version",
+        dest="release_summary_data_versions",
+        action="append",
+        help="Repeatable CTI release version to list in the summary, e.g. 11.0",
+    )
+
+    parser.add_argument(
+        "--release-summary-changelog",
+        dest="release_summary_changelogs",
+        action="append",
+        help="Repeatable changelog pair to list in the summary, e.g. 10.1-11.0",
+    )
+
+    parser.add_argument(
+        "--release-summary-data-prefix",
+        type=str,
+        default="https://github.com/mitre/cti/releases/tag/ATT%26CK-v",
+        help="Prefix used to build release-summary MITRE/CTI links",
+    )
+
+    parser.add_argument(
+        "--release-summary-changelog-prefix",
+        type=str,
+        default="",
+        help="Prefix used to build release-summary changelog links",
+    )
+
+    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -2335,6 +2572,15 @@ def get_parsed_args():
         if len(args.layers) not in [0, 3]:
             parser.error("-layers requires exactly three files to be specified or none at all")
 
+    if args.release_summary:
+        if not args.release_summary_version:
+            parser.error("--release-summary requires --release-summary-version")
+        for changelog_pair in args.release_summary_changelogs or []:
+            try:
+                parse_release_summary_changelog_pair(changelog_pair)
+            except ValueError as exc:
+                parser.error(str(exc))
+
     return args
 
 
@@ -2354,6 +2600,15 @@ def get_new_changelog_md(
     html_file_detailed: Optional[str] = None,
     additional_formats_prefix: str = "",
     json_file: Optional[str] = None,
+    release_summary: bool = False,
+    release_summary_version: Optional[str] = None,
+    release_summary_version_link: Optional[str] = None,
+    release_summary_start_date: Optional[str] = None,
+    release_summary_end_date: Optional[str] = None,
+    release_summary_data_versions: Optional[List[str]] = None,
+    release_summary_changelogs: Optional[List[str]] = None,
+    release_summary_data_prefix: str = "https://github.com/mitre/cti/releases/tag/ATT%26CK-v",
+    release_summary_changelog_prefix: str = "",
 ) -> str:
     """Get a Markdown string representation of differences between two ATT&CK versions.
 
@@ -2391,6 +2646,25 @@ def get_new_changelog_md(
         Prefix for detailed HTML links to generated layer and JSON files, by default "".
     json_file : str, optional
         If set, writes JSON file of the changes, by default None
+    release_summary : bool, optional
+        Include a release summary section in markdown output, by default False
+    release_summary_version : str, optional
+        Release version label to use in the summary, e.g. v11, by default None
+    release_summary_version_link : str, optional
+        Link target for the release version label, by default None
+    release_summary_start_date : str, optional
+        Release summary start date, by default None
+    release_summary_end_date : str, optional
+        Release summary end date, by default None
+    release_summary_data_versions : List[str], optional
+        Release data versions to list in the summary, by default None
+    release_summary_changelogs : List[str], optional
+        Changelog transitions to list in the summary, by default None
+    release_summary_data_prefix : str, optional
+        Prefix used to build MITRE/CTI links in the summary, by default
+        "https://github.com/mitre/cti/releases/tag/ATT%26CK-v"
+    release_summary_changelog_prefix : str, optional
+        Prefix used to build changelog links in the summary, by default ""
 
     Returns
     -------
@@ -2411,6 +2685,18 @@ def get_new_changelog_md(
     #     logger.error("When calling get_new_changelog_md(), 'old' is mutually exclusive with 'use_mitre_cti'")
     #     return ""
 
+    release_summary_config = build_release_summary(
+        release_summary=release_summary,
+        release_summary_version=release_summary_version,
+        release_summary_version_link=release_summary_version_link,
+        release_summary_start_date=release_summary_start_date,
+        release_summary_end_date=release_summary_end_date,
+        release_summary_data_versions=release_summary_data_versions,
+        release_summary_changelogs=release_summary_changelogs,
+        release_summary_data_prefix=release_summary_data_prefix,
+        release_summary_changelog_prefix=release_summary_changelog_prefix,
+    )
+
     diffStix = DiffStix(
         domains=domains,
         layers=layers,
@@ -2422,6 +2708,7 @@ def get_new_changelog_md(
         use_mitre_cti=use_mitre_cti,
         verbose=verbose,
         include_contributors=include_contributors,
+        release_summary=release_summary_config,
     )
 
     md_string = diffStix.get_markdown_string()
@@ -2487,6 +2774,14 @@ def main():
         html_file_detailed=args.html_file_detailed,
         additional_formats_prefix=args.additional_formats_prefix,
         json_file=args.json_file,
+        release_summary=args.release_summary,
+        release_summary_version=args.release_summary_version,
+        release_summary_start_date=args.release_summary_start_date,
+        release_summary_end_date=args.release_summary_end_date,
+        release_summary_data_versions=args.release_summary_data_versions,
+        release_summary_changelogs=args.release_summary_changelogs,
+        release_summary_data_prefix=args.release_summary_data_prefix,
+        release_summary_changelog_prefix=args.release_summary_changelog_prefix,
     )
 
 
