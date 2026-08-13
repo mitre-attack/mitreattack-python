@@ -2429,7 +2429,7 @@ def get_new_changelog_md(
     if markdown_file:
         logger.info("Writing markdown to file")
         Path(markdown_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(markdown_file, "w") as file:
+        with open(markdown_file, "w", encoding="utf-8") as file:
             file.write(md_string)
 
     if html_file:
