@@ -230,7 +230,7 @@ def validate_markdown_file_content(file_path: Union[str, Path]) -> str:
     path_obj = Path(file_path)
     assert path_obj.exists(), f"Markdown file should exist at {file_path}"
 
-    content = path_obj.read_text()
+    content = path_obj.read_text(encoding="utf-8")
     assert_basic_markdown_structure(content)
     return content
 
@@ -405,7 +405,7 @@ def validate_comprehensive_output_generation(
 
     # Validate markdown file content matches return value
     if "markdown" in file_paths:
-        file_content = Path(file_paths["markdown"]).read_text()
+        file_content = Path(file_paths["markdown"]).read_text(encoding="utf-8")
         assert file_content == markdown_result, "Markdown file content should match return value"
 
 
