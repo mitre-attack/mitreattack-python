@@ -11,6 +11,7 @@ import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 import markdown
 import requests
@@ -1070,8 +1071,10 @@ class DiffStix(object):
                 )
                 parent_name = parent_object.get("name", "ERROR NO PARENT")
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = f"{revoked_name} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                revoker_name = (
+                    f"[{revoker['name']}]({self.site_prefix}/{relative_url})" if relative_url else revoker["name"]
+                )
+                placard_string = f"{revoked_name} (revoked by {parent_name}: {revoker_name})"
 
             elif revoker["type"] == "x-mitre-data-component":
                 parent_object = self.get_parent_stix_object(
@@ -1079,17 +1082,21 @@ class DiffStix(object):
                 )
                 if parent_object:
                     parent_name = parent_object.get("name", "ERROR NO PARENT")
-                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                    revoker_link = f"{self.site_prefix}/{relative_url}"
-                    placard_string = f"{revoked_name} (revoked by {parent_name}: [{revoker['name']}]({revoker_link}))"
+                    relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=revoker)
+                    revoker_name = (
+                        f"[{revoker['name']}]({self.site_prefix}/{relative_url})" if relative_url else revoker["name"]
+                    )
+                    placard_string = f"{revoked_name} (revoked by {parent_name}: {revoker_name})"
                 else:
                     # No parent datasource available — fall back to a plain-text representation.
                     placard_string = f"{revoked_name} (revoked by {revoker['name']})"
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=revoker)
-                revoker_link = f"{self.site_prefix}/{relative_url}"
-                placard_string = f"{revoked_name} (revoked by [{revoker['name']}]({revoker_link}))"
+                revoker_name = (
+                    f"[{revoker['name']}]({self.site_prefix}/{relative_url})" if relative_url else revoker["name"]
+                )
+                placard_string = f"{revoked_name} (revoked by {revoker_name})"
 
         else:
             if stix_object["type"] == "x-mitre-data-component":
@@ -1098,14 +1105,22 @@ class DiffStix(object):
                 )
                 if parent_object:
                     relative_url = get_relative_data_component_url(datasource=parent_object, datacomponent=stix_object)
-                    placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                    placard_string = (
+                        f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                        if relative_url
+                        else stix_object["name"]
+                    )
                 else:
                     # No parent datasource available — display datacomponent name as plain text.
                     placard_string = stix_object["name"]
 
             else:
                 relative_url = get_relative_url_from_stix(stix_object=stix_object)
-                placard_string = f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                placard_string = (
+                    f"[{stix_object['name']}]({self.site_prefix}/{relative_url})"
+                    if relative_url
+                    else stix_object["name"]
+                )
 
             placard_string = self.prefix_with_parent_name(
                 stix_object=stix_object,
@@ -1704,32 +1719,65 @@ def is_patch_change(old_stix_obj: dict, new_stix_obj: dict) -> bool:
 
 
 def get_relative_url_from_stix(stix_object: dict) -> Optional[str]:
-    """Parse the website url from a stix object.
+    """Get an ATT&CK website path from the object's first external reference.
 
     Parameters
     ----------
     stix_object : dict
-        An ATT&CK STIX Domain Object (SDO).
+        ATT&CK STIX object.
 
     Returns
     -------
     Optional[str]
-        The relative URL for the ATT&CK object.
+        Relative website path, or None if the first reference has no usable ATT&CK URL.
     """
-    is_subtechnique = stix_object["type"] == "attack-pattern" and stix_object.get("x_mitre_is_subtechnique")
+    is_subtechnique = stix_object.get("type") == "attack-pattern" and stix_object.get("x_mitre_is_subtechnique")
 
-    if stix_object.get("external_references"):
-        url = stix_object["external_references"][0]["url"]
-        split_url = url.split("/")
-        splitfrom = -3 if is_subtechnique else -2
-        link = "/".join(split_url[splitfrom:])
-        return link
+    attack_sources = {"mitre-attack", "mitre-mobile-attack", "mitre-ics-attack"}
+    references = stix_object.get("external_references") or []
+    reference = references[0] if references else {}
+    attack_reference = reference.get("source_name") in attack_sources
+    url = reference.get("url") if attack_reference else None
+    if isinstance(url, str):
+        try:
+            parsed = urlsplit(url.strip())
+        except ValueError:
+            parsed = None
+        if parsed and parsed.scheme in {"http", "https"} and parsed.netloc.lower() == "attack.mitre.org":
+            path_parts = parsed.path.strip("/").split("/")
+            required_parts = 3 if is_subtechnique else 2
+            if len(path_parts) >= required_parts and all(path_parts[-required_parts:]):
+                return "/".join(path_parts[-required_parts:])
+
+    stix_id = stix_object.get("id", "unknown")
+    attack_id = (reference.get("external_id") if attack_reference else None) or "unknown"
+    name = stix_object.get("name", "unknown")
+    logger.warning(
+        f"No usable ATT&CK URL for STIX ID {stix_id}, ATT&CK ID {attack_id}, name {name}; "
+        "add a valid attack.mitre.org URL to its ATT&CK external reference"
+    )
     return None
 
 
-def get_relative_data_component_url(datasource: dict, datacomponent: dict) -> str:
-    """Create url of data component with parent data source."""
-    return f"{get_relative_url_from_stix(stix_object=datasource)}/#{'%20'.join(datacomponent['name'].split(' '))}"
+def get_relative_data_component_url(datasource: dict, datacomponent: dict) -> Optional[str]:
+    """Get a data component's website path using its data source URL.
+
+    Parameters
+    ----------
+    datasource : dict
+        Parent ATT&CK data source.
+    datacomponent : dict
+        Data component whose name becomes the URL anchor.
+
+    Returns
+    -------
+    Optional[str]
+        Relative path and component anchor, or None if the data source has no usable ATT&CK URL.
+    """
+    datasource_url = get_relative_url_from_stix(stix_object=datasource)
+    if datasource_url is None:
+        return None
+    return f"{datasource_url}/#{'%20'.join(datacomponent['name'].split(' '))}"
 
 
 def deep_copy_stix(stix_objects: List[dict]) -> List[dict]:
