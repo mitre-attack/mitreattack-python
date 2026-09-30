@@ -1,7 +1,5 @@
 """Markdown fallbacks for ATT&CK objects without website URLs."""
 
-from unittest.mock import patch
-
 import pytest
 
 from mitreattack.diffStix.changelog_helper import get_relative_data_component_url, get_relative_url_from_stix
