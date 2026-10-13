@@ -373,6 +373,14 @@ def datacomponentsToDf(src):
     return dataframes
 
 
+def _data_component_attack_id(data_component):
+    """Return a component's ATT&CK ID, or a blank for missing component metadata."""
+    try:
+        return data_component["external_references"][0]["external_id"] or ""
+    except (KeyError, TypeError, IndexError, AttributeError):
+        return ""
+
+
 def analyticsToDf(src):
     """Parse STIX Analytics from the given data and return corresponding pandas dataframes.
 
@@ -392,6 +400,7 @@ def analyticsToDf(src):
         logsource_rows = []
         analytic_to_ds_rows = []
         failed_by_data_component = {}
+        data_component_attack_ids = {}
 
         # analytics to detection strategies
         analytic_to_ds_map = {}
@@ -405,31 +414,33 @@ def analyticsToDf(src):
                     }
                 )
 
-        # Prints out errors where data components are not in the same domain as analytics
+        # Resolve component IDs, warning when references cannot be resolved in this domain.
         for analytic in tqdm(analytics, desc="parsing analytics"):
             analytic_id = analytic.get("id")
             for logsrc in analytic.get("x_mitre_log_source_references", []):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
-                data_comp = src.get(data_comp_id)
-                try:
-                    data_comp_attack_id = data_comp["external_references"][0]["external_id"]
-                except (KeyError, TypeError, IndexError, AttributeError):
+                data_comp = src.get(data_comp_id) if data_comp_id else None
+                data_component_attack_ids[data_comp_id] = _data_component_attack_id(data_comp)
+                if not data_component_attack_ids[data_comp_id]:
                     if data_comp_id not in failed_by_data_component:
                         failed_by_data_component[data_comp_id] = []
                     failed_by_data_component[data_comp_id].append(analytic_id)
 
         if failed_by_data_component:
-            lines = ["Failures grouped by data component:\n"]
+            lines = [
+                "Unresolved analytic data component references (missing component or ATT&CK ID). "
+                "Continuing Excel export with all analytics; unavailable component metadata will be blank.\n"
+            ]
             for dc_id in sorted(failed_by_data_component):
                 analytic_ids = sorted(set(failed_by_data_component[dc_id]))
-                dc_obj = src.get(dc_id) or {}
+                dc_obj = (src.get(dc_id) if dc_id else None) or {}
                 dc_name = dc_obj.get("name", "")
 
                 lines.append(f"data_component={dc_id}" + (f" ({dc_name})" if dc_name else ""))
                 lines.extend([f"  - analytic={a}" for a in analytic_ids])
                 lines.append("")
 
-            raise RuntimeError("\n".join(lines))
+            logger.warning("\n".join(lines))
 
         for analytic in tqdm(analytics, desc="parsing analytics"):
             analytic_rows.append(parseBaseStix(analytic))
@@ -437,9 +448,9 @@ def analyticsToDf(src):
             # log-source relationship table rows
             for logsrc in analytic.get("x_mitre_log_source_references", []):
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
-                data_comp = src.get(data_comp_id)
+                data_comp = src.get(data_comp_id) if data_comp_id else None
                 data_comp_name = data_comp.get("name", "") if data_comp else ""
-                data_comp_attack_id = data_comp["external_references"][0]["external_id"]
+                data_comp_attack_id = data_component_attack_ids[data_comp_id]
 
                 logsource_rows.append(
                     {
@@ -593,7 +604,7 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
             logsrc_refs = analytic.get("x_mitre_log_source_references", [])
             for logsrc in logsrc_refs:
                 data_comp_id = logsrc.get("x_mitre_data_component_ref", "")
-                data_comp = src.get(data_comp_id)
+                data_comp = src.get(data_comp_id) if data_comp_id else None
 
                 rows.append(
                     {
@@ -607,7 +618,7 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
                         "channel": logsrc.get("channel", ""),
                         "data_component_id": data_comp_id,
                         "data_component_name": (data_comp.get("name", "") if data_comp else ""),
-                        "data_component_attack_id": data_comp["external_references"][0]["external_id"],
+                        "data_component_attack_id": _data_component_attack_id(data_comp),
                     }
                 )
 
