@@ -155,7 +155,7 @@ class TestDiffStixOutputGeneration:
         assert Path(layer_files[0]).exists()
 
         # Verify markdown file content
-        markdown_content = markdown_file.read_text()
+        markdown_content = markdown_file.read_text(encoding="utf-8")
         assert markdown_content == markdown_result
         assert "## Key" in markdown_content
 
