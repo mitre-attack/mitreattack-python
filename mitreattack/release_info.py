@@ -8,7 +8,7 @@ from loguru import logger
 # This file contains SHA256 hashes for officially released ATT&CK versions
 # download_string = f"https://raw.githubusercontent.com/mitre/cti/ATT%26CK-v{release}/{domain}-attack/{domain}-attack.json"
 
-LATEST_VERSION = "20.0"
+LATEST_VERSION = "20.1"
 
 STIX20 = {
     "enterprise": {
@@ -52,6 +52,7 @@ STIX20 = {
         "19.1": "fc783039f17fba646f79448f1322996457c658a9474f6d14c3bc924a2cf1c97d",
         "19.2": "f7eaf37fe53b50404084fe1fe67237278f7317e61c11ad550295722d13ede259",
         "20.0": "66f3fe3f07ef1a2de0bd2fe4b3e8a9ea06c1d0bb2c46171bdbb57c7f7b666524",
+        "20.1": "f92e8ec8b0e6f56fa310063332ba8f7524330ef51286c1b7e5315f4d2ee0b042",
     },
     "mobile": {
         "3.0": "1385d94348054c1c1f7cdc652f0719db353b60c923949b10cbf8a2e815a86eb3",
@@ -97,6 +98,7 @@ STIX20 = {
         "19.1": "f61e0a1d9bc828f95df50463c73e48ea57df5d7b0c2d7982ebfa349409dfb785",
         "19.2": "e69c3886a3c55311f3f08fac2543bf4ee9647dba7106878274b4cc288e2051f8",
         "20.0": "592d4ee8cb2958de20eef65ebd5829753a8dd686f098b237ddeb867558c81faa",
+        "20.1": "53ca78e86e2e19031f80fd32986e2e597c4d3e5afe8c0522e1024237200cb0e2",
     },
     "ics": {
         "8.0": "2e9e9d0d9f0e5d14f64cf2788f46a1a4403bc88ab6ddd419cfcdfe617b0c920d",
@@ -127,6 +129,7 @@ STIX20 = {
         "19.1": "02c991737cba05492e5d17c38643a2f1c1d7e3536bae43fa8d62b02fadcd9c0f",
         "19.2": "8a462b5d0103fba3eb941575bd15f3f7968c1362ac724cb03909415bdd5377c1",
         "20.0": "202328ce7193aa1c1803cbfbf712e81c37a7e9de6c5adc14dd8c11ceb302573e",
+        "20.1": "f687f46ce389958894b9e43628d361f67128badf57761444fbd5cfe484564e43",
     },
     "pre": {
         "3.0": "bc59c1b1398a133cf0adb98e4e28396fdb6a5a2e2353cecb1783c425f066fc94",
@@ -188,6 +191,7 @@ STIX21 = {
         "19.1": "bdf1ce86a4e604214c5076d37ae4dcb322678afc528df8492e6fdc1b554f5da3",
         "19.2": "dc1639caa5501d720e280cf1cbd8fbe009884a0c9b3e6e9ed9d0c25166c3d8f4",
         "20.0": "2339a3c36353d5ee2c07e98af3fafbf00761e0e3979ede06402657445b7b4278",
+        "20.1": "539a843a7b53ed9749740b2123dddae3726b1a4831841c32aca740b011b910b5",
     },
     "mobile": {
         "1.0": "7da1903596bb69ef75a3c2a6c79e80328657bfed9226b2ed400ca18c88e0c1ea",
@@ -232,6 +236,7 @@ STIX21 = {
         "19.1": "423cbceb604770c8997845151fe7cc4813de01033b8cc50c84dd3bd0d96d8322",
         "19.2": "acfa5ca2d93484476f79bf38590e2b55bb675fc0ce85e76bffa0af2c82dada64",
         "20.0": "c7d6c923c1f8462ab1c5db0195d81e2585db9949d574128391c682f229c6695a",
+        "20.1": "632e2ec40848394f9873a7a3485fc32f92b861a4e7271f7e88e0cb02f11bb6af",
     },
     "ics": {
         "8.0": "f3b53ff8d7f0f21f3e48c651edf68353aeb3e07727c32c3e47ef882e3bca10ab",
@@ -262,6 +267,7 @@ STIX21 = {
         "19.1": "a91f659d6d03095e84089630b098edb2ed9d5cd5b1ea41369b27846cd32f2a43",
         "19.2": "08b83d2cea6b6d6752468ef0e62e2ab2a53c9443ef72c439ecccb07ab9e89da9",
         "20.0": "7bffdff9853f04117a607bb5de652140a5724a3a06afc88bdc3faee37103d622",
+        "20.1": "3f6448369f9135ade84ff6437479441530d0b262f910dca991879a7146b524ff",
     },
 }
 
