@@ -809,6 +809,7 @@ def test_enterprise_latest_smoke(tmp_path: Path, memstore_enterprise_latest: sti
 @pytest.mark.parametrize("revoked", [False, True])
 def test_defensive_mappings_cli(tmp_path, revoked):
     """Export active mappings and ignore missing analytics and revoked relationships."""
+
     def obj(kind, name, **fields):
         return {
             "type": kind,
