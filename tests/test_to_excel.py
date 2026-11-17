@@ -1,12 +1,17 @@
 """Tests for ATT&CK to Excel export behavior."""
 
+import csv
+import io
+import json
 from dataclasses import dataclass
 from pathlib import Path
+from uuid import uuid4
 
 import pandas as pd
 import pytest
 import stix2
 from openpyxl import load_workbook
+from typer.testing import CliRunner
 
 from mitreattack.attackToExcel import attackToExcel
 
@@ -799,3 +804,76 @@ def test_enterprise_latest_smoke(tmp_path: Path, memstore_enterprise_latest: sti
     excel_folder = tmp_path / domain
     assert (excel_folder / f"{domain}.xlsx").exists()
     assert (excel_folder / f"{domain}-techniques.xlsx").exists()
+
+
+@pytest.mark.parametrize("revoked", [False, True])
+def test_defensive_mappings_cli(tmp_path, revoked):
+    """Export active mappings and ignore missing analytics and revoked relationships."""
+    def obj(kind, name, **fields):
+        return {
+            "type": kind,
+            "id": f"{kind}--{uuid4()}",
+            "name": name,
+            "created": "2025-01-01T00:00:00.000Z",
+            "modified": "2025-01-01T00:00:00.000Z",
+            **fields,
+        }
+
+    def refs(external_id):
+        return [{"source_name": "mitre-attack", "external_id": external_id}]
+
+    component = obj("x-mitre-data-component", "Events", external_references=refs("DC0001"))
+    analytic = obj(
+        "x-mitre-analytic",
+        "Correlation",
+        external_references=refs("AN0001"),
+        x_mitre_platforms=["Linux"],
+        x_mitre_log_source_references=[
+            {"name": "Local audit", "channel": "events", "x_mitre_data_component_ref": component["id"]}
+        ],
+    )
+    strategy = obj(
+        "x-mitre-detection-strategy",
+        "Coverage",
+        external_references=refs("DET0001"),
+        x_mitre_analytic_refs=[analytic["id"], f"x-mitre-analytic--{uuid4()}"],
+    )
+    technique = stix2.AttackPattern(name="Example", external_references=refs("T0001"))
+    relation = stix2.Relationship(
+        relationship_type="detects",
+        source_ref=strategy["id"],
+        target_ref=technique.id,
+        revoked=revoked,
+        allow_custom=True,
+    )
+    bundle = {
+        "type": "bundle",
+        "id": f"bundle--{uuid4()}",
+        "objects": [component, analytic, strategy, json.loads(technique.serialize()), json.loads(relation.serialize())],
+    }
+    path = tmp_path / "bundle.json"
+    path.write_text(json.dumps(bundle), encoding="utf-8")
+
+    result = CliRunner().invoke(attackToExcel.app, ["defensive-mappings", str(path)])
+    assert result.exit_code == 0, result.exception
+    reader = csv.DictReader(io.StringIO(result.stdout))
+    assert "analytic_attack_id" in reader.fieldnames
+    rows = list(reader)
+    if revoked:
+        assert rows == []
+    else:
+        assert rows == [
+            {
+                "technique_attack_id": "T0001",
+                "technique_id": technique.id,
+                "detection_strategy_attack_id": "DET0001",
+                "detection_strategy_id": strategy["id"],
+                "analytic_attack_id": "AN0001",
+                "analytic_id": analytic["id"],
+                "platforms": "Linux",
+                "log_source_name": "Local audit",
+                "channel": "events",
+                "data_component_attack_id": "DC0001",
+                "data_component_id": component["id"],
+            }
+        ]

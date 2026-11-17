@@ -774,6 +774,16 @@ def _validate_cli_value(value: str, allowed_values: tuple[str, ...], label: str)
     return value
 
 
+@app.command("defensive-mappings")
+def defensive_mappings_cli(
+    stix_file: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+):
+    """Write technique-to-log-source mappings from a local ATT&CK STIX bundle as CSV."""
+    src = MemoryStore()
+    src.load_from_file(str(stix_file))
+    stixToDf.techniqueDetectionLogSourcesDf(src).to_csv(sys.stdout, index=False)
+
+
 @app.command("from-stix")
 def from_stix_cli(
     domain: Annotated[

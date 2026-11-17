@@ -141,3 +141,11 @@ print(citations_df[citations_df["reference"].str.contains("LOLBAS Wmic")])
 #         reference                                           citation                                                url
 # 1010  LOLBAS Wmic  LOLBAS. (n.d.). Wmic.exe. Retrieved July 31, 2...  https://lolbas-project.github.io/lolbas/Binari...
 ```
+
+### Export defensive mappings as CSV
+
+```shell
+attack-to-excel defensive-mappings enterprise-attack.json > defensive-mappings.csv
+```
+
+Each row joins an active technique to a detection strategy, one of its analytics, and a referenced log source or channel. The STIX and ATT&CK identifiers are included for joining with other datasets. Only the relationships declared in the local bundle are exported. Bundles predating detection strategies produce a header with no rows.
