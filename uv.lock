@@ -702,7 +702,7 @@ requires-dist = [
     { name = "colour", specifier = ">=0.1.5" },
     { name = "commitizen", marker = "extra == 'dev'", specifier = ">=4.9.1" },
     { name = "deepdiff", specifier = ">=6.6.0" },
-    { name = "drawsvg", specifier = ">=2.4.0" },
+    { name = "drawsvg", specifier = ">=2.4.0,!=2.5.0" },
     { name = "loguru", specifier = ">=0.6.0" },
     { name = "markdown", specifier = ">=3.5" },
     { name = "numpy", specifier = ">=1.26.1" },
