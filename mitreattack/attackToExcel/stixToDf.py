@@ -598,6 +598,8 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
 
         for analytic_id in ds.get("x_mitre_analytic_refs", []):
             analytic = analytics_by_id.get(analytic_id)
+            if analytic is None:
+                continue
             analytic_attack_id = analytic["external_references"][0]["external_id"]
             platforms = ", ".join(sorted(analytic.get("x_mitre_platforms", [])))
 
@@ -623,6 +625,45 @@ def detectionStrategiesAnalyticsLogSourcesDf(src):
                 )
 
     return pd.DataFrame(rows)
+
+
+def techniqueDetectionLogSourcesDf(src):
+    """Map active techniques to the detection strategies, analytics and log sources referenced by the bundle."""
+    techniques = remove_revoked_deprecated(src.query([Filter("type", "=", "attack-pattern")]))
+    by_id = {
+        technique["id"]: ref["external_id"]
+        for technique in techniques
+        for ref in technique.get("external_references", [])
+        if ref.get("source_name") in MITRE_ATTACK_ID_SOURCE_NAMES and "external_id" in ref
+    }
+    detects = src.query([Filter("type", "=", "relationship"), Filter("relationship_type", "=", "detects")])
+    technique_columns = ["technique_id", "technique_attack_id", "detection_strategy_id"]
+    links = pd.DataFrame.from_records(
+        (
+            (rel["target_ref"], by_id[rel["target_ref"]], rel["source_ref"])
+            for rel in remove_revoked_deprecated(detects)
+            if rel["target_ref"] in by_id
+        ),
+        columns=technique_columns,
+    ).drop_duplicates()
+    log_sources = detectionStrategiesAnalyticsLogSourcesDf(src).rename(columns={"analytic_name": "analytic_attack_id"})
+    # Keep the same CSV schema for bundles with no detection strategies.
+    columns = [
+        "technique_attack_id",
+        "technique_id",
+        "detection_strategy_attack_id",
+        "detection_strategy_id",
+        "analytic_attack_id",
+        "analytic_id",
+        "platforms",
+        "log_source_name",
+        "channel",
+        "data_component_attack_id",
+        "data_component_id",
+    ]
+    if log_sources.empty:
+        return pd.DataFrame(columns=columns)
+    return links.merge(log_sources, on="detection_strategy_id")[columns]
 
 
 def groupsToDf(src):
